@@ -268,6 +268,7 @@ const ButtonsGroup = styled.div`
 `;
 const Header = ({
   onOpenLogin,
+  onOpenRegister,
   onOpenSettings,
   onOpenVip,
   onOpenShop,
@@ -378,6 +379,19 @@ const Header = ({
                 }}
               >
                 Увійти
+              </button>
+              <button
+                onClick={onOpenRegister}
+                style={{
+                  fontSize: "11px",
+                  cursor: "pointer",
+                  background: "none",
+                  border: "none",
+                  textDecoration: "underline",
+                  color: isDarkMode ? "#fff" : "#000",
+                }}
+              >
+                Реєстрація
               </button>
             </>
           )}

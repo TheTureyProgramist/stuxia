@@ -534,8 +534,7 @@ const LyricsModalContent = styled.div`
   max-height: 85vh;
   overflow-y: auto;
   position: relative;
-  animation: ${(props) => (props.$isClosing ? slideOut : slideIn)}
-    forwards;
+  animation: ${(props) => (props.$isClosing ? slideOut : slideIn)} forwards;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
   &::-webkit-scrollbar {
     width: 6px;
@@ -619,9 +618,11 @@ const LyricsContainer = styled.div`
 
 const LyricsLine = styled.p`
   margin: 5px 0;
-  transition: color 0.3s, font-weight 0.3s;
-  color: ${props => props.$active ? 'orange' : '#333'};
-  font-weight: ${props => props.$active ? 'bold' : 'normal'};
+  transition:
+    color 0.3s,
+    font-weight 0.3s;
+  color: ${(props) => (props.$active ? "orange" : "#333")};
+  font-weight: ${(props) => (props.$active ? "bold" : "normal")};
 `;
 
 const InputGroup = styled.div`
@@ -629,8 +630,17 @@ const InputGroup = styled.div`
   display: flex;
   flex-direction: column;
   gap: 5px;
-  label { font-weight: bold; font-size: 12px; color: black; }
-  input { padding: 8px; border-radius: 5px; border: 1px solid #ccc; color: black;}
+  label {
+    font-weight: bold;
+    font-size: 12px;
+    color: black;
+  }
+  input {
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    color: black;
+  }
 `;
 
 const LyricsViewer = ({ lyrics, currentTime }) => {
@@ -646,7 +656,15 @@ const LyricsViewer = ({ lyrics, currentTime }) => {
     return <>{lyrics || "Текст відсутній."}</>;
   }
 
-return <div>{lyrics.map((line, index) => <LyricsLine key={index} $active={index === activeLineIndex}>{line.text}</LyricsLine>)}</div>;
+  return (
+    <div>
+      {lyrics.map((line, index) => (
+        <LyricsLine key={index} $active={index === activeLineIndex}>
+          {line.text}
+        </LyricsLine>
+      ))}
+    </div>
+  );
 };
 
 const MusicCard = ({
@@ -659,8 +677,9 @@ const MusicCard = ({
   onOpenRegister,
   isFavorite,
   onToggleFavorite,
+  onDelete,
 }) => {
-  const { id, image, audio, text } = cardData;
+  const { id, image, audio, text, deezerLink } = cardData;
   const audioRef = useRef(null);
   const videoRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -693,7 +712,8 @@ const MusicCard = ({
             });
         }
       }
-      if (videoRef.current) videoRef.current.play().catch(e => console.log(e));
+      if (videoRef.current)
+        videoRef.current.play().catch((e) => console.log(e));
     } else {
       if (audioRef.current) {
         audioRef.current.pause();
@@ -730,7 +750,9 @@ const MusicCard = ({
 
   const handleCacheAudio = async () => {
     if (!window.caches || !audio) {
-      alert("Кешування не підтримується у вашому браузері або для цього треку.");
+      alert(
+        "Кешування не підтримується у вашому браузері або для цього треку.",
+      );
       return;
     }
     if (!user) {
@@ -803,12 +825,12 @@ const MusicCard = ({
       audioEl.removeEventListener("loadedmetadata", updateBuffered);
     };
   }, []);
- const formatTime = (time) => {
-  if (isNaN(time)) return "0:00";
-  const minutes = Math.floor(time / 60);
-  const seconds = Math.floor(time % 60);
-  return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
-};
+  const formatTime = (time) => {
+    if (isNaN(time)) return "0:00";
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+  };
   const togglePlayPause = () => {
     if (audioRef.current) {
       if (isCurrentTrack) {
@@ -837,7 +859,7 @@ const MusicCard = ({
       newTime = Math.min(duration, audioRef.current.currentTime + seekAmount);
     }
     audioRef.current.currentTime = newTime;
-    if(videoRef.current) videoRef.current.currentTime = newTime;
+    if (videoRef.current) videoRef.current.currentTime = newTime;
   };
 
   const handleDownloadAudio = () => {
@@ -868,8 +890,8 @@ const MusicCard = ({
     }
     const printWindow = window.open("", "_blank");
     printWindow.document.write(
-  `<html><head><title>Print Image</title></head><body style="text-align:center;"><img src="${image}" style="max-width:100%;" onload="window.print();window.close()" /></body></html>`
-);
+      `<html><head><title>Print Image</title></head><body style="text-align:center;"><img src="${image}" style="max-width:100%;" onload="window.print();window.close()" /></body></html>`,
+    );
   };
 
   const toggleMute = () => {
@@ -891,7 +913,10 @@ const MusicCard = ({
 
   const forward = () => {
     if (audioRef.current) {
-      const newTime = Math.min(duration, audioRef.current.currentTime + seekAmount);
+      const newTime = Math.min(
+        duration,
+        audioRef.current.currentTime + seekAmount,
+      );
       audioRef.current.currentTime = newTime;
       if (videoRef.current) videoRef.current.currentTime = newTime;
     }
@@ -901,7 +926,7 @@ const MusicCard = ({
     <CardWrapper $isFavorite={isFavorite}>
       <MusicImageContainer>
         <HeartButton
-           $isFavorite={isFavorite} 
+          $isFavorite={isFavorite}
           onClick={() => onToggleFavorite(id)}
           title={
             isFavorite ? "Прибрати з улюблених" : "Додати в улюблені (ліміт 3)"
@@ -960,7 +985,9 @@ const MusicCard = ({
                 </svg>
               )}
             </PlayButton>
-            <SeekButton onClick={rewind} title={`Назад с`}>-{seekAmount}s</SeekButton>
+            <SeekButton onClick={rewind} title={`Назад с`}>
+              -{seekAmount}s
+            </SeekButton>
             <SeekBar
               type="range"
               min="0"
@@ -969,10 +996,12 @@ const MusicCard = ({
               onChange={(e) => {
                 const val = e.target.value;
                 audioRef.current.currentTime = val;
-                if(videoRef.current) videoRef.current.currentTime = val;
+                if (videoRef.current) videoRef.current.currentTime = val;
               }}
             />
-            <SeekButton onClick={forward} title={`Вперед с`}>+{seekAmount}s</SeekButton>
+            <SeekButton onClick={forward} title={`Вперед с`}>
+              +{seekAmount}s
+            </SeekButton>
             <TimeDisplay>
               {formatTime(currentTime)}/{formatTime(duration)}
               {bufferedTime > currentTime && (
@@ -1038,7 +1067,13 @@ const MusicCard = ({
             <span className="value">{seekAmount}с</span>
           </SliderRow>
 
-          <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
             <LoopButton
               $active={isLooping}
               onClick={() => setIsLooping(!isLooping)}
@@ -1052,7 +1087,11 @@ const MusicCard = ({
                 $cached={isCached}
                 title={isCached ? "Видалити з кешу" : "Зберегти для офлайн"}
               >
-                {isCaching ? "..." : isCached ? "✓ Офлайн" : "↓ Доступ без Wi-Fi"}
+                {isCaching
+                  ? "..."
+                  : isCached
+                    ? "✓ Офлайн"
+                    : "↓ Доступ без Wi-Fi"}
               </OfflineButton>
             )}
           </div>
@@ -1064,18 +1103,47 @@ const MusicCard = ({
       <ActionButtonsContainer>
         {audio && (
           <ActionButton title="Скачати пісню" onClick={handleDownloadAudio}>
-            <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+            <svg viewBox="0 0 24 24">
+              <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+            </svg>
           </ActionButton>
         )}
         <ActionButton title="Скачати зображення" onClick={handleDownloadImage}>
-          <svg viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+          <svg viewBox="0 0 24 24">
+            <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
+          </svg>
         </ActionButton>
         <ActionButton title="Роздрукувати фан-арт" onClick={handlePrint}>
-          <svg viewBox="0 0 24 24"><path d="M19 8h-1V3H6v5H5c-1.66 0-3 1.34-3 3v6h3v4h14v-4h3v-6c0-1.66-1.34-3-3-3zM8 5h8v3H8V5zm8 12v2H8v-4h8v2zm2-2v-2H6v2H4v-4c0-.55.45-1 1-1h14c.55 0 1 .45 1 1v4h-2z"/><circle cx="18" cy="11.5" r="1"/></svg>
+          <svg viewBox="0 0 24 24">
+            <path d="M19 8h-1V3H6v5H5c-1.66 0-3 1.34-3 3v6h3v4h14v-4h3v-6c0-1.66-1.34-3-3-3zM8 5h8v3H8V5zm8 12v2H8v-4h8v2zm2-2v-2H6v2H4v-4c0-.55.45-1 1-1h14c.55 0 1 .45 1 1v4h-2z" />
+            <circle cx="18" cy="11.5" r="1" />
+          </svg>
         </ActionButton>
-        <ActionButton title="Текст пісні" onClick={() => onOpenModal({ ...cardData, audioRef })}>
-          <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+        <ActionButton
+          title="Текст пісні"
+          onClick={() => onOpenModal({ ...cardData, audioRef })}
+        >
+          <svg viewBox="0 0 24 24">
+            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+          </svg>
         </ActionButton>
+        {deezerLink && (
+          <ActionButton
+            title="Слухати на Deezer"
+            onClick={() => window.open(deezerLink, "_blank")}
+          >
+            <svg viewBox="0 0 24 24">
+              <path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z" />
+            </svg>
+          </ActionButton>
+        )}
+        {onDelete && (
+          <ActionButton title="Видалити з плейлиста" onClick={onDelete}>
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+            </svg>
+          </ActionButton>
+        )}
       </ActionButtonsContainer>
     </CardWrapper>
   );
@@ -1149,7 +1217,8 @@ const musicCards = [
     audio: require("../../mp3/horror.mp3"),
     category: "хоррор",
     text: "Ви дивилися моторошне кіно... Хоррор.",
-    lyrics: "Жах ночі. Атмосферні звуки. Хто може страшніше зробити чекаю :) З мене актор ніякий, для такого :).",
+    lyrics:
+      "Жах ночі. Атмосферні звуки. Хто може страшніше зробити чекаю :) З мене актор ніякий, для такого :).",
     duration: 150,
   },
   {
@@ -1233,7 +1302,7 @@ const musicCards = [
     lyrics: "Не скоро.",
     duration: 180,
   },
-    {
+  {
     id: 16,
     image: require("../../photos/vip-images/mechannic.jpg"),
     audio: require("../../mp3/malatkotv-chaptertwo.mp3"),
@@ -1242,7 +1311,7 @@ const musicCards = [
     lyrics: "Не скоро.",
     duration: 180,
   },
-    {
+  {
     id: 17,
     image: require("../../photos/vip-images/mechannic.jpg"),
     audio: require("../../mp3/malatkotv-chapterthree.mp3"),
@@ -1266,7 +1335,8 @@ const musicCards = [
     audio: require("../../mp3/clubstep.mp3"),
     text: "Clubstep - DJ-Nate(GeometryDash).",
     category: "ігри",
-    lyrics: "Текст присутній, але його не можливо розібрати + змісту його немає.",
+    lyrics:
+      "Текст присутній, але його не можливо розібрати + змісту його немає.",
     duration: 160,
   },
   {
@@ -1296,16 +1366,17 @@ const musicCards = [
     lyrics: "Текст відсутній.",
     duration: 140,
   },
-    {
+  {
     id: 23,
     image: require("../../photos/fan-art/theory.jpg"),
     audio: require("../../mp3/theory-of-everyting.mp3"),
     text: "DJ-Nate - Theory of everything(GeometryDash). Ця пісня варта уваги!",
     category: "ігри",
-    lyrics: "Текст присутній, але він для атмосфери: 'Say Down' періодично з відлунням.",
+    lyrics:
+      "Текст присутній, але він для атмосфери: 'Say Down' періодично з відлунням.",
     duration: 140,
   },
-    {
+  {
     id: 24,
     image: require("../../photos/fan-art/unity.jpg"),
     audio: require("../../mp3/unity.mp3"),
@@ -1314,7 +1385,7 @@ const musicCards = [
     category: "хіти",
     duration: 180,
   },
-    {
+  {
     id: 25,
     image: require("../../photos/vip-images/vip-forest.webp"),
     audio: require("../../mp3/calling.mp3"),
@@ -1353,31 +1424,75 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
   const [cover, setCover] = useState(initialData?.cover || "");
   const [tracks, setTracks] = useState(initialData?.tracks || []);
   const [error, setError] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchCooldown, setSearchCooldown] = useState(0);
+  const [isSearching, setIsSearching] = useState(false);
+  const [deezerOffset, setDeezerOffset] = useState(0);
+  const [addCooldown, setAddCooldown] = useState(0);
+  const [progress, setProgress] = useState(0);
+  const [activeProgressId, setActiveProgressId] = useState(null);
 
-  const handleFile = (e, callback) => {
+  const handleFile = (e, callback, progressId = null) => {
     const file = e.target.files[0];
     if (!file) return;
+
+    if (progressId) {
+      setActiveProgressId(progressId);
+      setProgress(0);
+    }
+
     const reader = new FileReader();
-    reader.onload = (ev) => callback(ev.target.result);
+
+    if (progressId) {
+      reader.onprogress = (ev) => {
+        if (ev.lengthComputable) {
+          const percent = Math.round((ev.loaded / ev.total) * 100);
+          setProgress(percent);
+        }
+      };
+    }
+
+    reader.onload = (ev) => {
+      callback(ev.target.result);
+      if (progressId) {
+        setProgress(0);
+        setActiveProgressId(null);
+      }
+    };
     reader.readAsDataURL(file);
   };
 
   const handleAudio = (e, index) => {
     const file = e.target.files[0];
     if (!file) return;
+
+    const progressId = `track-audio-${index}`;
+    setActiveProgressId(progressId);
+    setProgress(0);
+
     const audio = new Audio(URL.createObjectURL(file));
     audio.onloadedmetadata = () => {
-      if (audio.duration > 120) {
-        alert("Тривалість пісні не може перевищувати 2 хвилин!");
+      if (audio.duration > 300) {
+        alert("Тривалість пісні не може перевищувати 5 хвилин!");
         e.target.value = "";
+        setActiveProgressId(null);
+        setProgress(0);
         return;
       }
       const reader = new FileReader();
+      reader.onprogress = (ev) => {
+        if (ev.lengthComputable) {
+          const percent = Math.round((ev.loaded / ev.total) * 100);
+          setProgress(percent);
+        }
+      };
       reader.onload = (ev) => {
         const newTracks = [...tracks];
         newTracks[index].audio = ev.target.result;
         newTracks[index].duration = audio.duration;
         setTracks(newTracks);
+        setActiveProgressId(null);
+        setProgress(0);
       };
       reader.readAsDataURL(file);
     };
@@ -1388,10 +1503,134 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
     newTracks[index][field] = value;
     setTracks(newTracks);
   };
-
+  const calculateTotalSize = () => {
+    return (
+      tracks.reduce(
+        (acc, track) => acc + (track.audioSize || 0) + (track.imageSize || 0),
+        0,
+      ) + (coverSize || 0)
+    );
+  };
   const addTrack = () => {
-    if (tracks.length >= 2) return;
-    setTracks([...tracks, { id: Date.now(), text: "", audio: "", video: "", image: "", duration: 0 }]);
+    if (tracks.length >= 10) return;
+    setTracks([
+      ...tracks,
+      {
+        id: Date.now(),
+        text: "",
+        audio: "",
+        video: "",
+        image: "",
+        duration: 0,
+      },
+    ]);
+  };
+  useEffect(() => {
+    let interval;
+    if (searchCooldown > 0) {
+      interval = setInterval(() => setSearchCooldown((prev) => prev - 1), 1000);
+    }
+    return () => clearInterval(interval);
+  }, [searchCooldown]);
+
+  useEffect(() => {
+    let interval;
+    if (addCooldown > 0) {
+      interval = setInterval(() => setAddCooldown((prev) => prev - 1), 1000);
+    }
+    return () => clearInterval(interval);
+  }, [addCooldown]);
+  const [artistQuery, setArtistQuery] = useState("");
+  const [titleQuery, setTitleQuery] = useState("");
+  const handleSearch = () => {
+    if ((!artistQuery && !titleQuery) || searchCooldown > 0) return;
+    setIsSearching(true);
+    setDeezerOffset(0);
+    fetchDeezerResults(0);
+  };
+
+  const fetchDeezerResults = (offset) => {
+    const callbackName = `deezerJsonp_${Date.now()}`;
+    const script = document.createElement("script");
+    script.src = `https://api.deezer.com/search?q=${encodeURIComponent(
+      `${artistQuery} ${titleQuery}`,
+    )}&output=jsonp&callback=${callbackName}`;
+
+    window[callbackName] = (data) => {
+      setSearchResults(data.data || []);
+      setIsSearching(false);
+      setSearchCooldown(40);
+      delete window[callbackName];
+      document.body.removeChild(script);
+    };
+    script.onerror = () => {
+      setIsSearching(false);
+      setError("Помилка пошуку");
+      delete window[callbackName];
+      document.body.removeChild(script);
+    };
+    document.body.appendChild(script);
+  };
+  const handleLoadMore = () => {
+    if (searchCooldown > 0 || isSearching) return;
+    setIsSearching(true);
+    setSearchCooldown(40);
+    const newOffset = deezerOffset + 25;
+    setDeezerOffset(newOffset);
+    fetchDeezerResults(newOffset);
+  };
+
+  const [coverSize, setCoverSize] = useState(0);
+
+  const handleCoverChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      alert("Обкладинка не може бути більшою за 10мб!");
+      e.target.value = null;
+      return;
+    }
+
+    setCoverSize(file.size);
+    
+    setActiveProgressId('playlist-cover');
+    setProgress(0);
+
+    const reader = new FileReader();
+    reader.onprogress = (ev) => {
+      if (ev.lengthComputable) {
+        const percent = Math.round((ev.loaded / ev.total) * 100);
+        setProgress(percent);
+      }
+    };
+    reader.onload = (ev) => {
+      setCover(ev.target.result);
+      setProgress(0);
+      setActiveProgressId(null);
+    };
+    reader.readAsDataURL(file);
+  };
+  const addDeezerTrack = (track) => {
+    if (tracks.length >= 10) return setError("Максимум 10 пісень!");
+    if (addCooldown > 0)
+      return setError(`Зачекайте ${addCooldown}с перед додаванням.`);
+
+    const trackName = `${track.artist.name} - ${track.title}`;
+    if (tracks.some((t) => t.text === trackName))
+      return setError("Ця пісня вже є в плейлисті!");
+
+    const newTrack = {
+      id: Date.now() + Math.random(),
+      text: trackName,
+      audio: track.preview,
+      video: "",
+      image: track.album.cover_medium,
+      duration: track.duration,
+      deezerLink: track.link,
+    };
+    setTracks([...tracks, newTrack]);
+    setAddCooldown(40);
   };
 
   const removeTrack = (index) => {
@@ -1400,62 +1639,347 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
   };
 
   const handleSave = () => {
-    if (name.length > 12) return setError("Назва плейлисту максимум 12 символів");
+    if (name.length > 12)
+      return setError("Назва плейлисту максимум 12 символів");
     if (!name) return setError("Введіть назву плейлисту");
     if (tracks.length === 0) return setError("Додайте хоча б одну пісню");
-    if (tracks.some(t => !t.audio || !t.text)) return setError("Заповніть дані пісень");
+    if (calculateTotalSize() > 100 * 1024 * 1024)
+      return setError("Перевищено ліміт 100мб!");
+    if (tracks.some((t) => !t.audio || !t.text))
+      return setError("Заповніть дані пісень");
     onSave({ name, cover, tracks });
   };
 
   return (
     <ModalOverlay onClick={onClose}>
-      <LyricsModalContent onClick={e => e.stopPropagation()} style={{ maxWidth: '500px' }}>
-        <h3 style={{color: 'black', textAlign: 'center'}}>Створити плейлист</h3>
+      <LyricsModalContent
+        onClick={(e) => e.stopPropagation()}
+        style={{ maxWidth: "500px" }}
+      >
+        <h3 style={{ color: "black", textAlign: "center" }}>
+          Створити плейлист
+        </h3>
         <InputGroup>
-            <label>Назва (макс 12)</label>
-            <input value={name} onChange={e => setName(e.target.value)} maxLength={12} />
+          <label>Назва (макс 12)</label>
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            maxLength={12}
+          />
         </InputGroup>
         <InputGroup>
-            <label>Обкладинка плейлисту</label>
-            <input type="file" accept="image/*" onChange={e => handleFile(e, setCover)} />
-        </InputGroup>
-        {cover && <img src={cover} alt="Cover" style={{width: 100, height: 100, objectFit: 'cover'}} />}
-        
-        <h4 style={{color: 'black', margin: '10px 0'}}>Пісні ({tracks.length}/2)</h4>
-        {tracks.map((track, i) => (
-            <div key={track.id} style={{background: '#f0f0f0', padding: 10, borderRadius: 5, marginBottom: 10}}>
-                <InputGroup>
-                    <label>Назва</label>
-                    <input value={track.text} onChange={e => updateTrack(i, 'text', e.target.value)} />
-                </InputGroup>
-                <InputGroup>
-                    <label>Аудіо (макс 2хв)</label>
-                    <input type="file" accept="audio/*" onChange={e => handleAudio(e, i)} />
-                </InputGroup>
-                <InputGroup>
-                    <label>Відео (для програвання)</label>
-                    <input type="file" accept="video/*" onChange={e => handleFile(e, (res) => updateTrack(i, 'video', res))} />
-                </InputGroup>
-                <InputGroup>
-                    <label>Зображення пісні</label>
-                    <input type="file" accept="image/*" onChange={e => handleFile(e, (res) => updateTrack(i, 'image', res))} />
-                </InputGroup>
-                <button onClick={() => removeTrack(i)} style={{background: 'red', color: 'white', border: 'none', borderRadius: 5, padding: 5}}>Видалити</button>
+          <label>Обкладинка плейлисту (макс 10мб)</label>
+          <input type="file" accept="image/*" onChange={handleCoverChange} />
+          {activeProgressId === 'playlist-cover' && (
+            <div style={{width: '100%', height: '5px', background: '#ddd', marginTop: '5px', borderRadius: '3px'}}>
+              <div style={{height: '100%', background: 'orange', width: `${progress}%`, transition: 'width 0.2s'}}></div>
             </div>
+          )}
+        </InputGroup>
+        {cover && (
+          <img
+            src={cover}
+            alt="Cover"
+            style={{ width: 100, height: 100, objectFit: "cover" }}
+          />
+        )}
+
+        <div
+          style={{
+            margin: "15px 0",
+            borderTop: "1px solid #ccc",
+            paddingTop: "10px",
+          }}
+        >
+          <h4 style={{ color: "black", margin: "0 0 10px 0" }}>
+            Пошук пісень (Deezer)
+          </h4>
+          <p style={{ fontSize: '11px', color: 'grey', margin: '-5px 0 10px 0' }}>
+            Примітка: можна додати лише скорочену версію (30с), повна версія доступна на офіційному сайті Deezer.
+          </p>
+          <div
+            style={{ display: "flex", gap: "10px", marginBottom: "10px", alignItems: 'center' }}
+          >
+            <input
+              value={artistQuery}
+              onChange={(e) => setArtistQuery(e.target.value)}
+              placeholder="Виконавець..."
+              style={{
+                flex: 1,
+                padding: "5px",
+                borderRadius: "5px",
+                border: "1px solid #ccc",
+                color: "black",
+              }}
+            />
+            <input
+              value={titleQuery}
+              onChange={(e) => setTitleQuery(e.target.value)}
+              placeholder="Назва пісні..."
+              style={{
+                flex: 1,
+                padding: "5px",
+                borderRadius: "5px",
+                border: "1px solid #ccc",
+                color: "black",
+              }}
+            />
+            <button
+              onClick={handleSearch}
+              disabled={searchCooldown > 0 || isSearching}
+              style={{
+                background: searchCooldown > 0 ? "grey" : "blue",
+                color: "white",
+                border: "none",
+                borderRadius: "5px",
+                padding: "5px 10px",
+                cursor: searchCooldown > 0 ? "default" : "pointer",
+              }}
+            >
+              {isSearching
+                ? "..."
+                : searchCooldown > 0
+                  ? `${searchCooldown}s`
+                  : "Пошук"}
+            </button>
+          </div>
+          <div style={{ display: "flex", gap: "10px" }}></div>
+          {searchResults.length > 0 && (
+            <div
+              style={{
+                maxHeight: "150px",
+                overflowY: "auto",
+                marginTop: "10px",
+                border: "1px solid #ddd",
+                borderRadius: "5px",
+              }}
+            >
+              {searchResults.map((track) => (
+                <div
+                  key={track.id}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    padding: "5px",
+                    borderBottom: "1px solid #eee",
+                    gap: "10px",
+                  }}
+                >
+                  <img
+                    src={track.album.cover_small}
+                    alt="art"
+                    style={{
+                      width: "30px",
+                      height: "30px",
+                      borderRadius: "3px",
+                    }}
+                  />
+                  <div
+                    style={{
+                      flex: 1,
+                      fontSize: "12px",
+                      color: "#333",
+                      overflow: "hidden",
+                      whiteSpace: "nowrap",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {track.artist.name} - {track.title}
+                  </div>
+                  <button
+                    onClick={() => addDeezerTrack(track)}
+                    style={{
+                      background: "green",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "3px",
+                      padding: "2px 8px",
+                      cursor: "pointer",
+                      fontSize: "10px",
+                    }}
+                  >
+                    +
+                  </button>
+                  <button
+                    onClick={() => window.open(track.link, '_blank')}
+                    style={{
+                      background: 'blue',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '3px',
+                      padding: '2px 8px',
+                      cursor: 'pointer',
+                      fontSize: '10px',
+                      marginLeft: '5px',
+                    }}
+                    title="Повна версія"
+                  >
+                    Full
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+          {searchResults.length > 0 && (
+            <button
+              onClick={handleLoadMore}
+              disabled={searchCooldown > 0 || isSearching}
+              style={{
+                background: searchCooldown > 0 ? "grey" : "green",
+                color: "white",
+                border: "none",
+                borderRadius: "5px",
+                padding: "8px 15px",
+                cursor: searchCooldown > 0 ? "default" : "pointer",
+                marginTop: "10px",
+              }}
+            >
+              {isSearching
+                ? "..."
+                : searchCooldown > 0
+                  ? `${searchCooldown}s`
+                  : "Завантажити ще"}
+            </button>
+          )}
+        </div>
+
+        <h4 style={{ color: "black", margin: "10px 0" }}>
+          Пісні ({tracks.length}/10)
+        </h4>
+        {tracks.map((track, i) => (
+          <div
+            key={track.id}
+            style={{
+              background: "#f0f0f0",
+              padding: 10,
+              borderRadius: 5,
+              marginBottom: 10,
+            }}
+          >
+            <InputGroup>
+              <label>Назва</label>
+              <input
+                value={track.text}
+                onChange={(e) => updateTrack(i, "text", e.target.value)}
+              />
+            </InputGroup>
+            <InputGroup>
+              <label>Аудіо (макс 5хв)</label>
+              {track.audio && (track.audio.startsWith('http') || track.audio.startsWith('data:')) ? (
+                <div>
+                  <audio controls src={track.audio} style={{width: '100%'}} />
+                  <button type="button" onClick={() => updateTrack(i, 'audio', '')} style={{marginTop: '5px', cursor: 'pointer'}}>Видалити аудіо</button>
+                </div>
+              ) : (
+                <input
+                  type="file"
+                  accept="audio/*"
+                  onChange={(e) => handleAudio(e, i)}
+                />
+              )}
+              {activeProgressId === `track-audio-${i}` && (
+                 <div style={{width: '100%', height: '5px', background: '#ddd', marginTop: '5px', borderRadius: '3px'}}>
+                   <div style={{height: '100%', background: 'orange', width: `${progress}%`, transition: 'width 0.2s'}}></div>
+                 </div>
+              )}
+            </InputGroup>
+            <InputGroup>
+              <label>Зображення пісні</label>
+              {track.image && (track.image.startsWith('http') || track.image.startsWith('data:')) ? (
+                <div>
+                  <img src={track.image} alt="Обкладинка" style={{width: '100px', height: '100px', objectFit: 'cover', borderRadius: '5px'}} />
+                  <button type="button" onClick={() => updateTrack(i, 'image', '')} style={{display: 'block', marginTop: '5px', cursor: 'pointer'}}>Видалити обкладинку</button>
+                </div>
+              ) : (
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) =>
+                    handleFile(e, (res) => updateTrack(i, "image", res), `track-image-${i}`)
+                  }
+                />
+              )}
+              {activeProgressId === `track-image-${i}` && (
+                 <div style={{width: '100%', height: '5px', background: '#ddd', marginTop: '5px', borderRadius: '3px'}}>
+                   <div style={{height: '100%', background: 'orange', width: `${progress}%`, transition: 'width 0.2s'}}></div>
+                 </div>
+              )}
+            </InputGroup>
+            <button
+              onClick={() => removeTrack(i)}
+              style={{
+                background: "red",
+                color: "white",
+                border: "none",
+                borderRadius: 5,
+                padding: 5,
+              }}
+            >
+              Видалити
+            </button>
+          </div>
         ))}
-        {tracks.length < 2 && <button onClick={addTrack} style={{background: 'orange', color: 'white', border: 'none', borderRadius: 5, padding: '5px 10px', marginBottom: 10}}>+ Додати пісню</button>}
-        
-        {error && <p style={{color: 'red'}}>{error}</p>}
-        <div style={{display: 'flex', gap: 10, justifyContent: 'center'}}>
-            <button onClick={handleSave} style={{background: 'green', color: 'white', border: 'none', borderRadius: 5, padding: '10px 20px'}}>Зберегти</button>
-            <button onClick={onClose} style={{background: 'grey', color: 'white', border: 'none', borderRadius: 5, padding: '10px 20px'}}>Скасувати</button>
+        {tracks.length < 10 && (
+          <button
+            onClick={addTrack}
+            disabled={addCooldown > 0}
+            style={{
+              background: addCooldown > 0 ? "grey" : "orange",
+              color: "white",
+              border: "none",
+              borderRadius: 5,
+              padding: "5px 10px",
+              marginBottom: 10,
+            }}
+          >
+            {addCooldown > 0
+              ? `Зачекайте ${addCooldown}s`
+              : "+ Додати пісню вручну"}
+          </button>
+        )}
+
+        {error && <p style={{ color: "red" }}>{error}</p>}
+        <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+          <button
+            onClick={handleSave}
+            style={{
+              background: "green",
+              color: "white",
+              border: "none",
+              borderRadius: 5,
+              padding: "10px 20px",
+            }}
+          >
+            Зберегти
+          </button>
+          <button
+            onClick={onClose}
+            style={{
+              background: "grey",
+              color: "white",
+              border: "none",
+              borderRadius: 5,
+              padding: "10px 20px",
+            }}
+          >
+            Скасувати
+          </button>
         </div>
       </LyricsModalContent>
     </ModalOverlay>
   );
 };
 
-const PlaylistModal = ({ playlistKey, onClose, user, onOpenRegister, customTracks }) => {
+const PlaylistModal = ({
+  playlistKey,
+  onClose,
+  user,
+  onOpenRegister,
+  customTracks,
+  onEdit,
+  onDeleteTrack,
+  customPlaylistName,
+}) => {
   const [visibleCount, setVisibleCount] = useState(8);
   const [lyricsModalData, setLyricsModalData] = useState(null);
   const [activeTrackId, setActiveTrackId] = useState(null);
@@ -1503,29 +2027,36 @@ const PlaylistModal = ({ playlistKey, onClose, user, onOpenRegister, customTrack
   const [lyricsCurrentTime, setLyricsCurrentTime] = useState(0);
 
   useEffect(() => {
-    if (lyricsModalData && lyricsModalData.audioRef && lyricsModalData.audioRef.current) {
+    if (
+      lyricsModalData &&
+      lyricsModalData.audioRef &&
+      lyricsModalData.audioRef.current
+    ) {
       const audioEl = lyricsModalData.audioRef.current;
       const handleTimeUpdate = () => {
         setLyricsCurrentTime(audioEl.currentTime);
       };
-      audioEl.addEventListener('timeupdate', handleTimeUpdate);
-      handleTimeUpdate(); // Set initial time
+      audioEl.addEventListener("timeupdate", handleTimeUpdate);
+      handleTimeUpdate();
       return () => {
-        if (audioEl) audioEl.removeEventListener('timeupdate', handleTimeUpdate);
+        if (audioEl)
+          audioEl.removeEventListener("timeupdate", handleTimeUpdate);
       };
     }
   }, [lyricsModalData]);
 
   const processedCards = useMemo(() => {
     let filtered;
-    if (playlistKey === 'custom' && customTracks) {
-        filtered = customTracks.filter(card => card.text.toLowerCase().includes(searchQuery.toLowerCase()));
+    if (playlistKey === "custom" && customTracks) {
+      filtered = customTracks.filter((card) =>
+        card.text.toLowerCase().includes(searchQuery.toLowerCase()),
+      );
     } else {
-        filtered = musicCards.filter(
-          (card) =>
-            card.category === playlistKey &&
-            card.text.toLowerCase().includes(searchQuery.toLowerCase()),
-        );
+      filtered = musicCards.filter(
+        (card) =>
+          card.category === playlistKey &&
+          card.text.toLowerCase().includes(searchQuery.toLowerCase()),
+      );
     }
 
     if (sortOption === "favorites") {
@@ -1541,9 +2072,13 @@ const PlaylistModal = ({ playlistKey, onClose, user, onOpenRegister, customTrack
     } else if (sortOption === "name_desc") {
       return [...filtered].sort((a, b) => b.text.localeCompare(a.text));
     } else if (sortOption === "duration_asc") {
-      return [...filtered].sort((a, b) => (a.duration || 0) - (b.duration || 0));
+      return [...filtered].sort(
+        (a, b) => (a.duration || 0) - (b.duration || 0),
+      );
     } else if (sortOption === "duration_desc") {
-      return [...filtered].sort((a, b) => (b.duration || 0) - (a.duration || 0));
+      return [...filtered].sort(
+        (a, b) => (b.duration || 0) - (a.duration || 0),
+      );
     }
     return filtered;
   }, [playlistKey, searchQuery, favorites, sortOption, customTracks]);
@@ -1583,17 +2118,38 @@ const PlaylistModal = ({ playlistKey, onClose, user, onOpenRegister, customTrack
     setTimeout(onClose, 500);
   };
 
-  const playlistTitle = playlistKey === 'custom' ? 'Мій Плейлист' : PLAYLISTS[playlistKey].title;
+  const playlistTitle = playlistKey === "custom" ? customPlaylistName || "Мій Плейлист" : PLAYLISTS[playlistKey].title;
+  const tracksToShow = playlistKey === 'custom' ? customTracks : processedCards;
 
   return (
     <ModalOverlay $isClosing={isClosing} onClick={handleClose}>
       <PlaylistModalContent
-        $isClosing={isClosing} onClick={(e) => e.stopPropagation()}
+        $isClosing={isClosing}
+        onClick={(e) => e.stopPropagation()}
       >
         <PlaylistCloseButton onClick={handleClose}>&times;</PlaylistCloseButton>
         <h2 style={{ textAlign: "center", color: "#333" }}>
           {playlistTitle}
+          {playlistKey === 'custom' && ` (${tracksToShow?.length || 0}/10)`}
         </h2>
+        {onEdit && (
+          <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+            <button
+              onClick={onEdit}
+              style={{
+                background: 'orange',
+                color: 'white',
+                border: 'none',
+                borderRadius: '20px',
+                padding: '10px 20px',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+              }}
+            >
+              Редагувати
+            </button>
+          </div>
+        )}
         <ControlsContainer>
           <SearchInput
             type="text"
@@ -1612,7 +2168,8 @@ const PlaylistModal = ({ playlistKey, onClose, user, onOpenRegister, customTrack
             <option value="duration_desc">Тривалість (макс-мін)</option>
           </SortSelect>
           <ShuffleButton
-            $active={isShuffle} onClick={() => setIsShuffle(!isShuffle)}
+            $active={isShuffle}
+            onClick={() => setIsShuffle(!isShuffle)}
             title="Випадковий порядок"
           >
             🔀
@@ -1633,6 +2190,7 @@ const PlaylistModal = ({ playlistKey, onClose, user, onOpenRegister, customTrack
               activeTrackId={activeTrackId}
               onPlay={setActiveTrackId}
               onTrackEnd={handleTrackEnd}
+              onDelete={onDeleteTrack ? () => onDeleteTrack(card.id) : null}
             />
           ))}
         </MusicPhotoFix>
@@ -1653,10 +2211,12 @@ const PlaylistModal = ({ playlistKey, onClose, user, onOpenRegister, customTrack
 
         {lyricsModalData && (
           <ModalOverlay
-            $isClosing={isLyricsClosing} onClick={handleCloseLyricsModal}
+            $isClosing={isLyricsClosing}
+            onClick={handleCloseLyricsModal}
           >
             <LyricsModalContent
-              $isClosing={isLyricsClosing} onClick={handleCloseLyricsModal}
+              $isClosing={isLyricsClosing}
+              onClick={handleCloseLyricsModal}
             >
               <LyricsCloseButton onClick={handleCloseLyricsModal}>
                 &times;
@@ -1681,7 +2241,10 @@ const PlaylistModal = ({ playlistKey, onClose, user, onOpenRegister, customTrack
                 Текст пісні:
               </h4>
               <LyricsContainer>
-                <LyricsViewer lyrics={lyricsModalData.lyrics} currentTime={lyricsCurrentTime} />
+                <LyricsViewer
+                  lyrics={lyricsModalData.lyrics}
+                  currentTime={lyricsCurrentTime}
+                />
               </LyricsContainer>
             </LyricsModalContent>
           </ModalOverlay>
@@ -1695,8 +2258,8 @@ const PlaylistCover = ({ playlistKey, defaultImage, customImage }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const images = useMemo(() => {
-    if (playlistKey === 'custom') {
-        return [customImage || defaultImage];
+    if (playlistKey === "custom") {
+      return [customImage || defaultImage];
     }
     const cards = musicCards.filter((c) => c.category === playlistKey);
     return cards.length > 0 ? cards.map((c) => c.image) : [defaultImage];
@@ -1739,22 +2302,35 @@ const MusicPhoto = ({ user, onOpenRegister }) => {
     return saved ? JSON.parse(saved) : null;
   });
 
+  const deleteTrackFromCustomPlaylist = (trackId) => {
+    if (!customPlaylist) return;
+    const updatedTracks = customPlaylist.tracks.filter((t) => t.id !== trackId);
+    const updatedPlaylist = { ...customPlaylist, tracks: updatedTracks };
+    setCustomPlaylist(updatedPlaylist);
+    localStorage.setItem("custom_playlist", JSON.stringify(updatedPlaylist));
+  };
+
+  const handleEditCustomPlaylist = () => {
+    setCurrentPlaylist(null);
+    setShowCreateModal(true);
+  };
+
   const handleClosePlaylist = () => {
     setCurrentPlaylist(null);
   };
 
   const saveCustomPlaylist = (data) => {
-      try {
-        setCustomPlaylist(data);
-        localStorage.setItem("custom_playlist", JSON.stringify(data));
-        setShowCreateModal(false);
-      } catch (e) {
-          alert("Помилка збереження! Можливо, файли занадто великі.");
-      }
+    try {
+      setCustomPlaylist(data);
+      localStorage.setItem("custom_playlist", JSON.stringify(data));
+      setShowCreateModal(false);
+    } catch (e) {
+      alert("Помилка збереження! Можливо, файли занадто великі.");
+    }
   };
 
   const openCustomPlaylist = () => {
-      setCurrentPlaylist('custom');
+    setCurrentPlaylist("custom");
   };
 
   return (
@@ -1771,25 +2347,52 @@ const MusicPhoto = ({ user, onOpenRegister }) => {
           </PlaylistCard>
         ))}
         {customPlaylist ? (
-            <PlaylistCard onClick={openCustomPlaylist}>
-                <PlaylistCover playlistKey="custom" customImage={customPlaylist.cover} defaultImage={require("../../photos/vip-images/mechannic.jpg")} />
-                <PlaylistTitle>{customPlaylist.name}</PlaylistTitle>
-                <button onClick={(e) => { e.stopPropagation(); setShowCreateModal(true); }} style={{background: 'orange', border: 'none', padding: 5, borderRadius: 5, cursor: 'pointer', marginBottom: 5}}>Редагувати</button>
-            </PlaylistCard>
+          <PlaylistCard onClick={openCustomPlaylist}>
+            <PlaylistCover
+              playlistKey="custom"
+              customImage={customPlaylist.cover}
+              defaultImage={require("../../photos/vip-images/mechannic.jpg")}
+            />
+            <PlaylistTitle>{customPlaylist.name}</PlaylistTitle>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowCreateModal(true);
+              }}
+              style={{
+                background: "orange",
+                border: "none",
+                padding: 5,
+                borderRadius: 5,
+                cursor: "pointer",
+                marginBottom: 5,
+              }}
+            >
+              Редагувати
+            </button>
+          </PlaylistCard>
         ) : (
-            <PlaylistCard onClick={() => setShowCreateModal(true)} style={{display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f0f0f0'}}>
-                <div style={{fontSize: 50, color: '#ccc'}}>+</div>
-                <div style={{color: '#aaa'}}>Створити плейлист</div>
-            </PlaylistCard>
+          <PlaylistCard
+            onClick={() => setShowCreateModal(true)}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              background: "#f0f0f0",
+            }}
+          >
+            <div style={{ fontSize: 50, color: "#ccc" }}>+</div>
+            <div style={{ color: "#aaa" }}>Створити плейлист</div>
+          </PlaylistCard>
         )}
       </PlaylistGrid>
 
       {showCreateModal && (
-          <CreatePlaylistModal 
-            onClose={() => setShowCreateModal(false)} 
-            onSave={saveCustomPlaylist}
-            initialData={customPlaylist}
-          />
+        <CreatePlaylistModal
+          onClose={() => setShowCreateModal(false)}
+          onSave={saveCustomPlaylist}
+          initialData={customPlaylist}
+        />
       )}
 
       {currentPlaylist && (
@@ -1798,11 +2401,19 @@ const MusicPhoto = ({ user, onOpenRegister }) => {
           onClose={handleClosePlaylist}
           user={user}
           onOpenRegister={onOpenRegister}
-          customTracks={currentPlaylist === 'custom' ? customPlaylist?.tracks : null}
+          customTracks={
+            currentPlaylist === "custom" ? customPlaylist?.tracks : null
+          }
+          onEdit={
+            currentPlaylist === "custom" ? handleEditCustomPlaylist : null
+          }
+          onDeleteTrack={
+            currentPlaylist === "custom" ? deleteTrackFromCustomPlaylist : null
+          }
+          customPlaylistName={currentPlaylist === "custom" ? customPlaylist?.name : null}
         />
       )}
     </MusicPhotoDiv>
   );
 };
-
 export default MusicPhoto;

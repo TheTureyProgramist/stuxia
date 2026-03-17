@@ -204,7 +204,7 @@ const ActionButton = styled.button`
   background: #ffb36c;
   border: none;
   border-radius: 8px;
-  padding: 8px 60px;
+  padding: 8px 25px;
   cursor: pointer;
   font-size: 16px;
   transition: background 0.2s;
@@ -299,8 +299,6 @@ const FanArt = ({ isDarkMode, user, onOpenRegister }) => {
     { src: turkeys, category: "тварини" },
     { src: nicerone, category: "мультиплікація" },
   ];
-
-  // Combine static and custom images
   const combinedImages = [...allImagesData, ...customImages];
 
   useEffect(() => {

@@ -441,6 +441,10 @@ const Modal = ({ onClose, onRegister, availableAvatars = [] }) => {
     ) {
       return setError("Заповніть всі поля!");
     }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.account)) {
+      return setError("Невірний формат Gmail!");
+    }
     if (isInvalidDate) return setError("Такої дати не існує!");
     if (formData.password !== formData.confirmPassword)
       return setError("Паролі не співпадають!");
@@ -453,11 +457,16 @@ const Modal = ({ onClose, onRegister, availableAvatars = [] }) => {
     );
     if (age < 13) return setError("Реєстрація дозволена лише з 13 років!");
 
+    const existingUser = JSON.parse(localStorage.getItem("registered_user"));
+    if (existingUser && existingUser.account === formData.account) {
+      return setError("Акаунт з таким Gmail вже існує!");
+    }
+
     setShowKatScene(true);
   };
 
   const completeRegistration = () => {
-    onRegister({
+    const registrationData = {
       account: formData.account,
       firstName: formData.firstName,
       password: formData.password,
@@ -465,7 +474,9 @@ const Modal = ({ onClose, onRegister, availableAvatars = [] }) => {
       textColor: formData.textColor,
       borderColor: formData.borderColor,
       birthDate: `${birthDate.year}-${birthDate.month.padStart(2, "0")}-${birthDate.day.padStart(2, "0")}`,
-    });
+    };
+    localStorage.setItem("registered_user", JSON.stringify(registrationData));
+    onRegister(registrationData);
   };
 
   return (
@@ -479,6 +490,7 @@ const Modal = ({ onClose, onRegister, availableAvatars = [] }) => {
             <Title>Реєстрація</Title>
 
             <Input
+              type="email"
               placeholder="Gmail"
               onChange={(e) =>
                 setFormData({ ...formData, account: e.target.value })
