@@ -1740,7 +1740,7 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
                 ? "..."
                 : searchCooldown > 0
                   ? `${searchCooldown}s`
-                  : "Пошук"}
+                  : " ⌕"}
             </button>
           </div>
           <div style={{ display: "flex", gap: "10px" }}></div>

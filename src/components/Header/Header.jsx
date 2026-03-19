@@ -266,6 +266,56 @@ const ButtonsGroup = styled.div`
     gap: 25px; 
   }
 `;
+
+const VisualSettingsPanel = styled.div`
+  position: absolute;
+  top: 52px;
+  right: 10px;
+  background: ${(props) => (props.$isDarkMode ? "rgba(18, 18, 18, 0.95)" : "rgba(255, 255, 255, 0.95)")};
+  border: 1px solid ${(props) => (props.$isDarkMode ? "#444" : "#ddd")};
+  backdrop-filter: blur(5px);
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  z-index: 2000;
+  width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  
+  @media (min-width: 768px) {
+    top: 85px;
+    width: 280px;
+    right: 20px;
+  }
+  @media (min-width: 1920px) {
+    top: 135px;
+    width: 400px;
+    padding: 25px;
+  }
+`;
+
+const VisualLabel = styled.label`
+  font-size: 11px;
+  font-weight: bold;
+  color: ${(props) => (props.$isDarkMode ? "#fff" : "#333")};
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+  @media (min-width: 768px) {
+    font-size: 14px;
+  }
+  @media (min-width: 1920px) {
+    font-size: 24px;
+  }
+`;
+
+const VisualRange = styled.input`
+  width: 100%;
+  cursor: pointer;
+  accent-color: ${(props) => (props.$isDarkMode ? "#ffb36c" : "#007bff")};
+`;
+
 const Header = ({
   onOpenLogin,
   onOpenRegister,
@@ -288,6 +338,22 @@ const Header = ({
   const [showUltra, setShowUltra] = useState(false);
   const [isUserSearchOpen, setIsUserSearchOpen] = useState(false);
   const [isBurgerOpen, setIsBurgerOpen] = useState(false);
+  const [showVisualSettings, setShowVisualSettings] = useState(false);
+  const [visualConfig, setVisualConfig] = useState(() => {
+    try {
+      const saved = localStorage.getItem("visualConfig");
+      return saved ? JSON.parse(saved) : { darkIntensity: 0, bwIntensity: 0 };
+    } catch {
+      return { darkIntensity: 0, bwIntensity: 0 };
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem("visualConfig", JSON.stringify(visualConfig));
+    const grayscale = visualConfig.bwIntensity;
+    const brightness = 100 - (visualConfig.darkIntensity * 0.6);
+    document.documentElement.style.filter = `grayscale(${grayscale}%) brightness(${brightness}%)`;
+  }, [visualConfig]);
 
   useEffect(() => {
     const interval = setInterval(() => setShowUltra((prev) => !prev), 3000);
@@ -321,6 +387,14 @@ const Header = ({
                   $isDarkMode={isDarkMode}
                 >
                   <EmojiWrapper>{isDarkMode ? "☀️" : "🌑"}</EmojiWrapper>
+                </IconButton>
+
+                <IconButton
+                  onClick={() => setShowVisualSettings(!showVisualSettings)}
+                  $isDarkMode={isDarkMode}
+                  title="Налаштування вигляду"
+                >
+                  <EmojiWrapper>👁️</EmojiWrapper>
                 </IconButton>
 
                 <IconButton
@@ -367,6 +441,13 @@ const Header = ({
               <IconButton onClick={handleThemeToggle} $isDarkMode={isDarkMode}>
                 <EmojiWrapper>{isDarkMode ? "☀️" : "🌑"}</EmojiWrapper>
               </IconButton>
+              <IconButton
+                  onClick={() => setShowVisualSettings(!showVisualSettings)}
+                  $isDarkMode={isDarkMode}
+                  title="Налаштування вигляду"
+                >
+                  <EmojiWrapper>👁️</EmojiWrapper>
+              </IconButton>
               <button
                 onClick={onOpenLogin}
                 style={{
@@ -396,6 +477,36 @@ const Header = ({
             </>
           )}
         </HeaderFix>
+        {showVisualSettings && (
+          <VisualSettingsPanel $isDarkMode={isDarkMode}>
+            <div>
+              <VisualLabel $isDarkMode={isDarkMode}>
+                Яскравість <span>{visualConfig.darkIntensity}%</span>
+              </VisualLabel>
+              <VisualRange
+                type="range"
+                min="0"
+                max="100"
+                value={visualConfig.darkIntensity}
+                onChange={(e) => setVisualConfig(prev => ({ ...prev, darkIntensity: Number(e.target.value) }))}
+                $isDarkMode={isDarkMode}
+              />
+            </div>
+            <div>
+              <VisualLabel $isDarkMode={isDarkMode}>
+                Режим дальтонізму <span>{visualConfig.bwIntensity}%</span>
+              </VisualLabel>
+              <VisualRange
+                type="range"
+                min="0"
+                max="100"
+                value={visualConfig.bwIntensity}
+                onChange={(e) => setVisualConfig(prev => ({ ...prev, bwIntensity: Number(e.target.value) }))}
+                $isDarkMode={isDarkMode}
+              />
+            </div>
+          </VisualSettingsPanel>
+        )}
       </HeaderDiv>
 
       <BurgerMenu

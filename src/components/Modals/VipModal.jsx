@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import styled, { keyframes, css } from "styled-components";
 // Імпорти фото
 import turkeys from "../../photos/vip-images/collectors-edition.jpg";
 import dinofroz from "../../photos/vip-images/vip-dinofroz.webp";
+import dinofrozVideo from "../../mp3/dinofroz.mp4";
 // import monody from "../../photos/vip-images/vip-forest.webp";
 import dragons from "../../photos/vip-images/vip-dragons.jpg";
 import vip from "../../photos/hero-header/vip.jpg";
@@ -17,7 +18,7 @@ import horrordog from "../../photos/vip-images/horror.jpg";
 import asium from "../../photos/vip-images/asium.jpg";
 import rainbow from "../../photos/fan-art/rainbow.webp";
 import letters from "../../photos/fan-art/letters.webp";
-import document from "../../photos/fan-art/document.webp";
+import documentImg from "../../photos/fan-art/document.webp";
 import puzzle5 from "../../photos/fan-art/puzzle-5.webp";
 import puzzle2 from "../../photos/fan-art/puzzle-2.webp";
 import puzzle3 from "../../photos/fan-art/puzzle-3.webp";
@@ -485,10 +486,427 @@ const VipWarning = styled.p`
   margin-bottom: 2px;
 `;
 
+const NavContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 15px;
+  margin-bottom: 5px;
+  width: 100%;
+  flex-wrap: wrap;
+`;
+
+const NavButton = styled.button`
+  background: rgba(255, 179, 108, 0.1);
+  border: 1px solid #ffb36c;
+  color: #ffb36c;
+  border-radius: 12px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: #ffb36c;
+    color: #3e2723;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(255, 179, 108, 0.3);
+  }
+
+  @media (min-width: 1900px) {
+    width: 60px;
+    height: 60px;
+    font-size: 30px;
+  }
+`;
+
+const UltraPlayerContainer = styled.div`
+  width: 100%;
+  height: 100%;
+  position: relative;
+  border-radius: 6px;
+  overflow: hidden;
+  background: black;
+
+  &:hover button {
+    opacity: 1;
+  }
+`;
+
+const FullscreenBtn = styled.button`
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid #fff;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  z-index: 40;
+  padding: 5px;
+  font-size: 12px;
+  opacity: 0.7;
+  transition: opacity 0.3s;
+  &:hover {
+    background: rgba(0, 0, 0, 0.8);
+    opacity: 1;
+  }
+`;
+
+const StyledVideo = styled.video`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: ${(props) => (props.$show ? 1 : 0)};
+  transition: opacity 0.5s ease-in-out;
+  transform: scale(1.1);
+`;
+
+const StyledImage = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: ${(props) => (props.$show ? "block" : "none")};
+  transform: scale(1.1);
+`;
+
+const OverlayText = styled.div`
+  position: absolute;
+  bottom: ${(props) => (props.$isFullscreen ? "60px" : "20px")};
+  left: 50%;
+  transform: translateX(-50%);
+  color: #fff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+  font-size: 14px;
+  text-align: center;
+  width: 90%;
+  transition: opacity 0.35s ease-in-out;
+  opacity: ${(props) => (props.$show ? 1 : 0)};
+  z-index: 30;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 5px 10px;
+  border-radius: 8px;
+  pointer-events: none;
+`;
+
+const TimeIndicator = styled.div`
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  z-index: 40;
+  pointer-events: none;
+`;
+
+const VolumeControlContainer = styled.div`
+  position: absolute;
+  top: 10px;
+  left: 50px; /* Right of fullscreen button */
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 50;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 5px 10px;
+  border-radius: 20px;
+  opacity: 0;
+  transition: opacity 0.3s;
+
+  ${UltraPlayerContainer}:hover & {
+    opacity: 1;
+  }
+
+  @media (hover: none) {
+    opacity: 1;
+  }
+`;
+
+const ULTRA_CARDS_LIST = [
+  {
+    image: require("../../photos/vip-images/ultra-vip-turkeys.webp"),
+    audio: require("../../mp3/turkeys.mp3"),
+  },
+  {
+    image: require("../../photos/vip-images/vip-dinofroz.webp"),
+    audio: require("../../mp3/dinofroz.mp3"),
+  },
+  {
+    image: require("../../photos/vip-images/horse.jpg"),
+    audio: require("../../mp3/horse.mp3"),
+  },
+  {
+    image: require("../../photos/vip-images/vip-soloveyko.jpg"),
+    audio: require("../../mp3/soloveyko.mp3"),
+  },
+  {
+    image: require("../../photos/fan-art/monody.jpg"),
+    audio: require("../../mp3/thefatrat-monody.mp3"),
+  },
+  {
+    image: require("../../photos/vip-images/asium.jpg"),
+    audio: require("../../mp3/harmonic-japan.mp3"),
+  },
+  {
+    image: require("../../photos/fan-art/theorytwo.jpg"),
+    audio: require("../../mp3/theoty-of-everything-ll.mp3"),
+  },
+  {
+    image: require("../../photos/vip-images/mechannic.jpg"),
+    audio: require("../../mp3/mechanik-kindom.mp3"),
+  },
+];
+
+const SEQUENCE = [
+  { type: "thematic", duration: 2000, text: "" },
+  { type: "black", duration: 10000, text: "У нас надійна погода" },
+  {
+    type: "card",
+    imgIdx: 0,
+    duration: 6000,
+    text: "Банальна і цікава музика, яку можна додавати, шукати",
+  },
+  {
+    type: "video",
+    start: 10,
+    end: 20,
+    text: "Спец режим відео (динофроз) або плавне перегортання +-9 зображень під час програвання деяких музичних файлів",
+  },
+  {
+    type: "card",
+    imgIdx: 2,
+    duration: 4000,
+    text: "Зробіть красиву оселю, з принтером і нашими, пошуковими або власними фанартами!",
+  },
+  {
+    type: "video",
+    start: 20,
+    end: 30,
+    text: "Секрети, головоломки, історії, власні рівні, різні важкості, тексти.",
+  },
+  { type: "card", imgIdx: 6, duration: 12000, text: "Налаштуйте сайт під себе" },
+  {
+    type: "video",
+    start: 30,
+    end: 45,
+    text: "Пишіть, підказуйте, що зробити для вас :)",
+  },
+  { type: "video", start: 45, end: 65, text: "Досягнення різного смаку. " },
+  {
+    type: "card",
+    imgIdx: 4,
+    duration: 10000,
+    text: "Власна валюта. Скачуйте музику, зображення, відео.",
+  },
+  {
+    type: "video",
+    start: 65,
+    end: 81,
+    text: "Усе це добре, але все можна поліпшити, з Стихія Ультра та Стихія+",
+  },
+];
+
+const UltraPlayer = ({ volume, setVolume }) => {
+  const containerRef = useRef(null);
+  const videoRef = useRef(null);
+  const audioRef = useRef(null);
+  const [stepIndex, setStepIndex] = useState(0);
+  const [text, setText] = useState("");
+  const [showText, setShowText] = useState(false);
+  const step = SEQUENCE[stepIndex];
+  const [timeLeft, setTimeLeft] = useState(0);
+  const volumeRef = useRef(volume);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    let nextStepTimer;
+    let textOutTimer;
+    let textInTimer;
+    let countdownInterval;
+    setShowText(false);
+    textOutTimer = setTimeout(() => {
+      setText(step.text);
+      if (step.text) {
+        textInTimer = setTimeout(() => setShowText(true), 50);
+      }
+    }, 350);
+
+    if (step.type !== "video") {
+      setTimeLeft(Math.ceil(step.duration / 1000));
+      countdownInterval = setInterval(() => {
+        setTimeLeft((prev) => Math.max(0, prev - 1));
+      }, 1000);
+    }
+
+    if (step.type === "thematic") {
+      if (videoRef.current) videoRef.current.pause();
+      if (audioRef.current) audioRef.current.pause();
+      nextStepTimer = setTimeout(() => {
+        setStepIndex((prev) => (prev + 1) % SEQUENCE.length);
+      }, step.duration);
+    } else if (step.type === "card") {
+      if (videoRef.current) videoRef.current.pause();
+      if (audioRef.current) {
+        audioRef.current.volume = volumeRef.current;
+        audioRef.current.src = ULTRA_CARDS_LIST[step.imgIdx].audio;
+        audioRef.current.currentTime = 0;
+        audioRef.current.play().catch(() => {});
+      }
+      nextStepTimer = setTimeout(() => {
+        setStepIndex((prev) => (prev + 1) % SEQUENCE.length);
+      }, step.duration);
+    } else if (step.type === "video" || step.type === "black") {
+      if (audioRef.current) audioRef.current.pause();
+      if (videoRef.current) {
+        const start = step.type === "black" ? 0 : step.start;
+        if (Math.abs(videoRef.current.currentTime - start) > 0.2) {
+          videoRef.current.currentTime = start;
+        }
+        videoRef.current.play().catch(() => {});
+      }
+
+      if (step.type === "video" && step.end !== "end") {
+        const duration = (step.end - step.start) * 1000;
+        nextStepTimer = setTimeout(() => {
+          setStepIndex((prev) => (prev + 1) % SEQUENCE.length);
+        }, duration);
+      } else if (step.type === "black") {
+        nextStepTimer = setTimeout(() => {
+          setStepIndex((prev) => (prev + 1) % SEQUENCE.length);
+        }, step.duration);
+      }
+    }
+
+    return () => {
+      clearTimeout(nextStepTimer);
+      clearTimeout(textOutTimer);
+      clearTimeout(textInTimer);
+      clearInterval(countdownInterval);
+    };
+  }, [
+    stepIndex,
+    step.duration,
+    step.text,
+    step.type,
+    step.imgIdx,
+    step.start,
+    step.end,
+  ]);
+
+  useEffect(() => {
+    volumeRef.current = volume;
+    if (videoRef.current) videoRef.current.volume = volume;
+    if (audioRef.current) audioRef.current.volume = volume;
+  }, [volume]);
+
+  useEffect(() => {
+    const handleFsChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener("fullscreenchange", handleFsChange);
+    return () =>
+      document.removeEventListener("fullscreenchange", handleFsChange);
+  }, []);
+
+  const handleVideoEnded = () => {
+    if (step.type === "video" && step.end === "end") {
+      setStepIndex((prev) => (prev + 1) % SEQUENCE.length);
+    }
+  };
+
+  const handleTimeUpdate = () => {
+    if (step.type === "video" && videoRef.current) {
+      const end = step.end === "end" ? videoRef.current.duration : step.end;
+      const remaining = Math.max(0, end - videoRef.current.currentTime);
+      setTimeLeft(Math.ceil(remaining));
+    }
+  };
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      containerRef.current.requestFullscreen().catch((err) => {
+        console.error(`Error attempting to enable fullscreen: ${err.message}`);
+      });
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+  };
+
+  return (
+    <UltraPlayerContainer ref={containerRef}>
+      <FullscreenBtn onClick={toggleFullscreen}>
+        {isFullscreen ? "❌" : "⛶"}
+      </FullscreenBtn>
+
+      <VolumeControlContainer>
+        <span style={{ fontSize: "14px" }}>🔊</span>
+        <input
+          type="range"
+          min="0"
+          max="1"
+          step="0.05"
+          value={volume}
+          onChange={(e) => setVolume(parseFloat(e.target.value))}
+          style={{
+            width: "80px",
+            accentColor: "#710097",
+            cursor: "pointer",
+            height: "4px",
+          }}
+        />
+      </VolumeControlContainer>
+
+      {/* Black screen is just the background of the container when nothing else shows */}
+      <StyledImage src={ultra} $show={step.type === "thematic"} />
+      <TimeIndicator>{timeLeft}</TimeIndicator>
+      <StyledVideo
+        ref={videoRef}
+        src={dinofrozVideo}
+        $show={step.type === "video"} // Playing but hidden during 'black' step
+        onEnded={handleVideoEnded}
+        onTimeUpdate={handleTimeUpdate}
+        playsInline
+      />
+      {step.type === "card" && (
+        <>
+          <StyledImage src={ULTRA_CARDS_LIST[step.imgIdx].image} $show={true} />
+          <audio ref={audioRef} />
+        </>
+      )}
+      <OverlayText $show={showText} $isFullscreen={isFullscreen}>{text}</OverlayText>
+    </UltraPlayerContainer>
+  );
+};
+
 const VipModal = ({ onClose }) => {
   const [isClosing, setIsClosing] = useState(false);
   const [tier, setTier] = useState("plus");
   const [showContent, setShowContent] = useState(true);
+  const [volume, setVolume] = useState(0.5);
+
+  const aiRef = useRef(null);
+  const musicRef = useRef(null);
+  const economicsRef = useRef(null);
+  const interfaceRef = useRef(null);
+
+  const scrollToSection = (ref) => {
+    if (ref.current) {
+      ref.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
 
   const handleClose = (e) => {
     if (e) e.stopPropagation();
@@ -562,7 +980,7 @@ const VipModal = ({ onClose }) => {
         src: vip,
         text: "Оновлений стиль сайту (з перемикачем лого вгорі, в лівому кутку). Назавжди!",
       },
-      { src: stars, text: "Плавніший регулятор темної теми. Назавжди!" },
+      { src: stars, text: "0 реклами, при переходу на інший сайт через наш(розділ новини, Deezer - і безкоштовно без реклами)" },
       {
         src: buton,
         text: "Кнопки: Додавання/Оновлення міста, фанарту, пошуку музики, плейлисту має перезарядку 20с замість 40c. Ліміт додаткових карток 4. Зайві картки видаляються коли підписка сплине в терміні.",
@@ -572,7 +990,7 @@ const VipModal = ({ onClose }) => {
         text: "Райдужне(Неанімовані) ім'я та рамка доступні! Назавжди!",
       },
       {
-        src: document,
+        src: documentImg,
         text: "Доступно 10 останніх новин, а не 5.",
       },
       {
@@ -619,7 +1037,7 @@ const VipModal = ({ onClose }) => {
     ],
     economics: [
       {
-        src: document,
+        src: documentImg,
         text: "Знижка на Стихію+ 5грн, після придбання Ultrа. Лімітована акція!",
       },
       {
@@ -648,9 +1066,12 @@ const VipModal = ({ onClose }) => {
         src: buton,
         text: "Кнопки Додавання/Оновлення міста, фанарту, пошуку музики, плейлисту має перезарядку 4с. Ліміт додаткових карток 8. Лімітована акція!",
       },
-      { src: rainbow, text: "Райдужне(анімоване) ім'я та рамка доступні. Назавжди!" },
       {
-        src: document,
+        src: rainbow,
+        text: "Райдужне(анімоване) ім'я та рамка доступні. Назавжди!",
+      },
+      {
+        src: documentImg,
         text: "Доступ до 20 останніх новин. Лімітована акція!",
       },
       {
@@ -696,32 +1117,63 @@ const VipModal = ({ onClose }) => {
             }}
           >
             <ImageContainer $isUltra={tier === "ultra"}>
-              <VipImage
-                src={tier === "plus" ? turkeys : ultra}
-                key={`img-${tier}`}
-                $isUltra={tier === "ultra"}
-              />
+              {tier === "plus" ? (
+                <VipImage src={turkeys} key="img-plus" $isUltra={false} />
+              ) : (
+                <UltraPlayer volume={volume} setVolume={setVolume} />
+              )}
             </ImageContainer>
 
             {tier === "plus" ? (
               <>
-                <VipButton>14,99грн/30днів</VipButton>
+                <VipButton>19,99грн/30днів</VipButton>
               </>
             ) : (
               <>
-                <VipButton>19,99грн/30днів</VipButton>
+                <VipButton>39,99грн/30днів</VipButton>
               </>
             )}
+            <NavContainer>
+              <NavButton
+                onClick={() => scrollToSection(aiRef)}
+                title="Штучний Інтелект"
+              >
+                🤖
+              </NavButton>
+              <NavButton
+                onClick={() => scrollToSection(musicRef)}
+                title="Музика та Арт"
+              >
+                🎨
+              </NavButton>
+              <NavButton
+                onClick={() => scrollToSection(economicsRef)}
+                title="Економіка та ресурси"
+              >
+                🧧
+              </NavButton>
+              <NavButton
+                onClick={() => scrollToSection(interfaceRef)}
+                title="Інтерфейс і функціонал"
+              >
+                📱
+              </NavButton>
+            </NavContainer>
             <VipText>
-              Друзі, набори 🧧 та підписки, допомагають як і мотиваційно, так і
-              в плані утримування Стихії, ціни на підписки низькі, для
-              мотивації, кожен це може зробити і нічого не втратить. 
+              Підтримуючи проект підпискою або наборами 🧧, ви допомагаєте
+              'Стихії' розвиватися. Ми тримаємо ціни доступними, щоб кожен міг
+              отримати максимум можливостей, розвиваючи проект разом із нами.
+            </VipText>
+            <VipText>
+              Лімітована акція! Стихія+ після покупки Ultra дешевша удвічі!
             </VipText>
           </div>
           <VipFixScroll key={`scroll-area-${tier}`}>
             {showContent && (
               <>
-                <SectionTitle $delay="0.1s">ШІ</SectionTitle>
+                <SectionTitle ref={aiRef} $delay="0.1s">
+                 🤖 ШІ
+                </SectionTitle>
                 {current.ai.map((item, i) => (
                   <BenefitCard key={`ai-${tier}-${i}`} $index={i}>
                     <BenefitImage src={item.src} />
@@ -729,23 +1181,32 @@ const VipModal = ({ onClose }) => {
                   </BenefitCard>
                 ))}
 
-                <SectionTitle $delay="0.3s">Музика та Арт</SectionTitle>
+                <SectionTitle ref={musicRef} $delay="0.3s">
+                 🎨 Музика та Арт
+                </SectionTitle>
                 {current.music.map((item, i) => (
                   <BenefitCard key={`mu-${tier}-${i}`} $index={i + 4}>
                     <BenefitImage src={item.src} />
                     <VipBonus>{item.text}</VipBonus>
                   </BenefitCard>
                 ))}
-                <SectionTitle $delay="0.5s">Економіка та ресурси</SectionTitle>
+                <SectionTitle ref={economicsRef} $delay="0.5s">
+                 🧧 Економіка та ресурси
+                </SectionTitle>
                 {current.economics.map((item, i) => (
                   <BenefitCard key={`eco-${tier}-${i}`} $index={i + 10}>
                     <BenefitImage src={item.src} />
                     <VipBonus>{item.text}</VipBonus>
                   </BenefitCard>
                 ))}
-                <SectionTitle $delay="0.7s">Інтерфейс і функціонал</SectionTitle>
+                <SectionTitle ref={interfaceRef} $delay="0.7s">
+                 📱 Інтерфейс і функціонал
+                </SectionTitle>
                 {current.interface.map((item, i) => (
-                  <BenefitCard key={`int-${tier}-${i}`} $index={i + 10 + current.economics.length}>
+                  <BenefitCard
+                    key={`int-${tier}-${i}`}
+                    $index={i + 10 + current.economics.length}
+                  >
                     <BenefitImage src={item.src} />
                     <VipBonus>{item.text}</VipBonus>
                   </BenefitCard>

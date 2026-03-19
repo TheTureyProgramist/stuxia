@@ -474,7 +474,7 @@ const App = () => {
   const HeroAndWeather = (
     <>
       <div id="hero">
-        <Hero heroDateString={heroDateString} onAddCity={handleAddCityFromHero} />
+        <Hero heroDateString={heroDateString} onAddCity={handleAddCityFromHero} startAnimation={!isLoading} />
       </div>
       {renderSectionContent(siteSections.find(s => s.key === "weather"))}
     </>
@@ -483,7 +483,7 @@ const App = () => {
   const LandingPage = (
     <>
       <div id="hero">
-        <Hero heroDateString={heroDateString} onAddCity={handleAddCityFromHero} />
+        <Hero heroDateString={heroDateString} onAddCity={handleAddCityFromHero} startAnimation={!isLoading} />
       </div>
       <div className="container">
         <SettingsContainer>
@@ -555,7 +555,7 @@ const App = () => {
                     : (
                       <div className="container" style={{ paddingTop: "40px", minHeight: "80vh" }}>
                         {section.key === "hero" ? (
-                          <Hero heroDateString={heroDateString} onAddCity={handleAddCityFromHero} />
+                          <Hero heroDateString={heroDateString} onAddCity={handleAddCityFromHero} startAnimation={!isLoading} />
                         ) : (
                           renderSectionContent(section)
                         )}

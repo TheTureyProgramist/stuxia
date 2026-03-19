@@ -1,6 +1,17 @@
 import React, { useState, useEffect, useRef } from "react";
-import styled from "styled-components";
+import styled, { keyframes, css } from "styled-components";
 import hills from "../../photos/hero-header/hiils.jpg";
+
+const slideUpHero = keyframes`
+  0% { transform: translateY(120px) scale(1.4); }
+  100% { transform: translateY(0) scale(1); }
+`;
+
+const fadeInContent = keyframes`
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+`;
+
 const HeroDiv = styled.div`
   position: relative;
   width: 100%;
@@ -40,6 +51,68 @@ const HeroDiv = styled.div`
 
 const HeroDecors = styled.div`
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translateY(120px) scale(1.4);
+  animation: ${(props) =>
+    props.$start ? css`${slideUpHero} 3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards` : "none"};
+`;
+
+const LogoText = styled.div`
+  display: flex;
+`;
+
+const CollectorText = styled.div`
+  font-family: var(--font-family);
+  color: #ffb36c;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin-top: 5px;
+  font-size: 8px;
+  opacity: 0;
+  animation: ${(props) =>
+    props.$start ? css`${fadeInContent} 1s ease-out forwards` : "none"};
+  animation-delay: ${(props) => (props.$start ? "2.5s" : "0s")};
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+
+  @media (min-width: 768px) {
+    font-size: 12px;
+    letter-spacing: 4px;
+    margin-top: 8px;
+  }
+  @media (min-width: 1200px) {
+    font-size: 16px;
+    letter-spacing: 6px;
+    margin-top: 12px;
+  }
+  @media (min-width: 1920px) {
+    font-size: 24px;
+    letter-spacing: 10px;
+    margin-top: 20px;
+  }
+`;
+
+const DelayedContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 20px;
+  opacity: 0;
+  animation: ${(props) =>
+    props.$start ? css`${fadeInContent} 1s ease-out forwards` : "none"};
+  animation-delay: ${(props) => (props.$start ? "3s" : "0s")};
+
+  @media (min-width: 768px) {
+    gap: 25px;
+  }
+  @media (min-width: 1200px) {
+    gap: 50px;
+  }
+  @media (min-width: 1920px) {
+    gap: 80px;
+  }
 `;
 
 const HeroBlue = styled.div`
@@ -214,7 +287,8 @@ const HeroButton = styled.button`
   border-radius: 0 10px 10px 0;
   width: 20px;
   height: 22px;
-  background: yellow;
+  background: ${(props) => (props.disabled ? "#ccc" : "yellow")};
+  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
   border: 2px solid black;
   cursor: pointer;
   display: flex;
@@ -228,19 +302,23 @@ const HeroButton = styled.button`
   transition: all 0.7s ease-in-out;
   overflow: hidden; 
   &:hover {
-    background: skyblue;
-    color: transparent;
+    background: ${(props) => (props.disabled ? "#ccc" : "skyblue")};
+    color: ${(props) => (props.disabled ? "black" : "transparent")};
   }
-  &:hover::after {
-    content: '+';
-    position: absolute;
-    color: black;
-    font-size: 22px;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+  ${(props) =>
+    !props.disabled &&
+    css`
+      &:hover::after {
+        content: "+";
+        position: absolute;
+        color: black;
+        font-size: 22px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    `}
 
   @media (min-width: 768px) {
     width: 28px;
@@ -342,12 +420,13 @@ const LoadMoreButton = styled.button`
     border-width: 4px;
   }
 `;
-const Hero = ({ heroDateString, onAddCity }) => {
+const Hero = ({ heroDateString, onAddCity, startAnimation }) => {
   const [inputValue, setInputValue] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [limit, setLimit] = useState(5);
   const [showList, setShowList] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [cooldown, setCooldown] = useState(0);
   const searchRef = useRef(null);
   const API_KEY = "5104647d3e574f4a3f23c0aa092eb2b9";
 
@@ -399,10 +478,25 @@ const Hero = ({ heroDateString, onAddCity }) => {
     setLimit(newLimit);
     fetchSuggestions(newLimit, inputValue);
   };
+
+  useEffect(() => {
+    let interval;
+    if (cooldown > 0) {
+      interval = setInterval(() => {
+        setCooldown((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [cooldown]);
+
   const handleSelect = (city) => {
+    if (cooldown > 0) return;
+
     const cityObj = {
       name: city.name,
-      fullName: `${city.name}${city.state ? `, ${city.state}` : ""} (${city.country})`,
+      fullName: `${city.name}${city.state ? `, ${city.state}` : ""} (${
+        city.country
+      })`,
       lat: city.lat,
       lon: city.lon,
     };
@@ -410,69 +504,76 @@ const Hero = ({ heroDateString, onAddCity }) => {
     setInputValue("");
     setSuggestions([]);
     setShowList(false);
+    setCooldown(40);
   };
   return (
     <HeroDiv>
-      <HeroDecors>
-        <HeroBlue>Сти</HeroBlue>
-        <HeroYellow>хія</HeroYellow>
+      <HeroDecors $start={startAnimation}>
+        <LogoText>
+          <HeroBlue>Сти</HeroBlue>
+          <HeroYellow>хія</HeroYellow>
+        </LogoText>
+        <CollectorText $start={startAnimation}>Collector's Edition</CollectorText>
       </HeroDecors>
 
-      <HeroTitle>
-        Безкоштовна панель погоди, музики, фан-артів, ШІ та
-        системою 🧧, 🏆.
-      </HeroTitle>
+      <DelayedContent $start={startAnimation}>
+        <HeroTitle>
+          Погода, музика, фан-арти, ШІ, системи: 🧧, 🏆.
+        </HeroTitle>
 
-      <HeroDecor>
-        <HeroFix>
-          <HeroTextLink
-            href="https://www.facebook.com/share/g/15cVdicVtGc/"
-            target="_blank"
-          >
-            Мій фейсбук канал. Натисніть.
-          </HeroTextLink>
-          <HeroDate>{heroDateString}</HeroDate>
-        </HeroFix>
-      </HeroDecor>
+        <HeroDecor>
+          <HeroFix>
+            <HeroTextLink
+              href="https://www.facebook.com/share/g/15cVdicVtGc/"
+              target="_blank"
+            >
+              Мій фейсбук канал. Натисніть.
+            </HeroTextLink>
+            <HeroDate>{heroDateString}</HeroDate>
+          </HeroFix>
+        </HeroDecor>
 
-      <SearchWrapper ref={searchRef}>
-        <HeroFormater>
-          <SearchContainer>
-            <HeroInput
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onFocus={() => suggestions.length > 0 && setShowList(true)}
-              placeholder="Уведіть місто, село."
-            />
-            {showList && suggestions.length > 0 && (
-              <SuggestionsList>
-                {suggestions.map((city, index) => (
-                  <SuggestionItem
-                    key={`${city.lat}-${city.lon}-${index}`}
-                    onClick={() => handleSelect(city)}
-                  >
-                    📍 {city.name}
-                    {city.state ? `, ${city.state}` : ""} ({city.country})
-                  </SuggestionItem>
-                ))}
+        <SearchWrapper ref={searchRef}>
+          <HeroFormater>
+            <SearchContainer>
+              <HeroInput
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onFocus={() => suggestions.length > 0 && setShowList(true)}
+                placeholder={cooldown > 0 ? `Зачекайте ${cooldown}с` : "Уведіть місто, село."}
+                disabled={cooldown > 0}
+              />
+              {showList && suggestions.length > 0 && (
+                <SuggestionsList>
+                  {suggestions.map((city, index) => (
+                    <SuggestionItem
+                      key={`${city.lat}-${city.lon}-${index}`}
+                      onClick={() => handleSelect(city)}
+                    >
+                      📍 {city.name}
+                      {city.state ? `, ${city.state}` : ""} ({city.country})
+                    </SuggestionItem>
+                  ))}
 
-                {hasMore ? (
-                  <LoadMoreButton onClick={handleLoadMore}>
-                    ⬇ Завантажити ще варіанти
-                  </LoadMoreButton>
-                ) : (
-                  <LoadMoreButton disabled>Кінець списку</LoadMoreButton>
-                )}
-              </SuggestionsList>
-            )}
-          </SearchContainer>
-          <HeroButton
-            onClick={() => suggestions[0] && handleSelect(suggestions[0])}
-          >
-            ⌕
-          </HeroButton>
-        </HeroFormater>
-      </SearchWrapper>
+                  {hasMore ? (
+                    <LoadMoreButton onClick={handleLoadMore}>
+                      ⬇ Завантажити ще варіанти
+                    </LoadMoreButton>
+                  ) : (
+                    <LoadMoreButton disabled>Кінець списку</LoadMoreButton>
+                  )}
+                </SuggestionsList>
+              )}
+            </SearchContainer>
+            <HeroButton
+              onClick={() => suggestions[0] && handleSelect(suggestions[0])}
+            disabled={cooldown > 0}
+            >
+            {cooldown > 0 ? cooldown : "⌕"}
+            </HeroButton>
+          </HeroFormater>
+        </SearchWrapper>
+      </DelayedContent>
     </HeroDiv>
   );
 };

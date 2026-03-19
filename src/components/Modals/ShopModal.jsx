@@ -465,17 +465,17 @@ const ShopModal = ({ onClose }) => {
   const packs = [
     {
       name: "Механічний",
-      count: 1250,
+      count: 250,
       img: time,
-      buttonText: "34.99грн",
+      buttonText: "4.99грн",
       badge: "2 рази/добу",
     },
     {
       name: "Бундючий",
       count: 1500,
       img: turkey,
-      oldPrice: "50.00грн",
-      buttonText: "39.99грн",
+      oldPrice: "25.00грн",
+      buttonText: "9.99грн",
       badge: "-15% Популярний, ∞ в лімітах",
     },
     {
@@ -483,8 +483,8 @@ const ShopModal = ({ onClose }) => {
       count: 2000,
       img: dinofroz,
       special: true,
-      oldPrice: "90.00грн",
-      buttonText: "44.99грн",
+      oldPrice: "50.00грн",
+      buttonText: "19.99грн",
       badge: "-50%! Найвигідніший, Раз/добу",
     },
     {
