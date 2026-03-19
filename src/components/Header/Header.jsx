@@ -316,6 +316,27 @@ const VisualRange = styled.input`
   accent-color: ${(props) => (props.$isDarkMode ? "#ffb36c" : "#007bff")};
 `;
 
+const FilterGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 10px;
+`;
+
+const FilterButton = styled.button`
+  background: ${(props) => (props.$active ? "#ffb36c" : "transparent")};
+  color: ${(props) => (props.$active ? "#3e2723" : props.$isDarkMode ? "#ffb36c" : "#333")};
+  border: 1px solid #ffb36c;
+  border-radius: 6px;
+  padding: 6px;
+  font-size: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  &:hover {
+    background: rgba(255, 179, 108, 0.3);
+  }
+`;
+
 const Header = ({
   onOpenLogin,
   onOpenRegister,
@@ -342,17 +363,36 @@ const Header = ({
   const [visualConfig, setVisualConfig] = useState(() => {
     try {
       const saved = localStorage.getItem("visualConfig");
-      return saved ? JSON.parse(saved) : { darkIntensity: 0, bwIntensity: 0 };
+      const parsed = saved ? JSON.parse(saved) : null;
+      if (parsed) {
+        if (parsed.darkIntensity !== undefined && parsed.filterType === undefined) {
+          return {
+            darkIntensity: parsed.darkIntensity || 0,
+            filterType: parsed.bwIntensity > 0 ? "grayscale" : "none",
+            filterIntensity: parsed.bwIntensity || 50,
+          };
+        }
+        return parsed;
+      }
+      return { darkIntensity: 0, filterType: "none", filterIntensity: 50 };
     } catch {
-      return { darkIntensity: 0, bwIntensity: 0 };
+      return { darkIntensity: 0, filterType: "none", filterIntensity: 50 };
     }
   });
 
   useEffect(() => {
     localStorage.setItem("visualConfig", JSON.stringify(visualConfig));
-    const grayscale = visualConfig.bwIntensity;
     const brightness = 100 - (visualConfig.darkIntensity * 0.6);
-    document.documentElement.style.filter = `grayscale(${grayscale}%) brightness(${brightness}%)`;
+    let filters = `brightness(${brightness}%)`;
+    const { filterType, filterIntensity } = visualConfig;
+
+    if (filterType === "grayscale") filters += ` grayscale(${filterIntensity}%)`;
+    else if (filterType === "sepia") filters += ` sepia(${filterIntensity}%)`;
+    else if (filterType === "invert") filters += ` invert(${filterIntensity}%)`;
+    else if (filterType === "matrix") filters += ` sepia(${filterIntensity}%) hue-rotate(${filterIntensity}deg)`;
+    else if (filterType === "uv") filters += ` hue-rotate(${filterIntensity * 2.4}deg)`;
+
+    document.documentElement.style.filter = filters;
   }, [visualConfig]);
 
   useEffect(() => {
@@ -364,6 +404,15 @@ const Header = ({
     new Audio(bell).play().catch(() => {});
     toggleTheme();
   };
+
+  const FILTERS = [
+    { id: "none", label: "Вимкнено" },
+    { id: "grayscale", label: "Дальтонізм" },
+    { id: "sepia", label: "Сепія" },
+    { id: "invert", label: "Негатив" },
+    { id: "matrix", label: "Матриця" },
+    { id: "uv", label: "УФ-Лампа" },
+  ];
 
   return (
     <>
@@ -492,19 +541,35 @@ const Header = ({
                 $isDarkMode={isDarkMode}
               />
             </div>
-            <div>
-              <VisualLabel $isDarkMode={isDarkMode}>
-                Режим дальтонізму <span>{visualConfig.bwIntensity}%</span>
-              </VisualLabel>
-              <VisualRange
-                type="range"
-                min="0"
-                max="100"
-                value={visualConfig.bwIntensity}
-                onChange={(e) => setVisualConfig(prev => ({ ...prev, bwIntensity: Number(e.target.value) }))}
-                $isDarkMode={isDarkMode}
-              />
-            </div>
+
+            <FilterGrid>
+              {FILTERS.map((f) => (
+                <FilterButton
+                  key={f.id}
+                  $active={visualConfig.filterType === f.id}
+                  $isDarkMode={isDarkMode}
+                  onClick={() => setVisualConfig((prev) => ({ ...prev, filterType: f.id }))}
+                >
+                  {f.label}
+                </FilterButton>
+              ))}
+            </FilterGrid>
+
+            {visualConfig.filterType !== "none" && (
+              <div>
+                <VisualLabel $isDarkMode={isDarkMode}>
+                  Сила ефекту <span>{visualConfig.filterIntensity}%</span>
+                </VisualLabel>
+                <VisualRange
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={visualConfig.filterIntensity}
+                  onChange={(e) => setVisualConfig((prev) => ({ ...prev, filterIntensity: Number(e.target.value) }))}
+                  $isDarkMode={isDarkMode}
+                />
+              </div>
+            )}
           </VisualSettingsPanel>
         )}
       </HeaderDiv>
