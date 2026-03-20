@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import styled from "styled-components";
 import dinofrozVideo from "../../mp3/dinofroz.mp4";
 import ultra from "../../photos/hero-header/start-image.jpg";
+
 const Overlay = styled.div`
   position: fixed;
   top: 0;
@@ -38,7 +39,7 @@ const StyledVideo = styled.video`
   opacity: ${(props) => (props.$show ? 1 : 0)};
   transition: opacity 0.5s ease-in-out;
   transform: scale(1.1);
-  z-index: 10; /* Додано z-index */
+  z-index: 10;
 `;
 
 const StyledImage = styled.img`
@@ -54,7 +55,7 @@ const StyledImage = styled.img`
 
 const OverlayText = styled.div`
   position: absolute;
-  bottom: 60px; /* Adjusted for visibility */
+  bottom: 60px;
   left: 50%;
   transform: translateX(-50%);
   color: #fff;
@@ -88,7 +89,7 @@ const TimeIndicator = styled.div`
 const VolumeControlContainer = styled.div`
   position: absolute;
   top: 10px;
-  right: 80px; /* Shifted to avoid Skip button */
+  right: 80px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -102,6 +103,27 @@ const SkipButton = styled.button`
   position: absolute;
   top: 10px;
   left: 10px;
+  background: rgba(82, 249, 255, 0.2);
+  backdrop-filter: blur(5px);
+  color: #94fffa;
+  border: 1px solid rgba(0, 255, 255, 0.33);
+  font-size: 14px;
+  padding: 6px 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 60;
+
+  &:hover {
+    background: #fff;
+    color: #000;
+  }
+`;
+
+// Нова кнопка для повноекранного режиму
+const FullscreenButton = styled.button`
+  position: absolute;
+  top: 10px;
+  left: 140px; /* Відступ від кнопки "Пропустити" */
   background: rgba(82, 249, 255, 0.2);
   backdrop-filter: blur(5px);
   color: #94fffa;
@@ -172,7 +194,7 @@ const ULTRA_CARDS_LIST = [
 ];
 
 const SEQUENCE = [
-  { type: "thematic", duration: 3000, text: "" }, // Changed to 3000ms (3s)
+  { type: "thematic", duration: 3000, text: "" },
   { type: "black", duration: 10000, text: "У нас надійна погода. Власний коментар: Я не хочу багато підписників чи користувачів, але я хочу людей, які з радістю викорстають мій сайт, у різних цілях." },
   {
     type: "card",
@@ -218,16 +240,16 @@ const SEQUENCE = [
     end: 66,
     text: "Все можна поліпшити, з Стихія Ультра та Стихія+",
   },
-    {
+  {
     type: "video",
     start: 66,
     end: 73,
     text: "Колись я не думав, що це може дійти до такого маштабу, проте фантазія робить дива :)",
   },
-    {
+  {
     type: "video",
     start: 73,
-    end: 81,
+    end: 83,
     text: "Велика подяка, API сайтам, які допомогли при створенні Стихії. Малятко ТВ, Пікселю за гарні роки дитинства. І найголовніше сім'ї та близьким.",
   },
 ];
@@ -242,10 +264,30 @@ const KatSceneModal = ({ onClose }) => {
   
   const videoRef = useRef(null);
   const audioRef = useRef(null);
+  const containerRef = useRef(null); // Ref для контейнера Fullscreen
   const volumeRef = useRef(volume);
   const isLoopingRef = useRef(isLooping);
 
   const step = SEQUENCE[stepIndex];
+
+  // Функція для керування повноекранним режимом
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      containerRef.current?.requestFullscreen().catch((err) => {
+        console.error(`Помилка при спробі увімкнути Fullscreen: ${err.message}`);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  };
+
+  // Безпечне закриття з виходом з повноекранного режиму
+  const handleClose = () => {
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    }
+    onClose();
+  };
 
   useEffect(() => {
     isLoopingRef.current = isLooping;
@@ -281,7 +323,7 @@ const KatSceneModal = ({ onClose }) => {
 
     const handleNextStep = () => {
       if (stepIndex === SEQUENCE.length - 1 && !isLoopingRef.current) {
-        onClose();
+        handleClose();
       } else {
         setStepIndex((prev) => (prev + 1) % SEQUENCE.length);
       }
@@ -304,7 +346,6 @@ const KatSceneModal = ({ onClose }) => {
       if (audioRef.current) audioRef.current.pause();
       if (videoRef.current) {
         const start = step.type === "black" ? 0 : step.start;
-        // Simple seek if far off
         if (Math.abs(videoRef.current.currentTime - start) > 0.2) {
           videoRef.current.currentTime = start;
         }
@@ -336,7 +377,7 @@ const KatSceneModal = ({ onClose }) => {
   const handleVideoEnded = () => {
     if (step.type === "video" && step.end === "end") {
       if (stepIndex === SEQUENCE.length - 1 && !isLoopingRef.current) {
-        onClose();
+        handleClose();
       } else {
         setStepIndex((prev) => (prev + 1) % SEQUENCE.length);
       }
@@ -352,9 +393,10 @@ const KatSceneModal = ({ onClose }) => {
   };
 
   return (
-    <Overlay>
+    <Overlay ref={containerRef}>
       <UltraPlayerContainer>
-        <SkipButton onClick={onClose}>Пропустити</SkipButton>
+        <SkipButton onClick={handleClose}>Пропустити</SkipButton>
+        <FullscreenButton onClick={toggleFullscreen}>⛶ На весь екран</FullscreenButton>
 
         <VolumeControlContainer>
           <span style={{ fontSize: "14px" }}>🔊</span>
