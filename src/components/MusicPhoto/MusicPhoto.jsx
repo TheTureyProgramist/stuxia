@@ -86,6 +86,12 @@ const fadeOut = keyframes`
   100% { opacity: 0; }
 `;
 
+const pulseRedBorder = keyframes`
+  0% { border-color: #ff0000; box-shadow: 0 0 5px #ff0000; }
+  50% { border-color: #ff4d4d; box-shadow: 0 0 15px #ff0000; }
+  100% { border-color: #ff0000; box-shadow: 0 0 5px #ff0000; }
+`;
+
 const MusicPhotoDiv = styled.div`
   background: #e8e8e8;
   border-radius: 20px;
@@ -247,7 +253,11 @@ const CardWrapper = styled.div`
   padding-bottom: 15px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   transition: transform 0.2s;
-  border: ${(props) => (props.$isFavorite ? "2px solid orange" : "none")};
+  border: ${(props) => (props.$rating === 2 ? "2px solid #ff0000" : props.$rating === 1 ? "2px solid orange" : "none")};
+  animation: ${(props) => (props.$rating === 2 ? css`${pulseRedBorder} 2s infinite` : "none")};
+  &:hover {
+    transform: translateY(-5px);
+  }
 `;
 
 const MusicImageContainer = styled.div`
@@ -453,13 +463,20 @@ const SeekAmountSlider = styled.input`
   background: linear-gradient(
     to right,
     r
+    orange 0%,
+    orange ${(props) => ((props.value - 5) / 15) * 100}%,
+    #ccc ${(props) => ((props.value - 5) / 15) * 100}%,
+    #ccc 100%
+  );
   &::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 10px;
-    height: 10px;
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
-    background: #333;
+    background: orange;
     cursor: pointer;
+    box-shadow: 0 0 5px rgba(0,0,0,0.5);
+    transform: scale(1.2);
   }
 `;
 
@@ -486,8 +503,8 @@ const ActionButton = styled.button`
   background: #f0f0f0;
   border: 1px solid #ddd;
   border-radius: 5px;
-  width: 67px;
-  padding: 5px 16px;
+  width: 37px;
+  padding: 3px 9px;
   font-size: 19px;
   cursor: pointer;
   display: flex;
@@ -666,8 +683,9 @@ const FSControls = styled.div`
   flex-direction: column;
   gap: 10px;
   z-index: 2010;
-  opacity: ${props => props.$visible ? 1 : 0};
-  transition: opacity 0.3s ease;
+  opacity: ${(props) => (props.$visible ? 1 : 0)};
+  transform: translateY(${(props) => (props.$visible ? 0 : '20px')});
+  transition: opacity 0.5s ease, transform 0.5s ease;
 `;
 
 const FSSliderContainer = styled.div`
@@ -845,6 +863,28 @@ const SliderBtn = styled.button`
   &:hover { background: #ffaa00; }
 `;
 
+const PlaylistOverlay = styled.div`
+  position: absolute;
+  bottom: 80px;
+  right: 20px;
+  background: rgba(30,30,30,0.95);
+  padding: 15px;
+  border-radius: 12px;
+  color: white;
+  width: 300px;
+  max-height: 60vh;
+  overflow-y: auto;
+  z-index: 2020;
+  border: 1px solid #444;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  
+  &::-webkit-scrollbar { width: 6px; }
+  &::-webkit-scrollbar-thumb { background: orange; border-radius: 3px; }
+  &::-webkit-scrollbar-track { background: rgba(255,255,255,0.1); }
+`;
+
 const SeekBarWrapper = styled.div`
   position: relative;
   flex-grow: 1;
@@ -883,6 +923,15 @@ const SeekTooltip = styled.div`
     border-radius: 4px;
     background: #000;
   }
+  video {
+    width: 100px;
+    height: 60px;
+    object-fit: cover;
+    margin-bottom: 4px;
+    border-radius: 4px;
+    background: #000;
+    display: block;
+  }
   span {
     font-size: 12px;
     color: white;
@@ -914,7 +963,7 @@ const LyricsViewer = ({ lyrics, currentTime }) => {
   );
 };
 
-const FullScreenPlayer = ({ track, onClose, onNext, onPrev, rating, onRate }) => {
+const FullScreenPlayer = ({ track, onClose, onNext, onPrev, rating, onRate, isShuffle, onSetShuffle, playlist, onSelectTrack }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [buffered, setBuffered] = useState(0);
@@ -924,18 +973,24 @@ const FullScreenPlayer = ({ track, onClose, onNext, onPrev, rating, onRate }) =>
   const [seekAmount, setSeekAmount] = useState(10);
   const [showSettings, setShowSettings] = useState(false);
   const [showDownload, setShowDownload] = useState(false);
+  const [showScreenshotMenu, setShowScreenshotMenu] = useState(false);
+  const [showPlaylist, setShowPlaylist] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
   const [loop, setLoop] = useState(false);
   const [currentImgIdx, setCurrentImgIdx] = useState(0);
   const [downloadRange, setDownloadRange] = useState({ start: 0, end: 0 });
   const [showControls, setShowControls] = useState(true);
   const [isCached, setIsCached] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
+  const [playMode, setPlayMode] = useState(isShuffle ? 1 : 0); // 0: Order, 1: Random, 2: Loop
   const [hoverTime, setHoverTime] = useState(null);
 
   const mediaRef = useRef(null);
+  const previewVideoRef = useRef(null);
   const controlsTimeoutRef = useRef(null);
   const containerRef = useRef(null);
   const holdIntervalRef = useRef(null);
+  const overlayRef = useRef(null);
 
   const isDinofroz =
     (track.category === "мультфільми" && track.video) ||
@@ -1002,14 +1057,54 @@ const FullScreenPlayer = ({ track, onClose, onNext, onPrev, rating, onRate }) =>
       mediaRef.current.playbackRate = speed;
     }
   }, [volume, speed]);
+  
+  const handleWheel = useCallback((e) => {
+    const delta = Math.sign(e.deltaY) * -1;
 
+    if (e.shiftKey) {
+        // Speed (0.2 - 2.0)
+        setSpeed(prev => Math.max(0.2, Math.min(2.0, +(prev + delta * 0.1).toFixed(1))));
+    } else if (e.ctrlKey || e.altKey) {
+        // Seek Amount (5 - 30)
+        setSeekAmount(prev => Math.max(5, Math.min(30, prev + delta * 5)));
+    } else {
+        // Volume (0 - 1)
+        setVolume(prev => Math.max(0, Math.min(1, +(prev + delta * 0.05).toFixed(2))));
+    }
+  }, []);
+
+  // Playback mode logic
+  const togglePlayMode = () => {
+    const nextMode = (playMode + 1) % 3;
+    setPlayMode(nextMode);
+    
+    if (nextMode === 0) { // Order
+        setLoop(false);
+        if (onSetShuffle) onSetShuffle(false);
+    } else if (nextMode === 1) { // Random
+        setLoop(false);
+        if (onSetShuffle) onSetShuffle(true);
+    } else if (nextMode === 2) { // Loop
+        setLoop(true);
+        // Shuffle state technically doesn't matter for single loop, but keeping previous shuffle state is fine or turn off.
+        // Usually single loop overrides playlist navigation.
+    }
+  };
+
+  useEffect(() => {
+      // Sync initial shuffle state if needed, but local state takes precedence after mount
+      if (playMode === 1 && !isShuffle && onSetShuffle) onSetShuffle(true);
+  }, [playMode, isShuffle, onSetShuffle]);
+  
   // Disappearing controls
   const resetControlsTimeout = useCallback(() => {
     setShowControls(true);
     if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
-    controlsTimeoutRef.current = setTimeout(() => {
-        if (isPlaying) setShowControls(false);
-    }, 2000);
+    if (isPlaying) {
+        controlsTimeoutRef.current = setTimeout(() => {
+            setShowControls(false);
+        }, 2000);
+    }
   }, [isPlaying]);
 
   useEffect(() => {
@@ -1072,36 +1167,75 @@ const FullScreenPlayer = ({ track, onClose, onNext, onPrev, rating, onRate }) =>
     if (idx !== currentImgIdx) setCurrentImgIdx(idx);
   }, [progress, duration, sliderImages.length, isDinofroz, currentImgIdx]);
 
-  const handleScreenshot = () => {
-    const canvas = document.createElement("canvas");
-    if (isDinofroz && mediaRef.current) {
-      canvas.width = mediaRef.current.videoWidth;
-      canvas.height = mediaRef.current.videoHeight;
-      canvas.getContext("2d").drawImage(mediaRef.current, 0, 0);
-      const a = document.createElement("a");
-      a.href = canvas.toDataURL("image/jpeg");
-      a.download = `screenshot-${Date.now()}.jpg`;
-      a.click();
-      return;
-    }
+  const getCroppedDataUrl = (source) => {
+    return new Promise((resolve) => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        
+        const process = (img) => {
+            const w = img.videoWidth || img.naturalWidth || img.width;
+            const h = img.videoHeight || img.naturalHeight || img.height;
+            
+            // Crop 5% from each side (10% total reduction in dimension, approx 19% area reduction, or interpreting "10% area" loosely as margins)
+            // "обрізають 10% площі" -> 10% of area. sqrt(0.9) = 0.948. So ~2.5% from each side.
+            // But "10% площі" usually colloquially means "crop 10%". Let's do 5% margins (10% total dimension crop).
+            const cropX = w * 0.05;
+            const cropY = h * 0.05;
+            const cropW = w * 0.9;
+            const cropH = h * 0.9;
+            
+            canvas.width = cropW;
+            canvas.height = cropH;
+            
+            ctx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
+            resolve(canvas.toDataURL("image/jpeg"));
+        };
 
-    const a = document.createElement("a");
-    a.href = sliderImages[currentImgIdx];
-    a.download = `screenshot-${Date.now()}.jpg`;
-    a.click();
+        if (typeof source === 'string') {
+            const img = new Image();
+            img.crossOrigin = "Anonymous";
+            img.onload = () => process(img);
+            img.src = source;
+        } else {
+            process(source);
+        }
+    });
   };
 
-  const handleDownloadImage = (imgSrc) => {
+  const downloadScreenshot = async () => {
+      const source = (isDinofroz && mediaRef.current) ? mediaRef.current : sliderImages[currentImgIdx];
+      const dataUrl = await getCroppedDataUrl(source);
+      const a = document.createElement("a");
+      a.href = dataUrl;
+      a.download = `screenshot-${Date.now()}.jpg`;
+      a.click();
+      setShowScreenshotMenu(false);
+  };
+  
+  const printScreenshot = async () => {
+      const source = (isDinofroz && mediaRef.current) ? mediaRef.current : sliderImages[currentImgIdx];
+      const dataUrl = await getCroppedDataUrl(source);
+      const printWindow = window.open("", "_blank");
+      printWindow.document.write(
+        `<html><head><title>Print</title></head><body style="text-align:center;"><img src="${dataUrl}" style="max-width:100%;" onload="window.print();window.close()" /></body></html>`,
+      );
+      printWindow.document.close();
+      setShowScreenshotMenu(false);
+  };
+
+  const handleDownloadImage = async (imgSrc) => {
+    const dataUrl = await getCroppedDataUrl(imgSrc);
     const a = document.createElement("a");
-    a.href = imgSrc;
+    a.href = dataUrl;
     a.download = "image.jpg";
     a.click();
   };
 
-  const handlePrintImage = (imgSrc) => {
+  const handlePrintImage = async (imgSrc) => {
+    const dataUrl = await getCroppedDataUrl(imgSrc);
     const printWindow = window.open("", "_blank");
     printWindow.document.write(
-      `<html><head><title>Print</title></head><body style="text-align:center;"><img src="${imgSrc}" style="max-width:100%;" onload="window.print();window.close()" /></body></html>`,
+      `<html><head><title>Print</title></head><body style="text-align:center;"><img src="${dataUrl}" style="max-width:100%;" onload="window.print();window.close()" /></body></html>`,
     );
     printWindow.document.close();
   };
@@ -1111,6 +1245,10 @@ const FullScreenPlayer = ({ track, onClose, onNext, onPrev, rating, onRate }) =>
     const x = e.clientX - rect.left;
     const p = Math.max(0, Math.min(1, x / rect.width));
     setHoverTime(p * duration);
+
+    if (isDinofroz && previewVideoRef.current && duration > 0) {
+        previewVideoRef.current.currentTime = p * duration;
+    }
   };
 
   // Cache logic
@@ -1168,7 +1306,7 @@ const FullScreenPlayer = ({ track, onClose, onNext, onPrev, rating, onRate }) =>
   };
 
   return (
-    <FullScreenOverlay onMouseMove={resetControlsTimeout} onClick={(e) => { e.stopPropagation(); resetControlsTimeout(); }} $closing={isClosing}>
+    <FullScreenOverlay ref={overlayRef} onMouseMove={resetControlsTimeout} onClick={(e) => { e.stopPropagation(); resetControlsTimeout(); }} $closing={isClosing} onWheel={handleWheel}>
       <FSHeader style={{ opacity: showControls ? 1 : 0, transition: 'opacity 0.3s' }}>
         <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
           <FSCloseButton onClick={handleClose}>&times;</FSCloseButton>
@@ -1181,9 +1319,11 @@ const FullScreenPlayer = ({ track, onClose, onNext, onPrev, rating, onRate }) =>
           <ActionButton onClick={() => onRate(track.id)} title={`Оцінка: ${rating} балів. (Макс 4 пісні з оцінками)`}>
             {rating === 2 ? "💛" : rating === 1 ? "❤️" : "🤍"}
           </ActionButton>
-          <ActionButton onClick={handleScreenshot} title="Скріншот">📸</ActionButton>
+          <ActionButton onClick={() => setShowScreenshotMenu(!showScreenshotMenu)} title="Скріншот">📸</ActionButton>
           <ActionButton onClick={handlePrint} title="Друк">🖨️</ActionButton>
           <ActionButton onClick={() => setShowDownload(true)} title="Завантажити">⇩</ActionButton>
+          <ActionButton onClick={() => setShowPlaylist(!showPlaylist)} title="Список відтворення">📑</ActionButton>
+          <ActionButton onClick={() => setShowHelp(true)} title="Довідка">?</ActionButton>
           <ActionButton onClick={() => setShowSettings(!showSettings)} title="Налаштування">⚙️</ActionButton>
         </div>
       </FSHeader>
@@ -1208,14 +1348,23 @@ const FullScreenPlayer = ({ track, onClose, onNext, onPrev, rating, onRate }) =>
         }}
         onTouchEnd={stopHoldSeek}
       >
-        <FSVisualWrapper>
+        <FSVisualWrapper style={{position: 'relative'}}>
             {isDinofroz ? (
-              <FSVideo
-                ref={mediaRef}
-                src={track.video || dinofrozVideo}
-                playsInline
-                loop={loop}
-              />
+              <>
+                <FSVideo
+                  ref={mediaRef}
+                  src={track.video || dinofrozVideo}
+                  playsInline
+                  loop={loop}
+                  style={{ opacity: (progress === 0 && !isPlaying) ? 0 : 1 }}
+                />
+                {(progress === 0 && !isPlaying) && (
+                   <FSImage 
+                      src={track.image} 
+                      style={{position:'absolute', top:0, left:0, zIndex: 1}} 
+                   />
+                )}
+              </>
             ) : (
               <>
                 <FSImage 
@@ -1261,9 +1410,11 @@ const FullScreenPlayer = ({ track, onClose, onNext, onPrev, rating, onRate }) =>
           <SeekBarWrapper onMouseMove={handleSeekHover} onMouseLeave={() => setHoverTime(null)}>
             {hoverTime !== null && duration > 0 && (
                 <SeekTooltip $left={(hoverTime / duration) * 100} className="seek-tooltip">
-                    {!isDinofroz && sliderImages.length > 0 && (
+                    {isDinofroz ? (
+                        <video ref={previewVideoRef} src={track.video || dinofrozVideo} muted preload="auto" />
+                    ) : (sliderImages.length > 0 && (
                         <img src={sliderImages[Math.min(Math.floor(hoverTime / (duration / sliderImages.length)), sliderImages.length - 1)]} alt="preview" />
-                    )}
+                    ))}
                     <span>{formatTime(hoverTime)}</span>
                 </SeekTooltip>
             )}
@@ -1271,12 +1422,13 @@ const FullScreenPlayer = ({ track, onClose, onNext, onPrev, rating, onRate }) =>
                 type="range"
                 min="0"
                 max={duration || 0}
-                $buffered={buffered}
+                $buffered={isDinofroz ? buffered : 0}
                 value={progress}
                 onChange={(e) => (mediaRef.current.currentTime = e.target.value)}
             />
           </SeekBarWrapper>
           <span>{formatTime(duration)}</span>
+          {isDinofroz && <span style={{fontSize: '10px', color: '#aaa'}}>({formatTime(buffered)})</span>}
         </div>
 
         <div style={{ display: "flex", justifyContent: "center", gap: "20px", alignItems: "center" }}>
@@ -1343,7 +1495,9 @@ const FullScreenPlayer = ({ track, onClose, onNext, onPrev, rating, onRate }) =>
                   style={{width: '60px'}}
                />
             </div>
-          <LoopButton $active={loop} onClick={() => setLoop(!loop)}>🔁</LoopButton>
+          <LoopButton $active={true} onClick={togglePlayMode} title={playMode === 0 ? "По порядку" : playMode === 1 ? "Випадково" : "Автоповтор"}>
+             {playMode === 0 ? "➡" : playMode === 1 ? "🔀" : "🔁"}
+          </LoopButton>
           </div>
         </div>
       </FSControls>
@@ -1379,7 +1533,7 @@ const FullScreenPlayer = ({ track, onClose, onNext, onPrev, rating, onRate }) =>
             <span style={{ color: "white" }}>Промотка ({seekAmount}с)</span>
             <SeekAmountSlider
               type="range"
-              min="5"
+              min="5" 
               max="20"
               step="5"
               $activeColor="#7afcff"
@@ -1389,6 +1543,62 @@ const FullScreenPlayer = ({ track, onClose, onNext, onPrev, rating, onRate }) =>
           </SliderRow>
           <button onClick={() => setShowSettings(false)} style={{marginTop:'10px', width:'100%', background:'transparent', border:'1px solid white', color:'white'}}>Закрити</button>
         </GearModal>
+      )}
+      
+      {showScreenshotMenu && (
+        <GearModal style={{bottom: 'auto', top: '70px', right: '80px', width: '150px'}}>
+            <button onClick={downloadScreenshot} style={{background:'transparent', border:'none', color:'white', textAlign:'left', cursor:'pointer', padding:'5px'}}>📥 Скачати</button>
+            <button onClick={printScreenshot} style={{background:'transparent', border:'none', color:'white', textAlign:'left', cursor:'pointer', padding:'5px'}}>🖨️ Друкувати</button>
+        </GearModal>
+      )}
+      
+      {showPlaylist && (
+        <PlaylistOverlay>
+            <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', borderBottom: '1px solid #555', paddingBottom:'5px'}}>
+                <h4 style={{margin:0}}>Черга відтворення</h4>
+                <button onClick={() => setShowPlaylist(false)} style={{background:'transparent', border:'none', color:'white', cursor:'pointer'}}>✕</button>
+            </div>
+            {playlist && playlist.map((t, i) => (
+                <div 
+                    key={t.id} 
+                    style={{
+                        padding: '8px', 
+                        background: t.id === track.id ? 'rgba(255, 165, 0, 0.3)' : 'transparent', 
+                        borderRadius: '6px', 
+                        cursor: 'pointer',
+                        fontSize: '12px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px'
+                    }}
+                    onClick={() => { onSelectTrack(t); }}
+                >
+                    <img src={t.image} alt="art" style={{width: '30px', height: '30px', borderRadius: '4px', objectFit:'cover'}} />
+                    <div style={{flex: 1, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis'}}>{t.text}</div>
+                    <span style={{fontSize: '11px', color: '#ccc'}}>{formatTime(t.duration)}</span>
+                </div>
+            ))}
+        </PlaylistOverlay>
+      )}
+      
+      {showHelp && (
+        <DownloadModal style={{width: '380px', textAlign: 'left', background: '#222', color: '#eee', border: '1px solid #444'}}>
+            <h3 style={{textAlign: 'center', color: '#ffb36c'}}>Довідка</h3>
+            <ul style={{fontSize: '12px', paddingLeft: '20px', lineHeight: '1.6'}}>
+                <li><b>Свайп/Стрілки:</b> Перемикання треків</li>
+                <li><b>Пробіл:</b> Пауза/Старт</li>
+                <li><b>Клік зліва/справа (20% екрану):</b> Промотка -2с/+2с</li>
+                <li><b>Центр екрану:</b> Пауза/Старт</li>
+                <li><b>Шестерня:</b> Налаштування швидкості, гучності, інтервалу промотки</li>
+                <li><b>Динофроз:</b> Навідміну від інших відео, замість свайпу картинок</li>
+                <li><b>Прев'ю:</b> Наведення на шкалу показує кадр (відео) або фото</li>
+                <li><b>Регулятор:</b> Справа від звукового джойстика, натискайте для зміни: Автоповтор, наступна пісня по черзі, чи випадково</li>
+                <li><b>Кешування:</b> Зберігає пісню/відео (Доступ без інтернету). Зліва від звукового джойстика</li>
+                <li><b>Скрін:</b> Знак камери, вибір: скачати, сфотографувати.</li>
+                <li><b>Обрізка:</b> Скріншоти та завантаження фото автоматично обрізають 10% площі (по 5% з країв).</li>
+            </ul>
+            <button onClick={() => setShowHelp(false)} style={{width: '100%', marginTop: '10px', background: '#444', color: 'white', border: 'none', padding: '8px', borderRadius: '5px', cursor: 'pointer'}}>Зрозуміло</button>
+        </DownloadModal>
       )}
 
       {showDownload && (
@@ -1444,9 +1654,11 @@ const FullScreenPlayer = ({ track, onClose, onNext, onPrev, rating, onRate }) =>
             </button>
             {!isDinofroz && (
               <button
-                onClick={() => {
+                onClick={async () => {
+                  const src = sliderImages[currentImgIdx];
+                  const dataUrl = await getCroppedDataUrl(src);
                   const a = document.createElement("a");
-                  a.href = sliderImages[currentImgIdx];
+                  a.href = dataUrl;
                   a.download = "image.jpg";
                   a.click();
                 }}
@@ -1477,8 +1689,26 @@ const MusicCard = ({
 }) => {
   const { id, image, text, deezerLink } = cardData;
 
+  const handleDownloadTrack = (e) => {
+      e.stopPropagation();
+      // Note: This assumes cardData.audio is accessible/downloadable
+      const a = document.createElement("a");
+      a.href = cardData.audio;
+      a.download = `${text || 'track'}.mp3`;
+      a.click();
+  };
+
+  const handlePrintCover = (e) => {
+      e.stopPropagation();
+      const printWindow = window.open("", "_blank");
+      printWindow.document.write(
+        `<html><head><title>Print Cover</title></head><body style="text-align:center;"><img src="${image}" style="max-width:100%;" onload="window.print();window.close()" /></body></html>`,
+      );
+      printWindow.document.close();
+  };
+
   return (
-    <CardWrapper $isFavorite={rating > 0}>
+    <CardWrapper $isFavorite={rating > 0} $rating={rating}>
       <MusicImageContainer>
         <HeartButton
           $rating={rating}
@@ -1508,6 +1738,12 @@ const MusicCard = ({
             <svg viewBox="0 0 24 24">
                <path d="M8 5v14l11-7z" />
             </svg>
+        </ActionButton>
+        <ActionButton title="Завантажити" onClick={handleDownloadTrack}>
+            ⇩
+        </ActionButton>
+        <ActionButton title="Роздрукувати обкладинку" onClick={handlePrintCover}>
+            🖨️
         </ActionButton>
         {deezerLink && (
           <ActionButton
@@ -1749,8 +1985,10 @@ const musicCards = [
     audio: require("../../mp3/clubstep.mp3"),
     text: "Clubstep - DJ-Nate(GeometryDash).",
     category: "ігри",
-    lyrics:
-      "Текст присутній, але його не можливо розібрати + змісту його немає.",
+              lyrics: [
+      { time: 0, text: "Текст хаотичний, лише для атмосфери" },
+      { time: 25, text: "" },
+    ],
     duration: 160,
     images: [clubstep],
   },
@@ -1760,7 +1998,10 @@ const musicCards = [
     audio: require("../../mp3/fingerdash.mp3"),
     text: "Fingerdash-MDK(GeometryDash) Гаряча мелодія I-ша в режимі анімованості. Ласково просимо в хаос!",
     category: "ігри",
-    lyrics: "Текст присутній, але змісту його немає.",
+    lyrics: [
+      { time: 0, text: "Текст хаотичний, лише для атмосфери" },
+      { time: 25, text: "" },
+    ],
     duration: 140,
     images: [horrortwo, horrorthree],
   },
@@ -1770,7 +2011,9 @@ const musicCards = [
     audio: require("../../mp3/theoty-of-everything-ll.mp3"),
     text: "Theory of everything II - DJ-Nate(GeometryDash). Ця пісня варта уваги!",
     category: "ігри",
-    lyrics: "Текст відсутній.",
+       lyrics: [
+      { time: 200, text: "Кінець, виконаний піаніно." },
+    ],
     duration: 140,
     images: [theorytwo],
   },
@@ -1792,12 +2035,10 @@ const musicCards = [
     category: "ігри",
           lyrics: [
       { time: 81, text: "Say Down" },
-      { time: 84, text: "" },
-      { time: 175, text: "Ми все ще бігали." },
-      { time: 179, text: "Весь світ був біля наших ніг." },
-      { time: 182, text: "Бачачи зміни сезону." },
-      { time: 182, text: "Наші дороги були вкриті пригодами." },
-      { time: 226, text: "" },
+      { time: 83, text: "" },
+      { time: 118, text: "Say Down" },
+      { time: 120, text: "" },
+      { time: 275, text: "Білий шум" },
     ],
     duration: 140,
     images: [theory],
@@ -1807,7 +2048,11 @@ const musicCards = [
     image: require("../../photos/fan-art/unity.jpg"),
     audio: require("../../mp3/unity.mp3"),
     text: "Unity-TheFatRat. Класний комп'ютерний хіт, не розумію чого його не поставили у фільм Матриця?",
-    lyrics: "Текст присутній, але змісту його немає.",
+    lyrics: [
+      { time: 0, text: "Текст хаотичний, лише для атмосфери" },
+      { time: 15, text: "Відлуння атмосферного вигуку" },
+      { time: 25, text: "" },
+    ],
     category: "хіти",
     duration: 180,
     images: [unity],
@@ -2713,6 +2958,10 @@ const PlaylistModal = ({
             onPrev={playPrev}
             rating={getRating(fullScreenTrack.id)}
             onRate={handleToggleFavorite}
+            isShuffle={isShuffle}
+            onSetShuffle={setIsShuffle}
+            playlist={processedCards}
+            onSelectTrack={setFullScreenTrack}
         />
       )}
     </ModalOverlay>
