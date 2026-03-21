@@ -718,7 +718,7 @@ const GearModal = styled.div`
 
 const SubtitleOverlay = styled.div`
   position: absolute;
-  bottom: 32%; 
+  bottom: ${props => props.$show ? (props.$controlsVisible ? '32%' : '15%') : '32%'}; 
   left: 50%;
   transform: translateX(-50%);
   color: #fff;
@@ -733,7 +733,7 @@ const SubtitleOverlay = styled.div`
   padding: 10px 20px;
   border-radius: 20px;
   opacity: ${props => props.$show ? 1 : 0};
-  transition: opacity 0.3s;
+  transition: opacity 0.3s, bottom 0.3s ease;
 `;
 
 const DownloadModal = styled.div`
@@ -845,6 +845,51 @@ const SliderBtn = styled.button`
   &:hover { background: #ffaa00; }
 `;
 
+const SeekBarWrapper = styled.div`
+  position: relative;
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  &:hover .seek-tooltip {
+    opacity: 1;
+    visibility: visible;
+  }
+`;
+
+const SeekTooltip = styled.div`
+  position: absolute;
+  bottom: 25px;
+  left: ${props => props.$left}%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid #444;
+  padding: 5px;
+  border-radius: 5px;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s, visibility 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 2025;
+  white-space: nowrap;
+
+  img {
+    width: 100px;
+    height: 60px;
+    object-fit: cover;
+    margin-bottom: 4px;
+    border-radius: 4px;
+    background: #000;
+  }
+  span {
+    font-size: 12px;
+    color: white;
+    font-weight: bold;
+  }
+`;
+
 const LyricsViewer = ({ lyrics, currentTime }) => {
   const activeLineIndex = useMemo(() => {
     if (!Array.isArray(lyrics)) return -1;
@@ -885,6 +930,7 @@ const FullScreenPlayer = ({ track, onClose, onNext, onPrev, rating, onRate }) =>
   const [showControls, setShowControls] = useState(true);
   const [isCached, setIsCached] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
+  const [hoverTime, setHoverTime] = useState(null);
 
   const mediaRef = useRef(null);
   const controlsTimeoutRef = useRef(null);
@@ -1014,7 +1060,7 @@ const FullScreenPlayer = ({ track, onClose, onNext, onPrev, rating, onRate }) =>
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleClose, togglePlay]);
+  }, [handleClose, togglePlay, resetControlsTimeout]);
 
   useEffect(() => {
     if (isDinofroz || !duration || sliderImages.length === 0) return;
@@ -1058,6 +1104,13 @@ const FullScreenPlayer = ({ track, onClose, onNext, onPrev, rating, onRate }) =>
       `<html><head><title>Print</title></head><body style="text-align:center;"><img src="${imgSrc}" style="max-width:100%;" onload="window.print();window.close()" /></body></html>`,
     );
     printWindow.document.close();
+  };
+
+  const handleSeekHover = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const p = Math.max(0, Math.min(1, x / rect.width));
+    setHoverTime(p * duration);
   };
 
   // Cache logic
@@ -1194,8 +1247,8 @@ const FullScreenPlayer = ({ track, onClose, onNext, onPrev, rating, onRate }) =>
         )}
       </FSContent>
 
-      {/* Lyrics Overlay */}
-      <SubtitleOverlay $show={!!currentLyric}>
+      {/* Lyrics Overlay with dynamic position */}
+      <SubtitleOverlay $show={!!currentLyric} $controlsVisible={showControls}>
          {currentLyric}
       </SubtitleOverlay>
       {/* Audio Element for non-video tracks (Dinofroz uses FSVideo which is a video tag) */}
@@ -1205,14 +1258,24 @@ const FullScreenPlayer = ({ track, onClose, onNext, onPrev, rating, onRate }) =>
         {/* Seek Bar */}
         <div style={{ display: "flex", alignItems: "center", gap: "10px", color: "white", fontSize: "12px" }}>
           <span>{formatTime(progress)}</span>
-          <SeekBar
-            type="range"
-            min="0"
-            max={duration || 0}
-            $buffered={buffered}
-            value={progress}
-            onChange={(e) => (mediaRef.current.currentTime = e.target.value)}
-          />
+          <SeekBarWrapper onMouseMove={handleSeekHover} onMouseLeave={() => setHoverTime(null)}>
+            {hoverTime !== null && duration > 0 && (
+                <SeekTooltip $left={(hoverTime / duration) * 100} className="seek-tooltip">
+                    {!isDinofroz && sliderImages.length > 0 && (
+                        <img src={sliderImages[Math.min(Math.floor(hoverTime / (duration / sliderImages.length)), sliderImages.length - 1)]} alt="preview" />
+                    )}
+                    <span>{formatTime(hoverTime)}</span>
+                </SeekTooltip>
+            )}
+            <SeekBar
+                type="range"
+                min="0"
+                max={duration || 0}
+                $buffered={buffered}
+                value={progress}
+                onChange={(e) => (mediaRef.current.currentTime = e.target.value)}
+            />
+          </SeekBarWrapper>
           <span>{formatTime(duration)}</span>
         </div>
 
@@ -1250,10 +1313,19 @@ const FullScreenPlayer = ({ track, onClose, onNext, onPrev, rating, onRate }) =>
 
           <div style={{display:'flex', gap:'10px', alignItems:'center'}}>
              <ActionButton onClick={() => (mediaRef.current.currentTime -= seekAmount)}>-{seekAmount}s</ActionButton>
-             <div style={{display: 'flex', gap: '2px'}}>
-                <ActionButton onClick={() => setSpeed(0.2)} style={{ fontSize: '10px', width: '35px', padding: '0' }}>0.2x</ActionButton>
-                <ActionButton onClick={() => setSpeed(1)} style={{ fontSize: '10px', width: '30px', padding: '0' }}>1x</ActionButton>
-                <ActionButton onClick={() => setSpeed(2.2)} style={{ fontSize: '10px', width: '35px', padding: '0' }}>2.2x</ActionButton>
+             <div style={{display: 'flex', alignItems: 'center', gap: '5px', background: 'rgba(255,255,255,0.1)', padding: '5px 10px', borderRadius: '20px'}}>
+                <span style={{color:'white', fontSize:'12px'}}>⚡</span>
+                <SpeedSlider
+                    type="range"
+                    min="0.2"
+                    max="2.1"
+                    step="0.1"
+                    $activeColor="#7afcff"
+                    value={speed}
+                    onChange={(e) => setSpeed(parseFloat(e.target.value))}
+                    style={{width: '60px'}}
+                />
+                <span style={{color:'white', fontSize:'10px', width: '25px', textAlign: 'right'}}>{speed.toFixed(1)}x</span>
              </div>
              <ActionButton onClick={() => (mediaRef.current.currentTime += seekAmount)}>+{seekAmount}s</ActionButton>
           </div>

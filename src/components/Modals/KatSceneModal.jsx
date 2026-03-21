@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import dinofrozVideo from "../../mp3/dinofroz.mp4";
 import ultra from "../../photos/hero-header/start-image.jpg";
@@ -282,12 +282,12 @@ const KatSceneModal = ({ onClose }) => {
   };
 
   // Безпечне закриття з виходом з повноекранного режиму
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     if (document.fullscreenElement) {
       document.exitFullscreen();
     }
     onClose();
-  };
+  }, [onClose]);
 
   useEffect(() => {
     isLoopingRef.current = isLooping;
@@ -366,7 +366,16 @@ const KatSceneModal = ({ onClose }) => {
       clearTimeout(textInTimer);
       clearInterval(countdownInterval);
     };
-  }, [stepIndex]);
+  }, [
+    stepIndex,
+    step.duration,
+    step.text,
+    step.type,
+    step.imgIdx,
+    step.start,
+    step.end,
+    handleClose
+  ]);
 
   useEffect(() => {
     volumeRef.current = volume;
