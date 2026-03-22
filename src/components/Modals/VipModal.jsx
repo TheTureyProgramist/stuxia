@@ -143,6 +143,29 @@ const CloseButton = styled.button`
   }
 `;
 
+const CacheButton = styled.button`
+  position: absolute;
+  top: 3px;
+  right: 40px;
+  background: transparent;
+  border: none;
+  color: #ffb36c;
+  font-size: 16px;
+  cursor: pointer;
+  z-index: 1010;
+  opacity: 0.7;
+  transition: all 0.3s ease;
+  &:hover {
+    color: #fff;
+    opacity: 1;
+  }
+  @media (max-width: 768px) {
+    top: 10px;
+    font-size: 19px;
+    right: 45px;
+  }
+`;
+
 const HeaderToggle = styled.button`
   background: transparent;
   border: none;
@@ -886,11 +909,13 @@ const VipModal = ({ onClose }) => {
   const [tier, setTier] = useState("plus");
   const [showContent, setShowContent] = useState(true);
   const [volume, setVolume] = useState(0.5);
+  const [isCaching, setIsCaching] = useState(false);
 
   const aiRef = useRef(null);
   const musicRef = useRef(null);
   const economicsRef = useRef(null);
   const interfaceRef = useRef(null);
+  const cacheBtnRef = useRef(null);
 
   const scrollToSection = (ref) => {
     if (ref.current) {
@@ -1071,6 +1096,46 @@ const VipModal = ({ onClose }) => {
     ],
   };
 
+  const handleCacheAll = async (e) => {
+    e.stopPropagation();
+    if (isCaching) return;
+    setIsCaching(true);
+
+    try {
+      const urlsToCache = new Set();
+
+      // 1. Основні зображення та відео
+      urlsToCache.add(turkeys); // Plus image
+      urlsToCache.add(dinofrozVideo); // Ultra video
+
+      // 2. Медіа з Ultra плеєра (аудіо та картинки)
+      ULTRA_CARDS_LIST.forEach((item) => {
+        if (item.image) urlsToCache.add(item.image);
+        if (item.audio) urlsToCache.add(item.audio);
+      });
+
+      // 3. Іконки з переліку переваг (Plus та Ultra)
+      [plusBenefits, ultraBenefits].forEach((benefitsObj) => {
+        Object.values(benefitsObj).forEach((categoryList) => {
+          categoryList.forEach((benefit) => {
+            if (benefit.src) urlsToCache.add(benefit.src);
+          });
+        });
+      });
+
+      // Виконуємо запити для кешування
+      const promises = Array.from(urlsToCache).map((url) => fetch(url));
+      await Promise.all(promises);
+
+      alert("Успішно! Всі зображення, музика та відео закешовані.");
+    } catch (err) {
+      console.error("Помилка кешування:", err);
+      alert("Виникла помилка при спробі закешувати файли.");
+    } finally {
+      setIsCaching(false);
+    }
+  };
+
   const current = tier === "plus" ? plusBenefits : ultraBenefits;
 
   return (
@@ -1081,6 +1146,14 @@ const VipModal = ({ onClose }) => {
         onClick={(e) => e.stopPropagation()}
       >
         <CloseButton onClick={handleClose}>&times;</CloseButton>
+        <CacheButton
+          ref={cacheBtnRef}
+          onClick={handleCacheAll}
+          title="Закешувати всі ресурси (відео, аудіо, фото)"
+          disabled={isCaching}
+        >
+          {isCaching ? "⏳" : "📥"}
+        </CacheButton>
 
         <HeaderToggle
           onClick={() => handleTierSwitch(tier === "plus" ? "ultra" : "plus")}

@@ -3,6 +3,15 @@ import styled from "styled-components";
 import dinofrozVideo from "../../mp3/dinofroz.mp4";
 import ultra from "../../photos/hero-header/start-image.jpg";
 
+import ultraTurkeys from "../../photos/vip-images/turkeys/ultra-vip-turkeys.webp";
+import turkeysAudio from "../../mp3/turkeys.mp3";
+import horseImg from "../../photos/vip-images/horse/horse.jpg";
+import horseAudio from "../../mp3/horse.mp3";
+import monodyImg from "../../photos/fan-art/monody.jpg";
+import monodyAudio from "../../mp3/thefatrat-monody.mp3";
+import theoryImg from "../../photos/fan-art/theorytwo.jpg";
+import theoryAudio from "../../mp3/theoty-of-everything-ll.mp3";
+
 const Overlay = styled.div`
   position: fixed;
   top: 0;
@@ -140,6 +149,26 @@ const FullscreenButton = styled.button`
   }
 `;
 
+const CacheButton = styled.button`
+  position: absolute;
+  top: 10px;
+  left: 280px;
+  background: rgba(82, 249, 255, 0.2);
+  backdrop-filter: blur(5px);
+  color: #94fffa;
+  border: 1px solid rgba(0, 255, 255, 0.33);
+  font-size: 14px;
+  padding: 6px 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 60;
+
+  &:hover {
+    background: #fff;
+    color: #000;
+  }
+`;
+
 const CheckboxContainer = styled.label`
   position: absolute;
   top: 10px;
@@ -160,36 +189,20 @@ const CheckboxContainer = styled.label`
 
 const ULTRA_CARDS_LIST = [
   {
-    image: require("../../photos/vip-images/turkeys/ultra-vip-turkeys.webp"),
-    audio: require("../../mp3/turkeys.mp3"),
+    image: ultraTurkeys,
+    audio: turkeysAudio,
   },
   {
-    image: require("../../photos/vip-images/dinofroz/vip-dinofroz.webp"),
-    audio: require("../../mp3/dinofroz.mp3"),
+    image: horseImg,
+    audio: horseAudio,
   },
   {
-    image: require("../../photos/vip-images/horse/horse.jpg"),
-    audio: require("../../mp3/horse.mp3"),
+    image: monodyImg,
+    audio: monodyAudio,
   },
   {
-    image: require("../../photos/vip-images/vip-soloveyko.jpg"),
-    audio: require("../../mp3/soloveyko.mp3"),
-  },
-  {
-    image: require("../../photos/fan-art/monody.jpg"),
-    audio: require("../../mp3/thefatrat-monody.mp3"),
-  },
-  {
-    image: require("../../photos/vip-images/asium/asium.jpg"),
-    audio: require("../../mp3/harmonic-japan.mp3"),
-  },
-  {
-    image: require("../../photos/fan-art/theorytwo.jpg"),
-    audio: require("../../mp3/theoty-of-everything-ll.mp3"),
-  },
-  {
-    image: require("../../photos/vip-images/mechannic.jpg"),
-    audio: require("../../mp3/mechanik-kindom.mp3"),
+    image: theoryImg,
+    audio: theoryAudio,
   },
 ];
 
@@ -210,7 +223,7 @@ const SEQUENCE = [
   },
   {
     type: "card",
-    imgIdx: 2,
+    imgIdx: 1,
     duration: 4000,
     text: "Зробіть красиву оселю, з принтером і нашими, пошуковими або власними фанартами!",
   },
@@ -220,7 +233,7 @@ const SEQUENCE = [
     end: 30,
     text: "Секрети, головоломки, історії, власні рівні, різні рівні складності, тексти.",
   },
-  { type: "card", imgIdx: 6, duration: 12000, text: "Налаштуйте сайт під себе" },
+  { type: "card", imgIdx: 3, duration: 12000, text: "Налаштуйте сайт під себе" },
   {
     type: "video",
     start: 30,
@@ -230,7 +243,7 @@ const SEQUENCE = [
   { type: "video", start: 45, end: 60, text: "Досягнення на будь-який смак. " },
   {
     type: "card",
-    imgIdx: 4,
+    imgIdx: 2,
     duration: 10000,
     text: "Власна валюта. Скачуйте музику, зображення, відео, скріншоти.",
   },
@@ -261,6 +274,7 @@ const KatSceneModal = ({ onClose }) => {
   const [timeLeft, setTimeLeft] = useState(0);
   const [volume, setVolume] = useState(0.5);
   const [isLooping, setIsLooping] = useState(false);
+  const [isCaching, setIsCaching] = useState(false);
   
   const videoRef = useRef(null);
   const audioRef = useRef(null);
@@ -289,6 +303,31 @@ const KatSceneModal = ({ onClose }) => {
     }
     onClose();
   }, [onClose]);
+
+  const handleCacheAll = async () => {
+    if (isCaching) return;
+    setIsCaching(true);
+
+    try {
+      const urlsToCache = new Set();
+      urlsToCache.add(ultra);
+      urlsToCache.add(dinofrozVideo);
+
+      ULTRA_CARDS_LIST.forEach((item) => {
+        if (item.image) urlsToCache.add(item.image);
+        if (item.audio) urlsToCache.add(item.audio);
+      });
+
+      const promises = Array.from(urlsToCache).map((url) => fetch(url));
+      await Promise.all(promises);
+      alert("Успішно! Всі ресурси закешовані.");
+    } catch (err) {
+      console.error("Помилка кешування:", err);
+      alert("Помилка кешування.");
+    } finally {
+      setIsCaching(false);
+    }
+  };
 
   useEffect(() => {
     handleCloseRef.current = handleClose;
@@ -408,8 +447,11 @@ const KatSceneModal = ({ onClose }) => {
   return (
     <Overlay ref={containerRef}>
       <UltraPlayerContainer>
-        <SkipButton onClick={handleClose}>Пропустити</SkipButton>
-        <FullscreenButton onClick={toggleFullscreen}>⛶ На весь екран</FullscreenButton>
+        <SkipButton onClick={handleClose}>Skip</SkipButton>
+        <FullscreenButton onClick={toggleFullscreen}>⛶ Bесь екран</FullscreenButton>
+        <CacheButton onClick={handleCacheAll} disabled={isCaching}>
+          {isCaching ? "⏳" : "📥 Кеш"}
+        </CacheButton>
 
         <VolumeControlContainer>
           <span style={{ fontSize: "14px" }}>🔊</span>
