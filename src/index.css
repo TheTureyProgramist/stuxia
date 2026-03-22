@@ -49,131 +49,52 @@ git commit -m "security: remove env from git history" */
 </div>
 <!-- Meteofor Weather Widget: End --> */
 
-/* // const FullScreenOverlay = styled.div`
-//   position: fixed;
-//   top: 0;
-//   left: 0;
-//   width: 100vw;
-//   height: 100vh;
-//   background: black;
-//   z-index: 2000;
-//   display: flex;
-//   flex-direction: column;
-//   animation: ${slideIn} 0.3s ease-out;
-// `;
+/* Завдання 1. Створи базову маршрутизацію для застосунку “Кінопошук” пошуку і зберігання фільмів. Прев'ю робочого застосунку дивись за посиланням.
 
-const FSHeader = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  padding: 15px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  z-index: 2010;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent);
-`;
 
-const FSCloseButton = styled.button`
-  background: rgba(255,255,255,0.2);
-  border: none;
-  color: white;
-  font-size: 24px;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  cursor: pointer;
-  &:hover { background: rgba(255,255,255,0.4); }
-`;
 
-const FSContent = styled.div`
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  overflow: hidden;
-`;
+themoviedb.org API​ - для бекенду використовуй themoviedb.org API. Необхідно зареєструватися (можна ввести довільні дані) та отримати API-ключ. У цій роботі будуть використовуватися наступні ендпоінти.
 
-const FSVideo = styled.video`
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-`;
+/trending/get-trending список найпопулярніших фільмів на сьогодні для створення колекції на головній сторінці.
+/search/search-movies пошук фільму за ключовим словом на сторінці фільмів.
+/movies/get-movie-details запит повної інформації про фільм для сторінки кінофільму.
+/movies/get-movie-credits запит інформації про акторський склад для сторінки кінофільму.
+/movies/get-movie-reviews запит оглядів для сторінки кінофільму.
 
-const FSImage = styled.img`
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  animation: ${fadeOut} 1s ease-in-out reverse; 
-`;
 
-const FSControls = styled.div`
-  background: rgba(20, 20, 20, 0.9);
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  z-index: 2010;
-`;
+Посилання на документацію
 
-const FSSliderContainer = styled.div`
-  display: flex;
-  gap: 10px;
-  overflow-x: auto;
-  padding: 10px;
-  background: #111;
-  height: 100px;
-  &::-webkit-scrollbar { height: 4px; }
-  &::-webkit-scrollbar-thumb { background: orange; }
-`;
 
-const FSSliderImage = styled.img`
-  height: 80px;
-  width: 120px;
-  object-fit: cover;
-  border-radius: 6px;
-  opacity: ${props => props.$active ? 1 : 0.5};
-  border: ${props => props.$active ? '2px solid orange' : 'none'};
-  cursor: pointer;
-  transition: all 0.3s;
-  &:hover { opacity: 1; }
-`;
 
-const FSTitle = styled.h2`
-  color: white;
-  margin: 0;
-  font-size: 18px;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-`;
+Маршрути​ - у застосунку повинні бути такі маршрути. Якщо користувач зайшов за неіснуючим маршрутом, його необхідно перенаправляти на домашню сторінку:
 
-const GearModal = styled.div`
-  position: absolute;
-  bottom: 80px;
-  right: 20px;
-  background: rgba(30,30,30,0.95);
-  padding: 15px;
-  border-radius: 12px;
-  color: white;
-  width: 250px;
-  z-index: 2020;
-  border: 1px solid #444;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-`;
+'/' – компонент Home, домашня сторінка зі списком популярних кінофільмів.
+'/movies' – компонент Movies, сторінка пошуку кінофільмів за ключовим словом.
+'/movies/:movieId' – компонент MovieDetails, сторінка з детальною інформацією про кінофільм.
+/movies/:movieId/cast – компонент Cast, інформація про акторський склад. Рендериться на сторінці MovieDetails.
+/movies/:movieId/reviews – компонент Reviews, інформація про огляди. Рендериться на сторінці MovieDetails.
 
-const DownloadModal = styled.div`
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: #fff;
-  padding: 20px;
-  border-radius: 12px;
-  z-index: 2030;
-  width: 300px;
-  box-shadow: 0 0 20px rgba(0,0,0,0.5);
-  text-align: center;
-`; */
+
+Code Splitting (поділ коду)​ - додай асинхронне завантаження JS-коду для маршрутів застосунку, використовуючи React.lazy() і Suspense.
+
+
+
+Використовуй цей шаблон React-проекту як стартову точку своєї програми.
+
+
+
+Критерії приймання:
+
+Створений репозиторій goit-react-hw-05-movies
+При здачі домашньої роботи є посилання: на вихідні файли та робочі сторінки кожного проекту на GitHub Pages.
+У стані компонентів зберігається мінімально необхідний набір даних, решта обчислюється
+Під час запуску коду завдання в консолі відсутні помилки та попередження.
+Для кожного компонента є окрема папка з файлом React-компонента та файлом стилів
+Для компонентів описані propTypes
+Все, що компонент очікує у вигляді пропсів, передається йому під час виклику.
+Імена компонентів зрозумілі та описові
+JS-код чистий і зрозумілий, використовується Prettier
+Стилізація виконана CSS-модулями або Styled Components.
+
+
+Завдання 2. Запушити написаний код в репозиторій HW-27-react. Прикріпити у ДЗ посилання на репозиторій з кодом та на деплой github-pages. */

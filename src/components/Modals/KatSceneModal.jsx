@@ -195,18 +195,18 @@ const ULTRA_CARDS_LIST = [
 
 const SEQUENCE = [
   { type: "thematic", duration: 3000, text: "" },
-  { type: "black", duration: 10000, text: "У нас надійна погода. Власний коментар: Я не хочу багато підписників чи користувачів, але я хочу людей, які з радістю викорстають мій сайт, у різних цілях." },
+  { type: "black", duration: 10000, text: "У нас надійна погода. Власний коментар: Я не хочу багато підписників чи користувачів, але я хочу людей, які з радістю використовуватимуть мій сайт, у різних цілях." },
   {
     type: "card",
     imgIdx: 0,
     duration: 6000,
-    text: "Банальна і цікава музика, яку можна додавати, шукати",
+    text: "Різноманітна та захоплива музика, яку можна додавати, шукати",
   },
   {
     type: "video",
     start: 10,
     end: 20,
-    text: "Спец режим відео (динофроз) або плавне перегортання +-9 зображень під час програвання деяких музичних файлів",
+    text: "Спец режим відео (динофроз) або плавне перегортання зображень під час програвання деяких музичних файлів",
   },
   {
     type: "card",
@@ -218,7 +218,7 @@ const SEQUENCE = [
     type: "video",
     start: 20,
     end: 30,
-    text: "Секрети, головоломки, історії, власні рівні, різні важкості, тексти.",
+    text: "Секрети, головоломки, історії, власні рівні, різні рівні складності, тексти.",
   },
   { type: "card", imgIdx: 6, duration: 12000, text: "Налаштуйте сайт під себе" },
   {
@@ -227,30 +227,30 @@ const SEQUENCE = [
     end: 45,
     text: "Пишіть, підказуйте, що зробити для вас :)",
   },
-  { type: "video", start: 45, end: 60, text: "Досягнення різного смаку. " },
+  { type: "video", start: 45, end: 60, text: "Досягнення на будь-який смак. " },
   {
     type: "card",
     imgIdx: 4,
     duration: 10000,
-    text: "Власна валюта. Скачуйте музику, зображення, відео.",
+    text: "Власна валюта. Скачуйте музику, зображення, відео, скріншоти.",
   },
   {
     type: "video",
     start: 60,
     end: 66,
-    text: "Все можна поліпшити, з Стихія Ультра та Стихія+",
+    text: "Все можна поліпшити, зі Стихія+ та Стихія Ultra",
   },
   {
     type: "video",
     start: 66,
     end: 73,
-    text: "Колись я не думав, що це може дійти до такого маштабу, проте фантазія робить дива :)",
+    text: "Колись я не думав, що це може дійти до такого масштабу, проте фантазія робить дива :)",
   },
   {
     type: "video",
     start: 73,
     end: 83,
-    text: "Велика подяка, API сайтам, які допомогли при створенні Стихії. Малятко ТВ, Пікселю за гарні роки дитинства. І найголовніше сім'ї та близьким.",
+    text: "Велика подяка, API сайтам, які допомогли при створенні Стихії. Малятко ТВ, Пікселю за гарні роки дитинства. І найголовніше сім'ї та близьким. Дякую за користування сайтом!",
   },
 ];
 
@@ -267,6 +267,7 @@ const KatSceneModal = ({ onClose }) => {
   const containerRef = useRef(null); // Ref для контейнера Fullscreen
   const volumeRef = useRef(volume);
   const isLoopingRef = useRef(isLooping);
+  const handleCloseRef = useRef(null);
 
   const step = SEQUENCE[stepIndex];
 
@@ -288,6 +289,10 @@ const KatSceneModal = ({ onClose }) => {
     }
     onClose();
   }, [onClose]);
+
+  useEffect(() => {
+    handleCloseRef.current = handleClose;
+  }, [handleClose]);
 
   useEffect(() => {
     isLoopingRef.current = isLooping;
@@ -323,7 +328,7 @@ const KatSceneModal = ({ onClose }) => {
 
     const handleNextStep = () => {
       if (stepIndex === SEQUENCE.length - 1 && !isLoopingRef.current) {
-        handleClose();
+        if (handleCloseRef.current) handleCloseRef.current();
       } else {
         setStepIndex((prev) => (prev + 1) % SEQUENCE.length);
       }
@@ -331,7 +336,7 @@ const KatSceneModal = ({ onClose }) => {
 
     if (step.type === "thematic") {
       if (videoRef.current) videoRef.current.pause();
-      if (audioRef.current) audioRef.current.pause();
+      if (audioRef.current) audioRef.current?.pause();
       nextStepTimer = setTimeout(handleNextStep, step.duration);
     } else if (step.type === "card") {
       if (videoRef.current) videoRef.current.pause();
@@ -374,7 +379,6 @@ const KatSceneModal = ({ onClose }) => {
     step.imgIdx,
     step.start,
     step.end,
-    handleClose
   ]);
 
   useEffect(() => {

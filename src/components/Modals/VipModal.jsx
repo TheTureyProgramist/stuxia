@@ -4,7 +4,7 @@ import styled, { keyframes, css } from "styled-components";
 import turkeys from "../../photos/vip-images/collectors-edition.jpg";
 import dinofroz from "../../photos/vip-images/dinofroz/vip-dinofroz.webp";
 import dinofrozVideo from "../../mp3/dinofroz.mp4";
-// import monody from "../../photos/vip-images/vip-forest.webp";
+import monody from "../../photos/fan-art/monody.jpg";
 import dragons from "../../photos/vip-images/dinofroz/vip-dragons.jpg";
 import vip from "../../photos/hero-header/vip.jpg";
 import music from "../../photos/vip-modal/music.jpg";
@@ -26,6 +26,14 @@ import puzzle4 from "../../photos/fan-art/puzzle-4.webp";
 import font from "../../photos/vip-images/flame.jpg";
 import puzzle1 from "../../photos/fan-art/puzzle-1.webp";
 // import fototwo from "../../photos/vip-images/vip-dragons.jpg";
+//Prewiew
+import monodys from "../../mp3/thefatrat-monody.mp3";
+import second from "../../photos/fan-art/theorytwo.jpg";
+import seconds from "../../mp3/theoty-of-everything-ll.mp3";
+import horse from "../../photos/vip-images/horse/horse.jpg";
+import horses from "../../mp3/horse.mp3";
+import tur from "../../photos/vip-images/turkeys/ultra-vip-turkeys.webp";
+import turs from "../../mp3/turkeys.mp3";
 const appearAndShrink = keyframes`
   0% { opacity: 0; transform: scale(1.3); filter: blur(10px); }
   50% { opacity: 0.5; transform: scale(1.1); filter: blur(2px); }
@@ -635,57 +643,41 @@ const VolumeControlContainer = styled.div`
 
 const ULTRA_CARDS_LIST = [
   {
-    image: require("../../photos/vip-images/turkeys/ultra-vip-turkeys.webp"),
-    audio: require("../../mp3/turkeys.mp3"),
+    image: tur,
+    audio: turs,
   },
   {
-    image: require("../../photos/vip-images/dinofroz/vip-dinofroz.webp"),
-    audio: require("../../mp3/dinofroz.mp3"),
+    image: horse,
+    audio: horses,
   },
   {
-    image: require("../../photos/vip-images/horse/horse.jpg"),
-    audio: require("../../mp3/horse.mp3"),
+    image: monody,
+    audio: monodys,
   },
   {
-    image: require("../../photos/vip-images/vip-soloveyko.jpg"),
-    audio: require("../../mp3/soloveyko.mp3"),
-  },
-  {
-    image: require("../../photos/fan-art/monody.jpg"),
-    audio: require("../../mp3/thefatrat-monody.mp3"),
-  },
-  {
-    image: require("../../photos/vip-images/asium/asium.jpg"),
-    audio: require("../../mp3/harmonic-japan.mp3"),
-  },
-  {
-    image: require("../../photos/fan-art/theorytwo.jpg"),
-    audio: require("../../mp3/theoty-of-everything-ll.mp3"),
-  },
-  {
-    image: require("../../photos/vip-images/mechannic.jpg"),
-    audio: require("../../mp3/mechanik-kindom.mp3"),
+    image: second,
+    audio: seconds,
   },
 ];
 
 const SEQUENCE = [
-  { type: "thematic", duration: 2000, text: "" },
+  { type: "thematic", duration: 3000, text: "" },
   { type: "black", duration: 10000, text: "У нас надійна погода" },
   {
     type: "card",
     imgIdx: 0,
     duration: 6000,
-    text: "Банальна і цікава музика, яку можна додавати, шукати",
+    text: "Різноманітна та захоплива музика, яку можна додавати, шукати",
   },
   {
     type: "video",
     start: 10,
     end: 20,
-    text: "Спец режим відео (динофроз) або плавне перегортання +-9 зображень під час програвання деяких музичних файлів",
+    text: "Спец режим відео (динофроз) або плавне перегортання зображень під час програвання деяких музичних файлів",
   },
   {
     type: "card",
-    imgIdx: 2,
+    imgIdx: 1,
     duration: 4000,
     text: "Зробіть красиву оселю, з принтером і нашими, пошуковими або власними фанартами!",
   },
@@ -693,9 +685,9 @@ const SEQUENCE = [
     type: "video",
     start: 20,
     end: 30,
-    text: "Секрети, головоломки, історії, власні рівні, різні важкості, тексти.",
+    text: "Секрети, головоломки, історії, власні рівні, різні рівні складності, тексти.",
   },
-  { type: "card", imgIdx: 6, duration: 12000, text: "Налаштуйте сайт під себе" },
+  { type: "card", imgIdx: 3, duration: 12000, text: "Налаштуйте сайт під себе" },
   {
     type: "video",
     start: 30,
@@ -705,7 +697,7 @@ const SEQUENCE = [
   { type: "video", start: 45, end: 65, text: "Досягнення різного смаку. " },
   {
     type: "card",
-    imgIdx: 4,
+    imgIdx: 2,
     duration: 10000,
     text: "Власна валюта. Скачуйте музику, зображення, відео.",
   },
