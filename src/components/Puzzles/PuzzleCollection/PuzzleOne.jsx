@@ -7,13 +7,18 @@ import React, {
 } from "react";
 import styled, { keyframes } from "styled-components";
 import { motion, AnimatePresence } from "framer-motion";
-import lamp from "../../../photos/hero-header/lamp.jpeg";
 import decor from "../../../photos/fan-art/modaldecor.jpg";
 const fadeIn = keyframes`
   from { opacity: 0; }
   to { opacity: 1; }
 `;
-
+const Im = styled.img`
+  display: block;
+  width: 100%;       
+  height: 100%;      
+  object-fit: cover; 
+  object-position: center;
+`;
 const rotate = keyframes`
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
@@ -23,6 +28,40 @@ const rotateRev = keyframes`
   from { transform: rotate(0deg); }
   to { transform: rotate(-360deg); }
 `;
+
+const LoadingOverlay = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  color: #ffb36c;
+  font-family: var(--font-family);
+`;
+
+const ProgressBar = styled.div`
+  width: 250px;
+  height: 8px;
+  background: #333;
+  border: 1px solid #ffb36c;
+  border-radius: 4px;
+  margin-top: 15px;
+  overflow: hidden;
+`;
+
+const ProgressFill = styled.div`
+  height: 100%;
+  background: #ffb36c;
+  width: ${props => props.$percent}%;
+  transition: width 0.2s;
+`;
+
 const VolumeControl = styled.div`
   display: flex;
   align-items: center;
@@ -40,41 +79,6 @@ const VolumeControl = styled.div`
   span {
     font-size: 16px;
     min-width: 20px;
-  }
-`;
-
-const SliderContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  margin-top: 10px;
-`;
-
-const SliderImage = styled.img`
-  width: 150px;
-  height: 90px;
-  object-fit: cover;
-  border-radius: 8px;
-  border: 2px solid #ffb36c;
-`;
-
-const SliderButton = styled.button`
-  width: 40px;
-  height: 40px;
-  background: transparent;
-  border: 2px solid #ffb36c;
-  color: #ffb36c;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  transition: all 0.2s;
-  border-radius: 50%;
-  &:hover {
-    background: rgba(255, 179, 108, 0.1);
-    transform: scale(1.05);
   }
 `;
 
@@ -111,15 +115,24 @@ const Board = styled.div`
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 `;
 
+const TileContent = styled.div`
+  width: ${(props) => props.$cols * 100}%;
+  height: ${(props) => props.$rows * 100}%;
+  position: absolute;
+  top: ${(props) => -props.$row * 100}%;
+  left: ${(props) => -props.$col * 100}%;
+  background-image: ${(props) => `url("${props.$image}")`};
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  pointer-events: none;
+`;
+
 const Tile = styled(motion.div)`
   width: 100%;
   height: 100%;
-  background-image: url("${(props) => props.$image}");
-  background-size: ${(props) => props.$cols * 100}%
-    ${(props) => props.$rows * 100}%;
-  background-position: ${(props) => props.$bgPosX}% ${(props) => props.$bgPosY}%;
+  position: relative;
+  overflow: hidden;
   cursor: ${(props) => (props.$isCorrect ? "default" : "pointer")};
-  background-repeat: no-repeat;
   filter: ${(props) =>
     props.$isSelected
       ? "brightness(1.4) contrast(1.2)"
@@ -260,16 +273,32 @@ const DifficultyBtn = styled.button`
     color: #3e2723;
   }
 `;
-
-const HintImage = styled.img`
-  width: 40px;
-  height: 40px;
-  padding: 5px;
-  border: 2px solid #ffb36c;
-  background-image: url("${(props) => props.$img}");
-  background-size: cover;
-  background-position: center;
+const ThemeGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 15px;
+  
+  &::-webkit-scrollbar { width: 6px; }
+  &::-webkit-scrollbar-thumb { background: #ffb36c; border-radius: 3px; }
 `;
+
+const ThemeItem = styled.div`
+  cursor: pointer;
+  border: 3px solid ${(props) => (props.$isActive ? "#4caf50" : "transparent")};
+  border-radius: 12px;
+  overflow: hidden;
+  aspect-ratio: 3/2;
+  transition: all 0.2s;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  &:hover {
+    border-color: #ffb36c;
+    transform: scale(1.02);
+  }
+`;
+
 const PuzzleOne = ({ onExit }) => {
   const puzzleImages = useMemo(
     () => [
@@ -385,13 +414,13 @@ const PuzzleOne = ({ onExit }) => {
     [],
   );
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
-  const finalImage = puzzleImages[currentMediaIndex].image;
 
   const [config, setConfig] = useState({
     cols: 6,
     rows: 4,
     maxMoves: 150,
     maxTime: 180,
+    rotationChance: 0.35,
     label: "Нормальна",
   });
 
@@ -401,9 +430,60 @@ const PuzzleOne = ({ onExit }) => {
   const [moves, setMoves] = useState(0);
   const [timeLeft, setTimeLeft] = useState(config.maxTime);
   const [showSettings, setShowSettings] = useState(false);
+  const [showThemeModal, setShowThemeModal] = useState(false);
   const [volume, setVolume] = useState(0.5);
+  
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadProgress, setLoadProgress] = useState(0);
 
   const audioRef = useRef(null);
+  const previewAudioRef = useRef(new Audio());
+  const previewTimeoutRef = useRef(null);
+  const fadeIntervalRef = useRef(null);
+
+  const handleThemeHover = (audioSrc) => {
+    if (audioRef.current && !audioRef.current.paused) {
+      audioRef.current.pause();
+    }
+    
+    if (fadeIntervalRef.current) clearInterval(fadeIntervalRef.current);
+    if (previewTimeoutRef.current) clearTimeout(previewTimeoutRef.current);
+
+    previewAudioRef.current.src = audioSrc;
+    previewAudioRef.current.volume = volume;
+    previewAudioRef.current.currentTime = 0;
+    previewAudioRef.current.play().catch(() => {});
+
+    previewTimeoutRef.current = setTimeout(() => {
+      let vol = previewAudioRef.current.volume;
+      const stepTime = 100;
+      const steps = 3000 / stepTime;
+      const volStep = vol / steps;
+
+      fadeIntervalRef.current = setInterval(() => {
+        if (previewAudioRef.current.volume > volStep) {
+          previewAudioRef.current.volume -= volStep;
+        } else {
+          previewAudioRef.current.volume = 0;
+          previewAudioRef.current.pause();
+          clearInterval(fadeIntervalRef.current);
+        }
+      }, stepTime);
+    }, 12000);
+  };
+
+  const handleThemeLeave = (resumeMain = true) => {
+    if (fadeIntervalRef.current) clearInterval(fadeIntervalRef.current);
+    if (previewTimeoutRef.current) clearTimeout(previewTimeoutRef.current);
+    
+    previewAudioRef.current.pause();
+    previewAudioRef.current.currentTime = 0;
+    previewAudioRef.current.volume = volume;
+
+    if (resumeMain && audioRef.current && volume > 0 && !isWon) {
+        audioRef.current.play().catch(() => {});
+    }
+  };
 
   // On mount and unmount
   useEffect(() => {
@@ -416,14 +496,36 @@ const PuzzleOne = ({ onExit }) => {
     };
   }, []);
 
-  // On media change
+  // On media change - with Loading Logic
   useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.src = puzzleImages[currentMediaIndex].audio;
-      audioRef.current
-        .play()
-        .catch((e) => console.error("Audio play failed", e));
-    }
+    const loadMedia = async () => {
+      setIsLoading(true);
+      setLoadProgress(0);
+      
+      const currentItem = puzzleImages[currentMediaIndex];
+      
+      // Load Audio
+      if (audioRef.current) {
+        audioRef.current.src = currentItem.audio;
+        audioRef.current.load();
+      }
+
+      // Load Image
+      const img = new Image();
+      img.src = currentItem.image;
+      await new Promise((resolve) => {
+        img.onload = resolve;
+        img.onerror = resolve; // proceed anyway
+      });
+      setLoadProgress(100);
+
+      setIsLoading(false);
+      
+      // Try playing audio after load
+      audioRef.current.play().catch(() => {});
+    };
+
+    loadMedia();
   }, [currentMediaIndex, puzzleImages]);
 
   // On volume change
@@ -435,7 +537,10 @@ const PuzzleOne = ({ onExit }) => {
 
   const initGame = useCallback(() => {
     const total = config.cols * config.rows;
-    const initial = Array.from({ length: total }, (_, i) => ({ id: i }));
+    const initial = Array.from({ length: total }, (_, i) => ({
+      id: i,
+      rotation: Math.random() < config.rotationChance ? 180 : 0,
+    }));
     let shuffled;
     do {
       shuffled = [...initial].sort(() => Math.random() - 0.5);
@@ -490,93 +595,89 @@ const PuzzleOne = ({ onExit }) => {
         return;
       }
       const newTiles = [...tiles];
-      [newTiles[selectedIdx], newTiles[index]] = [
-        newTiles[index],
-        newTiles[selectedIdx],
-      ];
+      const idx1 = selectedIdx;
+      const idx2 = index;
+
+      // 1. Swap
+      [newTiles[idx1], newTiles[idx2]] = [newTiles[idx2], newTiles[idx1]];
+
+      // 2. Chaos Shuffle (except swapped & correct ones)
+      const lockedIndices = new Set([idx1, idx2]);
+      newTiles.forEach((t, i) => {
+        if (t.id === i) lockedIndices.add(i);
+      });
+
+      const indicesToShuffle = [];
+      const tilesToShuffle = [];
+      newTiles.forEach((t, i) => {
+        if (!lockedIndices.has(i)) {
+          indicesToShuffle.push(i);
+          tilesToShuffle.push(t);
+        }
+      });
+
+      if (tilesToShuffle.length > 0) {
+        for (let i = tilesToShuffle.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [tilesToShuffle[i], tilesToShuffle[j]] = [
+            tilesToShuffle[j],
+            tilesToShuffle[i],
+          ];
+        }
+        indicesToShuffle.forEach((pos, i) => {
+          newTiles[pos] = tilesToShuffle[i];
+        });
+      }
+
+      // 3. Fix rotation if tile is in correct place
+      const updatedTiles = newTiles.map((t, i) =>
+        t.id === i ? { ...t, rotation: 0 } : t
+      );
 
       const newMoves = moves + 1;
-      setTiles(newTiles);
+      setTiles(updatedTiles);
       setMoves(newMoves);
       setSelectedIdx(null);
 
-      if (newTiles.every((t, i) => t.id === i)) {
+      if (updatedTiles.every((t, i) => t.id === i)) {
         setIsWon(true);
       } else if (newMoves >= config.maxMoves) {
         alert("Ходи закінчились!");
         initGame();
       } else {
-        checkAutoRestart(newTiles, newMoves);
+        checkAutoRestart(updatedTiles, newMoves);
       }
     }
   };
-
-  const handleHint = () => {
-    if (isWon) return;
-    const incorrectIndices = tiles
-      .map((tile, idx) => (tile.id !== idx ? idx : null))
-      .filter((idx) => idx !== null);
-
-    if (incorrectIndices.length > 0) {
-      const targetIdx = incorrectIndices[0];
-      const currentIdxOfCorrectTile = tiles.findIndex(
-        (t) => t.id === targetIdx,
-      );
-
-      const newTiles = [...tiles];
-      [newTiles[targetIdx], newTiles[currentIdxOfCorrectTile]] = [
-        newTiles[currentIdxOfCorrectTile],
-        newTiles[targetIdx],
-      ];
-
-      const newMoves = moves + 1;
-      setTiles(newTiles);
-      setMoves(newMoves);
-      setSelectedIdx(null);
-
-      if (newTiles.every((t, i) => t.id === i)) setIsWon(true);
-      else checkAutoRestart(newTiles, newMoves);
-    }
-  };
-
-  const setDifficulty = (type, customParams = null) => {
+ const setDifficulty = (type, customParams = null) => {
+    let newConfig;
     if (customParams) {
-      setConfig({ ...customParams, label: "Власна" });
+      newConfig = { ...customParams, label: "Власна" };
     } else {
       const presets = {
-        easy: { cols: 5, rows: 3, maxMoves: 200, maxTime: 240, label: "Легка" },
-        normal: {
-          cols: 6,
-          rows: 4,
-          maxMoves: 150,
-          maxTime: 180,
-          label: "Нормальна",
-        },
-        hard: {
-          cols: 8,
-          rows: 5,
-          maxMoves: 100,
-          maxTime: 120,
-          label: "Екстремальна",
-        },
+        easy: { cols: 5, rows: 3, maxMoves: 200, maxTime: 240, rotationChance: 0, label: "Легка" },
+        normal: { cols: 6, rows: 4, maxMoves: 150, maxTime: 180, rotationChance: 0.35, label: "Нормальна" },
+        hard: { cols: 8, rows: 5, maxMoves: 100, maxTime: 120, rotationChance: 0.6, label: "Екстремальна" },
       };
-      setConfig(presets[type]);
+      newConfig = presets[type];
     }
+    
+    setConfig(newConfig);
     setShowSettings(false);
+    setSelectedIdx(null); // Важливо: скидаємо вибір при зміні сітки
   };
 
-  const handlePrev = () => {
-    setCurrentMediaIndex(
-      (prev) => (prev - 1 + puzzleImages.length) % puzzleImages.length,
-    );
-  };
-
-  const handleNext = () => {
-    setCurrentMediaIndex((prev) => (prev + 1) % puzzleImages.length);
+  const handleSelectTheme = (index) => {
+    handleThemeLeave(false);
+    setCurrentMediaIndex(index);
+    setShowThemeModal(false);
+    setTimeout(() => initGame(), 100);
   };
 
   const formatTime = (s) =>
     `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`;
+
+  const currentMedia = puzzleImages[currentMediaIndex];
 
   return (
     <GameWrapper
@@ -588,37 +689,40 @@ const PuzzleOne = ({ onExit }) => {
         backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(${decor})`,
       }}
     >
+      {isLoading && (
+        <LoadingOverlay>
+          <div>Завантаження медіа... {loadProgress}%</div>
+          <ProgressBar><ProgressFill $percent={loadProgress} /></ProgressBar>
+        </LoadingOverlay>
+      )}
       <Board $cols={config.cols} $rows={config.rows}>
         {tiles.map((tile, index) => {
           const row = Math.floor(tile.id / config.cols);
           const col = tile.id % config.cols;
-          const bgPosX = (col / (config.cols - 1)) * 100;
-          const bgPosY = (row / (config.rows - 1)) * 100;
 
           return (
             <Tile
               key={tile.id}
               layout
+              animate={{ rotate: tile.rotation }}
               $cols={config.cols}
               $rows={config.rows}
-              $image={finalImage}
-              $bgPosX={isNaN(bgPosX) ? 0 : bgPosX}
-              $bgPosY={isNaN(bgPosY) ? 0 : bgPosY}
               $isCorrect={tile.id === index}
               $isSelected={selectedIdx === index}
               onClick={() => handleTileClick(index)}
               transition={{ type: "spring", stiffness: 350, damping: 25 }}
-            />
+            >
+              <TileContent
+                $cols={config.cols}
+                $rows={config.rows}
+                $col={col}
+                $row={row}
+                $image={currentMedia.image}
+              />
+            </Tile>
           );
         })}
       </Board>
-
-      <SliderContainer>
-        <SliderButton onClick={handlePrev}>{"<"}</SliderButton>
-        <SliderImage src={finalImage} alt="Тема пазлу" />
-        <SliderButton onClick={handleNext}>{">"}</SliderButton>
-      </SliderContainer>
-
       <div style={{ height: "30px" }}>
         {isWon && <h2 style={{ color: "#4caf50", margin: 0 }}>Перемога! 🏆</h2>}
       </div>
@@ -657,21 +761,23 @@ const PuzzleOne = ({ onExit }) => {
               onChange={(e) => setVolume(parseFloat(e.target.value))}
             />
           </VolumeControl>
-
-          <HintImage src={lamp} onClick={handleHint} title="Підказка" />
-
           <GearContainer
-            onClick={() => setShowSettings(true)}
+            onClick={(e) => {
+    e.stopPropagation(); 
+    setShowSettings(true);
+  }}
             title="Налаштування"
           >
             <span className="g g1">⚙</span>
             <span className="g g2">⚙</span>
             <span className="g g3">⚙</span>
           </GearContainer>
-
           <GameButton onClick={initGame} title="Перезапустити">
             ⏭
           </GameButton>
+                <GameButton onClick={() => setShowThemeModal(true)} style={{ width: 'auto', padding: '0 20px', borderRadius: '5px' }}>
+        Стиль гри
+      </GameButton>
           <GameButton onClick={onExit} title="Вийти">
             ✖
           </GameButton>
@@ -696,13 +802,13 @@ const PuzzleOne = ({ onExit }) => {
                 style={{ display: "flex", flexDirection: "column", gap: "8px" }}
               >
                 <DifficultyBtn onClick={() => setDifficulty("easy")}>
-                  Легка (5x3, 240с, 200ходів, 4хв)
+                  Легка (5x3, 0% оберту)
                 </DifficultyBtn>
                 <DifficultyBtn onClick={() => setDifficulty("normal")}>
-                  Нормальна (6x4, 180с, 150х, 3хв)
+                  Нормальна (6x4, 35% оберту)
                 </DifficultyBtn>
                 <DifficultyBtn onClick={() => setDifficulty("hard")}>
-                  Екстремальна (8x5, 120с, 100х, 2хв)
+                  Екстремальна (8x5, 60% оберту)
                 </DifficultyBtn>
               </div>
 
@@ -750,6 +856,17 @@ const PuzzleOne = ({ onExit }) => {
                 />
               </CustomRow>
               <CustomRow>
+                <span>Шанс повороту: {Math.round(config.rotationChance * 100)}%</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.05"
+                  value={config.rotationChance}
+                  onChange={(e) => setConfig({ ...config, rotationChance: parseFloat(e.target.value) })}
+                />
+              </CustomRow>
+              <CustomRow>
                 <span>Макс. ходів: {config.maxMoves}</span>
                 <input
                   type="range"
@@ -790,6 +907,32 @@ const PuzzleOne = ({ onExit }) => {
               >
                 Закрити
               </DifficultyBtn>
+            </Modal>
+          </ModalOverlay>
+        )}
+        {showThemeModal && (
+          <ModalOverlay
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowThemeModal(false)}
+          >
+            <Modal onClick={(e) => e.stopPropagation()} style={{ width: '800px', maxWidth: '95vw' }}>
+              <h3 style={{ margin: "0", color: "#ffb36c", textAlign: "center" }}>Оберіть тему</h3>
+              <ThemeGrid>
+                {puzzleImages.map((item, idx) => (
+                  <ThemeItem 
+                    key={idx} 
+                    $isActive={currentMediaIndex === idx} 
+                    onClick={() => handleSelectTheme(idx)}
+                    onMouseEnter={() => handleThemeHover(item.audio)}
+                    onMouseLeave={() => handleThemeLeave(true)}
+                  >
+                    <Im src={item.image} alt={`theme-${idx}`} />
+                  </ThemeItem>
+                ))}
+              </ThemeGrid>
+              <DifficultyBtn onClick={() => setShowThemeModal(false)}>Закрити</DifficultyBtn>
             </Modal>
           </ModalOverlay>
         )}
