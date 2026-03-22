@@ -613,7 +613,6 @@ const StyledVideo = styled.video`
   left: 0;
   opacity: ${(props) => (props.$show ? 1 : 0)};
   transition: opacity 0.5s ease-in-out;
-  transform: scale(1.1);
 `;
 
 const StyledImage = styled.img`
