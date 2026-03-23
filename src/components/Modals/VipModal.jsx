@@ -13,10 +13,8 @@ import stars from "../../photos/vip-images/stars.jpg";
 import lebid from "../../photos/vip-images/vip-lebid.jpg";
 import buton from "../../photos/vip-modal/buton.jpg";
 import texts from "../../photos/vip-modal/texts.jpg";
-import horrordog from "../../photos/vip-images/horror/horror.jpg";
 import asium from "../../photos/vip-images/asium/asium.jpg";
 import rainbow from "../../photos/fan-art/rainbow.webp";
-import letters from "../../photos/fan-art/letters.webp";
 import documentImg from "../../photos/fan-art/document.webp";
 import puzzle5 from "../../photos/fan-art/puzzle-5.webp";
 import puzzle2 from "../../photos/fan-art/puzzle-2.webp";
@@ -24,7 +22,6 @@ import puzzle3 from "../../photos/fan-art/puzzle-3.webp";
 import puzzle4 from "../../photos/fan-art/puzzle-4.webp";
 import font from "../../photos/vip-images/flame.jpg";
 import puzzle1 from "../../photos/fan-art/puzzle-1.webp";
-// import fototwo from "../../photos/vip-images/vip-dragons.jpg";
 //Prewiew
 import second from "../../photos/fan-art/theorytwo.jpg";
 import seconds from "../../mp3/theoty-of-everything-ll.mp3";
@@ -72,6 +69,17 @@ const rotateRaysReverse = keyframes`
   to { transform: rotate(0deg); }
 `;
 
+const slideUpNav = keyframes`
+  from {
+    transform: translate(-50%, 120%);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+`;
+
 const Overlay = styled.div`
   position: fixed;
   top: 0;
@@ -103,6 +111,10 @@ const VipModalDiv = styled.div`
   transition: border-color 0.5s ease;
   animation: ${(props) => (props.$isClosing ? slideOut : slideIn)} 0.5s ease-out
     forwards;
+
+  @media (max-width: 768px) {
+    padding-bottom: 90px; /* Простір для нижньої навігації */
+  }
 
   @media (max-width: 480px) {
     padding: 10px;
@@ -315,7 +327,12 @@ const SectionTitle = styled.div`
   animation: ${appearAndShrink} 0.6s ease-out forwards;
   animation-delay: ${(props) => props.$delay || "0.2s"};
 `;
-
+const ViWarning = styled.p`
+margin-top: 37px;
+    @media (min-width: 768px) {
+    display: none;
+  }
+  `;
 const ImageContainer = styled.div`
   position: relative;
   width: 260px;
@@ -521,6 +538,9 @@ const NavContainer = styled.div`
   margin-bottom: 5px;
   width: 100%;
   flex-wrap: wrap;
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;
 
 const NavButton = styled.button`
@@ -548,6 +568,52 @@ const NavButton = styled.button`
     width: 60px;
     height: 60px;
     font-size: 30px;
+  }
+`;
+
+const MobileStickyNav = styled.div`
+  display: none;
+  @media (max-width: 768px) {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 400px;
+    background: rgba(62, 39, 35, 0.95);
+    border: 1px solid #ffb36c;
+    border-radius: 16px;
+    padding: 8px 5px;
+    z-index: 3000;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    animation: ${slideUpNav} 0.5s 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)
+      forwards;
+  }
+`;
+
+const MobileNavBtn = styled.button`
+  background: transparent;
+  border: none;
+  color: #ffb36c;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+
+  span {
+    font-size: 8px;
+    font-weight: bold;
+  }
+
+  &:active {
+    transform: scale(0.9);
   }
 `;
 
@@ -740,7 +806,12 @@ const SEQUENCE = [
     end: 30,
     text: "Секрети, головоломки, історії, власні рівні, різні рівні складності, тексти.",
   },
-  { type: "card", imgIdx: 1, duration: 10000, text: "Налаштуйте сайт під себе. З навшою власною валютою. Скачуйте музику, зображення, відео" },
+  {
+    type: "card",
+    imgIdx: 1,
+    duration: 10000,
+    text: "Налаштуйте сайт під себе. З навшою власною валютою. Скачуйте музику, зображення, відео",
+  },
   {
     type: "video",
     start: 30,
@@ -773,7 +844,7 @@ const UltraPlayer = ({ volume, setVolume }) => {
   useEffect(() => {
     const preloadAssets = async () => {
       const urlsToLoad = new Set();
-      
+
       // Додаємо основні ресурси
       urlsToLoad.add(ultra);
       urlsToLoad.add(dinofrozVideo);
@@ -793,20 +864,20 @@ const UltraPlayer = ({ volume, setVolume }) => {
         setLoadingProgress(progress);
       };
 
-      const promises = urlsArray.map((url) => 
+      const promises = urlsArray.map((url) =>
         fetch(url)
           .then((response) => {
             updateProgress();
-            return response.blob(); 
+            return response.blob();
           })
           .catch((err) => {
             console.error(`Failed to load ${url}`, err);
             updateProgress();
-          })
+          }),
       );
 
       await Promise.all(promises);
-      
+
       setTimeout(() => {
         setIsAssetsLoaded(true);
       }, 500);
@@ -890,7 +961,7 @@ const UltraPlayer = ({ volume, setVolume }) => {
     step.imgIdx,
     step.start,
     step.end,
-    isAssetsLoaded
+    isAssetsLoaded,
   ]);
 
   useEffect(() => {
@@ -938,7 +1009,11 @@ const UltraPlayer = ({ volume, setVolume }) => {
     <UltraPlayerContainer ref={containerRef} $isFullscreen={isFullscreen}>
       {!isAssetsLoaded && (
         <LoadingContainer>
-          <div style={{ color: "#94fffa", fontSize: "14px", marginBottom: "5px" }}>Завантаження... {loadingProgress}%</div>
+          <div
+            style={{ color: "#94fffa", fontSize: "14px", marginBottom: "5px" }}
+          >
+            Завантаження... {loadingProgress}%
+          </div>
           <ProgressBar>
             <ProgressBarFill $progress={loadingProgress} />
           </ProgressBar>
@@ -971,7 +1046,7 @@ const UltraPlayer = ({ volume, setVolume }) => {
       <StyledVideo
         ref={videoRef}
         src={dinofrozVideo}
-        $show={step.type === "video"} 
+        $show={step.type === "video"}
         onEnded={handleVideoEnded}
         onTimeUpdate={handleTimeUpdate}
         playsInline
@@ -982,7 +1057,9 @@ const UltraPlayer = ({ volume, setVolume }) => {
           <audio ref={audioRef} />
         </>
       )}
-      <OverlayText $show={showText} $isFullscreen={isFullscreen}>{text}</OverlayText>
+      <OverlayText $show={showText} $isFullscreen={isFullscreen}>
+        {text}
+      </OverlayText>
     </UltraPlayerContainer>
   );
 };
@@ -999,6 +1076,8 @@ const VipModal = ({ onClose }) => {
   const economicsRef = useRef(null);
   const interfaceRef = useRef(null);
   const cacheBtnRef = useRef(null);
+  const bottomRef = useRef(null);
+  const topRef = useRef(null);
 
   const scrollToSection = (ref) => {
     if (ref.current) {
@@ -1040,15 +1119,11 @@ const VipModal = ({ onClose }) => {
     music: [
       {
         src: asium,
-        text: "Можна взяти в обране 7 пісень, а не 3! А також поділ 1-4, не 1-3. Назавжди!",
-      },
-      {
-        src: letters,
-        text: "Ціни на аватари, рамки та райдужний текст менш спонтанні 20-30🧧, не 20-40🧧.",
+        text: "Можна взяти в обране 7 пісень та головоломок(окремо), а не 3! Стиль головоломок(до 30шт.). Поділ по 3бальній не 2бальній системі. Назавжди!",
       },
       {
         src: dinofroz,
-        text: "Діапазон цін екслюзивних аватарів дешевший: 20-30🧧, замість 20-40🧧.",
+        text: "Ціни на аватари, рамки та райдужний текст менш спонтанні 20-30🧧, не 20-40🧧.",
       },
       {
         src: font,
@@ -1070,7 +1145,7 @@ const VipModal = ({ onClose }) => {
       },
       {
         src: puzzle1,
-        text: "Баффі(х2 конверти(з досягнень, головоломок). В наступні 3хв(не 1) після активації(в магазині в розділі наборів).",
+        text: "Баффі(х2, не 1,5х конверти(з досягнень, головоломок). В наступні 3хв(не 1) після активації(в магазині в розділі наборів).",
       },
     ],
     interface: [
@@ -1078,7 +1153,10 @@ const VipModal = ({ onClose }) => {
         src: vip,
         text: "Оновлений стиль сайту (з перемикачем лого вгорі, в лівому кутку). Назавжди!",
       },
-      { src: stars, text: "0 реклами, при переходу на інший сайт через наш(розділ новини, Deezer - і безкоштовно без реклами)" },
+      {
+        src: stars,
+        text: "Реклама, при переході на інший сайт через наш(розділ новини, Deezer - безкоштовно без реклами) не кожний перехід, а через раз.",
+      },
       {
         src: buton,
         text: "Кнопки: Додавання/Оновлення міста, фанарту, пошуку музики, плейлисту має перезарядку 20с замість 40c. Ліміт додаткових карток 4. Зайві картки видаляються коли підписка сплине в терміні.",
@@ -1118,14 +1196,10 @@ const VipModal = ({ onClose }) => {
     music: [
       {
         src: asium,
-        text: "Можна взяти в обране 10 пісень. Поділ від 1-5 по оцінці. Назавжди!",
+        text: "Можна взяти в обране 10 пісень та головоломок. Стилі головоломок 60шт. Поділ від 1-5 по оцінці. Назавжди!",
       },
       {
-        src: horrordog,
-        text: "Текст пісні підсвічується під час програвання(не всі пісні мають цю механіку)! Назавжди!",
-      },
-      {
-        src: letters,
+        src: dinofroz,
         text: "Ціни на аватари, рамки та райдужний текст менш спонтанні 20-25🧧. Та за 50🧧 поставити ваш аватар.",
       },
       {
@@ -1156,6 +1230,10 @@ const VipModal = ({ onClose }) => {
       },
     ],
     interface: [
+      {
+        src: stars,
+        text: "Реклама, при переході на інший сайт через наш(розділ новини, Deezer - безкоштовно без реклами) буде раз/год(у перервах, за бажанням).",
+      },
       {
         src: vip,
         text: "Оновлений стиль сайту (з перемикачем лого). Назавжди!",
@@ -1228,6 +1306,7 @@ const VipModal = ({ onClose }) => {
         $isUltra={tier === "ultra"}
         onClick={(e) => e.stopPropagation()}
       >
+        <div ref={topRef} style={{ position: "absolute", top: 0, left: 0 }} />
         <CloseButton onClick={handleClose}>&times;</CloseButton>
         <CacheButton
           ref={cacheBtnRef}
@@ -1318,7 +1397,7 @@ const VipModal = ({ onClose }) => {
             {showContent && (
               <>
                 <SectionTitle ref={aiRef} $delay="0.1s">
-                 🤖 ШІ
+                  🤖 ШІ
                 </SectionTitle>
                 {current.ai.map((item, i) => (
                   <BenefitCard key={`ai-${tier}-${i}`} $index={i}>
@@ -1328,7 +1407,7 @@ const VipModal = ({ onClose }) => {
                 ))}
 
                 <SectionTitle ref={musicRef} $delay="0.3s">
-                 🎨 Музика та Арт
+                  🎨 Музика та Арт
                 </SectionTitle>
                 {current.music.map((item, i) => (
                   <BenefitCard key={`mu-${tier}-${i}`} $index={i + 4}>
@@ -1337,7 +1416,7 @@ const VipModal = ({ onClose }) => {
                   </BenefitCard>
                 ))}
                 <SectionTitle ref={economicsRef} $delay="0.5s">
-                 🧧 Економіка та ресурси
+                  🧧 Економіка та ресурси
                 </SectionTitle>
                 {current.economics.map((item, i) => (
                   <BenefitCard key={`eco-${tier}-${i}`} $index={i + 10}>
@@ -1346,7 +1425,7 @@ const VipModal = ({ onClose }) => {
                   </BenefitCard>
                 ))}
                 <SectionTitle ref={interfaceRef} $delay="0.7s">
-                 📱 Інтерфейс і функціонал
+                  📱 Інтерфейс і функціонал
                 </SectionTitle>
                 {current.interface.map((item, i) => (
                   <BenefitCard
@@ -1357,6 +1436,7 @@ const VipModal = ({ onClose }) => {
                     <VipBonus>{item.text}</VipBonus>
                   </BenefitCard>
                 ))}
+                <div ref={bottomRef} style={{ height: "40px" }} />
               </>
             )}
           </VipFixScroll>
@@ -1381,7 +1461,37 @@ const VipModal = ({ onClose }) => {
           3.Переваги Стихії+ оптимізовані в Стихія+ Ultrа, ті що не були вказані
           в Стихія+ Ultra(присутні, але ті самі як в Стихія+.).
         </VipWarning>
+        <ViWarning>
+          .
+        </ViWarning>
       </VipModalDiv>
+
+      <MobileStickyNav onClick={(e) => e.stopPropagation()}>
+        <MobileNavBtn onClick={() => scrollToSection(aiRef)}>
+          <span>🤖</span>
+          <span>ШІ</span>
+        </MobileNavBtn>
+        <MobileNavBtn onClick={() => scrollToSection(musicRef)}>
+          <span>🎨</span>
+          <span>Музика</span>
+        </MobileNavBtn>
+        <MobileNavBtn onClick={() => scrollToSection(economicsRef)}>
+          <span>🧧</span>
+          <span>Економіка</span>
+        </MobileNavBtn>
+        <MobileNavBtn onClick={() => scrollToSection(interfaceRef)}>
+          <span>📱</span>
+          <span>Інтерфейс</span>
+        </MobileNavBtn>
+        <MobileNavBtn onClick={() => scrollToSection(bottomRef)}>
+          <span>⬇️</span>
+          <span>Дно</span>
+        </MobileNavBtn>
+        <MobileNavBtn onClick={() => scrollToSection(topRef)}>
+          <span>🔝</span>
+          <span>Набори</span>
+        </MobileNavBtn>
+      </MobileStickyNav>
     </Overlay>
   );
 };

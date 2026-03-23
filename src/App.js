@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
-import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import Loader from "./components/Loader/Loader.jsx";
 import WeatherCardComponent from "./components/Weather/Weather.jsx";
 import {
@@ -99,7 +99,6 @@ const getWeatherIcon = (code) => {
   return "☁️";
 };
 
-
 const ThemeWrapper = styled.div`
   background-color: ${(props) =>
     props.$isDarkMode ? "#121212" : "transparent"};
@@ -122,7 +121,7 @@ const WeatherCardsContainer = styled.div`
 
 const LOADING_PHRASES = [
   "Підпішіться на мій фейсбук, щоб знати, що буде в наступній версії! Проект погода.",
-  "Інструкція з використання і отримування 🧧, розміщеннна у магазині конвертів!",
+  "Інструкція з використання і отримування 🧧, розміщена у магазині конвертів!",
   "Головоломки в розробці🧩",
   "Зворотній зв'язок: фейсбук або акаунт theturkeystudio@gmail.com, на випадок помилок або якщо ви правовласник, і хочете обговорити умови розміщення треку на сайті.",
   "Питання по навігації можете задати до нашого ШІ✨",
@@ -130,27 +129,27 @@ const LOADING_PHRASES = [
   "Розблокуйте переваги з Стихія+ та Стихія+ Ультра!",
   "Ви знаєте, що за рандомний текст, можна отримати досягнення? Треба побачити кожний :)",
   "Скиньте мені в фейсбук, картинку до треків деяких",
-  "У вас характер Ніцерона, індика, чи кого?",
+  "У вас характер Ніцерона, індика(в плані упертості птаха), чи кого?",
   "СлівкіШоу та Дизель шоу, це легенди.",
-   "Лише по секрету, 5bn games, одні з накращих, у створення сюжетів і загадок(Спадщина і Темрява та Полум'я найвдаліше!)",
-   "Ми вас здивуємо, багато чим :)",
-   "Пробачте за рекламу, при переході на новини, я просто хочу, щоб ви мене морально підтримали.",
-   "2 пісню Шакіри(Зоотрополіс) шукайте в Dezzer.com, ми швидко через кнопку Full вас перемістимо(розділ ваші пісні).",
-      "Aurora hills 2: Доступна! NowaSoft Interative. Вітаю!",
-      "Помилка 404, це жарт :)",
-      "Джомолунгма: .... ...... 6 і 8",
-      "Якщо буде багато підписніків, Стихія буде доступна айфонам!",
-      "Код по першій букві: Україна, Ніцерон, Aurora hills, місце, увага, Трініті, аварія, Ніжин, обмеження, Звгвдки Нью-Йорка.",
-      "Оновлення скоро",
-      "Теорія неймовірності(Макс Кіндрук) має одну частину :(",
-      "Режим відео: Динофроз.",
-      "Текст коллекційне видання, під Стихія, лише для декору",
-      "Багато змін клімату, мультиплікації, моди, життя. І нас теж. Не знаю який обрати :( чи :)",
-      "Стихія, Спеціально тут индики хто зна, і моя фантазія.",
-      "Місія неможлива, ніде не помилиись",
-      "Досягнення 99: Хто я, якщо нас менше 70?. ",
-      "Дасте пораду щодо дизайну, Стихії",
-      "Правило 20: Дивіться на все під різними кутами.",
+  "Лише по секрету, 5bn games, одні з накращих, у створення сюжетів і загадок(Спадщина і Темрява та Полум'я найвдаліше!)",
+  "Ми вас здивуємо, багато чим :)",
+  "Пробачте за рекламу, при переході на новини, я просто хочу, щоб ви мене морально підтримали.",
+  "2 пісню Шакіри(Зоотрополіс) шукайте в Dezzer.com, ми швидко через кнопку Full вас перемістимо(розділ ваші пісні).",
+  "Aurora hills 2: Доступна! NowaSoft Interative. Вітаю!",
+  "Помилка 404, це жарт :)",
+  "Джомолунгма: .... ...... 6 і 8",
+  "Якщо буде багато підписніків, Стихія буде доступна айфонам!",
+  "Код по першій букві: Україна, Ніцерон, Aurora hills, місце, увага, Трініті, аварія, Ніжин, обмеження, Загадки Нью-Йорка.",
+  "Оновлення скоро",
+  "Теорія неймовірності(Макс Кіндрук) має одну частину :(",
+  "Режим відео: Динофроз.",
+  "Текст коллекційне видання, під Стихія, лише для декору",
+  "Багато змін клімату, мультиплікації, моди, життя. І нас теж. Не знаю який обрати :( чи :)",
+  "Стихія, Спеціально тут индики хто зна, і моя фантазія.",
+  "Місія неможлива, ніде не помилитись",
+  "Досягнення 99: Хто я, якщо нас менше 70?. ",
+  "Дасте пораду щодо дизайну, Стихії",
+  "Правило 20: Дивіться на все під різними кутами.",
 ];
 
 const SettingsContainer = styled.div`
@@ -179,7 +178,7 @@ const App = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isFadingOut, setIsFadingOut] = useState(false);
   const [randomPhrase] = useState(
-    () => LOADING_PHRASES[Math.floor(Math.random() * LOADING_PHRASES.length)]
+    () => LOADING_PHRASES[Math.floor(Math.random() * LOADING_PHRASES.length)],
   );
   const [now, setNow] = useState(new Date());
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -257,7 +256,10 @@ const App = () => {
 
   useEffect(() => {
     localStorage.setItem("isRoutingMode", JSON.stringify(isRoutingMode));
-    localStorage.setItem(SECTION_ORDER_STORAGE_KEY, JSON.stringify(siteSections));
+    localStorage.setItem(
+      SECTION_ORDER_STORAGE_KEY,
+      JSON.stringify(siteSections),
+    );
   }, [siteSections, isRoutingMode]);
 
   useEffect(() => {
@@ -280,7 +282,10 @@ const App = () => {
       try {
         let targetLat = lat;
         let targetLon = lon;
-        let displayName = typeof cityData === "string" ? cityData : (cityData?.fullName || "Ваша локація");
+        let displayName =
+          typeof cityData === "string"
+            ? cityData
+            : cityData?.fullName || "Ваша локація";
 
         if (cityData && typeof cityData === "object" && cityData.lat) {
           targetLat = cityData.lat;
@@ -288,7 +293,7 @@ const App = () => {
           displayName = cityData.fullName;
         } else if (typeof cityData === "string") {
           const geo = await axios.get(
-            `https://geocoding-api.open-meteo.com/v1/search?name=${cityData}&count=1&language=uk`
+            `https://geocoding-api.open-meteo.com/v1/search?name=${cityData}&count=1&language=uk`,
           );
           if (geo.data.results && geo.data.results[0]) {
             targetLat = geo.data.results[0].latitude;
@@ -329,7 +334,10 @@ const App = () => {
             iconPlaceholder: getWeatherIcon(d.hourly.weather_code[i]),
           })),
           daily16: d.daily.time.map((t, i) => ({
-            date: new Date(t).toLocaleDateString("uk", { day: "numeric", month: "2-digit" }),
+            date: new Date(t).toLocaleDateString("uk", {
+              day: "numeric",
+              month: "2-digit",
+            }),
             day: new Date(t).toLocaleDateString("uk", { weekday: "short" }),
             temp_day: `${Math.round(d.daily.temperature_2m_max[i])}°C`,
             temp_night: `${Math.round(d.daily.temperature_2m_min[i])}°C`,
@@ -342,7 +350,9 @@ const App = () => {
             const filtered = prev.filter((c) => !c.isMain);
             return [newCardData, ...filtered];
           } else {
-            const exists = prev.find(c => c.lat === targetLat && c.lon === targetLon);
+            const exists = prev.find(
+              (c) => c.lat === targetLat && c.lon === targetLon,
+            );
             if (exists) return prev;
             if (prev.length >= 4) return prev;
             return [...prev, newCardData];
@@ -352,7 +362,7 @@ const App = () => {
         console.error("Помилка завантаження погоди", error);
       }
     },
-    []
+    [],
   );
   const getInitialLocation = useCallback(() => {
     if (!isLocationEnabled) {
@@ -367,10 +377,10 @@ const App = () => {
             null,
             true,
             position.coords.latitude,
-            position.coords.longitude
+            position.coords.longitude,
           );
         },
-        () => fetchWeather("Київ", true, 50.45, 30.52)
+        () => fetchWeather("Київ", true, 50.45, 30.52),
       );
     } else {
       fetchWeather("Київ", true, 50.45, 30.52);
@@ -405,11 +415,14 @@ const App = () => {
     }
 
     const ask = window.confirm(
-      "Ви дійсно хочете видалити картку погоди?\n\nВи можете приховати це підтвердження на певний час."
+      "Ви дійсно хочете видалити картку погоди?\n\nВи можете приховати це підтвердження на певний час.",
     );
-    
+
     if (ask) {
-      let input = window.prompt("Скільки годин не показувати це підтвердження? (1-72)", "1");
+      let input = window.prompt(
+        "Скільки годин не показувати це підтвердження? (1-72)",
+        "1",
+      );
       if (input !== null) {
         const num = Math.max(1, Math.min(72, parseInt(input)));
         const hours = isNaN(num) ? 1 : num;
@@ -446,9 +459,12 @@ const App = () => {
   const toggleTheme = useCallback(() => {
     setIsDarkMode((prevMode) => !prevMode);
   }, []);
-  
+
   const heroDateString = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")} ${
-    new Intl.DateTimeFormat("uk", { weekday: "long" }).format(now).charAt(0).toUpperCase() + 
+    new Intl.DateTimeFormat("uk", { weekday: "long" })
+      .format(now)
+      .charAt(0)
+      .toUpperCase() +
     new Intl.DateTimeFormat("uk", { weekday: "long" }).format(now).slice(1)
   }, ${now.getDate()}.${new Intl.DateTimeFormat("uk", { month: "2-digit" }).format(now)}.${now.getFullYear()}`;
 
@@ -459,8 +475,8 @@ const App = () => {
   const location = useLocation();
 
   useEffect(() => {
-    if (!isRoutingMode && location.pathname !== '/') {
-      navigate('/');
+    if (!isRoutingMode && location.pathname !== "/") {
+      navigate("/");
     }
   }, [isRoutingMode, navigate, location.pathname]);
 
@@ -480,20 +496,23 @@ const App = () => {
         <div id="weather" key="weather">
           <WeatherCardsContainer>
             {weatherCards.map((card) => {
-              const isExtremeTemp = card.current.tempNum > 30 || card.current.tempNum < -10;
+              const isExtremeTemp =
+                card.current.tempNum > 30 || card.current.tempNum < -10;
               const isExtremeWind = card.current.windNum > 10;
               const isExtremeUV = card.current.uv_index > 7;
 
               const chartData = {
                 labels: card.hourly?.map((h) => h.time) || [],
-                datasets: [{
-                  label: "Температура (°C)",
-                  data: card.hourly?.map((h) => h.tempNum) || [],
-                  fill: true,
-                  backgroundColor: "rgba(255, 179, 108, 0.2)",
-                  borderColor: "rgba(255, 179, 108, 1)",
-                  tension: 0.4,
-                }],
+                datasets: [
+                  {
+                    label: "Температура (°C)",
+                    data: card.hourly?.map((h) => h.tempNum) || [],
+                    fill: true,
+                    backgroundColor: "rgba(255, 179, 108, 0.2)",
+                    borderColor: "rgba(255, 179, 108, 1)",
+                    tension: 0.4,
+                  },
+                ],
               };
 
               return (
@@ -518,16 +537,20 @@ const App = () => {
     }
     return (
       <div id={section.key} key={section.key}>
-         {section.key === "map" && <ClimateMap />}
-         {section.key === "puzzles" && <Puzzles />}
-         {section.key === "aihelp" && <Aihelp isDarkMode={isDarkMode} />}
-         {section.key === "news" && <News />}
-         {section.key === "music" && (
-           <MusicPhoto user={user} onOpenRegister={() => setIsModalOpen(true)} />
-         )}
-         {section.key === "fanart" && (
-           <FanArt isDarkMode={isDarkMode} user={user} onOpenRegister={() => setIsModalOpen(true)} />
-         )}
+        {section.key === "map" && <ClimateMap />}
+        {section.key === "puzzles" && <Puzzles />}
+        {section.key === "aihelp" && <Aihelp isDarkMode={isDarkMode} />}
+        {section.key === "news" && <News />}
+        {section.key === "music" && (
+          <MusicPhoto user={user} onOpenRegister={() => setIsModalOpen(true)} />
+        )}
+        {section.key === "fanart" && (
+          <FanArt
+            isDarkMode={isDarkMode}
+            user={user}
+            onOpenRegister={() => setIsModalOpen(true)}
+          />
+        )}
       </div>
     );
   };
@@ -535,16 +558,24 @@ const App = () => {
   const HeroAndWeather = (
     <>
       <div id="hero">
-        <Hero heroDateString={heroDateString} onAddCity={handleAddCityFromHero} startAnimation={!isLoading} />
+        <Hero
+          heroDateString={heroDateString}
+          onAddCity={handleAddCityFromHero}
+          startAnimation={!isLoading}
+        />
       </div>
-      {renderSectionContent(siteSections.find(s => s.key === "weather"))}
+      {renderSectionContent(siteSections.find((s) => s.key === "weather"))}
     </>
   );
 
   const LandingPage = (
     <>
       <div id="hero">
-        <Hero heroDateString={heroDateString} onAddCity={handleAddCityFromHero} startAnimation={!isLoading} />
+        <Hero
+          heroDateString={heroDateString}
+          onAddCity={handleAddCityFromHero}
+          startAnimation={!isLoading}
+        />
       </div>
       <div className="container">
         <SettingsContainer>
@@ -552,33 +583,57 @@ const App = () => {
             Налаштування підтвердження видалення картки
           </h4>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <label htmlFor="hideDeleteModalHours">Час приховування (1-72 год):</label>
+            <label htmlFor="hideDeleteModalHours">
+              Час приховування (1-72 год):
+            </label>
             <input
               id="hideDeleteModalHours"
               type="number"
-              min={1} max={72}
-              value={hideDeleteModalUntil > Date.now() ? Math.ceil((hideDeleteModalUntil - Date.now()) / 3600000) : 1}
+              min={1}
+              max={72}
+              value={
+                hideDeleteModalUntil > Date.now()
+                  ? Math.ceil((hideDeleteModalUntil - Date.now()) / 3600000)
+                  : 1
+              }
               onChange={(e) => {
-                let val = Math.max(1, Math.min(72, parseInt(e.target.value) || 1));
+                let val = Math.max(
+                  1,
+                  Math.min(72, parseInt(e.target.value) || 1),
+                );
                 const newUntil = Date.now() + val * 3600 * 1000;
-                localStorage.setItem("hideDeleteModalUntil", newUntil.toString());
+                localStorage.setItem(
+                  "hideDeleteModalUntil",
+                  newUntil.toString(),
+                );
                 setHideDeleteModalUntil(newUntil);
               }}
               style={{ width: 60, padding: "2px 8px" }}
             />
-            <button onClick={() => { localStorage.removeItem("hideDeleteModalUntil"); setHideDeleteModalUntil(0); }}>
+            <button
+              onClick={() => {
+                localStorage.removeItem("hideDeleteModalUntil");
+                setHideDeleteModalUntil(0);
+              }}
+            >
               Показувати завжди
             </button>
           </div>
         </SettingsContainer>
-        {siteSections.map((section) => section.key !== "hero" && renderSectionContent(section))}
+        {siteSections.map(
+          (section) => section.key !== "hero" && renderSectionContent(section),
+        )}
       </div>
     </>
   );
 
   return (
     <>
-      <Loader isLoading={isLoading} isFadingOut={isFadingOut} randomPhrase={randomPhrase} />
+      <Loader
+        isLoading={isLoading}
+        isFadingOut={isFadingOut}
+        randomPhrase={randomPhrase}
+      />
 
       <ThemeWrapper $isDarkMode={isDarkMode}>
         <div className="App">
@@ -598,7 +653,9 @@ const App = () => {
               onLogout={handleLogout}
               siteSections={siteSections}
               moveSiteSection={moveSiteSection}
-              resetSiteSections={() => setSiteSections([...DEFAULT_SITE_SECTIONS])}
+              resetSiteSections={() =>
+                setSiteSections([...DEFAULT_SITE_SECTIONS])
+              }
               isRoutingMode={isRoutingMode}
               setIsRoutingMode={setIsRoutingMode}
               currentPath={location.pathname.substring(1)}
@@ -607,31 +664,71 @@ const App = () => {
           <Routes>
             <Route path="/" element={LandingPage} />
             {siteSections.map((section) => (
-              <Route 
-                key={section.key} 
-                path={`/${section.path}`} 
+              <Route
+                key={section.key}
+                path={`/${section.path}`}
                 element={
-                  section.key === 'weather'
-                    ? HeroAndWeather
-                    : (
-                      <div className="container" style={{ paddingTop: "40px", minHeight: "80vh" }}>
-                        {section.key === "hero" ? (
-                          <Hero heroDateString={heroDateString} onAddCity={handleAddCityFromHero} startAnimation={!isLoading} />
-                        ) : (
-                          renderSectionContent(section)
-                        )}
-                      </div>
-                    )
-                } 
+                  section.key === "weather" ? (
+                    HeroAndWeather
+                  ) : (
+                    <div
+                      className="container"
+                      style={{ paddingTop: "40px", minHeight: "80vh" }}
+                    >
+                      {section.key === "hero" ? (
+                        <Hero
+                          heroDateString={heroDateString}
+                          onAddCity={handleAddCityFromHero}
+                          startAnimation={!isLoading}
+                        />
+                      ) : (
+                        renderSectionContent(section)
+                      )}
+                    </div>
+                  )
+                }
               />
             ))}
           </Routes>
-          {isModalOpen && <Modal onClose={() => setIsModalOpen(false)} onRegister={(data) => { setUser(data); setIsModalOpen(false); }} availableAvatars={AVAILABLE_AVATARS} />}
-          {isLoginOpen && <LoginModal onClose={() => setIsLoginOpen(false)} onLogin={(data) => { setUser(data); setIsLoginOpen(false); }} />}
-          {isSettingsModalOpen && user && <UserSettingsModal onClose={() => setIsSettingsModalOpen(false)} user={user} availableAvatars={AVAILABLE_AVATARS} onUpdate={setUser} />}
-          {isVipModalOpen && <VipModal onClose={() => setIsVipModalOpen(false)} />}
-          {isShopOpen && <ShopModal onClose={() => setIsShopOpen(false)} hasVip={!!user} />}
-          {isAchivmentsOpen && <AchivmentsModal onClose={() => setIsAchivmentsOpen(false)} isDarkMode={isDarkMode} />}
+          {isModalOpen && (
+            <Modal
+              onClose={() => setIsModalOpen(false)}
+              onRegister={(data) => {
+                setUser(data);
+                setIsModalOpen(false);
+              }}
+              availableAvatars={AVAILABLE_AVATARS}
+            />
+          )}
+          {isLoginOpen && (
+            <LoginModal
+              onClose={() => setIsLoginOpen(false)}
+              onLogin={(data) => {
+                setUser(data);
+                setIsLoginOpen(false);
+              }}
+            />
+          )}
+          {isSettingsModalOpen && user && (
+            <UserSettingsModal
+              onClose={() => setIsSettingsModalOpen(false)}
+              user={user}
+              availableAvatars={AVAILABLE_AVATARS}
+              onUpdate={setUser}
+            />
+          )}
+          {isVipModalOpen && (
+            <VipModal onClose={() => setIsVipModalOpen(false)} />
+          )}
+          {isShopOpen && (
+            <ShopModal onClose={() => setIsShopOpen(false)} hasVip={!!user} />
+          )}
+          {isAchivmentsOpen && (
+            <AchivmentsModal
+              onClose={() => setIsAchivmentsOpen(false)}
+              isDarkMode={isDarkMode}
+            />
+          )}
 
           <Menu
             isOpen={isMenuOpen}
@@ -639,11 +736,22 @@ const App = () => {
             isDarkMode={isDarkMode}
             siteSections={siteSections}
             moveSiteSection={moveSiteSection}
-            resetSiteSections={() => setSiteSections([...DEFAULT_SITE_SECTIONS])}
+            resetSiteSections={() =>
+              setSiteSections([...DEFAULT_SITE_SECTIONS])
+            }
             onToggleTheme={toggleTheme}
-            onOpenShop={() => { setIsShopOpen(true); handleCloseMenu(); }}
-            onOpenAchievements={() => { setIsAchivmentsOpen(true); handleCloseMenu(); }}
-            onOpenSettings={() => { setIsSettingsModalOpen(true); handleCloseMenu(); }}
+            onOpenShop={() => {
+              setIsShopOpen(true);
+              handleCloseMenu();
+            }}
+            onOpenAchievements={() => {
+              setIsAchivmentsOpen(true);
+              handleCloseMenu();
+            }}
+            onOpenSettings={() => {
+              setIsSettingsModalOpen(true);
+              handleCloseMenu();
+            }}
             onLogout={handleLogout}
             isRoutingMode={isRoutingMode}
             setIsRoutingMode={setIsRoutingMode}

@@ -584,7 +584,7 @@ const KatSceneModal = ({ onClose }) => {
 
         {!isAssetsLoaded && (
           <LoadingContainer>
-            <div style={{ color: "#94fffa", fontSize: "14px", marginBottom: "5px" }}>Завантаження сцени... {loadingProgress}%</div>
+            <div style={{ color: "#94fffa", fontSize: "14px", marginBottom: "5px" }}>Завантаження сцени... Вимкніть VPN для швидшого заванантаження {loadingProgress}%</div>
             <ProgressBar>
               <ProgressBarFill $progress={loadingProgress} />
             </ProgressBar>
