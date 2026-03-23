@@ -48,6 +48,17 @@ import finances from "./photos/fan-art/finance.jpg";
 import parol from "./photos/fan-art/parol.jpg";
 import vovk from "./photos/fan-art/kolada.webp";
 
+// Ресурси для фонового завантаження кат-сцени
+import dinofrozVideo from "./mp3/dinofroz.mp4";
+import startImage from "./photos/hero-header/start-image.jpg";
+import turkeysAudio from "./mp3/turkeys.mp3";
+import horseAudio from "./mp3/horse.mp3";
+import monodyImg from "./photos/fan-art/monody.jpg";
+import monodyAudio from "./mp3/thefatrat-monody.mp3";
+import theoryImg from "./photos/fan-art/theorytwo.jpg";
+import theoryAudio from "./mp3/theoty-of-everything-ll.mp3";
+import ultraImage from "./photos/vip-modal/realultra.jpg";
+
 const AVAILABLE_AVATARS = [
   monody,
   turkeys,
@@ -112,15 +123,34 @@ const WeatherCardsContainer = styled.div`
 const LOADING_PHRASES = [
   "Підпішіться на мій фейсбук, щоб знати, що буде в наступній версії! Проект погода.",
   "Інструкція з використання і отримування 🧧, розміщеннна у магазині конвертів!",
-  "Головоломки та кат-сцени в розробці🧩",
+  "Головоломки в розробці🧩",
   "Зворотній зв'язок: фейсбук або акаунт theturkeystudio@gmail.com, на випадок помилок або якщо ви правовласник, і хочете обговорити умови розміщення треку на сайті.",
   "Питання по навігації можете задати до нашого ШІ✨",
   "Фан-арти безкоштовні, для роздрукування! 🎨",
   "Розблокуйте переваги з Стихія+ та Стихія+ Ультра!",
-  "Ви знаєте, що за рандомний текст, можна отримати досягнення?",
-  "Скиньте мені в фейсбук, картинку до треків деяких, а також моторошнішу історію, бо моя не дуже :)",
+  "Ви знаєте, що за рандомний текст, можна отримати досягнення? Треба побачити кожний :)",
+  "Скиньте мені в фейсбук, картинку до треків деяких",
   "У вас характер Ніцерона, індика, чи кого?",
   "СлівкіШоу та Дизель шоу, це легенди.",
+   "Лише по секрету, 5bn games, одні з накращих, у створення сюжетів і загадок(Спадщина і Темрява та Полум'я найвдаліше!)",
+   "Ми вас здивуємо, багато чим :)",
+   "Пробачте за рекламу, при переході на новини, я просто хочу, щоб ви мене морально підтримали.",
+   "2 пісню Шакіри(Зоотрополіс) шукайте в Dezzer.com, ми швидко через кнопку Full вас перемістимо(розділ ваші пісні).",
+      "Aurora hills 2: Доступна! NowaSoft Interative. Вітаю!",
+      "Помилка 404, це жарт :)",
+      "Джомолунгма: .... ...... 6 і 8",
+      "Якщо буде багато підписніків, Стихія буде доступна айфонам!",
+      "Код по першій букві: Україна, Ніцерон, Aurora hills, місце, увага, Трініті, аварія, Ніжин, обмеження, Звгвдки Нью-Йорка.",
+      "Оновлення скоро",
+      "Теорія неймовірності(Макс Кіндрук) має одну частину :(",
+      "Режим відео: Динофроз.",
+      "Текст коллекційне видання, під Стихія, лише для декору",
+      "Багато змін клімату, мультиплікації, моди, життя. І нас теж. Не знаю який обрати :( чи :)",
+      "Стихія, Спеціально тут индики хто зна, і моя фантазія.",
+      "Місія неможлива, ніде не помилиись",
+      "Досягнення 99: Хто я, якщо нас менше 70?. ",
+      "Дасте пораду щодо дизайну, Стихії",
+      "Правило 20: Дивіться на все під різними кутами.",
 ];
 
 const SettingsContainer = styled.div`
@@ -184,6 +214,37 @@ const App = () => {
     const val = localStorage.getItem("hideDeleteModalUntil");
     return val ? parseInt(val) : 0;
   });
+
+  // Фонове завантаження ресурсів кат-сцени
+  useEffect(() => {
+    const preloadKatScene = async () => {
+      const assets = [
+        dinofrozVideo,
+        startImage,
+        turkeys, // Вже імпортовано вище
+        turkeysAudio,
+        horse, // Вже імпортовано вище
+        horseAudio,
+        monodyImg,
+        monodyAudio,
+        theoryImg,
+        theoryAudio,
+        ultraImage,
+      ];
+
+      try {
+        // Fetch запити додадуть ресурси у кеш браузера
+        await Promise.all(assets.map((url) => fetch(url)));
+        console.log("KatScene assets preloaded in background");
+      } catch (err) {
+        console.warn("Failed to preload KatScene assets:", err);
+      }
+    };
+
+    // Запускаємо через 4 секунди після старту, щоб не навантажувати ініціалізацію
+    const timer = setTimeout(preloadKatScene, 4000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const [siteSections, setSiteSections] = useState(() => {
     const savedOrder = localStorage.getItem(SECTION_ORDER_STORAGE_KEY);

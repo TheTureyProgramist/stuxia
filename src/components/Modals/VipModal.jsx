@@ -4,7 +4,6 @@ import styled, { keyframes, css } from "styled-components";
 import turkeys from "../../photos/vip-images/collectors-edition.jpg";
 import dinofroz from "../../photos/vip-images/dinofroz/vip-dinofroz.webp";
 import dinofrozVideo from "../../mp3/dinofroz.mp4";
-import monody from "../../photos/fan-art/monody.jpg";
 import dragons from "../../photos/vip-images/dinofroz/vip-dragons.jpg";
 import vip from "../../photos/hero-header/vip.jpg";
 import music from "../../photos/vip-modal/music.jpg";
@@ -27,11 +26,8 @@ import font from "../../photos/vip-images/flame.jpg";
 import puzzle1 from "../../photos/fan-art/puzzle-1.webp";
 // import fototwo from "../../photos/vip-images/vip-dragons.jpg";
 //Prewiew
-import monodys from "../../mp3/thefatrat-monody.mp3";
 import second from "../../photos/fan-art/theorytwo.jpg";
 import seconds from "../../mp3/theoty-of-everything-ll.mp3";
-import horse from "../../photos/vip-images/horse/horse.jpg";
-import horses from "../../mp3/horse.mp3";
 import tur from "../../photos/vip-images/turkeys/ultra-vip-turkeys.webp";
 import turs from "../../mp3/turkeys.mp3";
 const appearAndShrink = keyframes`
@@ -718,14 +714,6 @@ const ULTRA_CARDS_LIST = [
     audio: turs,
   },
   {
-    image: horse,
-    audio: horses,
-  },
-  {
-    image: monody,
-    audio: monodys,
-  },
-  {
     image: second,
     audio: seconds,
   },
@@ -737,8 +725,8 @@ const SEQUENCE = [
   {
     type: "card",
     imgIdx: 0,
-    duration: 6000,
-    text: "Різноманітна та захоплива музика, яку можна додавати, шукати",
+    duration: 10000,
+    text: "Різноманітна та захоплива музика, яку можна додавати, шукати. Ми зробимо красиву оселю, з вашим принтером і нашими, пошуковими або власними фанартами.",
   },
   {
     type: "video",
@@ -747,18 +735,12 @@ const SEQUENCE = [
     text: "Спец режим відео (динофроз) або плавне перегортання зображень під час програвання деяких музичних файлів",
   },
   {
-    type: "card",
-    imgIdx: 1,
-    duration: 4000,
-    text: "Зробіть красиву оселю, з принтером і нашими, пошуковими або власними фанартами!",
-  },
-  {
     type: "video",
     start: 20,
     end: 30,
     text: "Секрети, головоломки, історії, власні рівні, різні рівні складності, тексти.",
   },
-  { type: "card", imgIdx: 3, duration: 12000, text: "Налаштуйте сайт під себе" },
+  { type: "card", imgIdx: 1, duration: 10000, text: "Налаштуйте сайт під себе. З навшою власною валютою. Скачуйте музику, зображення, відео" },
   {
     type: "video",
     start: 30,
@@ -766,12 +748,6 @@ const SEQUENCE = [
     text: "Пишіть, підказуйте, що зробити для вас :)",
   },
   { type: "video", start: 45, end: 65, text: "Досягнення різного смаку. " },
-  {
-    type: "card",
-    imgIdx: 2,
-    duration: 10000,
-    text: "Власна валюта. Скачуйте музику, зображення, відео.",
-  },
   {
     type: "video",
     start: 65,

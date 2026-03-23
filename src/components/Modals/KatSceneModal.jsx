@@ -5,10 +5,6 @@ import ultra from "../../photos/hero-header/start-image.jpg";
 
 import ultraTurkeys from "../../photos/vip-images/turkeys/ultra-vip-turkeys.webp";
 import turkeysAudio from "../../mp3/turkeys.mp3";
-import horseImg from "../../photos/vip-images/horse/horse.jpg";
-import horseAudio from "../../mp3/horse.mp3";
-import monodyImg from "../../photos/fan-art/monody.jpg";
-import monodyAudio from "../../mp3/thefatrat-monody.mp3";
 import theoryImg from "../../photos/fan-art/theorytwo.jpg";
 import theoryAudio from "../../mp3/theoty-of-everything-ll.mp3";
 
@@ -237,14 +233,6 @@ const ULTRA_CARDS_LIST = [
     audio: turkeysAudio,
   },
   {
-    image: horseImg,
-    audio: horseAudio,
-  },
-  {
-    image: monodyImg,
-    audio: monodyAudio,
-  },
-  {
     image: theoryImg,
     audio: theoryAudio,
   },
@@ -254,47 +242,34 @@ const SEQUENCE = [
   { type: "thematic", duration: 3000, text: "" },
   { type: "black", duration: 10000, text: "У нас надійна погода. Власний коментар: Я не хочу багато підписників чи користувачів, але я хочу людей, які з радістю використовуватимуть мій сайт, у різних цілях." },
   {
-    type: "card",
-    imgIdx: 0,
-    duration: 6000,
-    text: "Різноманітна та захоплива музика, яку можна додавати, шукати",
-  },
-  {
     type: "video",
     start: 10,
-    end: 20,
+    end: 17,
     text: "Спец режим відео (динофроз) або плавне перегортання зображень під час програвання деяких музичних файлів",
   },
   {
-    type: "card",
-    imgIdx: 1,
-    duration: 4000,
-    text: "Зробіть красиву оселю, з принтером і нашими, пошуковими або власними фанартами!",
-  },
-  {
     type: "video",
-    start: 20,
-    end: 30,
+    start: 17,
+    end: 27,
     text: "Секрети, головоломки, історії, власні рівні, різні рівні складності, тексти.",
   },
-  { type: "card", imgIdx: 3, duration: 12000, text: "Налаштуйте сайт під себе" },
-  {
+    {
+    type: "card",
+    imgIdx: 0,
+    duration: 10000,
+    text: "Різноманітна та захоплива музика, яку можна додавати, шукати. Ми зробимо красиву оселю, з вашим принтером і нашими, пошуковими або власними фанартами.",
+  },  {
     type: "video",
-    start: 30,
-    end: 45,
+    start: 27,
+    end: 40,
     text: "Пишіть, підказуйте, що зробити для вас :)",
   },
-  { type: "video", start: 45, end: 60, text: "Досягнення на будь-який смак. " },
-  {
-    type: "card",
-    imgIdx: 2,
-    duration: 10000,
-    text: "Власна валюта. Скачуйте музику, зображення, відео, скріншоти.",
-  },
+  { type: "video", start: 40, end: 55, text: "Досягнення на будь-який смак. " },
+   { type: "card", imgIdx: 1, duration: 10000, text: "Налаштуйте сайт під себе. З навшою власною валютою. Скачуйте музику, зображення, відео." },
   {
     type: "video",
-    start: 60,
-    end: 66,
+    start: 55,
+    end: 65,
     text: "Все можна поліпшити, зі Стихія+ та Стихія Ultra",
   },
   {
@@ -333,19 +308,40 @@ const KatSceneModal = ({ onClose }) => {
 
   // Функція для керування повноекранним режимом
   const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      containerRef.current?.requestFullscreen().catch((err) => {
-        console.error(`Помилка при спробі увімкнути Fullscreen: ${err.message}`);
-      });
+    const elem = containerRef.current;
+    if (!elem) return;
+
+    const isFullscreen = document.fullscreenElement || 
+                         document.webkitFullscreenElement || 
+                         document.mozFullScreenElement || 
+                         document.msFullscreenElement;
+
+    if (!isFullscreen) {
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen().catch((err) => console.log(err));
+      } else if (elem.webkitRequestFullscreen) {
+        elem.webkitRequestFullscreen();
+      } else if (elem.mozRequestFullScreen) {
+        elem.mozRequestFullScreen();
+      } else if (elem.msRequestFullscreen) {
+        elem.msRequestFullscreen();
+      }
     } else {
-      document.exitFullscreen();
+      if (document.exitFullscreen) document.exitFullscreen();
+      else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+      else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
+      else if (document.msExitFullscreen) document.msExitFullscreen();
     }
   };
 
   // Безпечне закриття з виходом з повноекранного режиму
   const handleClose = useCallback(() => {
-    if (document.fullscreenElement) {
-      document.exitFullscreen();
+    const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
+    if (isFullscreen) {
+      if (document.exitFullscreen) document.exitFullscreen();
+      else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+      else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
+      else if (document.msExitFullscreen) document.msExitFullscreen();
     }
     onClose();
   }, [onClose]);
@@ -377,6 +373,14 @@ const KatSceneModal = ({ onClose }) => {
 
   useEffect(() => {
     handleCloseRef.current = handleClose;
+
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape" || e.key === "Enter") {
+        handleClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleClose]);
 
   useEffect(() => {
