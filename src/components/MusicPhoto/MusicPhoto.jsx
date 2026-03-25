@@ -2,11 +2,17 @@ import styled, { keyframes, css } from "styled-components";
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import dinofrozVideo from "../../mp3/dinofroz.mp4";
 import soloveyko from "../../photos/vip-images/vip-soloveyko.jpg";
-import desert from "../../photos/vip-images/vip-desert.webp";
 import harmony from "../../photos/vip-images/asium/asium.jpg";
 import horse from "../../photos/vip-images/horse/horse.jpg";
 import theorytwo from "../../photos/fan-art/theorytwo.jpg";
-
+import fingerdash from "../../photos/vip-images/dinofroz/fingerdash.jpg";
+//Desert
+import desert from "../../photos/vip-images/desert/vip-desert.webp";
+import deserttwo from "../../photos/vip-images/desert/deserttwo.jpg";
+import desertthree from "../../photos/vip-images/desert/desertthree.jpg";
+import desertfour from "../../photos/vip-images/desert/desertfour.jpg";
+import desertfive from "../../photos/vip-images/desert/desertfive.jpg";
+import desertone from "../../photos/vip-images/desert/desertone.jpg";
 import unity from "../../photos/fan-art/unity.jpg";
 import mecha from "../../photos/vip-images/mechannic.jpg"; 
 import monody from "../../photos/fan-art/monody.jpg";
@@ -33,6 +39,8 @@ import asiumthree from "../../photos/vip-images/asium/asiumthree.jpg";
 import asiumfour from "../../photos/vip-images/asium/asiumfour.jpg";
 import asiumfive from "../../photos/vip-images/asium/asiumfive.jpg";
 import asiumsix from "../../photos/vip-images/asium/asiumsix.jpg";
+import asiumten from "../../photos/vip-images/asium/asiumeleven.jpg";
+import asiumeleven from "../../photos/vip-images/asium/asiumtwelve.jpg"
 import asiumseven from "../../photos/vip-images/asium/asiumseven.jpg";
 //Swamp
 import swamptwo from "../../photos/vip-images/swamp/swamptwo.jpg";
@@ -56,6 +64,12 @@ import horrorseven from "../../photos/vip-images/horror/horrorseven.jpg";
 import horroreight from "../../photos/vip-images/horror/horroreight.jpg";
 //Динофроз
 import dinofrozone from "../../photos/vip-images/dinofroz/vip-dinofroz.webp";
+import dinofrozthree from "../../photos/vip-images/dinofroz/dinofrozthree.jpg";
+import dinofrozfour from "../../photos/vip-images/dinofroz/dinofrozfour.jpg";
+import dinofrozfive from "../../photos/vip-images/dinofroz/dinofrozfive.jpg";
+import dinofrozsix from "../../photos/vip-images/dinofroz/dinofrozsix.jpg";
+import dinofrozseven from "../../photos/vip-images/dinofroz/dinofrozseven.jpg";
+import dinofrozeight from "../../photos/vip-images/dinofroz/dinofrozeight.jpg";
 import dinofroztwo from "../../photos/vip-images/dinofroz/vip-dragons.jpg";
 //Mia and me 
 import mia from "../../photos/vip-images/mia/miaandme.webp";
@@ -332,7 +346,7 @@ const MusicText = styled.div`
 `;
 
 const AuthorText = styled.div`
-  color: #666;
+  color: #656;
   font-size: 11px;
   margin-top: 4px;
 `;
@@ -397,6 +411,32 @@ const LoadMoreButton = styled.button`
   font-size: 19px;
   cursor: pointer;
   margin-top: 15px;
+`;
+
+const FilterOverlay = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+  transition: all 0.5s ease;
+  background-color: transparent;
+
+  ${(props) =>
+    props.$active &&
+    css`
+      ${props.$type === "red" && `background-color: rgba(255, 0, 0, ${props.$opacity});`}
+      ${props.$type === "purple" && `background-color: rgba(128, 0, 128, ${props.$opacity});`}
+      ${props.$type === "green" && `background-color: rgba(0, 255, 0, ${props.$opacity});`}
+      ${props.$type === "blue" && `background-color: rgba(0, 0, 255, ${props.$opacity});`}
+      ${props.$type === "grayscale" &&
+      `
+        backdrop-filter: grayscale(${props.$opacity * 100}%);
+        background-color: rgba(0, 0, 0, ${props.$opacity * 0.1});
+      `}
+    `}
 `;
 
 // --- New/Updated FullScreen Player Components ---
@@ -1038,6 +1078,11 @@ const FullScreenPlayer = ({ track, onClose, onNext, onPrev, rating, onRate, isSh
   const holdIntervalRef = useRef(null);
   const overlayRef = useRef(null);
 
+  const activeFilter = useMemo(() => {
+    if (!track.filters || !Array.isArray(track.filters)) return null;
+    return track.filters.find((f) => progress >= f.start && progress <= f.end);
+  }, [track.filters, progress]);
+
   const isDinofroz =
     (track.category === "мультфільми" && track.video) ||
     (track.text.toLowerCase().includes("динофроз") && track.category === "мультфільми");
@@ -1272,10 +1317,6 @@ const FullScreenPlayer = ({ track, onClose, onNext, onPrev, rating, onRate, isSh
         const process = (img) => {
             const w = img.videoWidth || img.naturalWidth || img.width;
             const h = img.videoHeight || img.naturalHeight || img.height;
-            
-            // Crop 5% from each side (10% total reduction in dimension, approx 19% area reduction, or interpreting "10% area" loosely as margins)
-            // "обрізають 10% площі" -> 10% of area. sqrt(0.9) = 0.948. So ~2.5% from each side.
-            // But "10% площі" usually colloquially means "crop 10%". Let's do 5% margins (10% total dimension crop).
             const cropX = w * 0.05;
             const cropY = h * 0.05;
             const cropW = w * 0.9;
@@ -1455,6 +1496,11 @@ const FullScreenPlayer = ({ track, onClose, onNext, onPrev, rating, onRate, isSh
         onTouchEnd={stopHoldSeek}
       >
         <FSVisualWrapper style={{position: 'relative'}}>
+            <FilterOverlay 
+              $active={!!activeFilter} 
+              $type={activeFilter?.type} 
+              $opacity={activeFilter?.opacity || 0.5} 
+            />
             {isDinofroz ? (
               <>
                 <FSVideo
@@ -1973,13 +2019,13 @@ const musicCards = [
   },
   {
     id: 5,
-    image: require("../../photos/vip-images/vip-desert.webp"),
+    image: desert,
     audio: require("../../mp3/wind.mp3"),
     category: "природа",
     text: "Звук дощу. Пустеля розділенна вічно грозовою і сонячною зоною. Невідомий автор.",
     lyrics: "Звуки дощу, допомагають заснути",
     duration: 300,
-    images: [desert],
+    images: [desert, desertone, deserttwo, desertthree, desertfour, desertfive],
   },
   {
     id: 6,
@@ -1993,13 +2039,13 @@ const musicCards = [
   },
   {
     id: 7,
-    image: require("../../photos/vip-images/dinofroz/vip-dragons.jpg"),
+    image: dinofrozone,
     audio: require("../../mp3/dragon.mp3"),
     category: "ігри",
     text: "Dragonora - MyLittleUniverse(Estoty). І знову дракони, музика доісторичного світу. Картина взята з мультфільму Динофроз. Звучить при комбінації.",
     lyrics: "Атмосферна доісторична музика.",
     duration: 180,
-    images: [dinofrozone, dinofroztwo],
+    images: [dinofrozone, dinofroztwo, dinofrozthree, dinofrozfour, dinofrozfive, dinofrozsix, dinofrozseven, dinofrozeight],
   },
   {
     id: 8,
@@ -2019,7 +2065,7 @@ const musicCards = [
     text: "Asium - My little universe(Estoty). Спокійна і прекрасна музика в японському стилі.",
     lyrics: "Текст відсутній.",
     duration: 160,
-    images: [asiumone, asiumtwo, asiumthree, asiumfour, asiumfive, asiumsix, asiumseven, harmony, asiumnine, ],
+    images: [asiumone, asiumtwo, asiumthree, asiumfour, asiumfive, asiumsix, asiumseven, harmony, asiumnine, asiumten, asiumeleven],
   },
   {
     id: 10,
@@ -2068,24 +2114,30 @@ const musicCards = [
     text: "Clubstep - DJ-Nate(GeometryDash).",
     category: "ігри",
               lyrics: [
-      { time: 0, text: "Текст хаотичний, лише для атмосфери" },
-      { time: 25, text: "" },
+      { time: 143, text: "Текст хаотичний, лише для атмосфери" },
     ],
     duration: 160,
     images: [clubstep],
   },
   {
     id: 15,
-    image: require("../../photos/vip-images/mechannic.jpg"),
+    image: require("../../photos/vip-images/dinofroz/fingerdash.jpg"),
     audio: require("../../mp3/fingerdash.mp3"),
     text: "Fingerdash-MDK(GeometryDash) Гаряча мелодія I-ша в режимі анімованості. Ласково просимо в хаос!",
     category: "ігри",
     lyrics: [
       { time: 0, text: "Текст хаотичний, лише для атмосфери" },
-      { time: 25, text: "" },
+      { time: 17, text: "" },
     ],
     duration: 140,
-    images: [horrortwo, horrorthree],
+    images: [fingerdash],
+    filters: [
+      { start: 8, end: 9, type: "greyscale", opacity: 1 },
+      { start: 10, end: 17, type: "red", opacity: 0.2 },
+      { start: 17, end: 19, type: "grayscale", opacity: 1 },
+      { start: 19, end: 28, type: "red", opacity: 0.4 },
+      { start: 95, end: 110, type: "blue", opacity: 0.4 },
+    ],
   },
   {
     id: 16,
@@ -2131,7 +2183,7 @@ const musicCards = [
     audio: require("../../mp3/unity.mp3"),
     text: "Unity-TheFatRat. Класний комп'ютерний хіт, не розумію чого його не поставили у фільм Матриця?",
     lyrics: [
-      { time: 0, text: "Текст хаотичний, лише для атмосфери" },
+      { time: 116, text: "Текст хаотичний, лише для атмосфери" },
       { time: 15, text: "Відлуння атмосферного вигуку" },
       { time: 25, text: "" },
     ],

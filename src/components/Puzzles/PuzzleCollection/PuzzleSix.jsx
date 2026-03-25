@@ -345,12 +345,8 @@ const PuzzleSix = ({ onExit }) => {
         audio: require("../../../mp3/thefatrat-monody.mp3"),
       },
       {
-        image: require("../../../photos/vip-images/vip-desert.webp"),
+        image: require("../../../photos/vip-images/desert/vip-desert.webp"),
         audio: require("../../../mp3/wind.mp3"),
-      },
-      {
-        image: require("../../../photos/vip-images/horror/horror.jpg"),
-        audio: require("../../../mp3/horror.mp3"),
       },
       {
         image: require("../../../photos/vip-images/horse/horse.jpg"),

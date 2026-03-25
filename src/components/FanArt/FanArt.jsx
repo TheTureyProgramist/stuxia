@@ -121,6 +121,9 @@ const ModalContent = styled.div`
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 `;
 
 const CloseButton = styled.button`
@@ -278,6 +281,7 @@ const FanArt = ({ isDarkMode, user, onOpenRegister }) => {
   const [searchResults, setSearchResults] = useState([]);
   const [searchStatus, setSearchStatus] = useState('idle');
   const [searchPage, setSearchPage] = useState(1);
+  const [visibleCount, setVisibleCount] = useState(12);
   const [isCooldown, setIsCooldown] = useState(false);
   const [cooldownTime, setCooldownTime] = useState(0);
 
@@ -323,6 +327,10 @@ const FanArt = ({ isDarkMode, user, onOpenRegister }) => {
     }, 2000);
     return () => clearInterval(interval);
   }, []);
+
+  const handleLoadMoreImages = () => {
+    setVisibleCount(prev => prev + 12);
+  };
 
   const handleDownload = (imgSrc) => {
     if (!user) {
@@ -464,6 +472,7 @@ const FanArt = ({ isDarkMode, user, onOpenRegister }) => {
 
   const openPlaylistModal = (category) => {
     setSelectedPlaylist(category);
+    setVisibleCount(12);
   };
 
   const closePlaylistModal = () => {
@@ -473,6 +482,10 @@ const FanArt = ({ isDarkMode, user, onOpenRegister }) => {
   const handleRemoveCustomImage = (idToRemove) => {
     setCustomImages(prev => prev.filter(img => img.id !== idToRemove));
   };
+
+  const imagesForPlaylist = selectedPlaylist
+    ? combinedImages.filter((img) => img.category === selectedPlaylist)
+    : [];
 
   return (
     <FanArtDiv>
@@ -574,6 +587,7 @@ const FanArt = ({ isDarkMode, user, onOpenRegister }) => {
               <AnimatePresence>
                 {combinedImages
                   .filter((img) => img.category === selectedPlaylist)
+                  .slice(0, visibleCount)
                   .map((imgData) => (
                     <FanArtCard
                       key={imgData.id || imgData.src}
@@ -614,6 +628,11 @@ const FanArt = ({ isDarkMode, user, onOpenRegister }) => {
                   ))}
               </AnimatePresence>
             </FanBlock>
+            {imagesForPlaylist.length > visibleCount && (
+              <ActionButton onClick={handleLoadMoreImages} style={{ marginTop: '20px', width: 'auto' }}>
+                Завантажити ще
+              </ActionButton>
+            )}
           </ModalContent>
         </ModalOverlay>
       )}

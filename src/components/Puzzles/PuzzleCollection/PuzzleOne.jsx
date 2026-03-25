@@ -8,16 +8,107 @@ import React, {
 import styled, { keyframes } from "styled-components";
 import { motion, AnimatePresence } from "framer-motion";
 import decor from "../../../photos/fan-art/modaldecor.jpg";
+//desert
+import desert from "../../../photos/vip-images/desert/vip-desert.webp";
+// import soloveyko from "../../../photos/vip-images/vip-soloveyko.jpg";
+// import desert from "../../../photos/vip-images/vip-desert.webp";
+// import harmony from "../../../photos/vip-images/asium/asium.jpg";
+ import horse from "../../../photos/vip-images/horse/horse.jpg";
+// import theorytwo from "../../../photos/fan-art/theorytwo.jpg";
+
+ import unity from "../../../photos/fan-art/unity.jpg";
+import mecha from "../../../photos/vip-images/mechannic.jpg";
+import monody from "../../../photos/fan-art/monody.jpg";
+import christmas from "../../../photos/vip-images/christmas.jpg";
+//import clubstep from "../../../photos/fan-art/clubstep.jpg";
+import turkeys from "../../../photos/vip-images/turkeys/ultra-vip-turkeys.webp";
+// //Horses
+ import horsethree from "../../../photos/vip-images/horse/horsethree.jpg";
+ import horsetwo from "../../../photos/vip-images/horse/horsetwo.jpg";
+ import chess from "../../../photos/vip-images/horse/chess.jpg";
+//Turkeys
+import turkeytwo from "../../../photos/vip-images/turkeys/turkeytwo.jpg";
+import turkeythree from "../../../photos/vip-images/turkeys/turkeysthree.jpg";
+import turkeyfour from "../../../photos/vip-images/turkeys/turkeysfour.jpg";
+import turkeyfive from "../../../photos/vip-images/turkeys/turkeysfive.jpg";
+import turkeysix from "../../../photos/vip-images/turkeys/turkeyssix.jpg";
+import turkeysone from "../../../photos/vip-images/turkeys/turkeysone.jpg";
+import turkeyseven from "../../../photos/vip-images/turkeys/turkeysseven.jpg";
+//Asium
+import asiumnine from "../../../photos/vip-images/asium/vip-forest.webp";
+import asiumone from "../../../photos/vip-images/asium/asiumone.jpg";
+import asiumtwo from "../../../photos/vip-images/asium/asiuntwo.jpg";
+import asiumthree from "../../../photos/vip-images/asium/asiumthree.jpg";
+import asiumfour from "../../../photos/vip-images/asium/asiumfour.jpg";
+import asiumfive from "../../../photos/vip-images/asium/asiumfive.jpg";
+import asiumsix from "../../../photos/vip-images/asium/asiumsix.jpg";
+import asiumseven from "../../../photos/vip-images/asium/asiumseven.jpg";
+//Swamp
+import swamptwo from "../../../photos/vip-images/swamp/swamptwo.jpg";
+import swampthree from "../../../photos/vip-images/swamp/swampthree.jpg";
+import swampfour from "../../../photos/vip-images/swamp/swampfour.jpg";
+import swampfive from "../../../photos/vip-images/swamp/swampfive.jpg";
+import swampsix from "../../../photos/vip-images/swamp/swampsix.jpg";
+import swampseven from "../../../photos/vip-images/swamp/seampseven.jpg";
+import swampeight from "../../../photos/vip-images/swamp/swampeight.jpg";
+import swampnine from "../../../photos/vip-images/swamp/swampnine.jpg";
+import theory from "../../../photos/fan-art/theory.jpg";
+import deadlocked from "../../../photos/vip-images/swamp/deadlocked.jpg";
+//Horror
+import horrortwo from "../../../photos/vip-images/horror/horrortwo.jpg";
+import horrorthree from "../../../photos/vip-images/horror/horrorthree.jpg";
+import horrorfour from "../../../photos/vip-images/horror/horrorfour.jpg";
+import horrorfive from "../../../photos/vip-images/horror/horrorfive.jpg";
+import horror from "../../../photos/vip-images/horror/horror.jpg";
+import horrorsix from "../../../photos/vip-images/horror/horrorsix.jpg";
+import horrorseven from "../../../photos/vip-images/horror/horrorseven.jpg";
+import horroreight from "../../../photos/vip-images/horror/horroreight.jpg";
+//Динофроз
+import dinofrozone from "../../../photos/vip-images/dinofroz/vip-dinofroz.webp";
+import dinofroztwo from "../../../photos/vip-images/dinofroz/vip-dragons.jpg";
+//Mia and me
+import mia from "../../../photos/vip-images/mia/miaandme.webp";
 const fadeIn = keyframes`
   from { opacity: 0; }
   to { opacity: 1; }
 `;
 const Im = styled.img`
   display: block;
-  width: 100%;       
-  height: 100%;      
-  object-fit: cover; 
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   object-position: center;
+`;
+const heartPop = keyframes`
+  0% { transform: scale(1); }
+  50% { transform: scale(1.4) rotate(-15deg); }
+  100% { transform: scale(1) rotate(0deg); }
+`;
+
+const HeartButton = styled.button`
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.5);
+  color: ${(props) => (props.$isFavorite ? "#ff5252" : "white")};
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: all 0.2s;
+  &:hover {
+    transform: scale(1.1);
+    background: rgba(0, 0, 0, 0.7);
+  }
+  &.popping {
+    animation: ${heartPop} 0.3s ease-out;
+  }
 `;
 const rotate = keyframes`
   from { transform: rotate(0deg); }
@@ -27,6 +118,11 @@ const rotate = keyframes`
 const rotateRev = keyframes`
   from { transform: rotate(0deg); }
   to { transform: rotate(-360deg); }
+`;
+
+const boardFadeIn = keyframes`
+  from { opacity: 0.4; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
 `;
 
 const LoadingOverlay = styled.div`
@@ -58,7 +154,7 @@ const ProgressBar = styled.div`
 const ProgressFill = styled.div`
   height: 100%;
   background: #ffb36c;
-  width: ${props => props.$percent}%;
+  width: ${(props) => props.$percent}%;
   transition: width 0.2s;
 `;
 
@@ -113,6 +209,7 @@ const Board = styled.div`
   border: 4px solid #444;
   padding: 2px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  animation: ${boardFadeIn} 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 `;
 
 const TileContent = styled.div`
@@ -280,9 +377,14 @@ const ThemeGrid = styled.div`
   max-height: 60vh;
   overflow-y: auto;
   padding: 15px;
-  
-  &::-webkit-scrollbar { width: 6px; }
-  &::-webkit-scrollbar-thumb { background: #ffb36c; border-radius: 3px; }
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #ffb36c;
+    border-radius: 3px;
+  }
 `;
 
 const ThemeItem = styled.div`
@@ -292,107 +394,335 @@ const ThemeItem = styled.div`
   overflow: hidden;
   aspect-ratio: 3/2;
   transition: all 0.2s;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   &:hover {
     border-color: #ffb36c;
     transform: scale(1.02);
   }
 `;
 
+const CategoryGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 20px;
+  padding: 15px;
+`;
+
+const CategoryCard = styled.div`
+  cursor: pointer;
+  border: 2px solid #ffb36c;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  aspect-ratio: 3/2;
+  transition: transform 0.2s;
+  &:hover {
+    transform: scale(1.05);
+    border-color: white;
+  }
+`;
+
+const CategoryLabel = styled.div`
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 8px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+`;
+
 const PuzzleOne = ({ onExit }) => {
   const puzzleImages = useMemo(
     () => [
       {
-        image: require("../../../photos/vip-images/dinofroz/vip-dinofroz.webp"),
+        image: dinofrozone,
         audio: require("../../../mp3/dinofroz.mp3"),
+        category: "dinofroz",
       },
       {
-        image: require("../../../photos/fan-art/monody.jpg"),
+        image: dinofroztwo,
+        audio: require("../../../mp3/dinofroz.mp3"),
+        category: "dinofroz",
+      },
+      {
+        image: monody,
         audio: require("../../../mp3/thefatrat-monody.mp3"),
+        category: "other",
       },
       {
-        image: require("../../../photos/vip-images/asium/asium.jpg"),
+        image: asiumone,
         audio: require("../../../mp3/harmonic-japan.mp3"),
+        category: "other",
       },
       {
-        image: require("../../../photos/vip-images/mechannic.jpg"),
+        image: asiumtwo,
+        audio: require("../../../mp3/harmonic-japan.mp3"),
+        category: "other",
+      },
+      {
+        image: asiumthree,
+        audio: require("../../../mp3/harmonic-japan.mp3"),
+        category: "other",
+      },
+      {
+        image: asiumfour,
+        audio: require("../../../mp3/harmonic-japan.mp3"),
+        category: "other",
+      },
+      {
+        image: asiumnine,
+        audio: require("../../../mp3/harmonic-japan.mp3"),
+        category: "other",
+      },
+      {
+        image: asiumfive,
+        audio: require("../../../mp3/harmonic-japan.mp3"),
+        category: "other",
+      },
+      {
+        image: asiumsix,
+        audio: require("../../../mp3/harmonic-japan.mp3"),
+        category: "other",
+      },
+      {
+        image: asiumseven,
+        audio: require("../../../mp3/harmonic-japan.mp3"),
+        category: "other",
+      },
+      {
+        image: mecha,
         audio: require("../../../mp3/mechanik-kindom.mp3"),
+        category: "other",
       },
       {
-        image: require("../../../photos/vip-images/christmas.jpg"),
+        image: christmas,
         audio: require("../../../mp3/kolada.mp3"),
+        category: "other",
       },
       {
-        image: require("../../../photos/vip-images/turkeys/ultra-vip-turkeys.webp"),
+        image: turkeysone,
         audio: require("../../../mp3/turkeys.mp3"),
+        category: "turkeys",
       },
       {
-        image: require("../../../photos/fan-art/monody.jpg"),
+        image: turkeytwo,
+        audio: require("../../../mp3/turkeys.mp3"),
+        category: "turkeys",
+      },
+      {
+        image: turkeythree,
+        audio: require("../../../mp3/turkeys.mp3"),
+        category: "turkeys",
+      },
+      {
+        image: turkeyfour,
+        audio: require("../../../mp3/turkeys.mp3"),
+        category: "turkeys",
+      },
+      {
+        image: turkeyfive,
+        audio: require("../../../mp3/turkeys.mp3"),
+        category: "turkeys",
+      },
+      {
+        image: turkeysix,
+        audio: require("../../../mp3/turkeys.mp3"),
+        category: "turkeys",
+      },
+      {
+        image: turkeyseven,
+        audio: require("../../../mp3/turkeys.mp3"),
+        category: "turkeys",
+      },
+      {
+        image: turkeys,
+        audio: require("../../../mp3/turkeys.mp3"),
+        category: "turkeys",
+      },
+      {
+        image: turkeysone,
+        audio: require("../../../mp3/turkeys.mp3"),
+        category: "turkeys",
+      },
+      {
+        image: monody,
         audio: require("../../../mp3/thefatrat-monody.mp3"),
+        category: "other",
       },
       {
-        image: require("../../../photos/vip-images/vip-desert.webp"),
+        image: desert,
         audio: require("../../../mp3/wind.mp3"),
+        category: "desert",
       },
       {
-        image: require("../../../photos/vip-images/horror/horror.jpg"),
-        audio: require("../../../mp3/horror.mp3"),
-      },
-      {
-        image: require("../../../photos/vip-images/horse/horse.jpg"),
+        image: horse,
         audio: require("../../../mp3/horse.mp3"),
+        category: "horses",
+      },
+            {
+        image: horsetwo,
+        audio: require("../../../mp3/horse.mp3"),
+        category: "horses",
+      },
+            {
+        image: horsethree,
+        audio: require("../../../mp3/horse.mp3"),
+        category: "horses",
+      },
+            {
+        image: chess,
+        audio: require("../../../mp3/horse.mp3"),
+        category: "horses",
       },
       {
         image: require("../../../photos/vip-images/dinofroz/vip-dragons.jpg"),
         audio: require("../../../mp3/dragon.mp3"),
+        category: "dinofroz",
       },
       {
         image: require("../../../photos/vip-images/vip-soloveyko.jpg"),
         audio: require("../../../mp3/soloveyko.mp3"),
-      },
-      {
-        image: require("../../../photos/vip-images/asium/asium.jpg"),
-        audio: require("../../../mp3/harmonic-japan.mp3"),
+        category: "other",
       },
       {
         image: require("../../../photos/vip-images/mechannic.jpg"),
         audio: require("../../../mp3/mechanik-kindom.mp3"),
+        category: "other",
       },
       {
         image: require("../../../photos/vip-images/mechannic.jpg"),
         audio: require("../../../mp3/zootopia.mp3"),
+        category: "other",
       },
       {
-        image: require("../../../photos/vip-images/mia/miaandme.webp"),
+        image: mia,
         audio: require("../../../mp3/mia-and-me.mp3"),
+        category: "other",
       },
       {
         image: require("../../../photos/vip-images/mechannic.jpg"),
         audio: require("../../../mp3/electrodynamix.mp3"),
+        category: "other",
       },
       {
         image: require("../../../photos/fan-art/clubstep.jpg"),
         audio: require("../../../mp3/clubstep.mp3"),
+        category: "other",
       },
       {
         image: require("../../../photos/vip-images/mechannic.jpg"),
         audio: require("../../../mp3/fingerdash.mp3"),
+        category: "other",
       },
       {
         image: require("../../../photos/fan-art/theorytwo.jpg"),
         audio: require("../../../mp3/theoty-of-everything-ll.mp3"),
+        category: "other",
       },
       {
-        image: require("../../../photos/vip-images/swamp/deadlocked.jpg"),
+        image: horror,
         audio: require("../../../mp3/deadlocked.mp3"),
+        category: "swamp_horror",
       },
       {
-        image: require("../../../photos/fan-art/theory.jpg"),
+        image: horrortwo,
+        audio: require("../../../mp3/deadlocked.mp3"),
+        category: "swamp_horror",
+      },
+      {
+        image: horrorthree,
+        audio: require("../../../mp3/deadlocked.mp3"),
+        category: "swamp_horror",
+      },
+      {
+        image: horrorfour,
+        audio: require("../../../mp3/deadlocked.mp3"),
+        category: "swamp_horror",
+      },
+      {
+        image: horrorfive,
+        audio: require("../../../mp3/deadlocked.mp3"),
+        category: "swamp_horror",
+      },
+      {
+        image: horrorsix,
+        audio: require("../../../mp3/deadlocked.mp3"),
+        category: "swamp_horror",
+      },
+      {
+        image: horrorseven,
+        audio: require("../../../mp3/deadlocked.mp3"),
+        category: "swamp_horror",
+      },
+      {
+        image: horroreight,
+        audio: require("../../../mp3/deadlocked.mp3"),
+        category: "swamp_horror",
+      },
+      {
+        image: deadlocked,
+        audio: require("../../../mp3/deadlocked.mp3"),
+        category: "swamp_horror",
+      },
+      {
+        image: swampnine,
+        audio: require("../../../mp3/deadlocked.mp3"),
+        category: "swamp_horror",
+      },
+      {
+        image: swamptwo,
+        audio: require("../../../mp3/deadlocked.mp3"),
+        category: "swamp_horror",
+      },
+      {
+        image: swampthree,
+        audio: require("../../../mp3/deadlocked.mp3"),
+        category: "swamp_horror",
+      },
+      {
+        image: swampfour,
+        audio: require("../../../mp3/deadlocked.mp3"),
+        category: "swamp_horror",
+      },
+      {
+        image: swampfive,
+        audio: require("../../../mp3/deadlocked.mp3"),
+        category: "swamp_horror",
+      },
+      {
+        image: swampsix,
+        audio: require("../../../mp3/deadlocked.mp3"),
+        category: "swamp_horror",
+      },
+      {
+        image: swampseven,
+        audio: require("../../../mp3/deadlocked.mp3"),
+        category: "swamp_horror",
+      },
+      {
+        image: swampeight,
+        audio: require("../../../mp3/deadlocked.mp3"),
+        category: "swamp_horror",
+      },
+      {
+        image: swampnine,
+        audio: require("../../../mp3/deadlocked.mp3"),
+        category: "swamp_horror",
+      },
+      {
+        image: theory,
         audio: require("../../../mp3/theory-of-everyting.mp3"),
+        category: "other",
       },
       {
-        image: require("../../../photos/fan-art/unity.jpg"),
+        image: unity,
         audio: require("../../../mp3/unity.mp3"),
+        category: "other",
       },
     ],
     [],
@@ -415,8 +745,18 @@ const PuzzleOne = ({ onExit }) => {
   const [timeLeft, setTimeLeft] = useState(config.maxTime);
   const [showSettings, setShowSettings] = useState(false);
   const [showThemeModal, setShowThemeModal] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const [volume, setVolume] = useState(0.5);
-  
+
+  const [favorites, setFavorites] = useState(() => {
+    try {
+      const saved = localStorage.getItem("puzzle_one_favorites");
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
+  });
+
   const [isLoading, setIsLoading] = useState(false);
   const [loadProgress, setLoadProgress] = useState(0);
 
@@ -425,11 +765,45 @@ const PuzzleOne = ({ onExit }) => {
   const previewTimeoutRef = useRef(null);
   const fadeIntervalRef = useRef(null);
 
+  useEffect(() => {
+    localStorage.setItem("puzzle_one_favorites", JSON.stringify(favorites));
+  }, [favorites]);
+
+  const toggleFavorite = (e, imageSrc) => {
+    e.stopPropagation();
+    const button = e.currentTarget;
+    button.classList.add("popping");
+    setTimeout(() => {
+      if (button) {
+        button.classList.remove("popping");
+      }
+    }, 300);
+    setFavorites((prev) => {
+      if (prev.includes(imageSrc)) {
+        return prev.filter((fav) => fav !== imageSrc);
+      } else {
+        return [...prev, imageSrc];
+      }
+    });
+  };
+
+  const sortedPuzzleImages = useMemo(() => {
+    return [...puzzleImages].sort((a, b) => {
+      const aIsFavorite = favorites.includes(a.image);
+      const bIsFavorite = favorites.includes(b.image);
+      if (aIsFavorite && !bIsFavorite) return -1;
+      if (!aIsFavorite && bIsFavorite) return 1;
+      const aIndex = puzzleImages.findIndex((p) => p.image === a.image);
+      const bIndex = puzzleImages.findIndex((p) => p.image === b.image);
+      return aIndex - bIndex;
+    });
+  }, [puzzleImages, favorites]);
+
   const handleThemeHover = (audioSrc) => {
     if (audioRef.current && !audioRef.current.paused) {
       audioRef.current.pause();
     }
-    
+
     if (fadeIntervalRef.current) clearInterval(fadeIntervalRef.current);
     if (previewTimeoutRef.current) clearTimeout(previewTimeoutRef.current);
 
@@ -459,13 +833,13 @@ const PuzzleOne = ({ onExit }) => {
   const handleThemeLeave = (resumeMain = true) => {
     if (fadeIntervalRef.current) clearInterval(fadeIntervalRef.current);
     if (previewTimeoutRef.current) clearTimeout(previewTimeoutRef.current);
-    
+
     previewAudioRef.current.pause();
     previewAudioRef.current.currentTime = 0;
     previewAudioRef.current.volume = volume;
 
     if (resumeMain && audioRef.current && volume > 0 && !isWon) {
-        audioRef.current.play().catch(() => {});
+      audioRef.current.play().catch(() => {});
     }
   };
 
@@ -485,9 +859,9 @@ const PuzzleOne = ({ onExit }) => {
     const loadMedia = async () => {
       setIsLoading(true);
       setLoadProgress(0);
-      
+
       const currentItem = puzzleImages[currentMediaIndex];
-      
+
       // Load Audio
       if (audioRef.current) {
         audioRef.current.src = currentItem.audio;
@@ -504,7 +878,7 @@ const PuzzleOne = ({ onExit }) => {
       setLoadProgress(100);
 
       setIsLoading(false);
-      
+
       // Try playing audio after load
       audioRef.current.play().catch(() => {});
     };
@@ -521,9 +895,13 @@ const PuzzleOne = ({ onExit }) => {
 
   const initGame = useCallback(() => {
     const total = config.cols * config.rows;
+    const rotations = [90, 180, 270];
     const initial = Array.from({ length: total }, (_, i) => ({
       id: i,
-      rotation: Math.random() < config.rotationChance ? 180 : 0,
+      rotation:
+        Math.random() < config.rotationChance
+          ? rotations[Math.floor(Math.random() * rotations.length)]
+          : 0,
     }));
     let shuffled;
     do {
@@ -615,7 +993,7 @@ const PuzzleOne = ({ onExit }) => {
 
       // 3. Fix rotation if tile is in correct place
       const updatedTiles = newTiles.map((t, i) =>
-        t.id === i ? { ...t, rotation: 0 } : t
+        t.id === i ? { ...t, rotation: 0 } : t,
       );
 
       const newMoves = moves + 1;
@@ -633,33 +1011,69 @@ const PuzzleOne = ({ onExit }) => {
       }
     }
   };
- const setDifficulty = (type, customParams = null) => {
+  const setDifficulty = (type, customParams = null) => {
     let newConfig;
     if (customParams) {
       newConfig = { ...customParams, label: "Власна" };
     } else {
       const presets = {
-        easy: { cols: 5, rows: 3, maxMoves: 200, maxTime: 240, rotationChance: 0, label: "Легка" },
-        normal: { cols: 6, rows: 4, maxMoves: 150, maxTime: 180, rotationChance: 0.35, label: "Нормальна" },
-        hard: { cols: 8, rows: 5, maxMoves: 100, maxTime: 120, rotationChance: 0.6, label: "Екстремальна" },
+        easy: {
+          cols: 5,
+          rows: 3,
+          maxMoves: 200,
+          maxTime: 240,
+          rotationChance: 0,
+          label: "Легка",
+        },
+        normal: {
+          cols: 6,
+          rows: 4,
+          maxMoves: 150,
+          maxTime: 180,
+          rotationChance: 0.35,
+          label: "Нормальна",
+        },
+        hard: {
+          cols: 8,
+          rows: 5,
+          maxMoves: 100,
+          maxTime: 120,
+          rotationChance: 0.6,
+          label: "Екстремальна",
+        },
       };
       newConfig = presets[type];
     }
-    
+
     setConfig(newConfig);
     setShowSettings(false);
     setSelectedIdx(null); // Важливо: скидаємо вибір при зміні сітки
   };
 
-  const handleSelectTheme = (index) => {
+  const handleSelectTheme = (selectedItem) => {
     handleThemeLeave(false);
-    setCurrentMediaIndex(index);
+    const originalIndex = puzzleImages.findIndex(
+      (p) => p.image === selectedItem.image,
+    );
+    if (originalIndex !== -1) {
+      setCurrentMediaIndex(originalIndex);
+    }
     setShowThemeModal(false);
+    setSelectedCategory(null);
     setTimeout(() => initGame(), 100);
   };
 
   const formatTime = (s) =>
     `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`;
+
+  const CATEGORIES = useMemo(() => [
+    { id: "dinofroz", label: "Динофроз", icon: dinofrozone },
+    { id: "horses", label: "Коні", icon: horse },
+    { id: "desert", label: "Пустеля", icon: desert },
+    { id: "turkeys", label: "Індики", icon: turkeys },
+    { id: "swamp_horror", label: "Болото і Хоррор", icon: deadlocked },
+    { id: "other", label: "Інше", icon: mecha },
+  ], []);
 
   const currentMedia = puzzleImages[currentMediaIndex];
 
@@ -676,10 +1090,12 @@ const PuzzleOne = ({ onExit }) => {
       {isLoading && (
         <LoadingOverlay>
           <div>Завантаження медіа... {loadProgress}%</div>
-          <ProgressBar><ProgressFill $percent={loadProgress} /></ProgressBar>
+          <ProgressBar>
+            <ProgressFill $percent={loadProgress} />
+          </ProgressBar>
         </LoadingOverlay>
       )}
-      <Board $cols={config.cols} $rows={config.rows}>
+      <Board $cols={config.cols} $rows={config.rows} key={currentMediaIndex}>
         {tiles.map((tile, index) => {
           const row = Math.floor(tile.id / config.cols);
           const col = tile.id % config.cols;
@@ -747,9 +1163,9 @@ const PuzzleOne = ({ onExit }) => {
           </VolumeControl>
           <GearContainer
             onClick={(e) => {
-    e.stopPropagation(); 
-    setShowSettings(true);
-  }}
+              e.stopPropagation();
+              setShowSettings(true);
+            }}
             title="Налаштування"
           >
             <span className="g g1">⚙</span>
@@ -759,9 +1175,12 @@ const PuzzleOne = ({ onExit }) => {
           <GameButton onClick={initGame} title="Перезапустити">
             ⏭
           </GameButton>
-                <GameButton onClick={() => setShowThemeModal(true)} style={{ width: 'auto', padding: '0 20px', borderRadius: '5px' }}>
-        Стиль гри
-      </GameButton>
+          <GameButton
+            onClick={() => { setSelectedCategory(null); setShowThemeModal(true); }}
+            style={{ width: "auto", padding: "0 20px", borderRadius: "5px" }}
+          >
+            Стиль гри
+          </GameButton>
           <GameButton onClick={onExit} title="Вийти">
             ✖
           </GameButton>
@@ -840,14 +1259,21 @@ const PuzzleOne = ({ onExit }) => {
                 />
               </CustomRow>
               <CustomRow>
-                <span>Шанс повороту: {Math.round(config.rotationChance * 100)}%</span>
+                <span>
+                  Шанс повороту: {Math.round(config.rotationChance * 100)}%
+                </span>
                 <input
                   type="range"
                   min="0"
                   max="1"
                   step="0.05"
                   value={config.rotationChance}
-                  onChange={(e) => setConfig({ ...config, rotationChance: parseFloat(e.target.value) })}
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      rotationChance: parseFloat(e.target.value),
+                    })
+                  }
                 />
               </CustomRow>
               <CustomRow>
@@ -901,22 +1327,62 @@ const PuzzleOne = ({ onExit }) => {
             exit={{ opacity: 0 }}
             onClick={() => setShowThemeModal(false)}
           >
-            <Modal onClick={(e) => e.stopPropagation()} style={{ width: '800px', maxWidth: '95vw' }}>
-              <h3 style={{ margin: "0", color: "#ffb36c", textAlign: "center" }}>Оберіть тему</h3>
-              <ThemeGrid>
-                {puzzleImages.map((item, idx) => (
-                  <ThemeItem 
-                    key={idx} 
-                    $isActive={currentMediaIndex === idx} 
-                    onClick={() => handleSelectTheme(idx)}
-                    onMouseEnter={() => handleThemeHover(item.audio)}
-                    onMouseLeave={() => handleThemeLeave(true)}
-                  >
-                    <Im src={item.image} alt={`theme-${idx}`} />
-                  </ThemeItem>
-                ))}
-              </ThemeGrid>
-              <DifficultyBtn onClick={() => setShowThemeModal(false)}>Закрити</DifficultyBtn>
+            <Modal
+              onClick={(e) => e.stopPropagation()}
+              style={{ width: "800px", maxWidth: "95vw" }}
+            >
+              <h3
+                style={{ margin: "0", color: "#ffb36c", textAlign: "center" }}
+              >
+                {selectedCategory ? `Тема: ${CATEGORIES.find(c => c.id === selectedCategory)?.label}` : "Оберіть тематику"}
+              </h3>
+              {!selectedCategory ? (
+                <CategoryGrid>
+                  {CATEGORIES.map((cat) => (
+                    <CategoryCard key={cat.id} onClick={() => setSelectedCategory(cat.id)}>
+                      <Im src={cat.icon} alt={cat.label} />
+                      <CategoryLabel>{cat.label}</CategoryLabel>
+                    </CategoryCard>
+                  ))}
+                </CategoryGrid>
+              ) : (
+                <>
+                  <ThemeGrid>
+                    {sortedPuzzleImages
+                      .filter(item => item.category === selectedCategory)
+                      .map((item) => (
+                      <ThemeItem
+                        key={item.image}
+                        $isActive={
+                          puzzleImages[currentMediaIndex].image === item.image
+                        }
+                        onClick={() => handleSelectTheme(item)}
+                        onMouseEnter={() => handleThemeHover(item.audio)}
+                        onMouseLeave={() => handleThemeLeave(true)}
+                      >
+                        <HeartButton
+                          $isFavorite={favorites.includes(item.image)}
+                          onClick={(e) => toggleFavorite(e, item.image)}
+                        >
+                          ♥
+                        </HeartButton>
+                        <Im src={item.image} alt={`theme-${item.image}`} />
+                      </ThemeItem>
+                    ))}
+                  </ThemeGrid>
+                  <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
+                    <DifficultyBtn 
+                      onClick={() => setSelectedCategory(null)}
+                      style={{ background: "#4e342e" }}
+                    >
+                      Назад до категорій
+                    </DifficultyBtn>
+                  </div>
+                </>
+              )}
+              <DifficultyBtn onClick={() => { setShowThemeModal(false); setSelectedCategory(null); }}>
+                Закрити
+              </DifficultyBtn>
             </Modal>
           </ModalOverlay>
         )}

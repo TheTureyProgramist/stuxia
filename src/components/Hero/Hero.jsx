@@ -513,7 +513,7 @@ const Hero = ({ heroDateString, onAddCity, startAnimation }) => {
           <HeroBlue>Сти</HeroBlue>
           <HeroYellow>хія</HeroYellow>
         </LogoText>
-        <CollectorText $start={startAnimation}>Collector's Edition</CollectorText>
+        <CollectorText $start={startAnimation}>Видання дракона</CollectorText>
       </HeroDecors>
 
       <DelayedContent $start={startAnimation}>
