@@ -278,7 +278,7 @@ const CardWrapper = styled.div`
   flex-direction: column;
   align-items: center;
   width: 308px;
-  height: 456px;
+  height: 326px;
   background: #fff;
   border-radius: 15px;
   padding-bottom: 15px;
@@ -299,6 +299,19 @@ const CardWrapper = styled.div`
   &:hover {
     transform: translateY(-5px);
   }
+`;
+
+const LyricsModalImage = styled.img`
+  width: calc(100% + 20px);
+  margin: -10px -10px 15px -10px;
+  border-radius: 15px 15px 0 0;
+  position: sticky;
+  top: -10px;
+  z-index: 10;
+  background: white;
+  display: block;
+  object-fit: cover;
+  max-height: 250px;
 `;
 
 const MusicImageContainer = styled.div`
@@ -362,7 +375,7 @@ const MusicText = styled.div`
   color: #333;
   text-align: center;
   font-family: var(--font-family);
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 500;
   width: 100%;
   margin-top: 10px;
@@ -374,8 +387,8 @@ const MusicText = styled.div`
 `;
 
 const AuthorText = styled.div`
-  color: rgba(128, 128, 128, 0.52);
-  font-size: 11px;
+  color: rgb(73, 73, 73);
+  font-size: 9.5px;
   margin-top: 4px;
 `;
 
@@ -701,18 +714,18 @@ const LoopButton = styled.button`
 
 const ActionButtonsContainer = styled.div`
   display: flex;
-  gap: 5px;
+  gap: 3px;
   flex-wrap: wrap;
   justify-content: center;
   margin-top: auto;
-  padding: 0 10px;
+  padding: 0 8px;
 `;
 
 const ActionButton = styled.button`
   background: #f0f0f0;
   border: 1px solid #ddd;
   border-radius: 5px;
-  width: 37px;
+  width: 34px;
   padding: 3px 9px;
   font-size: 19px;
   cursor: pointer;
@@ -749,7 +762,9 @@ const LyricsModalContent = styled.div`
   padding: 10px;
   border-radius: 15px;
   width: 100%;
-  max-width: 310px;
+  overflow-y: hidden;
+
+  max-width: 320px;
   max-height: 85vh;
   overflow-y: auto;
   position: relative;
@@ -922,7 +937,7 @@ const FSControls = styled.div`
 
 const FSSliderContainer = styled.div`
   display: flex;
-  gap: 10px;
+  gap: 7px;
   overflow-x: auto;
   padding: 5px 20px;
   margin-bottom: 10px;
@@ -935,8 +950,8 @@ const FSSliderContainer = styled.div`
 `;
 
 const FSSliderImage = styled.img`
-  height: 60px;
-  width: 120px;
+  height: 50px;
+  width: 100px;
   object-fit: cover;
   border-radius: 6px;
   opacity: ${(props) => (props.$active ? 1 : 0.5)};
@@ -951,7 +966,7 @@ const FSSliderImage = styled.img`
 const FSTitle = styled.h2`
   color: white;
   margin: 0;
-  font-size: 20px;
+  font-size: 14px;
   max-width: 60vw;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
 `;
@@ -1028,7 +1043,7 @@ const PlaylistCloseButton = styled.button`
 
 const LyricsContainer = styled.div`
   background: #f9f9f9;
-  padding: 20px;
+  padding: 10px;
   border-radius: 8px;
   font-size: 14px;
   line-height: 1.8;
@@ -1037,7 +1052,7 @@ const LyricsContainer = styled.div`
   border: 1px solid #e0e0e0;
   text-align: left;
   color: #333;
-  max-height: 300px;
+  max-height: 900px;
   overflow-y: auto;
 `;
 
@@ -1355,7 +1370,7 @@ const FullScreenPlayer = ({
       setDynamicColor(null); // Reset dynamic color
     }
   }, [mainFilter, activeFilterKey]);
-const [dynamicBlurSymbols] = useState(0);
+  const [dynamicBlurSymbols] = useState(0);
   const lastSymbolFilter = useMemo(
     () => [...activeFilters].reverse().find((f) => f.type === "symbols"),
     [activeFilters],
@@ -1415,6 +1430,8 @@ const [dynamicBlurSymbols] = useState(0);
     (track.category === "мультфільми" && track.video) ||
     (track.text.toLowerCase().includes("динофроз") &&
       track.category === "мультфільми");
+  track.category === "мультфільми" &&
+    (track.text || "").toLowerCase().includes("динофроз");
 
   const sliderImages = useMemo(() => {
     if (track.images && track.images.length > 0) return track.images;
@@ -1815,9 +1832,11 @@ const [dynamicBlurSymbols] = useState(0);
         <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
           <FSCloseButton onClick={handleClose}>&times;</FSCloseButton>
           <div style={{ display: "flex", flexDirection: "column" }}>
-            <FSTitle>{track.text}</FSTitle>
+            <FSTitle>{track.author}</FSTitle>
             {track.category !== "мультфільми" && (
-              <span style={{ color: "#ccc", fontSize: "12px" }}>
+              <span
+                style={{ color: "#ccc", fontSize: "12px", textAlign: "start" }}
+              >
                 Музика • {track.category}
               </span>
             )}
@@ -1946,8 +1965,8 @@ const [dynamicBlurSymbols] = useState(0);
             <SymbolOverlay
               count={dynamicIntensity || activeSymbols?.intensity || 50}
               volume={volume}
-            speed={dynamicSpeed || activeSymbols?.speed || 0}
-            blur={dynamicBlurSymbols || activeSymbols?.blur || 0}
+              speed={dynamicSpeed || activeSymbols?.speed || 0}
+              blur={dynamicBlurSymbols || activeSymbols?.blur || 0}
               isExiting={isSymbolsExiting}
             />
           )}
@@ -2600,14 +2619,16 @@ const MusicCard = ({ cardData, onOpenModal, rating, onOpenPlayer, onRate }) => {
       <AuthorText>{cardData.author || "Невідомий автор"}</AuthorText>
 
       <ActionButtonsContainer>
-        <ActionButton
-          title="Текст пісні"
-          onClick={() => onOpenModal({ ...cardData })}
-        >
-          <svg viewBox="0 0 24 24">
-            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
-          </svg>
-        </ActionButton>
+        {cardData.lyrics && (
+          <ActionButton
+            title="Текст пісні"
+            onClick={() => onOpenModal({ ...cardData })}
+          >
+            <svg viewBox="0 0 24 24">
+              <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+            </svg>
+          </ActionButton>
+        )}
         <ActionButton title="Відкрити плеєр" onClick={() => onOpenPlayer(id)}>
           <svg viewBox="0 0 24 24">
             <path d="M8 5v14l11-7z" />
@@ -2642,7 +2663,7 @@ const musicCards = [
     id: 1,
     image: require("../../photos/vip-images/christmas.jpg"),
     audio: require("../../mp3/kolada.mp3"),
-    text: "Україна колядує",
+    text: "",
     lyrics: [
       { time: 17, text: "Літо в пагорбах." },
       { time: 172, text: "Ті туманні дні у мене в спогадах." },
@@ -2660,7 +2681,6 @@ const musicCards = [
       { time: 216, text: "Тримаючись, спогади ніколи не змінюються." },
       { time: 226, text: "" },
     ],
-
     category: "хіти",
     duration: 180,
     images: [christmas],
@@ -2671,8 +2691,9 @@ const musicCards = [
     image: require("../../photos/vip-images/dinofroz/vip-dinofroz.webp"),
     audio: require("../../mp3/dinofroz.mp3"),
     category: "мультфільми",
+    author: "Динофроз - Mondo TV.",
     video: dinofrozVideo,
-    text: "Динофроз - Mondo TV. Легендарний мультфільм на малятко ТВ(нажаль закритий). Зображено Імператора дрaконів Ніцерона.",
+    text: "Легендарний мультфільм на Малятко ТВ(нажаль закритий). Зображено Імператора дрaконів Ніцерона.",
     lyrics: [
       { time: 8, text: "Динофроз...Динофроз!" },
       { time: 15, text: "Світять яскраві зірки. Пригод крізь віки." },
@@ -2716,7 +2737,17 @@ const musicCards = [
       { time: 6600, text: "Друзі б'ються завзято. Дракони тікають!" },
       { time: 7200, text: "Четверо друзів майбутнє спасають!" },
       { time: 7500, text: "До бою завжди готові вони." },
-      { time: 7700, text: "Ховайтеся, вороги! " },
+      { time: 7700, text: "Ховайтеся, вороги!" },
+      { time: 7700, text: "/" },
+      { time: 7700, text: "/" },
+      { time: 7700, text: "/" },
+      { time: 7700, text: "/" },
+      { time: 7700, text: "/" },
+      { time: 7700, text: "/" },
+      { time: 7700, text: "/" },
+      { time: 7700, text: "/" },
+      { time: 7700, text: "/" },
+      { time: 7700, text: "/" },
     ],
 
     duration: 120,
@@ -2726,10 +2757,10 @@ const musicCards = [
     id: 3,
     image: require("../../photos/vip-images/turkeys/ultra-vip-turkeys.webp"),
     audio: require("../../mp3/turkeys.mp3"),
-    text: "Індики. Насолоджуйтеся звуками індиків. Авторське спостереження.",
+    text: "",
     category: "природа",
-    lyrics: "Лише звуки індиків.",
     duration: 60,
+    author: "Звуки індиків - Моя робота :)",
     images: [
       turkeysone,
       turkeytwo,
@@ -2746,30 +2777,36 @@ const musicCards = [
     image: require("../../photos/fan-art/monody.jpg"),
     category: "хіти",
     filters: [
+      {
+        start: 53,
+        end: 158,
+        type: "symbols",
+        intensity: 180,
+        speed: 3.5,
+        blur: 1.3,
+      },
       { start: 8, end: 16, type: "purple", opacity: 0.25 },
       { start: 16, end: 16.4, type: "flash", opacity: 1 },
-      { start: 16, end: 19, type: "grayscale", opacity: 1 },
-      // { start: 19.4, end: 26, type: "red", opacity: 0.4 },
-      // { start: 26, end: 27, type: "purple", opacity: 0.4 },
-      // { start: 27, end: 28, type: "orange", opacity: 0.4 },
-      // { start: 28, end: 29, type: "red", opacity: 0.4 },
-      // { start: 29, end: 30, type: "purple", opacity: 0.4 },
-      // { start: 30, end: 31, type: "orange", opacity: 0.4 },
-      // { start: 31, end: 32, type: "red", opacity: 0.4 },
-      // { start: 32, end: 33, type: "purple", opacity: 0.4 },
-      // { start: 33, end: 34, type: "orange", opacity: 0.4 },
-      // { start: 34, end: 34.7, type: "greyscale", opacity: 1 },
-      // { start: 34.7, end: 35, type: "flash", opacity: 1 },
-      // { start: 35, end: 43, type: "red", opacity: 0.5 },
-      // { start: 43, end: 44, type: "greyscale", opacity: 1 },
-      // { start: 44, end: 52, type: "orange", opacity: 0.5 },
-      // { start: 52, end: 60, type: "greyscale", opacity: 1 },
-      // { start: 60, end: 73, type: "red", opacity: 0.5 },
-      // { start: 73, end: 78, type: "greyscale", opacity: 1 },
-      // { start: 85, end: 89, type: "greyscale", opacity: 1 },
+      { start: 26, end: 45, type: "blue", opacity: 0.25 },
+      { start: 45, end: 52, type: "flicker", opacity: 0.4 },
+      { start: 52, end: 53, type: "flash", opacity: 1 },
+      { start: 53, end: 71, type: "purple", opacity: 0.25 },
+      { start: 71, end: 89, type: "blue", opacity: 0.25 },
+      { start: 89, end: 104, type: "purple", opacity: 0.25 },
+      { start: 104, end: 124, type: "orange", opacity: 0.25 },
+      { start: 124, end: 143, type: "green", opacity: 0.25 },
+      { start: 143, end: 158, type: "orange", opacity: 0.25 },
+      { start: 158, end: 168, type: "greyscale", opacity: 1 },
+      { start: 196, end: 208, type: "purple", opacity: 0.25 },
+      { start: 208, end: 227, type: "cyan", opacity: 0.25 },
+      { start: 227, end: 243, type: "blue", opacity: 0.25 },
+      { start: 243, end: 262, type: "purple", opacity: 0.25 },
+      { start: 262, end: 278, type: "orange", opacity: 0.25 },
+      { start: 278, end: 300, type: "black", opacity: 0.85 },
     ],
+    text: "",
     audio: require("../../mp3/thefatrat-monody.mp3"),
-    text: "Monody -  TheFatRat.",
+    author: "Monody -  TheFatRat.",
     lyrics: [
       { time: 168, text: "Літо в пагорбах." },
       { time: 172, text: "Ті туманні дні у мене в спогадах." },
@@ -2795,7 +2832,7 @@ const musicCards = [
     image: desert,
     audio: require("../../mp3/wind.mp3"),
     category: "природа",
-    text: "Звук дощу. Пустеля розділенна вічно грозовою і сонячною зоною. Невідомий автор.",
+    text: "Звук дощу. Пустеля розділенна вічно грозовою і сонячною зоною.",
     lyrics: "Звуки дощу, допомагають заснути",
     duration: 300,
     images: [desert, desertone, deserttwo, desertthree, desertfour, desertfive],
@@ -2805,8 +2842,8 @@ const musicCards = [
     image: require("../../photos/vip-images/horse/horse.jpg"),
     audio: require("../../mp3/horse.mp3"),
     category: "природа",
-    text: "Кінь друг людини. Телеканал мега(автор звуку). Природа.",
-    lyrics: "Звуки коня.",
+    text: "",
+    author: "Телеканал Мега - Звуки коня.",
     duration: 45,
     images: [horsethree, horsetwo, horse, chess],
   },
@@ -2815,8 +2852,8 @@ const musicCards = [
     image: dinofrozone,
     audio: require("../../mp3/dragon.mp3"),
     category: "ігри",
-    text: "Dragonora - MyLittleUniverse(Estoty). І знову дракони, музика доісторичного світу. Картина взята з мультфільму Динофроз. Звучить при комбінації.",
-    lyrics: "Атмосферна доісторична музика.",
+    author: "Dragonora - MyLittleUniverse(Estoty)",
+    text: "І знову дракони, музика доісторичного світу. Картини взяті з мультфільму Динофроз.",
     duration: 180,
     images: [
       dinofrozone,
@@ -2835,8 +2872,8 @@ const musicCards = [
     image: require("../../photos/vip-images/vip-soloveyko.jpg"),
     audio: require("../../mp3/soloveyko.mp3"),
     category: "природа",
-    text: "Соловейко. Голосування хто кращий по звукам соловеко чи індик. Зроблено за ідеї сім'ї.",
-    lyrics: "Спів соловейка.",
+    text: "Хто кращий по звукам соловеко чи індик? Зроблено за ідеї сім'ї.",
+    author: "Телеканал Мега - Звук Соловейка",
     duration: 90,
     images: [soloveyko],
   },
@@ -2845,8 +2882,8 @@ const musicCards = [
     image: require("../../photos/vip-images/asium/asium.jpg"),
     audio: require("../../mp3/harmonic-japan.mp3"),
     category: "ігри",
-    text: "Asium - My little universe(Estoty). Спокійна і прекрасна музика в японському стилі.",
-    lyrics: "Текст відсутній.",
+    text: "Спокійна і прекрасна музика в японському стилі.",
+    author: "Asium - My little universe(Estoty).",
     duration: 160,
     images: [
       asiumone,
@@ -2867,8 +2904,8 @@ const musicCards = [
     image: require("../../photos/vip-images/mechannic.jpg"),
     audio: require("../../mp3/mechanik-kindom.mp3"),
     category: "ігри",
-    text: "Factorium - My little universe(Estoty). Спокійна і прекрасна музика в механічному стилі.",
-    lyrics: "Текст відсутній, для любителів стімпанку.",
+    text: "Спокійна і прекрасна музика в механічному стилі.",
+    author: "Factorium - My little universe(Estoty).",
     duration: 160,
     images: [mecha],
   },
@@ -2877,7 +2914,8 @@ const musicCards = [
     image: require("../../photos/vip-images/mechannic.jpg"),
     audio: require("../../mp3/zootopia.mp3"),
     category: "мультфільми",
-    text: "Зоотрополіс(Disney)-рекомендую. Shakira-Try Everything.",
+    text: "Це пробна версія, я її можливо приберу. Картинки локацій(не героїв) обох частин мультфільму. Пісню Zoo шукайте у Deezer.com",
+    author: "Shakira - Try Everything. Використана у Зоотрополіс 1 (Disney).",
     lyrics: "Текст в розробці",
     duration: 200,
     images: [mecha],
@@ -2896,17 +2934,18 @@ const musicCards = [
     id: 13,
     image: electrodynamix,
     audio: require("../../mp3/electrodynamix.mp3"),
-    text: "Electrodynamix - DJ-Nate (GeometryDash).",
+    text: "",
+    author: "Electrodynamix - DJ-Nate (GeometryDash).",
     category: "ігри",
-    lyrics: "Текст відсутній.",
     duration: 160,
     images: [electrodynamix],
   },
   {
     id: 14,
     image: require("../../photos/fan-art/clubstep.jpg"),
+    text: "",
     audio: require("../../mp3/clubstep.mp3"),
-    text: "Clubstep - DJ-Nate(GeometryDash).",
+    author: "Clubstep - DJ-Nate(GeometryDash).",
     filters: [
       {
         start: 22,
@@ -3042,7 +3081,8 @@ const musicCards = [
     id: 15,
     image: require("../../photos/vip-images/dinofroz/fingerdash.jpg"),
     audio: require("../../mp3/fingerdash.mp3"),
-    text: "Fingerdash-MDK(GeometryDash) Гаряча мелодія I-ша в режимі анімованості. Ласково просимо в хаос!",
+    text: "Гаряча мелодія. Ласково просимо в хаос!",
+    author: "Fingerdash-MDK(GeometryDash)",
     category: "ігри",
     lyrics: [
       { time: 0, text: "Текст хаотичний, лише для атмосфери" },
@@ -3064,21 +3104,8 @@ const musicCards = [
       { start: 8, end: 9, type: "greyscale", opacity: 1 },
       { start: 17, end: 19, type: "grayscale", opacity: 1 },
       { start: 19, end: 19.4, type: "flash", opacity: 1 },
-      { start: 19.4, end: 26, type: "red", opacity: 0.4 },
-
-      { start: 26, end: 26.5, type: "purple", opacity: 0.4 },
-      { start: 26.5, end: 27, type: "orange", opacity: 0.4 },
-      { start: 27, end: 27.5, type: "red", opacity: 0.4 },
-      { start: 27.5, end: 28, type: "purple", opacity: 0.4 },
-      { start: 28, end: 28.5, type: "orange", opacity: 0.4 },
-      { start: 28.5, end: 29, type: "red", opacity: 0.4 },
-      { start: 29, end: 29.5, type: "purple", opacity: 0.4 },
-      { start: 29.5, end: 30, type: "orange", opacity: 0.4 },
-      { start: 30, end: 30.5, type: "purple", opacity: 0.4 },
-      { start: 30.5, end: 31, type: "orange", opacity: 0.4 },
-      { start: 31, end: 31.5, type: "red", opacity: 0.4 },
-      { start: 31.5, end: 32, type: "purple", opacity: 0.4 },
-      { start: 32, end: 32.5, type: "orange", opacity: 0.4 },
+      { start: 19.4, end: 32.5, type: "red", opacity: 0.4 },
+      { start: 26, end: 32.5, type: "flicker", opacity: 0.3 },
       { start: 32.5, end: 34.2, type: "greyscale", opacity: 1 },
       { start: 34.2, end: 35, type: "flash", opacity: 1 },
       { start: 35, end: 43, type: "red", opacity: 0.5 },
@@ -3093,8 +3120,9 @@ const musicCards = [
   {
     id: 16,
     image: require("../../photos/fan-art/theorytwo.jpg"),
+    text: "Theory of Everything II - DJ-Nate (GeometryDash)",
     audio: require("../../mp3/theoty-of-everything-ll.mp3"),
-    text: "Theory of everything II - DJ-Nate(GeometryDash). Ця пісня варта уваги!",
+    author: "Theory of everything II - DJ-Nate(GeometryDash).",
     category: "ігри",
     lyrics: [{ time: 200, text: "Кінець, виконаний піаніно." }],
     duration: 140,
@@ -3152,9 +3180,9 @@ const musicCards = [
     id: 17,
     image: require("../../photos/vip-images/swamp/deadlocked.jpg"),
     audio: require("../../mp3/deadlocked.mp3"),
-    text: "Deadlocked - F77(GeometryDash). Моторошна, але епічна пісня. Друг фанат цього рівня :).",
+    text: "Моторошна, але епічна пісня. Друг фанат цього рівня :).",
+    author: "Deadlocked - F77(GeometryDash).",
     category: "ігри",
-    lyrics: "Текст відсутній.",
     duration: 140,
     images: [
       deadlocked,
@@ -3179,8 +3207,9 @@ const musicCards = [
   {
     id: 18,
     image: require("../../photos/fan-art/theory.jpg"),
+    text: "Theory of Everything - DJ-Nate (GeometryDash)",
     audio: require("../../mp3/theory-of-everyting.mp3"),
-    text: "DJ-Nate - Theory of everything(GeometryDash). Ця пісня варта уваги!",
+    author: "DJ-Nate - Theory of everything(GeometryDash).",
     category: "ігри",
     lyrics: [
       { time: 81, text: "Say Down" },
@@ -3231,7 +3260,8 @@ const musicCards = [
     id: 19,
     image: require("../../photos/fan-art/unity.jpg"),
     audio: require("../../mp3/unity.mp3"),
-    text: "Unity-TheFatRat. Класний комп'ютерний хіт, не розумію чого його не поставили у фільм Матриця?",
+    text: "Класний комп'ютерний хіт, не розумію чого його не поставили у фільм Матриця?",
+    author: "Unity-TheFatRat.",
     lyrics: [
       { time: 119, text: "Текст хаотичний, лише для атмосфери" },
       { time: 154, text: "" },
@@ -4037,13 +4067,13 @@ const PlaylistModal = ({
     let filtered;
     if (playlistKey === "custom" && customTracks) {
       filtered = customTracks.filter((card) =>
-        card.text.toLowerCase().includes(searchQuery.toLowerCase()),
+        (card.text || "").toLowerCase().includes(searchQuery.toLowerCase()),
       );
     } else {
       filtered = musicCards.filter(
         (card) =>
           card.category === playlistKey &&
-          card.text.toLowerCase().includes(searchQuery.toLowerCase()),
+          (card.text || "").toLowerCase().includes(searchQuery.toLowerCase()),
       );
     }
 
@@ -4054,9 +4084,9 @@ const PlaylistModal = ({
         return bR - aR;
       });
     } else if (sortOption === "name_asc") {
-      return [...filtered].sort((a, b) => a.text.localeCompare(b.text));
+      return [...filtered].sort((a, b) => a.text.localeCompare(b.author));
     } else if (sortOption === "name_desc") {
-      return [...filtered].sort((a, b) => b.text.localeCompare(a.text));
+      return [...filtered].sort((a, b) => b.text.localeCompare(a.author));
     } else if (sortOption === "duration_asc") {
       return [...filtered].sort(
         (a, b) => (a.duration || 0) - (b.duration || 0),
@@ -4222,7 +4252,7 @@ const PlaylistModal = ({
               <LyricsCloseButton onClick={handleCloseLyricsModal}>
                 &times;
               </LyricsCloseButton>
-              <img
+              <LyricsModalImage
                 src={lyricsModalData.image}
                 style={{
                   width: "100%",
