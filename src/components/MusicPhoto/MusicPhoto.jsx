@@ -6,6 +6,7 @@ import harmony from "../../photos/vip-images/asium/asium.jpg";
 import horse from "../../photos/vip-images/horse/horse.jpg";
 import theorytwo from "../../photos/fan-art/theorytwo.jpg";
 import fingerdash from "../../photos/vip-images/dinofroz/fingerdash.jpg";
+import electrodynamix from "../../photos/vip-images/electrodynamix.jpg";
 //Desert
 import desert from "../../photos/vip-images/desert/vip-desert.webp";
 import deserttwo from "../../photos/vip-images/desert/deserttwo.jpg";
@@ -71,6 +72,7 @@ import dinofrozsix from "../../photos/vip-images/dinofroz/dinofrozsix.jpg";
 import dinofrozseven from "../../photos/vip-images/dinofroz/dinofrozseven.jpg";
 import dinofrozeight from "../../photos/vip-images/dinofroz/dinofrozeight.jpg";
 import dinofroztwo from "../../photos/vip-images/dinofroz/vip-dragons.jpg";
+import dinofroznine from "../../photos/vip-images/dinofroz/dinofroznine.jpg";
 //Mia and me
 import mia from "../../photos/vip-images/mia/miaandme.webp";
 const slideIn = keyframes`
@@ -104,6 +106,21 @@ const pulseRedBorder = keyframes`
   0% { border-color: #ff0000; box-shadow: 0 0 5px #ff0000; }
   50% { border-color: #ff4d4d; box-shadow: 0 0 15px #ff0000; }
   100% { border-color: #ff0000; box-shadow: 0 0 5px #ff0000; }
+`;
+
+const flickerAnimation = keyframes`
+  0% { opacity: 0.4; }
+  100% { opacity: 1; }
+`;
+
+const symbolAnimation = keyframes`
+  0% { transform: translate(-50%, -50%) scale(0.7); opacity: 0; }
+  20% { opacity: 0.5; }
+  /* Рух до цілі та пульсація від гучності */
+  50% { transform: translate(calc(-50% + var(--end-x, 0px)), calc(-50% + var(--end-y, 0px))) scale(var(--pulse-scale, 1)); }
+  80% { opacity: 0.5; }
+  /* Повернення назад (ефект туди-сюди) */
+  100% { transform: translate(-50%, -50%) scale(1.2); opacity: 0; }
 `;
 
 const MusicPhotoDiv = styled.div`
@@ -464,10 +481,20 @@ const FilterOverlay = styled.div`
       `background-color: rgba(139, 69, 19, ${props.$opacity});`}
       ${props.$type === "white" &&
       `background-color: rgba(255, 255, 255, ${props.$opacity});`}
-      ${props.$type === "flash" &&
-      `background-color: rgba(255, 255, 255, ${props.$opacity});`}
+      ${(props.$type === "flash" ||
+        props.$type === "flicker" ||
+        props.$flicker) &&
+      css`
+        background-color: rgba(255, 255, 255, ${props.$opacity});
+      `}
       ${(props.$type === "grayscale" || props.$type === "greyscale") &&
-      `background-color: rgba(119, 119, 119, ${props.$opacity * 0.2});`}
+      css`
+        background-color: rgba(119, 119, 119, ${props.$opacity * 0.2});
+      `}
+      ${props.$type === "flicker" &&
+      css`
+        animation: ${flickerAnimation} 0.1s infinite alternate;
+      `}
 
       /* Комбіновані фільтри (Розмиття + Посіріння) */
       backdrop-filter: 
@@ -493,6 +520,91 @@ const FilterOverlay = styled.div`
         );
     `}
 `;
+
+const StyledSymbol = styled.span`
+  position: absolute;
+  color: rgba(255, 255, 255, 0.81);
+  pointer-events: none;
+  user-select: none;
+  animation: ${symbolAnimation} ${(props) => props.$duration}s infinite
+    ease-in-out;
+
+  top: ${(props) => props.$top}%;
+  left: ${(props) => props.$left}%;
+  font-size: ${(props) => props.$size}px;
+  opacity: ${(props) => props.$opacity};
+
+  --end-x: ${(props) => props.$moveX || 0}px;
+  --end-y: ${(props) => props.$moveY || 0}px;
+  --pulse-scale: ${(props) => 1 + props.$volume * 0.4};
+
+  filter: blur(${(props) => props.$blur || 0}px);
+  text-shadow: 0 0 8px rgba(0, 0, 0, 0.6); /* Стійкість до світлих фонів */
+`;
+
+const musicSymbols = ["♩", "♪", "♫", "𝄞"];
+
+const SymbolOverlay = ({
+  count = 50,
+  volume = 1,
+  speed = 0,
+  blur = 0,
+  isExiting = false,
+}) => {
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  const symbols = useMemo(() => {
+    return Array.from({ length: count }).map((_, i) => ({
+      key: i,
+      char: musicSymbols[Math.floor(Math.random() * musicSymbols.length)],
+      top: Math.random() * 100,
+      left: Math.random() * 100,
+      size: Math.random() * (60 - 25) + 25,
+      opacity: Math.random() * (0.5 - 0.1) + 0.1,
+      duration: Math.random() * (10 - 3) + 3,
+      moveX: speed > 0 ? (Math.random() - 0.5) * 250 * speed : 0,
+      moveY: speed > 0 ? (Math.random() - 0.5) * 250 * speed : 0,
+      blur: blur > 0 ? Math.random() * blur : 0,
+    }));
+  }, [count, speed, blur]);
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        width: "100%",
+        height: "100%",
+        overflow: "hidden",
+        pointerEvents: "none",
+        opacity: isExiting ? 0 : isMounted ? 1 : 0,
+        transition: "opacity 1s ease-out",
+        zIndex: 20 /* Вище за фільтри для стійкості */,
+      }}
+    >
+      {symbols.map((s) => (
+        <StyledSymbol
+          key={s.key}
+          $top={s.top}
+          $left={s.left}
+          $size={s.size}
+          $opacity={s.opacity}
+          $duration={s.duration}
+          $moveX={s.moveX}
+          $moveY={s.moveY}
+          $volume={volume}
+          $blur={blur}
+        >
+          {s.char}
+        </StyledSymbol>
+      ))}
+    </div>
+  );
+};
 
 // --- New/Updated FullScreen Player Components --- 230, 149, 0
 
@@ -750,6 +862,7 @@ const FSContent = styled.div`
   flex: 1;
   display: flex;
   justify-content: center;
+  position: relative; /* Ensure stacking context for children */
   align-items: center;
   position: relative;
   background: #000;
@@ -759,6 +872,8 @@ const FSContent = styled.div`
 
 const FSVisualWrapper = styled.div`
   width: 100%;
+  position: relative; /* Establish stacking context for FilterOverlay */
+  z-index: 1; /* Ensure it's below controls but above media */
   height: 100%;
   overflow: hidden;
 `;
@@ -1173,7 +1288,7 @@ const FullScreenPlayer = ({
   const [dynamicOpacity, setDynamicOpacity] = useState(null);
   const [dynamicBlur, setDynamicBlur] = useState(null);
   const [dynamicColor, setDynamicColor] = useState(null); // New state for random color
-
+  const [dynamicIntensity, setDynamicIntensity] = useState(null);
   const mediaRef = useRef(null);
   const previewVideoRef = useRef(null);
   const controlsTimeoutRef = useRef(null);
@@ -1181,42 +1296,54 @@ const FullScreenPlayer = ({
   const holdIntervalRef = useRef(null);
   const overlayRef = useRef(null);
 
-  const activeFilter = useMemo(() => {
-    if (!track.filters || !Array.isArray(track.filters)) return null;
-    return track.filters.find((f) => progress >= f.start && progress <= f.end);
+  const activeFilters = useMemo(() => {
+    if (!track.filters || !Array.isArray(track.filters)) return [];
+    return track.filters.filter(
+      (f) => progress >= f.start && progress <= f.end,
+    );
   }, [track.filters, progress]);
 
+  // Відокремлюємо основний колірний фільтр від спецефектів
+  const mainFilter = useMemo(
+    () => activeFilters.find((f) => !["symbols", "flicker"].includes(f.type)),
+    [activeFilters],
+  );
+  const flickerFilter = useMemo(
+    () => activeFilters.find((f) => f.type === "flicker"),
+    [activeFilters],
+  );
+  const hasSymbols = useMemo(
+    () => activeFilters.some((f) => f.type === "symbols"),
+    [activeFilters],
+  );
+
   useEffect(() => {
-    if (activeFilter) {
-      const key = `${activeFilter.start}-${activeFilter.end}`;
+    if (mainFilter) {
+      const key = `${mainFilter.start}-${mainFilter.end}`;
       if (key !== activeFilterKey) {
         setActiveFilterKey(key);
-        if (activeFilter.isRandom) {
-          const min = activeFilter.minOpacity || 0.15;
-          const max = activeFilter.maxOpacity || 0.45;
+        if (mainFilter.isRandom) {
+          const min = mainFilter.minOpacity || 0.15;
+          const max = mainFilter.maxOpacity || 0.45;
           setDynamicOpacity(Math.random() * (max - min) + min);
         } else {
           setDynamicOpacity(null);
         }
 
-        if (activeFilter.isRandomBlur) {
-          const min = activeFilter.minBlur || 0;
-          const max = activeFilter.maxBlur || 10;
+        if (mainFilter.isRandomBlur) {
+          const min = mainFilter.minBlur || 0;
+          const max = mainFilter.maxBlur || 10;
           setDynamicBlur(Math.random() * (max - min) + min);
         } else {
           setDynamicBlur(null);
         }
 
         // New logic for randomColor
-        if (
-          activeFilter.randomColor &&
-          activeFilter.colorOptions &&
-          activeFilter.colorOptions.length > 0
-        ) {
+        if (mainFilter.randomColor && mainFilter.colorOptions?.length > 0) {
           const randomIndex = Math.floor(
-            Math.random() * activeFilter.colorOptions.length,
+            Math.random() * mainFilter.colorOptions.length,
           );
-          setDynamicColor(activeFilter.colorOptions[randomIndex]);
+          setDynamicColor(mainFilter.colorOptions[randomIndex]);
         } else {
           setDynamicColor(null);
         }
@@ -1227,7 +1354,62 @@ const FullScreenPlayer = ({
       setDynamicBlur(null);
       setDynamicColor(null); // Reset dynamic color
     }
-  }, [activeFilter, activeFilterKey]);
+  }, [mainFilter, activeFilterKey]);
+const [dynamicBlurSymbols] = useState(0);
+  const lastSymbolFilter = useMemo(
+    () => [...activeFilters].reverse().find((f) => f.type === "symbols"),
+    [activeFilters],
+  );
+  const [activeSymbols, setActiveSymbols] = useState(null);
+  const [shouldRenderSymbols, setShouldRenderSymbols] = useState(false);
+  const [isSymbolsExiting, setIsSymbolsExiting] = useState(false);
+  const [activeSymbolKey, setActiveSymbolKey] = useState(0);
+  const [dynamicSpeed, setDynamicSpeed] = useState(5);
+  useEffect(() => {
+    if (lastSymbolFilter) {
+      const key = `${lastSymbolFilter.start}-${lastSymbolFilter.end}`;
+      if (key !== activeSymbolKey) {
+        setActiveSymbolKey(key);
+        setActiveSymbols(lastSymbolFilter);
+        setShouldRenderSymbols(true);
+        setIsSymbolsExiting(false);
+
+        if (lastSymbolFilter.isRandomIntensity) {
+          const min = lastSymbolFilter.minIntensity || 50;
+          const max = lastSymbolFilter.maxIntensity || 200;
+          setDynamicIntensity(
+            Math.floor(Math.random() * (max - min + 1)) + min,
+          );
+        } else {
+          setDynamicIntensity(null);
+        }
+
+        if (lastSymbolFilter.isRandomSpeed) {
+          const min = lastSymbolFilter.minSpeed || 1;
+          const max = lastSymbolFilter.maxSpeed || 5;
+          setDynamicSpeed(Math.random() * (max - min) + min);
+        } else {
+          setDynamicSpeed(null);
+        }
+      }
+    } else if (shouldRenderSymbols && !isSymbolsExiting) {
+      setIsSymbolsExiting(true);
+      const timer = setTimeout(() => {
+        setShouldRenderSymbols(false);
+        setIsSymbolsExiting(false);
+        setActiveSymbols(null);
+        setActiveSymbolKey(null);
+        setDynamicIntensity(null);
+        setDynamicSpeed(null);
+      }, 1000); // Час збігається з transition в SymbolOverlay
+      return () => clearTimeout(timer);
+    }
+  }, [
+    lastSymbolFilter,
+    shouldRenderSymbols,
+    isSymbolsExiting,
+    activeSymbolKey,
+  ]);
 
   const isDinofroz =
     (track.category === "мультфільми" && track.video) ||
@@ -1716,15 +1898,23 @@ const FullScreenPlayer = ({
       >
         <FSVisualWrapper style={{ position: "relative" }}>
           <FilterOverlay
-            $active={!!activeFilter}
-            $type={dynamicColor || activeFilter?.type} // Use dynamicColor if available
+            $active={!!mainFilter}
+            $type={dynamicColor || mainFilter?.type}
             $opacity={
               dynamicOpacity !== null
                 ? dynamicOpacity
-                : activeFilter?.opacity || 0.5
+                : mainFilter?.opacity || 0.5
             }
-            $blur={dynamicBlur !== null ? dynamicBlur : activeFilter?.blur}
-            $grayscale={activeFilter?.grayscale}
+            $blur={dynamicBlur !== null ? dynamicBlur : mainFilter?.blur}
+            $grayscale={mainFilter?.grayscale}
+            style={{ zIndex: 10 }}
+          />
+
+          <FilterOverlay
+            $active={!!flickerFilter}
+            $type="flicker"
+            $opacity={flickerFilter?.opacity || 0.1}
+            style={{ zIndex: 11 }}
           />
           {isDinofroz ? (
             <>
@@ -1752,6 +1942,15 @@ const FullScreenPlayer = ({
               />
             </>
           )}
+          {shouldRenderSymbols && (
+            <SymbolOverlay
+              count={dynamicIntensity || activeSymbols?.intensity || 50}
+              volume={volume}
+            speed={dynamicSpeed || activeSymbols?.speed || 0}
+            blur={dynamicBlurSymbols || activeSymbols?.blur || 0}
+              isExiting={isSymbolsExiting}
+            />
+          )}
         </FSVisualWrapper>
 
         {!isPlaying && (
@@ -1760,6 +1959,7 @@ const FullScreenPlayer = ({
               position: "absolute",
               top: "50%",
               left: "50%",
+              zIndex: 20 /* Кнопка паузи поверх фільтрів */,
               transform: "translate(-50%, -50%)",
               fontSize: "60px",
               color: "rgba(255,255,255,0.8)",
@@ -2031,6 +2231,22 @@ const FullScreenPlayer = ({
               onChange={(e) => setSeekAmount(parseInt(e.target.value, 10))}
             />
           </SliderRow>
+          {hasSymbols && (
+            <SliderRow>
+              <span style={{ color: "white" }}>
+                Інтенсивність символів ({dynamicIntensity || 50})
+              </span>
+              <VolumeSlider
+                type="range"
+                min="10"
+                max="200"
+                step="10"
+                $activeColor="#7afcff"
+                value={dynamicIntensity || 50}
+                onChange={(e) => setDynamicIntensity(parseInt(e.target.value))}
+              />
+            </SliderRow>
+          )}
           <button
             onClick={() => setShowSettings(false)}
             style={{
@@ -2444,6 +2660,7 @@ const musicCards = [
       { time: 216, text: "Тримаючись, спогади ніколи не змінюються." },
       { time: 226, text: "" },
     ],
+
     category: "хіти",
     duration: 180,
     images: [christmas],
@@ -2528,6 +2745,29 @@ const musicCards = [
     id: 4,
     image: require("../../photos/fan-art/monody.jpg"),
     category: "хіти",
+    filters: [
+      { start: 8, end: 16, type: "purple", opacity: 0.25 },
+      { start: 16, end: 16.4, type: "flash", opacity: 1 },
+      { start: 16, end: 19, type: "grayscale", opacity: 1 },
+      // { start: 19.4, end: 26, type: "red", opacity: 0.4 },
+      // { start: 26, end: 27, type: "purple", opacity: 0.4 },
+      // { start: 27, end: 28, type: "orange", opacity: 0.4 },
+      // { start: 28, end: 29, type: "red", opacity: 0.4 },
+      // { start: 29, end: 30, type: "purple", opacity: 0.4 },
+      // { start: 30, end: 31, type: "orange", opacity: 0.4 },
+      // { start: 31, end: 32, type: "red", opacity: 0.4 },
+      // { start: 32, end: 33, type: "purple", opacity: 0.4 },
+      // { start: 33, end: 34, type: "orange", opacity: 0.4 },
+      // { start: 34, end: 34.7, type: "greyscale", opacity: 1 },
+      // { start: 34.7, end: 35, type: "flash", opacity: 1 },
+      // { start: 35, end: 43, type: "red", opacity: 0.5 },
+      // { start: 43, end: 44, type: "greyscale", opacity: 1 },
+      // { start: 44, end: 52, type: "orange", opacity: 0.5 },
+      // { start: 52, end: 60, type: "greyscale", opacity: 1 },
+      // { start: 60, end: 73, type: "red", opacity: 0.5 },
+      // { start: 73, end: 78, type: "greyscale", opacity: 1 },
+      // { start: 85, end: 89, type: "greyscale", opacity: 1 },
+    ],
     audio: require("../../mp3/thefatrat-monody.mp3"),
     text: "Monody -  TheFatRat.",
     lyrics: [
@@ -2587,6 +2827,7 @@ const musicCards = [
       dinofrozsix,
       dinofrozseven,
       dinofrozeight,
+      dinofroznine,
     ],
   },
   {
@@ -2653,13 +2894,13 @@ const musicCards = [
   },
   {
     id: 13,
-    image: require("../../photos/vip-images/mechannic.jpg"),
+    image: electrodynamix,
     audio: require("../../mp3/electrodynamix.mp3"),
     text: "Electrodynamix - DJ-Nate (GeometryDash).",
     category: "ігри",
     lyrics: "Текст відсутній.",
     duration: 160,
-    images: [turkeys, turkeytwo],
+    images: [electrodynamix],
   },
   {
     id: 14,
@@ -2667,50 +2908,130 @@ const musicCards = [
     audio: require("../../mp3/clubstep.mp3"),
     text: "Clubstep - DJ-Nate(GeometryDash).",
     filters: [
-      { start: 0.1, end: 0.4, type: "flash", opacity: 1 },
       {
-        start: 0.4,
-        end: 3,
+        start: 22,
+        end: 49,
+        type: "symbols",
+        isRandomIntensity: true,
+        minIntensity: 130,
+        maxIntensity: 300,
+        isRandomSpeed: true,
+        minSpeed: 0.5,
+        maxSpeed: 5,
+        isRandomBlurSymbols: true,
+        minBlurSymbols: 0,
+        maxBlurSymbols: 2.5,
+      },
+      { start: 0.1, end: 0.4, type: "flash", opacity: 1 },
+      { start: 7, end: 20, type: "black", opacity: 1 },
+      { start: 20, end: 23, type: "grayscale", opacity: 1 },
+      {
+        start: 21,
+        end: 37,
         randomColor: true,
         colorOptions: ["red", "green"],
         isRandom: true,
         minOpacity: 0.15,
         maxOpacity: 0.45,
         isRandomBlur: true,
-        minBlur: 2,
-        maxBlur: 8,
+        minBlur: 0,
+        maxBlur: 3,
       },
       {
-        start: 3,
-        end: 7,
-        type: "green",
+        start: 37,
+        end: 49.7,
+        randomColor: true,
+        colorOptions: ["orange", "cyan"],
         isRandom: true,
         minOpacity: 0.2,
         maxOpacity: 0.4,
         isRandomBlur: true,
-        minBlur: 0,
-        maxBlur: 5,
+        minBlur: 1,
+        maxBlur: 2,
       },
-      { start: 7, end: 135, type: "black", opacity: 1 },
-      // { start: 19, end: 19.4, type: "flash", opacity: 1 },
-      // { start: 19.4, end: 26, type: "red", opacity: 0.4 },
-      // { start: 26, end: 27, type: "purple", opacity: 0.4 },
-      // { start: 27, end: 28, type: "orange", opacity: 0.4 },
-      // { start: 28, end: 29, type: "red", opacity: 0.4 },
-      // { start: 29, end: 30, type: "purple", opacity: 0.4 },
-      // { start: 30, end: 31, type: "orange", opacity: 0.4 },
-      // { start: 31, end: 32, type: "red", opacity: 0.4 },
-      // { start: 32, end: 33, type: "purple", opacity: 0.4 },
-      // { start: 33, end: 34, type: "orange", opacity: 0.4 },
-      // { start: 34, end: 34.7, type: "greyscale", opacity: 1 },
-      // { start: 34.7, end: 35, type: "flash", opacity: 1 },
-      // { start: 35, end: 43, type: "red", opacity: 0.5 },
-      // { start: 43, end: 44, type: "greyscale", opacity: 1 },
-      // { start: 44, end: 52, type: "orange", opacity: 0.5 },
-      // { start: 52, end: 60, type: "greyscale", opacity: 1 },
-      // { start: 60, end: 73, type: "red", opacity: 0.5 },
-      // { start: 73, end: 78, type: "greyscale", opacity: 1 },
-      // { start: 85, end: 89, type: "greyscale", opacity: 1 },
+      { start: 49.7, end: 50, type: "flash", opacity: 1 },
+      {
+        start: 50,
+        end: 55,
+        randomColor: true,
+        colorOptions: ["black", "grayscale"],
+        isRandom: true,
+        minOpacity: 0.4,
+        maxOpacity: 0.8,
+        isRandomBlur: true,
+        minBlur: 1,
+        maxBlur: 2,
+      },
+      {
+        start: 59,
+        end: 64,
+        randomColor: true,
+        colorOptions: ["black", "grayscale"],
+        isRandom: true,
+        minOpacity: 0.6,
+        maxOpacity: 0.9,
+        isRandomBlur: true,
+        minBlur: 1,
+        maxBlur: 2,
+      },
+      {
+        start: 68,
+        end: 72,
+        randomColor: true,
+        colorOptions: ["black", "grayscale"],
+        isRandom: true,
+        minOpacity: 0.7,
+        maxOpacity: 0.8,
+        isRandomBlur: true,
+        minBlur: 1,
+        maxBlur: 2,
+      },
+      {
+        start: 72,
+        end: 87,
+        randomColor: true,
+        colorOptions: ["purple", "blue"],
+        isRandom: true,
+        minOpacity: 0.2,
+        maxOpacity: 0.4,
+        isRandomBlur: true,
+        minBlur: 1,
+        maxBlur: 2,
+      },
+      {
+        start: 87,
+        end: 100,
+        randomColor: true,
+        colorOptions: ["brown", "orange"],
+        isRandom: true,
+        minOpacity: 0.2,
+        maxOpacity: 0.4,
+        isRandomBlur: true,
+        minBlur: 1,
+        maxBlur: 2,
+      },
+      { start: 100, end: 103, type: "grayscale", opacity: 1 },
+      {
+        start: 103,
+        end: 133,
+        randomColor: true,
+        colorOptions: ["cyan", "green"],
+        isRandom: true,
+        minOpacity: 0.2,
+        maxOpacity: 0.4,
+        isRandomBlur: true,
+        minBlur: 1,
+        maxBlur: 2,
+      },
+      { start: 133, end: 135, type: "grayscale", opacity: 1 },
+      {
+        start: 135,
+        end: 166,
+        type: "red",
+        minOpacity: 0.15,
+        isRandom: true,
+        maxOpacity: 0.45,
+      },
     ],
     category: "ігри",
     lyrics: [{ time: 143, text: "Текст хаотичний, лише для атмосфери" }],
@@ -2732,20 +3053,34 @@ const musicCards = [
     duration: 140,
     images: [fingerdash],
     filters: [
+      {
+        start: 35,
+        end: 52,
+        type: "symbols",
+        intensity: 200,
+        speed: 3,
+        blur: 1.7,
+      },
       { start: 8, end: 9, type: "greyscale", opacity: 1 },
       { start: 17, end: 19, type: "grayscale", opacity: 1 },
       { start: 19, end: 19.4, type: "flash", opacity: 1 },
       { start: 19.4, end: 26, type: "red", opacity: 0.4 },
-      { start: 26, end: 27, type: "purple", opacity: 0.4 },
-      { start: 27, end: 28, type: "orange", opacity: 0.4 },
-      { start: 28, end: 29, type: "red", opacity: 0.4 },
-      { start: 29, end: 30, type: "purple", opacity: 0.4 },
-      { start: 30, end: 31, type: "orange", opacity: 0.4 },
-      { start: 31, end: 32, type: "red", opacity: 0.4 },
-      { start: 32, end: 33, type: "purple", opacity: 0.4 },
-      { start: 33, end: 34, type: "orange", opacity: 0.4 },
-      { start: 34, end: 34.7, type: "greyscale", opacity: 1 },
-      { start: 34.7, end: 35, type: "flash", opacity: 1 },
+
+      { start: 26, end: 26.5, type: "purple", opacity: 0.4 },
+      { start: 26.5, end: 27, type: "orange", opacity: 0.4 },
+      { start: 27, end: 27.5, type: "red", opacity: 0.4 },
+      { start: 27.5, end: 28, type: "purple", opacity: 0.4 },
+      { start: 28, end: 28.5, type: "orange", opacity: 0.4 },
+      { start: 28.5, end: 29, type: "red", opacity: 0.4 },
+      { start: 29, end: 29.5, type: "purple", opacity: 0.4 },
+      { start: 29.5, end: 30, type: "orange", opacity: 0.4 },
+      { start: 30, end: 30.5, type: "purple", opacity: 0.4 },
+      { start: 30.5, end: 31, type: "orange", opacity: 0.4 },
+      { start: 31, end: 31.5, type: "red", opacity: 0.4 },
+      { start: 31.5, end: 32, type: "purple", opacity: 0.4 },
+      { start: 32, end: 32.5, type: "orange", opacity: 0.4 },
+      { start: 32.5, end: 34.2, type: "greyscale", opacity: 1 },
+      { start: 34.2, end: 35, type: "flash", opacity: 1 },
       { start: 35, end: 43, type: "red", opacity: 0.5 },
       { start: 43, end: 44, type: "greyscale", opacity: 1 },
       { start: 44, end: 52, type: "orange", opacity: 0.5 },
@@ -2765,6 +3100,15 @@ const musicCards = [
     duration: 140,
     images: [theorytwo],
     filters: [
+      { start: 70, end: 90, type: "flicker", opacity: 0.3 },
+      {
+        start: 52,
+        end: 66.5,
+        type: "symbols",
+        intensity: 160,
+        speed: 1,
+        blur: 1.3,
+      },
       { start: 2, end: 3, type: "green", opacity: 0.1 },
       { start: 5, end: 6, type: "orange", opacity: 0.2 },
       { start: 7, end: 10, type: "red", opacity: 0.3 },
@@ -2846,6 +3190,41 @@ const musicCards = [
       { time: 275, text: "Білий шум" },
     ],
     duration: 140,
+    filters: [
+      {
+        start: 21,
+        end: 81,
+        type: "symbols",
+        intensity: 160,
+        speed: 2,
+        blur: 1.3,
+      },
+      { start: 254, end: 274, type: "flicker", opacity: 0.15 },
+      { start: 7, end: 15, type: "brown", opacity: 0.28 },
+      { start: 15, end: 15.5, type: "flash", opacity: 1 },
+      { start: 21, end: 33, type: "green", opacity: 0.15 },
+      { start: 55, end: 65, type: "orange", opacity: 0.15 },
+      { start: 65, end: 81, type: "red", opacity: 0.15 },
+      { start: 81, end: 83, type: "greyscale", opacity: 1 },
+      { start: 83, end: 88, type: "blue", opacity: 0.15 },
+      { start: 88, end: 103, type: "orange", opacity: 0.15 },
+      { start: 103, end: 118, type: "red", opacity: 0.15 },
+      { start: 118, end: 120, type: "greyscale", opacity: 1 },
+      { start: 120, end: 132, type: "purple", opacity: 0.2 },
+      { start: 132, end: 134, type: "greyscale", opacity: 1 },
+      { start: 134, end: 146, type: "purple", opacity: 0.2 },
+      { start: 146, end: 150, type: "brown", opacity: 0.28 },
+      { start: 150, end: 162, type: "black", opacity: 0.67 },
+      { start: 162, end: 179, type: "purple", opacity: 0.2 },
+      { start: 179, end: 191, type: "orange", opacity: 0.15 },
+      { start: 191, end: 208, type: "blue", opacity: 0.15 },
+      { start: 208, end: 218, type: "brown", opacity: 0.15 },
+      { start: 218, end: 223, type: "black", opacity: 1 },
+      { start: 223, end: 238, type: "purple", opacity: 0.2 },
+      { start: 238, end: 260, type: "cyan", opacity: 0.18 },
+      { start: 274, end: 275, type: "flash", opacity: 1 },
+      { start: 275, end: 300, type: "black", opacity: 0.9 },
+    ],
     images: [theory],
   },
   {
@@ -2854,9 +3233,34 @@ const musicCards = [
     audio: require("../../mp3/unity.mp3"),
     text: "Unity-TheFatRat. Класний комп'ютерний хіт, не розумію чого його не поставили у фільм Матриця?",
     lyrics: [
-      { time: 116, text: "Текст хаотичний, лише для атмосфери" },
-      { time: 15, text: "Відлуння атмосферного вигуку" },
-      { time: 25, text: "" },
+      { time: 119, text: "Текст хаотичний, лише для атмосфери" },
+      { time: 154, text: "" },
+      { time: 170, text: "Відлуння атмосферного вигуку" },
+      { time: 180, text: "" },
+    ],
+    filters: [
+      { start: 170, end: 191, type: "flicker", opacity: 0.3 },
+      {
+        start: 45,
+        end: 120,
+        type: "symbols",
+        intensity: 170,
+        speed: 5,
+        blur: 0.5,
+      },
+      { start: 8, end: 27, type: "purple", opacity: 0.25 },
+      { start: 27, end: 27.5, type: "flash", opacity: 1 },
+      { start: 45, end: 63, type: "blue", opacity: 0.2 },
+      { start: 81, end: 100, type: "green", opacity: 0.2 },
+      { start: 100, end: 116, type: "orange", opacity: 0.2 },
+      { start: 116, end: 119.6, type: "greyscale", opacity: 0.2 },
+      { start: 119.6, end: 120, type: "flash", opacity: 1 },
+      { start: 120, end: 136, type: "orange", opacity: 0.2 },
+      { start: 136, end: 154, type: "cyan", opacity: 0.2 },
+      { start: 154, end: 170, type: "brown", opacity: 0.2 },
+      { start: 170, end: 191, type: "purple", opacity: 0.4 },
+      { start: 191, end: 210, type: "red", opacity: 0.2 },
+      { start: 210, end: 240, type: "black", opacity: 0.8 },
     ],
     category: "хіти",
     duration: 180,
