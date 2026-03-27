@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/react-weather-music-project/static/css/main.cc4963bd.css",
-    "main.js": "/react-weather-music-project/static/js/main.4cbb490e.js",
+    "main.js": "/react-weather-music-project/static/js/main.49c14a7b.js",
     "static/media/dinofroz.mp4": "/react-weather-music-project/static/media/dinofroz.2dbd53ecdac17dd14e9e.mp4",
     "static/media/unity.mp3": "/react-weather-music-project/static/media/unity.03a5211e31db9290e954.mp3",
     "static/media/theoty-of-everything-ll.mp3": "/react-weather-music-project/static/media/theoty-of-everything-ll.b04c0e12940feebb76e2.mp3",
@@ -64,6 +64,7 @@
     "static/media/swamptwo.jpg": "/react-weather-music-project/static/media/swamptwo.7f49cff0024ef8bd85d5.jpg",
     "static/media/puzzle.jpeg": "/react-weather-music-project/static/media/puzzle.065dba2d625fc962d7fb.jpeg",
     "static/media/mechannic.jpg": "/react-weather-music-project/static/media/mechannic.91800cad27269208e7f8.jpg",
+    "static/media/electrodynamix.jpg": "/react-weather-music-project/static/media/electrodynamix.616db33a5d27b14d89ba.jpg",
     "static/media/ultra-vip-turkeys.webp": "/react-weather-music-project/static/media/ultra-vip-turkeys.6b502c6c764249db098f.webp",
     "static/media/asiumfour.jpg": "/react-weather-music-project/static/media/asiumfour.8330f4617493851b423c.jpg",
     "static/media/vip-lebid.jpg": "/react-weather-music-project/static/media/vip-lebid.547daf4a59828349fcc7.jpg",
@@ -103,6 +104,7 @@
     "static/media/puz.jpeg": "/react-weather-music-project/static/media/puz.5d38318b4eb7be932b88.jpeg",
     "static/media/dinofrozfive.jpg": "/react-weather-music-project/static/media/dinofrozfive.e54b38253258e5f573c7.jpg",
     "static/media/lamp.jpeg": "/react-weather-music-project/static/media/lamp.5ba1c5aa4a67fb81aeef.jpeg",
+    "static/media/dinofroznine.jpg": "/react-weather-music-project/static/media/dinofroznine.f6db28714e1abe4c8a36.jpg",
     "static/media/christmas.jpg": "/react-weather-music-project/static/media/christmas.69cc19593725d3f77787.jpg",
     "static/media/cod.jpeg": "/react-weather-music-project/static/media/cod.5d2bc90ce0f3a85d8573.jpeg",
     "static/media/dinofrozeight.jpg": "/react-weather-music-project/static/media/dinofrozeight.382acc68dc52e08edd3a.jpg",
@@ -141,10 +143,10 @@
     "static/media/user.webp": "/react-weather-music-project/static/media/user.dcd7396d3070abf3abbe.webp",
     "static/media/document.webp": "/react-weather-music-project/static/media/document.5b6c056b22794272794d.webp",
     "main.cc4963bd.css.map": "/react-weather-music-project/static/css/main.cc4963bd.css.map",
-    "main.4cbb490e.js.map": "/react-weather-music-project/static/js/main.4cbb490e.js.map"
+    "main.49c14a7b.js.map": "/react-weather-music-project/static/js/main.49c14a7b.js.map"
   },
   "entrypoints": [
     "static/css/main.cc4963bd.css",
-    "static/js/main.4cbb490e.js"
+    "static/js/main.49c14a7b.js"
   ]
 }
