@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import dinofrozVideo from "../../mp3/dinofroz.mp4";
 import ultra from "../../photos/hero-header/start-image.jpg";
 
@@ -91,6 +91,11 @@ const OverlayText = styled.div`
   pointer-events: none;
 `;
 
+const fadeIn = keyframes`
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+`;
+
 const TimeIndicator = styled.div`
   position: absolute;
   top: 10px;
@@ -122,7 +127,10 @@ const SkipButton = styled.button`
   position: absolute;
   top: 10px;
   left: 10px;
-  background: rgba(82, 249, 255, 0.2);
+  background: ${(props) =>
+    props.$isError 
+      ? "rgba(255, 108, 108, 0.6)" 
+      : "rgba(82, 249, 255, 0.2)"};
   backdrop-filter: blur(5px);
   color: #94fffa;
   border: 1px solid rgba(0, 255, 255, 0.33);
@@ -136,6 +144,29 @@ const SkipButton = styled.button`
     background: #fff;
     color: #000;
   }
+
+  ${(props) =>
+    props.$isBlocked &&
+    `
+    opacity: 0.5;
+    cursor: not-allowed;
+  `}
+`;
+
+const SkipWarning = styled.div`
+  position: absolute;
+  top: 50px;
+  left: 10px;
+  background: rgba(74, 29, 29, 0.9);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  z-index: 100;
+  pointer-events: none;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  border: 1px solid white;
+  animation: ${fadeIn} 0.4s ease-out forwards;
 `;
 
 // Нова кнопка для повноекранного режиму
@@ -245,7 +276,7 @@ const SEQUENCE = [
     type: "video",
     start: 10,
     end: 17,
-    text: "Спец режим відео (динофроз) або плавне перегортання зображень під час програвання деяких музичних файлів",
+    text: "Спец режим відео (динофроз), плавне перегортання зображень та фільтри під час програвання деяких музичних файлів",
   },
   {
     type: "video",
@@ -265,7 +296,7 @@ const SEQUENCE = [
     text: "Пишіть, підказуйте, що зробити для вас :)",
   },
   { type: "video", start: 40, end: 55, text: "Досягнення на будь-який смак. " },
-   { type: "card", imgIdx: 1, duration: 10000, text: "Налаштуйте сайт під себе. З навшою власною валютою. Скачуйте музику, зображення, відео." },
+   { type: "card", imgIdx: 1, duration: 10000, text: "Налаштуйте сайт під себе. З нашою власною валютою. Скачуйте музику, зображення, відео." },
   {
     type: "video",
     start: 55,
@@ -286,6 +317,15 @@ const SEQUENCE = [
   },
 ];
 
+const calculateTotalSequenceTime = () => {
+  return SEQUENCE.reduce((acc, step) => {
+    if (step.type === "video") {
+      return acc + (step.end - step.start);
+    }
+    return acc + step.duration / 1000;
+  }, 0);
+};
+
 const KatSceneModal = ({ onClose }) => {
   const [stepIndex, setStepIndex] = useState(0);
   const [text, setText] = useState("");
@@ -295,6 +335,15 @@ const KatSceneModal = ({ onClose }) => {
   const [isLooping, setIsLooping] = useState(false);
   const [isCaching, setIsCaching] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
+  const [connectionError, setConnectionError] = useState(false);
+  const [showWarning, setShowWarning] = useState(false);
+  const [isWatched, setIsWatched] = useState(() => {
+    return localStorage.getItem("katSceneWatched") === "true";
+  });
+  const [skipBlockTimer, setSkipBlockTimer] = useState(() => {
+    const watched = localStorage.getItem("katSceneWatched") === "true";
+    return watched ? 0 : Math.ceil(calculateTotalSequenceTime());
+  });
   const [isAssetsLoaded, setIsAssetsLoaded] = useState(false);
   
   const videoRef = useRef(null);
@@ -305,6 +354,31 @@ const KatSceneModal = ({ onClose }) => {
   const handleCloseRef = useRef(null);
 
   const step = SEQUENCE[stepIndex];
+
+  // Таймер на випадок проблем зі зв'язком (15 секунд)
+  useEffect(() => {
+    if (isAssetsLoaded) return;
+    
+    const timer = setTimeout(() => {
+      if (!isAssetsLoaded) {
+        setConnectionError(true);
+      }
+    }, 15000);
+    return () => clearTimeout(timer);
+  }, [isAssetsLoaded]);
+
+  useEffect(() => {
+    if (isWatched || !isAssetsLoaded) return;
+
+    // Розрахунок часу, що залишився, починаючи з поточного кроку
+    let remaining = timeLeft;
+    for (let i = stepIndex + 1; i < SEQUENCE.length; i++) {
+      const s = SEQUENCE[i];
+      if (s.type === "video") remaining += (s.end - s.start);
+      else remaining += (s.duration / 1000);
+    }
+    setSkipBlockTimer(Math.ceil(remaining));
+  }, [stepIndex, timeLeft, isWatched, isAssetsLoaded]);
 
   // Функція для керування повноекранним режимом
   const toggleFullscreen = () => {
@@ -345,6 +419,17 @@ const KatSceneModal = ({ onClose }) => {
     }
     onClose();
   }, [onClose]);
+
+  const handleSkipClick = () => {
+    const canSkip = isWatched || skipBlockTimer === 0 || connectionError;
+    
+    if (canSkip) {
+      handleClose();
+    } else {
+      setShowWarning(true);
+      setTimeout(() => setShowWarning(false), 3000);
+    }
+  };
 
   const handleCacheAll = async () => {
     if (isCaching) return;
@@ -467,6 +552,8 @@ const KatSceneModal = ({ onClose }) => {
 
     const handleNextStep = () => {
       if (stepIndex === SEQUENCE.length - 1 && !isLoopingRef.current) {
+        localStorage.setItem("katSceneWatched", "true");
+        setIsWatched(true);
         if (handleCloseRef.current) handleCloseRef.current();
       } else {
         setStepIndex((prev) => (prev + 1) % SEQUENCE.length);
@@ -548,7 +635,18 @@ const KatSceneModal = ({ onClose }) => {
   return (
     <Overlay ref={containerRef}>
       <UltraPlayerContainer>
-        <SkipButton onClick={handleClose}>Skip</SkipButton>
+        <SkipButton
+          onClick={handleSkipClick}
+          $isBlocked={!isWatched && skipBlockTimer > 0 && !connectionError}
+          $isError={connectionError}
+        >
+          {isWatched || connectionError ? "Пропустити" : `Пропустити (${skipBlockTimer}с)`}
+        </SkipButton>
+        {showWarning && (
+          <SkipWarning>
+            Потрібно додивитися сцену до кінця для першого разу
+          </SkipWarning>
+        )}
         <FullscreenButton onClick={toggleFullscreen}>⛶ Bесь екран</FullscreenButton>
         <CacheButton onClick={handleCacheAll} disabled={isCaching}>
           {isCaching ? "⏳" : "📥 Кеш"}
@@ -584,7 +682,7 @@ const KatSceneModal = ({ onClose }) => {
 
         {!isAssetsLoaded && (
           <LoadingContainer>
-            <div style={{ color: "#94fffa", fontSize: "14px", marginBottom: "5px" }}>Завантаження сцени... Вимкніть VPN для швидшого заванантаження {loadingProgress}%</div>
+            <div style={{ color: "#94fffa", fontSize: "14px", marginBottom: "5px" }}>Завантаження сцени... Вимкніть VPN, зайдіть через браузер, для швидшого заванантаження {loadingProgress}%</div>
             <ProgressBar>
               <ProgressBarFill $progress={loadingProgress} />
             </ProgressBar>

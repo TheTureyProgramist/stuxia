@@ -113,6 +113,44 @@ const flickerAnimation = keyframes`
   100% { opacity: 1; }
 `;
 
+const chaosAnimation = keyframes`
+  0% { background-color: rgba(255, 0, 0, var(--chaos-opacity)); }      /* червоний */
+  10% { background-color: rgba(255, 255, 0, var(--chaos-opacity)); }    /* жовтий */
+  20% { background-color: rgba(255, 165, 0, var(--chaos-opacity)); }    /* оранжевий */
+  30% { background-color: rgba(139, 69, 19, var(--chaos-opacity)); }    /* коричневий */
+  40% { background-color: rgba(0, 255, 0, var(--chaos-opacity)); }      /* зелений */
+  50% { background-color: rgba(0, 255, 255, var(--chaos-opacity)); }    /* голубий */
+  60% { background-color: rgba(0, 0, 255, var(--chaos-opacity)); }      /* синій */
+  70% { background-color: rgba(255, 255, 255, var(--chaos-opacity)); }    /* білий */
+  80% { background-color: rgba(128, 0, 128, var(--chaos-opacity)); }    /* фіолетовий */
+  90% { background-color: rgba(128, 128, 128, var(--chaos-opacity)); }  /* чорнобілий (сірий) */
+  100% { background-color: rgba(255, 0, 0, var(--chaos-opacity)); }
+`;
+
+const oldFilmNoise = keyframes`
+  0% { background-position: 0% 0%; }
+  100% { background-position: 100% 100%; }
+`;
+
+const oldFilmShake = keyframes`
+  0% { transform: translate(0, 0); }
+  20% { transform: translate(-1px, 1px); }
+  40% { transform: translate(-1px, -1px); }
+  60% { transform: translate(1px, 1px); }
+  80% { transform: translate(1px, -1px); }
+  100% { transform: translate(0, 0); }
+`;
+
+const cinemascopeTop = keyframes`
+  from { height: 0; }
+  to { height: 12%; }
+`;
+
+const cinemascopeBottom = keyframes`
+  from { height: 0; }
+  to { height: 12%; }
+`;
+
 const symbolAnimation = keyframes`
   0% { transform: translate(-50%, -50%) scale(0.7); opacity: 0; }
   20% { opacity: 0.5; }
@@ -500,6 +538,56 @@ const FilterOverlay = styled.div`
       css`
         background-color: rgba(255, 255, 255, ${props.$opacity});
       `}
+      ${props.$type === "vignette" && css`
+        background: radial-gradient(circle, transparent 40%, rgba(0,0,0, ${props.$opacity || 0.8}) 100%);
+      `}
+      ${props.$type === "cinemascope" && css`
+        &::before, &::after {
+          content: "";
+          position: absolute;
+          left: 0;
+          width: 100%;
+          background: black;
+          z-index: 100;
+        }
+        &::before {
+          top: 0;
+          animation: ${cinemascopeTop} 1s ease forwards;
+        }
+        &::after {
+          bottom: 0;
+          animation: ${cinemascopeBottom} 1s ease forwards;
+        }
+      `}
+      ${props.$type === "vintage" && css`
+        animation: ${oldFilmShake} 0.15s infinite;
+        
+        /* Вертикальні лінії (шум) */
+        &::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          background-image: repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent 150px,
+            rgba(255, 255, 255, 0.05) 150px,
+            rgba(255, 255, 255, 0.05) 151px,
+            transparent 151px,
+            transparent 300px,
+            rgba(0, 0, 0, 0.05) 300px,
+            rgba(0, 0, 0, 0.05) 301px
+          );
+          background-size: 200% 100%;
+          animation: ${oldFilmNoise} 0.2s steps(5) infinite;
+          pointer-events: none;
+          z-index: 5;
+        }
+      `}
+      ${props.$type === "chaos" && css`
+        --chaos-opacity: ${props.$opacity || 0.4};
+        animation: ${chaosAnimation} 1.5s linear infinite;
+      `}
       ${(props.$type === "grayscale" || props.$type === "greyscale") &&
       css`
         background-color: rgba(119, 119, 119, ${props.$opacity * 0.2});
@@ -530,7 +618,8 @@ const FilterOverlay = styled.div`
         )
         blur(
           ${props.$blur || (props.$type === "blur" ? props.$opacity * 10 : 0)}px
-        );
+        )
+        ${props.$type === "vintage" ? "sepia(0.8) contrast(1.2)" : ""};
     `}
 `;
 
@@ -2790,16 +2879,16 @@ const musicCards = [
       { start: 26, end: 45, type: "blue", opacity: 0.25 },
       { start: 45, end: 52, type: "flicker", opacity: 0.4 },
       { start: 52, end: 53, type: "flash", opacity: 1 },
-      { start: 53, end: 71, type: "purple", opacity: 0.25 },
+      { start: 53, end: 71, type: "chaos", opacity: 0.25 },
       { start: 71, end: 89, type: "blue", opacity: 0.25 },
-      { start: 89, end: 104, type: "purple", opacity: 0.25 },
+      { start: 89, end: 104, type: "chaos", opacity: 0.25 },
       { start: 104, end: 124, type: "orange", opacity: 0.25 },
       { start: 124, end: 143, type: "green", opacity: 0.25 },
       { start: 143, end: 158, type: "orange", opacity: 0.25 },
       { start: 158, end: 168, type: "greyscale", opacity: 1 },
       { start: 196, end: 208, type: "purple", opacity: 0.25 },
       { start: 208, end: 227, type: "cyan", opacity: 0.25 },
-      { start: 227, end: 243, type: "blue", opacity: 0.25 },
+      { start: 227, end: 243, type: "chaos", opacity: 0.25 },
       { start: 243, end: 262, type: "purple", opacity: 0.25 },
       { start: 262, end: 278, type: "orange", opacity: 0.25 },
       { start: 278, end: 300, type: "black", opacity: 0.85 },
@@ -3054,7 +3143,7 @@ const musicCards = [
         start: 103,
         end: 133,
         randomColor: true,
-        colorOptions: ["cyan", "green"],
+        colorOptions: ["cyan", "chaos"],
         isRandom: true,
         minOpacity: 0.2,
         maxOpacity: 0.4,
@@ -3149,16 +3238,16 @@ const musicCards = [
       { start: 40, end: 40.2, type: "flash", opacity: 1 },
       { start: 40.3, end: 45, type: "purple", opacity: 0.4 },
       { start: 45, end: 47, type: "greyscale", opacity: 1 },
-      { start: 47, end: 52, type: "green", opacity: 0.3 },
+      { start: 47, end: 52, type: "chaos", opacity: 0.3 },
       { start: 52, end: 57, type: "black", opacity: 0.33, blur: 3.3 },
       { start: 57, end: 63, type: "black", opacity: 0.67, blur: 6.7 },
       { start: 63, end: 69, type: "black", opacity: 1, blur: 10 },
       { start: 69, end: 69.4, type: "flash", opacity: 1 },
       { start: 69.4, end: 72, type: "red", opacity: 0.5 },
-      { start: 72, end: 78, type: "purple", opacity: 0.3 },
+      { start: 72, end: 78, type: "chaos", opacity: 0.3 },
       { start: 78, end: 90, type: "cyan", opacity: 0.3 },
       { start: 90, end: 92, type: "white", opacity: 0.6 },
-      { start: 92, end: 120, type: "orange", opacity: 0.3 },
+      { start: 92, end: 120, type: "chaos", opacity: 0.3 },
       { start: 120, end: 122, type: "white", opacity: 0.6 },
       { start: 122, end: 129, type: "green", opacity: 0.3 },
       { start: 129, end: 135, type: "black", opacity: 1 },
@@ -3236,13 +3325,13 @@ const musicCards = [
       { start: 65, end: 81, type: "red", opacity: 0.15 },
       { start: 81, end: 83, type: "greyscale", opacity: 1 },
       { start: 83, end: 88, type: "blue", opacity: 0.15 },
-      { start: 88, end: 103, type: "orange", opacity: 0.15 },
+      { start: 88, end: 103, type: "chaos", opacity: 0.15 },
       { start: 103, end: 118, type: "red", opacity: 0.15 },
       { start: 118, end: 120, type: "greyscale", opacity: 1 },
       { start: 120, end: 132, type: "purple", opacity: 0.2 },
       { start: 132, end: 134, type: "greyscale", opacity: 1 },
-      { start: 134, end: 146, type: "purple", opacity: 0.2 },
-      { start: 146, end: 150, type: "brown", opacity: 0.28 },
+      { start: 134, end: 146, type: "chaos", opacity: 0.2 },
+      { start: 146, end: 150, type: "chaos", opacity: 0.28 },
       { start: 150, end: 162, type: "black", opacity: 0.67 },
       { start: 162, end: 179, type: "purple", opacity: 0.2 },
       { start: 179, end: 191, type: "orange", opacity: 0.15 },
@@ -3285,10 +3374,10 @@ const musicCards = [
       { start: 100, end: 116, type: "orange", opacity: 0.2 },
       { start: 116, end: 119.6, type: "greyscale", opacity: 0.2 },
       { start: 119.6, end: 120, type: "flash", opacity: 1 },
-      { start: 120, end: 136, type: "orange", opacity: 0.2 },
+      { start: 120, end: 136, type: "chaos", opacity: 0.2 },
       { start: 136, end: 154, type: "cyan", opacity: 0.2 },
       { start: 154, end: 170, type: "brown", opacity: 0.2 },
-      { start: 170, end: 191, type: "purple", opacity: 0.4 },
+      { start: 170, end: 191, type: "chaos", opacity: 0.2 },
       { start: 191, end: 210, type: "red", opacity: 0.2 },
       { start: 210, end: 240, type: "black", opacity: 0.8 },
     ],

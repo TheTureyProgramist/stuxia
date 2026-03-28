@@ -267,6 +267,31 @@ const SearchResultItem = styled.div`
   }
 `;
 
+const SourceSelector = styled.div`
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+`;
+
+const SourceButton = styled.button`
+  padding: 5px 15px;
+  border-radius: 15px;
+  border: 1px solid #ffb36c;
+  background: ${props => props.$active ? "#ffb36c" : "transparent"};
+  color: ${props => props.$active ? "black" : (props.$isDarkMode ? "white" : "black")};
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s;
+  font-weight: 600;
+`;
+
+const ShowInfo = styled.div`
+  font-size: 11px;
+  color: ${props => props.$isDarkMode ? "#ddd" : "#444"};
+  text-align: left;
+  width: 100%;
+`;
+
 const FanArt = ({ isDarkMode, user, onOpenRegister }) => {
   const [customImages, setCustomImages] = useState(() => {
     try {
@@ -281,6 +306,7 @@ const FanArt = ({ isDarkMode, user, onOpenRegister }) => {
   const [searchResults, setSearchResults] = useState([]);
   const [searchStatus, setSearchStatus] = useState('idle');
   const [searchPage, setSearchPage] = useState(1);
+  const [searchSource, setSearchSource] = useState('pixabay'); // 'pixabay' or 'tvmaze'
   const [visibleCount, setVisibleCount] = useState(12);
   const [isCooldown, setIsCooldown] = useState(false);
   const [cooldownTime, setCooldownTime] = useState(0);
@@ -391,30 +417,84 @@ const FanArt = ({ isDarkMode, user, onOpenRegister }) => {
     setCooldownTime(40);
   };
 
+  const translateToEn = async (text) => {
+    if (!text || text.length < 3) return text;
+    try {
+      const response = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=uk&tl=en&dt=t&q=${encodeURIComponent(text)}`);
+      const data = await response.json();
+      return data[0].map(item => item[0]).join("");
+    } catch (error) {
+      console.error("Translation error:", error);
+      return text;
+    }
+  };
+
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
     setSearchStatus('loading');
     setSearchResults([]);
     try {
-      const API_KEY = "50977795-feb18de71b048a02e0c824e54";
-      const response = await fetch(
-        `https://pixabay.com/api/?key=${API_KEY}&q=${encodeURIComponent(
-          searchQuery
-        )}&image_type=photo&per_page=12&lang=ru&page=1`
-      );
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      if (data.hits && data.hits.length > 0) {
-        setSearchResults(data.hits);
-        setSearchPage(1);
-        setSearchStatus('idle');
+      if (searchSource === 'pixabay') {
+        const API_KEY = "50977795-feb18de71b048a02e0c824e54";
+        const response = await fetch(
+          `https://pixabay.com/api/?key=${API_KEY}&q=${encodeURIComponent(
+            searchQuery
+          )}&image_type=photo&per_page=12&lang=ru&page=1`
+        );
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+        if (data.hits && data.hits.length > 0) {
+          setSearchResults(data.hits.map(hit => ({
+            id: hit.id,
+            previewURL: hit.previewURL,
+            largeImageURL: hit.largeImageURL,
+            tags: hit.tags,
+            name: hit.tags,
+            source: 'pixabay'
+          })));
+          setSearchPage(1);
+          setSearchStatus('idle');
+        } else {
+          setSearchStatus('no-results');
+        }
       } else {
-        setSearchStatus('no-results');
+        // TVMaze search
+        const translatedQuery = await translateToEn(searchQuery);
+        const response = await fetch(`https://api.tvmaze.com/search/shows?q=${encodeURIComponent(translatedQuery)}`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+        
+        // Фільтруємо лише ті, де є зображення
+        const validResults = data.filter(item => item.show && item.show.image);
+        
+        if (validResults.length === 0) {
+          setSearchStatus('no-results');
+          return;
+        }
+
+        // Отримуємо акторів для кожного результату
+        const resultsWithCast = await Promise.all(
+          validResults.slice(0, 10).map(async (item) => {
+            const castRes = await fetch(`https://api.tvmaze.com/shows/${item.show.id}/cast`);
+            const castData = castRes.ok ? await castRes.json() : [];
+            return {
+              id: item.show.id,
+              name: item.show.name,
+              previewURL: item.show.image.medium,
+              largeImageURL: item.show.image.original,
+              summary: item.show.summary?.replace(/<[^>]*>?/gm, ''), // Видаляємо HTML теги
+              cast: castData.slice(0, 4).map(c => c.person.name).join(', '),
+              url: item.show.url,
+              source: 'tvmaze'
+            };
+          })
+        );
+
+        setSearchResults(resultsWithCast);
+        setSearchStatus('idle');
       }
     } catch (error) {
-      console.error("Error searching Pixabay:", error);
+      console.error("Error searching:", error);
       setSearchStatus('error');
     } finally {
       startCooldown();
@@ -422,7 +502,7 @@ const FanArt = ({ isDarkMode, user, onOpenRegister }) => {
   };
 
   const handleLoadMore = async () => {
-    if (!searchQuery.trim() || isCooldown) return;
+    if (searchSource !== 'pixabay' || !searchQuery.trim() || isCooldown) return;
 
     setSearchStatus('loading');
     const nextPage = searchPage + 1;
@@ -437,7 +517,14 @@ const FanArt = ({ isDarkMode, user, onOpenRegister }) => {
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const data = await response.json();
       if (data.hits && data.hits.length > 0) {
-        setSearchResults(prev => [...prev, ...data.hits]);
+        const mapped = data.hits.map(hit => ({
+          id: hit.id,
+          previewURL: hit.previewURL,
+          largeImageURL: hit.largeImageURL,
+          tags: hit.tags,
+          source: 'pixabay'
+        }));
+        setSearchResults(prev => [...prev, ...mapped]);
         setSearchPage(nextPage);
         setSearchStatus('idle');
       } else {
@@ -453,19 +540,18 @@ const FanArt = ({ isDarkMode, user, onOpenRegister }) => {
   };
 
   const handleAddCustomImage = (hit) => {
-    if (customImages.length >= 3) {
-      alert("Можна додати не більше 3 картинок.");
-      return;
-    }
-    if (customImages.some(img => img.id === hit.id)) {
-      alert("Це зображення вже додано.");
-      return;
-    }
+    if (customImages.length >= 3) return alert("Можна додати не більше 3 картинок.");
+    if (customImages.some(img => img.id === hit.id)) return alert("Це зображення вже додано.");
+
     const newImage = {
       id: hit.id,
-      src: hit.webformatURL,
-      largeSrc: hit.largeImageURL,
+      src: hit.previewURL,
+      largeSrc: hit.largeImageURL || hit.previewURL,
       category: "ваші картинки",
+      summary: hit.summary,
+      cast: hit.cast,
+      title: hit.name,
+      url: hit.url
     };
     setCustomImages([...customImages, newImage]);
   };
@@ -537,9 +623,23 @@ const FanArt = ({ isDarkMode, user, onOpenRegister }) => {
 
             {selectedPlaylist === "ваші картинки" && (
               <SearchContainer>
-                 <p style={{color: isDarkMode ? "#ccc" : "#555", marginBottom: "10px"}}>
-                   Знайдіть та додайте до 3-х власних зображень (Pixabay API)
+                 <p style={{color: isDarkMode ? "#ccc" : "#555", marginBottom: "5px", fontSize: '13px'}}>
+                   Знайдіть та додайте до 3-х власних зображень
                  </p>
+
+                <SourceSelector>
+                  <SourceButton 
+                    $isDarkMode={isDarkMode} 
+                    $active={searchSource === 'pixabay'} 
+                    onClick={() => setSearchSource('pixabay')}
+                  >🖼 Pixabay</SourceButton>
+                  <SourceButton 
+                    $isDarkMode={isDarkMode} 
+                    $active={searchSource === 'tvmaze'} 
+                    onClick={() => setSearchSource('tvmaze')}
+                  >🎬 TVMaze (Кіно)</SourceButton>
+                </SourceSelector>
+
                 <SearchInput 
                   $isDarkMode={isDarkMode}
                   type="text" 
@@ -556,7 +656,7 @@ const FanArt = ({ isDarkMode, user, onOpenRegister }) => {
                 {searchStatus === 'no-results' && <SearchStatusText $isDarkMode={isDarkMode}>Зображень за вашим запитом не знайдено.</SearchStatusText>}
                 {searchStatus === 'error' && <SearchStatusText $isDarkMode={isDarkMode}>Помилка пошуку. Спробуйте пізніше.</SearchStatusText>}
 
-                {searchResults.length > 0 && (
+                {searchResults.length > 0 && searchSource === 'pixabay' && (
                   <SearchButton type="button" onClick={handleLoadMore} disabled={isCooldown} style={{marginTop: '10px'}}>
                     {isCooldown ? `Зачекайте ${cooldownTime}с` : 'Завантажити ще'}
                   </SearchButton>
@@ -568,7 +668,7 @@ const FanArt = ({ isDarkMode, user, onOpenRegister }) => {
                        <SearchResultItem key={hit.id} onClick={() => handleAddCustomImage(hit)}>
                           <BenefitImage 
                             src={hit.previewURL} 
-                            alt={hit.tags} 
+                            alt={hit.name || hit.tags} 
                             style={{width: '100px', height: '100px'}}
                           />
                           <div style={{
@@ -601,6 +701,16 @@ const FanArt = ({ isDarkMode, user, onOpenRegister }) => {
                         src={imgData.src}
                         alt={`Fan art - ${imgData.category}`}
                       />
+                      {imgData.summary && (
+                        <ShowInfo $isDarkMode={isDarkMode}>
+                          <p style={{fontWeight: 'bold', margin: '0 0 5px 0'}}>{imgData.title}</p>
+                          <p style={{display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden', margin: 0}}><b>Сюжет:</b> {imgData.summary}</p>
+                          <p style={{margin: '5px 0 0 0'}}><b>Актори:</b> {imgData.cast || 'Не вказано'}</p>
+                          {imgData.url && (
+                            <a href={imgData.url} target="_blank" rel="noopener noreferrer" style={{color: '#ffb36c', fontSize: '10px', textDecoration: 'underline', display: 'block', marginTop: '5px'}}>Оригінальний сайт</a>
+                          )}
+                        </ShowInfo>
+                      )}
                       <ActionButtonsContainer>
                         <ActionButton
                           onClick={() => handleDownload(imgData.src)}
