@@ -236,6 +236,40 @@ const HeroDate = styled.div`
   }
 `;
 
+const DownloadAppsContainer = styled.div`
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 5px;
+
+  @media (min-width: 768px) {
+    gap: 20px;
+  }
+`;
+
+const DownloadAppButton = styled.a`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 179, 108, 0.5);
+  border-radius: 20px;
+  color: #fff;
+  text-decoration: none;
+  font-size: 10px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+
+  &:hover {
+    background: rgba(255, 179, 108, 0.2);
+    transform: translateY(-2px);
+    border-color: #ffb36c;
+  }
+`;
+
 const SearchWrapper = styled.div`
   position: relative;
   display: flex;
@@ -420,7 +454,7 @@ const LoadMoreButton = styled.button`
     border-width: 4px;
   }
 `;
-const Hero = ({ heroDateString, onAddCity, startAnimation }) => {
+const Hero = ({ heroDateString, onAddCity, startAnimation, user }) => {
   const [inputValue, setInputValue] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [limit, setLimit] = useState(5);
@@ -532,6 +566,25 @@ const Hero = ({ heroDateString, onAddCity, startAnimation }) => {
             <HeroDate>{heroDateString}</HeroDate>
           </HeroFix>
         </HeroDecor>
+
+        <DownloadAppsContainer>
+          <DownloadAppButton href="/downloads/stykhiya-pc.exe" download="stykhiya-pc.exe" title="Завантажити для Windows">
+            💻 Скачати для ПК
+          </DownloadAppButton>
+          <DownloadAppButton href="/downloads/stykhiya-mobile.apk" download="stykhiya-mobile.apk" title="Завантажити для Android">
+            📱 Мобільний додаток
+          </DownloadAppButton>
+        </DownloadAppsContainer>
+        {user && (
+          <DownloadAppsContainer>
+            <DownloadAppButton href="/downloads/stykhiya-pc.exe" download="stykhiya-pc.exe" title="Завантажити для Windows">
+              💻 Скачати для ПК
+            </DownloadAppButton>
+            <DownloadAppButton href="/downloads/stykhiya-mobile.apk" download="stykhiya-mobile.apk" title="Завантажити для Android">
+              📱 Мобільний додаток
+            </DownloadAppButton>
+          </DownloadAppsContainer>
+        )}
 
         <SearchWrapper ref={searchRef}>
           <HeroFormater>

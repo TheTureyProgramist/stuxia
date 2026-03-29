@@ -562,6 +562,7 @@ const App = () => {
           heroDateString={heroDateString}
           onAddCity={handleAddCityFromHero}
           startAnimation={!isLoading}
+          user={user}
         />
       </div>
       {renderSectionContent(siteSections.find((s) => s.key === "weather"))}
@@ -575,6 +576,7 @@ const App = () => {
           heroDateString={heroDateString}
           onAddCity={handleAddCityFromHero}
           startAnimation={!isLoading}
+          user={user}
         />
       </div>
       <div className="container">
@@ -680,6 +682,7 @@ const App = () => {
                           heroDateString={heroDateString}
                           onAddCity={handleAddCityFromHero}
                           startAnimation={!isLoading}
+                          user={user}
                         />
                       ) : (
                         renderSectionContent(section)
