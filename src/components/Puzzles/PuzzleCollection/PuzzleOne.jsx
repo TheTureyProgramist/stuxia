@@ -10,22 +10,23 @@ import { motion, AnimatePresence } from "framer-motion";
 import decor from "../../../photos/fan-art/modaldecor.webp";
 //desert
 import desert from "../../../photos/vip-images/desert/vip-desert.webp";
-// import soloveyko from "../../../photos/vip-images/vip-soloveyko.webp";
+import soloveyko from "../../../photos/vip-images/vip-soloveyko.webp";
 // import desert from "../../../photos/vip-images/vip-desert.webp";
 // import harmony from "../../../photos/vip-images/asium/asium.webp";
- import horse from "../../../photos/vip-images/horse/horse.webp";
-// import theorytwo from "../../../photos/fan-art/theorytwo.webp";
-
- import unity from "../../../photos/fan-art/unity.webp";
+import horse from "../../../photos/vip-images/horse/horse.webp";
+import theorytwo from "../../../photos/fan-art/theorytwo.webp";
+import fingerdash from "../../../photos/vip-images/dinofroz/fingerdash.webp";
+import electrodynamix from "../../../photos/vip-images/electrodynamix.webp";
+import unity from "../../../photos/fan-art/unity.webp";
 import mecha from "../../../photos/vip-images/mechannic.webp";
 import monody from "../../../photos/fan-art/monody.webp";
 import christmas from "../../../photos/vip-images/christmas.webp";
-//import clubstep from "../../../photos/fan-art/clubstep.webp";
+import clubstep from "../../../photos/fan-art/clubstep.webp";
 import turkeys from "../../../photos/vip-images/turkeys/ultra-vip-turkeys.webp";
 // //Horses
- import horsethree from "../../../photos/vip-images/horse/horsethree.webp";
- import horsetwo from "../../../photos/vip-images/horse/horsetwo.webp";
- import chess from "../../../photos/vip-images/horse/chess.webp";
+import horsethree from "../../../photos/vip-images/horse/horsethree.webp";
+import horsetwo from "../../../photos/vip-images/horse/horsetwo.webp";
+import chess from "../../../photos/vip-images/horse/chess.webp";
 //Turkeys
 import turkeytwo from "../../../photos/vip-images/turkeys/turkeytwo.webp";
 import turkeythree from "../../../photos/vip-images/turkeys/turkeysthree.webp";
@@ -43,6 +44,9 @@ import asiumfour from "../../../photos/vip-images/asium/asiumfour.webp";
 import asiumfive from "../../../photos/vip-images/asium/asiumfive.webp";
 import asiumsix from "../../../photos/vip-images/asium/asiumsix.webp";
 import asiumseven from "../../../photos/vip-images/asium/asiumseven.webp";
+import asiumten from "../../../photos/vip-images/asium/asiumeleven.webp";
+import asiumeleven from "../../../photos/vip-images/asium/asiumtwelve.webp";
+import harmony from "../../../photos/vip-images/asium/asium.webp";
 //Swamp
 import swamptwo from "../../../photos/vip-images/swamp/swamptwo.webp";
 import swampthree from "../../../photos/vip-images/swamp/swampthree.webp";
@@ -66,8 +70,32 @@ import horroreight from "../../../photos/vip-images/horror/horroreight.webp";
 //Динофроз
 import dinofrozone from "../../../photos/vip-images/dinofroz/vip-dinofroz.webp";
 import dinofroztwo from "../../../photos/vip-images/dinofroz/vip-dragons.webp";
+import dinofrozthree from "../../../photos/vip-images/dinofroz/dinofrozthree.webp";
+import dinofrozfour from "../../../photos/vip-images/dinofroz/dinofrozfour.webp";
+import dinofrozfive from "../../../photos/vip-images/dinofroz/dinofrozfive.webp";
+import dinofrozsix from "../../../photos/vip-images/dinofroz/dinofrozsix.webp";
+import dinofrozseven from "../../../photos/vip-images/dinofroz/dinofrozseven.webp";
+import dinofrozeight from "../../../photos/vip-images/dinofroz/dinofrozeight.webp";
+import dinofroznine from "../../../photos/vip-images/dinofroz/dinofroznine.webp";
 //Mia and me
 import mia from "../../../photos/vip-images/mia/miaandme.webp";
+import christmasAudio from "../../../mp3/kolada.mp3";
+import dinofrozAudio from "../../../mp3/dinofroz.mp3";
+import turkeyAudio from "../../../mp3/turkeys.mp3";
+import monodyAudio from "../../../mp3/thefatrat-monody.mp3";
+import windAudio from "../../../mp3/kolada.mp3";
+import unityAudio from "../../../mp3/unity.mp3";
+import horseAudio from "../../../mp3/horse.mp3";
+import dragonoraAudio from "../../../mp3/dragon.mp3";
+import soloveykoAudio from "../../../mp3/soloveyko.mp3";
+import harmonyAudio from "../../../mp3/harmonic-japan.mp3";
+import electrodynamixAudio from "../../../mp3/electrodynamix.mp3";
+import clubstepAudio from "../../../mp3/clubstep.mp3";
+import fingerdashAudio from "../../../mp3/fingerdash.mp3";
+import theorytwoAudio from "../../../mp3/theoty-of-everything-ll.mp3";
+import theoryAudio from "../../../mp3/theory-of-everyting.mp3";
+import deadlockedAudio from "../../../mp3/deadlocked.mp3";
+import mechaAudio from "../../../mp3/mechanik-kindom.mp3";
 const fadeIn = keyframes`
   from { opacity: 0; }
   to { opacity: 1; }
@@ -441,161 +469,201 @@ const PuzzleOne = ({ onExit }) => {
     () => [
       {
         image: dinofrozone,
-        audio: require("../../../mp3/dinofroz.mp3"),
+        audio: dinofrozAudio,
         category: "dinofroz",
       },
       {
         image: dinofroztwo,
-        audio: require("../../../mp3/dinofroz.mp3"),
+        audio: dragonoraAudio,
         category: "dinofroz",
       },
       {
-        image: monody,
-        audio: require("../../../mp3/thefatrat-monody.mp3"),
-        category: "other",
+        image: dinofrozthree,
+        audio: dinofrozAudio,
+        category: "dinofroz",
+      },
+      {
+        image: dinofrozfour,
+        audio: dragonoraAudio,
+        category: "dinofroz",
+      },
+      {
+        image: dinofrozfive,
+        audio: dinofrozAudio,
+        category: "dinofroz",
+      },
+      {
+        image: dinofrozsix,
+        audio: dragonoraAudio,
+        category: "dinofroz",
+      },
+      {
+        image: dinofrozseven,
+        audio: dinofrozAudio,
+        category: "dinofroz",
+      },
+      {
+        image: dinofroznine,
+        audio: dragonoraAudio,
+        category: "dinofroz",
+      },
+      {
+        image: dinofrozeight,
+        audio: dinofrozAudio,
+        category: "dinofroz",
       },
       {
         image: asiumone,
-        audio: require("../../../mp3/harmonic-japan.mp3"),
+        audio: harmonyAudio,
         category: "other",
       },
       {
         image: asiumtwo,
-        audio: require("../../../mp3/harmonic-japan.mp3"),
+        audio: harmonyAudio,
         category: "other",
       },
       {
         image: asiumthree,
-        audio: require("../../../mp3/harmonic-japan.mp3"),
+        audio: harmonyAudio,
         category: "other",
       },
       {
         image: asiumfour,
-        audio: require("../../../mp3/harmonic-japan.mp3"),
+        audio: harmonyAudio,
         category: "other",
       },
       {
         image: asiumnine,
-        audio: require("../../../mp3/harmonic-japan.mp3"),
+        audio: harmonyAudio,
         category: "other",
       },
       {
         image: asiumfive,
-        audio: require("../../../mp3/harmonic-japan.mp3"),
+        audio: harmonyAudio,
         category: "other",
       },
       {
         image: asiumsix,
-        audio: require("../../../mp3/harmonic-japan.mp3"),
+        audio: harmonyAudio,
         category: "other",
       },
       {
         image: asiumseven,
-        audio: require("../../../mp3/harmonic-japan.mp3"),
+        audio: harmonyAudio,
+        category: "other",
+      },
+            {
+        image: asiumten,
+        audio: harmonyAudio,
+        category: "other",
+      },
+      {
+        image: asiumeleven,
+        audio: harmonyAudio,
+        category: "other",
+      },
+            {
+        image: harmony,
+        audio: harmonyAudio,
         category: "other",
       },
       {
         image: mecha,
-        audio: require("../../../mp3/mechanik-kindom.mp3"),
+        audio: mechaAudio,
         category: "other",
       },
       {
         image: christmas,
-        audio: require("../../../mp3/kolada.mp3"),
+        audio: christmasAudio,
         category: "other",
       },
       {
         image: turkeysone,
-        audio: require("../../../mp3/turkeys.mp3"),
+        audio: turkeyAudio,
         category: "turkeys",
       },
       {
         image: turkeytwo,
-        audio: require("../../../mp3/turkeys.mp3"),
+        audio: turkeyAudio,
         category: "turkeys",
       },
       {
         image: turkeythree,
-        audio: require("../../../mp3/turkeys.mp3"),
+        audio: turkeyAudio,
         category: "turkeys",
       },
       {
         image: turkeyfour,
-        audio: require("../../../mp3/turkeys.mp3"),
+        audio: turkeyAudio,
         category: "turkeys",
       },
       {
         image: turkeyfive,
-        audio: require("../../../mp3/turkeys.mp3"),
+        audio: turkeyAudio,
         category: "turkeys",
       },
       {
         image: turkeysix,
-        audio: require("../../../mp3/turkeys.mp3"),
+        audio: turkeyAudio,
         category: "turkeys",
       },
       {
         image: turkeyseven,
-        audio: require("../../../mp3/turkeys.mp3"),
+        audio: turkeyAudio,
         category: "turkeys",
       },
       {
         image: turkeys,
-        audio: require("../../../mp3/turkeys.mp3"),
+        audio: turkeyAudio,
         category: "turkeys",
       },
       {
         image: turkeysone,
-        audio: require("../../../mp3/turkeys.mp3"),
+        audio: turkeyAudio,
         category: "turkeys",
       },
       {
         image: monody,
-        audio: require("../../../mp3/thefatrat-monody.mp3"),
+        audio: monodyAudio,
         category: "other",
       },
       {
         image: desert,
-        audio: require("../../../mp3/wind.mp3"),
+        audio: windAudio,
         category: "desert",
       },
       {
         image: horse,
-        audio: require("../../../mp3/horse.mp3"),
+        audio: horseAudio,
         category: "horses",
       },
-            {
+      {
         image: horsetwo,
-        audio: require("../../../mp3/horse.mp3"),
+        audio: horseAudio,
         category: "horses",
       },
-            {
+      {
         image: horsethree,
-        audio: require("../../../mp3/horse.mp3"),
+        audio: horseAudio,
         category: "horses",
       },
-            {
+      {
         image: chess,
-        audio: require("../../../mp3/horse.mp3"),
+        audio: horseAudio,
         category: "horses",
       },
       {
-        image: require("../../../photos/vip-images/dinofroz/vip-dragons.jpg"),
-        audio: require("../../../mp3/dragon.mp3"),
-        category: "dinofroz",
-      },
-      {
-        image: require("../../../photos/vip-images/vip-soloveyko.jpg"),
-        audio: require("../../../mp3/soloveyko.mp3"),
+        image: soloveyko,
+        audio: soloveykoAudio,
         category: "other",
       },
       {
-        image: require("../../../photos/vip-images/mechannic.jpg"),
-        audio: require("../../../mp3/mechanik-kindom.mp3"),
+        image: mecha,
+        audio: mechaAudio,
         category: "other",
       },
       {
-        image: require("../../../photos/vip-images/mechannic.jpg"),
+        image: soloveykoAudio,
         audio: require("../../../mp3/zootopia.mp3"),
         category: "other",
       },
@@ -605,123 +673,123 @@ const PuzzleOne = ({ onExit }) => {
         category: "other",
       },
       {
-        image: require("../../../photos/vip-images/mechannic.jpg"),
-        audio: require("../../../mp3/electrodynamix.mp3"),
+        image: electrodynamix,
+        audio: electrodynamixAudio,
         category: "other",
       },
       {
-        image: require("../../../photos/fan-art/clubstep.jpg"),
-        audio: require("../../../mp3/clubstep.mp3"),
+        image: clubstep,
+        audio: clubstepAudio,
         category: "other",
       },
       {
-        image: require("../../../photos/vip-images/mechannic.jpg"),
-        audio: require("../../../mp3/fingerdash.mp3"),
+        image: fingerdash,
+        audio: fingerdashAudio,
         category: "other",
       },
       {
-        image: require("../../../photos/fan-art/theorytwo.jpg"),
-        audio: require("../../../mp3/theoty-of-everything-ll.mp3"),
+        image: theorytwo,
+        audio:  theorytwoAudio,
         category: "other",
       },
       {
         image: horror,
-        audio: require("../../../mp3/deadlocked.mp3"),
+        audio: deadlockedAudio,
         category: "swamp_horror",
       },
       {
         image: horrortwo,
-        audio: require("../../../mp3/deadlocked.mp3"),
+        audio: deadlockedAudio,
         category: "swamp_horror",
       },
       {
         image: horrorthree,
-        audio: require("../../../mp3/deadlocked.mp3"),
+        audio: deadlockedAudio,
         category: "swamp_horror",
       },
       {
         image: horrorfour,
-        audio: require("../../../mp3/deadlocked.mp3"),
+        audio: deadlockedAudio,
         category: "swamp_horror",
       },
       {
         image: horrorfive,
-        audio: require("../../../mp3/deadlocked.mp3"),
+        audio: deadlockedAudio,
         category: "swamp_horror",
       },
       {
         image: horrorsix,
-        audio: require("../../../mp3/deadlocked.mp3"),
+        audio: deadlockedAudio,
         category: "swamp_horror",
       },
       {
         image: horrorseven,
-        audio: require("../../../mp3/deadlocked.mp3"),
+        audio: deadlockedAudio,
         category: "swamp_horror",
       },
       {
         image: horroreight,
-        audio: require("../../../mp3/deadlocked.mp3"),
+        audio: deadlockedAudio,
         category: "swamp_horror",
       },
       {
         image: deadlocked,
-        audio: require("../../../mp3/deadlocked.mp3"),
+        audio: deadlockedAudio,
         category: "swamp_horror",
       },
       {
         image: swampnine,
-        audio: require("../../../mp3/deadlocked.mp3"),
+        audio: deadlockedAudio,
         category: "swamp_horror",
       },
       {
         image: swamptwo,
-        audio: require("../../../mp3/deadlocked.mp3"),
+        audio: deadlockedAudio,
         category: "swamp_horror",
       },
       {
         image: swampthree,
-        audio: require("../../../mp3/deadlocked.mp3"),
+        audio: deadlockedAudio,
         category: "swamp_horror",
       },
       {
         image: swampfour,
-        audio: require("../../../mp3/deadlocked.mp3"),
+        audio: deadlockedAudio,
         category: "swamp_horror",
       },
       {
         image: swampfive,
-        audio: require("../../../mp3/deadlocked.mp3"),
+        audio: deadlockedAudio,
         category: "swamp_horror",
       },
       {
         image: swampsix,
-        audio: require("../../../mp3/deadlocked.mp3"),
+        audio: deadlockedAudio,
         category: "swamp_horror",
       },
       {
         image: swampseven,
-        audio: require("../../../mp3/deadlocked.mp3"),
+        audio: deadlockedAudio,
         category: "swamp_horror",
       },
       {
         image: swampeight,
-        audio: require("../../../mp3/deadlocked.mp3"),
+        audio: deadlockedAudio,
         category: "swamp_horror",
       },
       {
         image: swampnine,
-        audio: require("../../../mp3/deadlocked.mp3"),
+        audio: deadlockedAudio,
         category: "swamp_horror",
       },
       {
         image: theory,
-        audio: require("../../../mp3/theory-of-everyting.mp3"),
+        audio: theoryAudio,
         category: "other",
       },
       {
         image: unity,
-        audio: require("../../../mp3/unity.mp3"),
+        audio: unityAudio,
         category: "other",
       },
     ],
@@ -1066,14 +1134,17 @@ const PuzzleOne = ({ onExit }) => {
   const formatTime = (s) =>
     `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`;
 
-  const CATEGORIES = useMemo(() => [
-    { id: "dinofroz", label: "Динофроз", icon: dinofrozone },
-    { id: "horses", label: "Коні", icon: horse },
-    { id: "desert", label: "Пустеля", icon: desert },
-    { id: "turkeys", label: "Індики", icon: turkeys },
-    { id: "swamp_horror", label: "Болото і Хоррор", icon: deadlocked },
-    { id: "other", label: "Інше", icon: mecha },
-  ], []);
+  const CATEGORIES = useMemo(
+    () => [
+      { id: "dinofroz", label: "Динофроз", icon: dinofrozone },
+      { id: "horses", label: "Коні", icon: horse },
+      { id: "desert", label: "Пустеля", icon: desert },
+      { id: "turkeys", label: "Індики", icon: turkeys },
+      { id: "swamp_horror", label: "Болото і Хоррор", icon: deadlocked },
+      { id: "other", label: "Інше", icon: mecha },
+    ],
+    [],
+  );
 
   const currentMedia = puzzleImages[currentMediaIndex];
 
@@ -1176,7 +1247,10 @@ const PuzzleOne = ({ onExit }) => {
             ⏭
           </GameButton>
           <GameButton
-            onClick={() => { setSelectedCategory(null); setShowThemeModal(true); }}
+            onClick={() => {
+              setSelectedCategory(null);
+              setShowThemeModal(true);
+            }}
             style={{ width: "auto", padding: "0 20px", borderRadius: "5px" }}
           >
             Стиль гри
@@ -1334,12 +1408,17 @@ const PuzzleOne = ({ onExit }) => {
               <h3
                 style={{ margin: "0", color: "#ffb36c", textAlign: "center" }}
               >
-                {selectedCategory ? `Тема: ${CATEGORIES.find(c => c.id === selectedCategory)?.label}` : "Оберіть тематику"}
+                {selectedCategory
+                  ? `Тема: ${CATEGORIES.find((c) => c.id === selectedCategory)?.label}`
+                  : "Оберіть тематику"}
               </h3>
               {!selectedCategory ? (
                 <CategoryGrid>
                   {CATEGORIES.map((cat) => (
-                    <CategoryCard key={cat.id} onClick={() => setSelectedCategory(cat.id)}>
+                    <CategoryCard
+                      key={cat.id}
+                      onClick={() => setSelectedCategory(cat.id)}
+                    >
                       <Im src={cat.icon} alt={cat.label} />
                       <CategoryLabel>{cat.label}</CategoryLabel>
                     </CategoryCard>
@@ -1349,29 +1428,35 @@ const PuzzleOne = ({ onExit }) => {
                 <>
                   <ThemeGrid>
                     {sortedPuzzleImages
-                      .filter(item => item.category === selectedCategory)
+                      .filter((item) => item.category === selectedCategory)
                       .map((item) => (
-                      <ThemeItem
-                        key={item.image}
-                        $isActive={
-                          puzzleImages[currentMediaIndex].image === item.image
-                        }
-                        onClick={() => handleSelectTheme(item)}
-                        onMouseEnter={() => handleThemeHover(item.audio)}
-                        onMouseLeave={() => handleThemeLeave(true)}
-                      >
-                        <HeartButton
-                          $isFavorite={favorites.includes(item.image)}
-                          onClick={(e) => toggleFavorite(e, item.image)}
+                        <ThemeItem
+                          key={item.image}
+                          $isActive={
+                            puzzleImages[currentMediaIndex].image === item.image
+                          }
+                          onClick={() => handleSelectTheme(item)}
+                          onMouseEnter={() => handleThemeHover(item.audio)}
+                          onMouseLeave={() => handleThemeLeave(true)}
                         >
-                          ♥
-                        </HeartButton>
-                        <Im src={item.image} alt={`theme-${item.image}`} />
-                      </ThemeItem>
-                    ))}
+                          <HeartButton
+                            $isFavorite={favorites.includes(item.image)}
+                            onClick={(e) => toggleFavorite(e, item.image)}
+                          >
+                            ♥
+                          </HeartButton>
+                          <Im src={item.image} alt={`theme-${item.image}`} />
+                        </ThemeItem>
+                      ))}
                   </ThemeGrid>
-                  <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
-                    <DifficultyBtn 
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "10px",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <DifficultyBtn
                       onClick={() => setSelectedCategory(null)}
                       style={{ background: "#4e342e" }}
                     >
@@ -1380,7 +1465,12 @@ const PuzzleOne = ({ onExit }) => {
                   </div>
                 </>
               )}
-              <DifficultyBtn onClick={() => { setShowThemeModal(false); setSelectedCategory(null); }}>
+              <DifficultyBtn
+                onClick={() => {
+                  setShowThemeModal(false);
+                  setSelectedCategory(null);
+                }}
+              >
                 Закрити
               </DifficultyBtn>
             </Modal>

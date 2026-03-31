@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import styled, { keyframes, css } from "styled-components";
-import hills from "../../photos/hero-header/hiils.jpg";
+import hills from "../../photos/hero-header/hiils.webp";
 
 const slideUpHero = keyframes`
   0% { transform: translateY(120px) scale(1.4); }

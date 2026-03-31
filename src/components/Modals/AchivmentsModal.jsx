@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import styled, { keyframes, css } from "styled-components";
 import horse from "../../photos/vip-images/horse/horse.webp";
 import asium from "../../photos/vip-images/asium/asium.webp";
-import chess from "../../photos/fan-art/chess.webp";
+import chess from "../../photos/vip-images/horse/chess.webp";
 import time from "../../photos/vip-images/mechannic.webp";
 import puzzle1 from "../../photos/fan-art/puzzle-1.webp";
 import puzzle2 from "../../photos/fan-art/puzzle-2.webp";
@@ -44,7 +44,7 @@ import cycle from "../../photos/fan-art/cycle.webp";
 import masons from "../../photos/fan-art/masons.webp";
 import texting from "../../photos/fan-art/text.webp";
 import hills from "../../photos/hero-header/hiils.webp";
-
+//chess
 const fadeIn = keyframes`
   from { opacity: 0; }
   to { opacity: 1; }

@@ -1,6 +1,6 @@
 import React, { useEffect } from "react"; // Додано useEffect
 import styled from "styled-components";
-import loadimage from "../../photos/hero-header/start-image.jpg";
+import loadimage from "../../photos/hero-header/start-image.webp";
 
 const LoaderWrapper = styled.div`
   position: fixed;

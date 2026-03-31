@@ -321,19 +321,19 @@ const PuzzleSix = ({ onExit }) => {
         audio: require("../../../mp3/dinofroz.mp3"),
       },
       {
-        image: require("../../../photos/fan-art/monody.jpg"),
+        image: require("../../../photos/fan-art/monody.webp"),
         audio: require("../../../mp3/thefatrat-monody.mp3"),
       },
       {
-        image: require("../../../photos/vip-images/asium/asium.jpg"),
+        image: require("../../../photos/vip-images/asium/asium.webp"),
         audio: require("../../../mp3/harmonic-japan.mp3"),
       },
       {
-        image: require("../../../photos/vip-images/mechannic.jpg"),
+        image: require("../../../photos/vip-images/mechannic.webp"),
         audio: require("../../../mp3/mechanik-kindom.mp3"),
       },
       {
-        image: require("../../../photos/vip-images/christmas.jpg"),
+        image: require("../../../photos/vip-images/christmas.webp"),
         audio: require("../../../mp3/kolada.mp3"),
       },
       {
@@ -341,7 +341,7 @@ const PuzzleSix = ({ onExit }) => {
         audio: require("../../../mp3/turkeys.mp3"),
       },
       {
-        image: require("../../../photos/fan-art/monody.jpg"),
+        image: require("../../../photos/fan-art/monody.webp"),
         audio: require("../../../mp3/thefatrat-monody.mp3"),
       },
       {
@@ -349,27 +349,27 @@ const PuzzleSix = ({ onExit }) => {
         audio: require("../../../mp3/wind.mp3"),
       },
       {
-        image: require("../../../photos/vip-images/horse/horse.jpg"),
+        image: require("../../../photos/vip-images/horse/horse.webp"),
         audio: require("../../../mp3/horse.mp3"),
       },
       {
-        image: require("../../../photos/vip-images/dinofroz/vip-dragons.jpg"),
+        image: require("../../../photos/vip-images/dinofroz/vip-dragons.webp"),
         audio: require("../../../mp3/dragon.mp3"),
       },
       {
-        image: require("../../../photos/vip-images/vip-soloveyko.jpg"),
+        image: require("../../../photos/vip-images/vip-soloveyko.webp"),
         audio: require("../../../mp3/soloveyko.mp3"),
       },
       {
-        image: require("../../../photos/vip-images/asium/asium.jpg"),
+        image: require("../../../photos/vip-images/asium/asium.webp"),
         audio: require("../../../mp3/harmonic-japan.mp3"),
       },
       {
-        image: require("../../../photos/vip-images/mechannic.jpg"),
+        image: require("../../../photos/vip-images/mechannic.webp"),
         audio: require("../../../mp3/mechanik-kindom.mp3"),
       },
       {
-        image: require("../../../photos/vip-images/mechannic.jpg"),
+        image: require("../../../photos/vip-images/mechannic.webp"),
         audio: require("../../../mp3/zootopia.mp3"),
       },
       {
@@ -377,31 +377,31 @@ const PuzzleSix = ({ onExit }) => {
         audio: require("../../../mp3/mia-and-me.mp3"),
       },
       {
-        image: require("../../../photos/vip-images/mechannic.jpg"),
+        image: require("../../../photos/vip-images/mechannic.webp"),
         audio: require("../../../mp3/electrodynamix.mp3"),
       },
       {
-        image: require("../../../photos/fan-art/clubstep.jpg"),
+        image: require("../../../photos/fan-art/clubstep.webp"),
         audio: require("../../../mp3/clubstep.mp3"),
       },
       {
-        image: require("../../../photos/vip-images/mechannic.jpg"),
+        image: require("../../../photos/vip-images/mechannic.webp"),
         audio: require("../../../mp3/fingerdash.mp3"),
       },
       {
-        image: require("../../../photos/fan-art/theorytwo.jpg"),
+        image: require("../../../photos/fan-art/theorytwo.webp"),
         audio: require("../../../mp3/theoty-of-everything-ll.mp3"),
       },
       {
-        image: require("../../../photos/vip-images/swamp/deadlocked.jpg"),
+        image: require("../../../photos/vip-images/swamp/deadlocked.webp"),
         audio: require("../../../mp3/deadlocked.mp3"),
       },
       {
-        image: require("../../../photos/fan-art/theory.jpg"),
+        image: require("../../../photos/fan-art/theory.webp"),
         audio: require("../../../mp3/theory-of-everyting.mp3"),
       },
       {
-        image: require("../../../photos/fan-art/unity.jpg"),
+        image: require("../../../photos/fan-art/unity.webp"),
         audio: require("../../../mp3/unity.mp3"),
       },
     ],

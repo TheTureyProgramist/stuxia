@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled, { keyframes, css } from "styled-components";
-import logo from "../../photos/hero-header/logo.png";
+import logo from "../../photos/hero-header/logo.webp";
 import BurgerMenu from "./Menu.jsx";
 import bell from "../../mp3/bell.mp3";
 import money from "../../photos/fan-art/money.webp";

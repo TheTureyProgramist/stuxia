@@ -74,7 +74,23 @@ import dinofroztwo from "../../photos/vip-images/dinofroz/vip-dragons.webp";
 import dinofroznine from "../../photos/vip-images/dinofroz/dinofroznine.webp";
 //Mia and me
 import mia from "../../photos/vip-images/mia/miaandme.webp";
-//MP3
+import christmasAudio from "../../mp3/kolada.mp3";
+import dinofrozAudio from "../../mp3/dinofroz.mp3";
+import turkeyAudio from "../../mp3/turkeys.mp3";
+import monodyAudio from "../../mp3/thefatrat-monody.mp3";
+import windAudio from "../../mp3/kolada.mp3";
+import unityAudio from "../../mp3/unity.mp3";
+import horseAudio from "../../mp3/horse.mp3";
+ import dragonoraAudio from "../../mp3/dragon.mp3";  
+import soloveykoAudio from "../../mp3/soloveyko.mp3";
+import harmonyAudio from "../../mp3/harmonic-japan.mp3";
+import electrodynamixAudio from "../../mp3/electrodynamix.mp3";
+import clubstepAudio from "../../mp3/clubstep.mp3";
+import fingerdashAudio from "../../mp3/fingerdash.mp3";  
+import theorytwoAudio from "../../mp3/theoty-of-everything-ll.mp3";
+import theoryAudio from "../../mp3/theory-of-everyting.mp3";
+import deadlockedAudio from "../../mp3/deadlocked.mp3";
+import mechaAudio from "../../mp3/mechanik-kindom.mp3";
 const slideIn = keyframes`
   0% { 
     transform: translateY(100%) scale(0.5);
@@ -2751,7 +2767,7 @@ const musicCards = [
   {
     id: 1,
     image: christmas,
-    audio: require("../../mp3/kolada.mp3"),
+    audio: christmasAudio,
     text: "",
     lyrics: [
       { time: 17, text: "Літо в пагорбах." },
@@ -2778,7 +2794,7 @@ const musicCards = [
   {
     id: 2,
     image: dinofrozone,
-    audio: require("../../mp3/dinofroz.mp3"),
+    audio: dinofrozAudio,
     category: "мультфільми",
     author: "Динофроз - Mondo TV.",
     video: dinofrozVideo,
@@ -2845,7 +2861,7 @@ const musicCards = [
   {
     id: 3,
     image: turkeys,
-    audio: require("../../mp3/turkeys.mp3"),
+    audio: turkeyAudio,
     text: "",
     category: "природа",
     duration: 60,
@@ -2894,7 +2910,7 @@ const musicCards = [
       { start: 278, end: 300, type: "black", opacity: 0.85 },
     ],
     text: "",
-    audio: require("../../mp3/thefatrat-monody.mp3"),
+    audio: monodyAudio,
     author: "Monody -  TheFatRat.",
     lyrics: [
       { time: 168, text: "Літо в пагорбах." },
@@ -2919,7 +2935,7 @@ const musicCards = [
   {
     id: 5,
     image: desert,
-    audio: require("../../mp3/wind.mp3"),
+    audio: windAudio,
     category: "природа",
     text: "Звук дощу. Пустеля розділенна вічно грозовою і сонячною зоною.",
     lyrics: "Звуки дощу, допомагають заснути",
@@ -2929,7 +2945,7 @@ const musicCards = [
   {
     id: 6,
     image: horse,
-    audio: require("../../mp3/horse.mp3"),
+    audio: horseAudio,
     category: "природа",
     text: "",
     author: "Телеканал Мега - Звуки коня.",
@@ -2939,7 +2955,7 @@ const musicCards = [
   {
     id: 7,
     image: dinofrozone,
-    audio: require("../../mp3/dragon.mp3"),
+    audio: dragonoraAudio,
     category: "ігри",
     author: "Dragonora - MyLittleUniverse(Estoty)",
     text: "І знову дракони, музика доісторичного світу. Картини взяті з мультфільму Динофроз.",
@@ -2959,7 +2975,7 @@ const musicCards = [
   {
     id: 8,
     image: soloveyko,
-    audio: require("../../mp3/soloveyko.mp3"),
+    audio: soloveykoAudio,
     category: "природа",
     text: "Хто кращий по звукам соловеко чи індик? Зроблено за ідеї сім'ї.",
     author: "Телеканал Мега - Звук Соловейка",
@@ -2968,8 +2984,8 @@ const musicCards = [
   },
   {
     id: 9,
-    image: require("../../photos/vip-images/asium/asium.jpg"),
-    audio: require("../../mp3/harmonic-japan.mp3"),
+    image: harmony,
+    audio: harmonyAudio,
     category: "ігри",
     text: "Спокійна і прекрасна музика в японському стилі.",
     author: "Asium - My little universe(Estoty).",
@@ -2990,8 +3006,8 @@ const musicCards = [
   },
   {
     id: 10,
-    image: require("../../photos/vip-images/mechannic.jpg"),
-    audio: require("../../mp3/mechanik-kindom.mp3"),
+    image: mecha,
+    audio: mechaAudio,
     category: "ігри",
     text: "Спокійна і прекрасна музика в механічному стилі.",
     author: "Factorium - My little universe(Estoty).",
@@ -3000,7 +3016,7 @@ const musicCards = [
   },
   {
     id: 11,
-    image: require("../../photos/vip-images/mechannic.jpg"),
+    image: mecha,
     audio: require("../../mp3/zootopia.mp3"),
     category: "мультфільми",
     text: "Це пробна версія, я її можливо приберу. Картинки локацій(не героїв) обох частин мультфільму. Пісню Zoo шукайте у Deezer.com",
@@ -3011,7 +3027,7 @@ const musicCards = [
   },
   {
     id: 12,
-    image: require("../../photos/vip-images/mia/miaandme.webp"),
+    image: mia,
     audio: require("../../mp3/mia-and-me.mp3"),
     category: "мультфільми",
     text: "Мія та я. Не пожалкуєте.",
@@ -3022,7 +3038,7 @@ const musicCards = [
   {
     id: 13,
     image: electrodynamix,
-    audio: require("../../mp3/electrodynamix.mp3"),
+    audio: electrodynamixAudio,
     text: "",
     author: "Electrodynamix - DJ-Nate (GeometryDash).",
     category: "ігри",
@@ -3031,9 +3047,9 @@ const musicCards = [
   },
   {
     id: 14,
-    image: require("../../photos/fan-art/clubstep.jpg"),
+    image: clubstep,
     text: "",
-    audio: require("../../mp3/clubstep.mp3"),
+    audio: clubstepAudio,
     author: "Clubstep - DJ-Nate(GeometryDash).",
     filters: [
       {
@@ -3168,8 +3184,8 @@ const musicCards = [
   },
   {
     id: 15,
-    image: require("../../photos/vip-images/dinofroz/fingerdash.jpg"),
-    audio: require("../../mp3/fingerdash.mp3"),
+    image: fingerdash,
+    audio: fingerdashAudio,
     text: "Гаряча мелодія. Ласково просимо в хаос!",
     author: "Fingerdash-MDK(GeometryDash)",
     category: "ігри",
@@ -3208,9 +3224,9 @@ const musicCards = [
   },
   {
     id: 16,
-    image: require("../../photos/fan-art/theorytwo.jpg"),
+    image: theorytwo,
     text: "Theory of Everything II - DJ-Nate (GeometryDash)",
-    audio: require("../../mp3/theoty-of-everything-ll.mp3"),
+    audio: theorytwoAudio,
     author: "Theory of everything II - DJ-Nate(GeometryDash).",
     category: "ігри",
     lyrics: [{ time: 200, text: "Кінець, виконаний піаніно." }],
@@ -3267,8 +3283,8 @@ const musicCards = [
   },
   {
     id: 17,
-    image: require("../../photos/vip-images/swamp/deadlocked.jpg"),
-    audio: require("../../mp3/deadlocked.mp3"),
+    image: deadlocked,
+    audio: deadlockedAudio,
     text: "Моторошна, але епічна пісня. Друг фанат цього рівня :).",
     author: "Deadlocked - F77(GeometryDash).",
     category: "ігри",
@@ -3295,9 +3311,9 @@ const musicCards = [
   },
   {
     id: 18,
-    image: require("../../photos/fan-art/theory.jpg"),
+    image: theory,
     text: "Theory of Everything - DJ-Nate (GeometryDash)",
-    audio: require("../../mp3/theory-of-everyting.mp3"),
+    audio: theoryAudio,
     author: "DJ-Nate - Theory of everything(GeometryDash).",
     category: "ігри",
     lyrics: [
@@ -3347,8 +3363,8 @@ const musicCards = [
   },
   {
     id: 19,
-    image: require("../../photos/fan-art/unity.jpg"),
-    audio: require("../../mp3/unity.mp3"),
+    image: unity,
+    audio: unityAudio,
     text: "Класний комп'ютерний хіт, не розумію чого його не поставили у фільм Матриця?",
     author: "Unity-TheFatRat.",
     lyrics: [
@@ -4486,7 +4502,7 @@ const MusicPhoto = ({ user, onOpenRegister }) => {
             <PlaylistCover
               playlistKey="custom"
               customImage={customPlaylist.cover}
-              defaultImage={require("../../photos/vip-images/mechannic.jpg")}
+              defaultImage={require("../../photos/vip-images/mechannic.webp")}
             />
             <PlaylistTitle>{customPlaylist.name}</PlaylistTitle>
             <button

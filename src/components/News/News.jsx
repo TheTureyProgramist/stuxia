@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import rainbow from "../../photos/vip-images/stars.jpg";
+import rainbow from "../../photos/vip-images/stars.webp";
 const SOURCES = [
   "https://www.nationalgeographic.com/animals/index.rss",
   "https://phys.org/rss-feed/biology-news/animals-news/",
