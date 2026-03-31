@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, memo } from "react";
 import styled from "styled-components";
 import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import Loader from "./components/Loader/Loader.jsx";
@@ -169,6 +169,83 @@ const SettingsContainer = styled.div`
   }
 `;
 const SECTION_ORDER_STORAGE_KEY = "siteSectionsOrder";
+
+const SectionContent = memo(({
+  section,
+  weatherCards,
+  isDarkMode,
+  isLocationEnabled,
+  handleRefreshCard,
+  handleDeleteCard,
+  setIsLocationEnabled,
+  user,
+  handleOpenRegister
+}) => {
+  if (!section) return null;
+
+  if (section.key === "weather") {
+    return (
+      <div id="weather">
+        <WeatherCardsContainer>
+          {weatherCards.map((card) => {
+            const isExtremeTemp = card.current.tempNum > 30 || card.current.tempNum < -10;
+            const isExtremeWind = card.current.windNum > 10;
+            const isExtremeUV = card.current.uv_index > 7;
+
+            const chartData = {
+              labels: card.hourly?.map((h) => h.time) || [],
+              datasets: [
+                {
+                  label: "Температура (°C)",
+                  data: card.hourly?.map((h) => h.tempNum) || [],
+                  fill: true,
+                  backgroundColor: "rgba(255, 179, 108, 0.2)",
+                  borderColor: "rgba(255, 179, 108, 1)",
+                  tension: 0.4,
+                },
+              ],
+            };
+
+            return (
+              <WeatherCardComponent
+                key={card.id}
+                card={card}
+                isDarkMode={isDarkMode}
+                isLocationEnabled={isLocationEnabled}
+                isExtremeTemp={isExtremeTemp}
+                isExtremeWind={isExtremeWind}
+                isExtremeUV={isExtremeUV}
+                chartData={chartData}
+                handleRefreshCard={handleRefreshCard}
+                handleDeleteCard={handleDeleteCard}
+                setIsLocationEnabled={setIsLocationEnabled}
+              />
+            );
+          })}
+        </WeatherCardsContainer>
+      </div>
+    );
+  }
+  return (
+    <div id={section.key}>
+      {section.key === "map" && <ClimateMap />}
+      {section.key === "puzzles" && <Puzzles />}
+      {section.key === "aihelp" && <Aihelp isDarkMode={isDarkMode} />}
+      {section.key === "news" && <News />}
+      {section.key === "music" && (
+        <MusicPhoto user={user} onOpenRegister={handleOpenRegister} />
+      )}
+      {section.key === "fanart" && (
+        <FanArt
+          isDarkMode={isDarkMode}
+          user={user}
+          onOpenRegister={handleOpenRegister}
+        />
+      )}
+    </div>
+  );
+});
+
 const App = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isFadingOut, setIsFadingOut] = useState(false);
@@ -388,15 +465,15 @@ const App = () => {
     });
   }, [weatherCards, fetchWeather]);
 
-  const handleAddCityFromHero = (cityObj) => {
+  const handleAddCityFromHero = useCallback((cityObj) => {
     if (!user) {
       alert("Створювати картки погоди можуть лише зареєстровані користувачі!");
       return;
     }
     fetchWeather(cityObj, false);
-  };
+  }, [user, fetchWeather]);
 
-  const handleDeleteCard = (id) => {
+  const handleDeleteCard = useCallback((id) => {
     const nowTimestamp = Date.now();
     if (hideDeleteModalUntil > nowTimestamp) {
       setWeatherCards((prev) => prev.filter((card) => card.id !== id));
@@ -421,11 +498,11 @@ const App = () => {
       }
       setWeatherCards((prev) => prev.filter((card) => card.id !== id));
     }
-  };
+  }, [hideDeleteModalUntil]);
 
-  const handleRefreshCard = (card) => {
+  const handleRefreshCard = useCallback((card) => {
     card.isMain ? getInitialLocation() : fetchWeather(card.locationName, false);
-  };
+  }, [getInitialLocation, fetchWeather]);
 
   useEffect(() => {
     const fadeTimer = setTimeout(() => setIsFadingOut(true), 3500);
@@ -479,70 +556,7 @@ const App = () => {
     });
   };
 
-  const renderSectionContent = (section) => {
-    if (section.key === "weather") {
-      return (
-        <div id="weather" key="weather">
-          <WeatherCardsContainer>
-            {weatherCards.map((card) => {
-              const isExtremeTemp =
-                card.current.tempNum > 30 || card.current.tempNum < -10;
-              const isExtremeWind = card.current.windNum > 10;
-              const isExtremeUV = card.current.uv_index > 7;
-
-              const chartData = {
-                labels: card.hourly?.map((h) => h.time) || [],
-                datasets: [
-                  {
-                    label: "Температура (°C)",
-                    data: card.hourly?.map((h) => h.tempNum) || [],
-                    fill: true,
-                    backgroundColor: "rgba(255, 179, 108, 0.2)",
-                    borderColor: "rgba(255, 179, 108, 1)",
-                    tension: 0.4,
-                  },
-                ],
-              };
-
-              return (
-                <WeatherCardComponent
-                  key={card.id}
-                  card={card}
-                  isDarkMode={isDarkMode}
-                  isLocationEnabled={isLocationEnabled}
-                  isExtremeTemp={isExtremeTemp}
-                  isExtremeWind={isExtremeWind}
-                  isExtremeUV={isExtremeUV}
-                  chartData={chartData}
-                  handleRefreshCard={handleRefreshCard}
-                  handleDeleteCard={handleDeleteCard}
-                  setIsLocationEnabled={setIsLocationEnabled}
-                />
-              );
-            })}
-          </WeatherCardsContainer>
-        </div>
-      );
-    }
-    return (
-      <div id={section.key} key={section.key}>
-        {section.key === "map" && <ClimateMap />}
-        {section.key === "puzzles" && <Puzzles />}
-        {section.key === "aihelp" && <Aihelp isDarkMode={isDarkMode} />}
-        {section.key === "news" && <News />}
-        {section.key === "music" && (
-          <MusicPhoto user={user} onOpenRegister={() => setIsModalOpen(true)} />
-        )}
-        {section.key === "fanart" && (
-          <FanArt
-            isDarkMode={isDarkMode}
-            user={user}
-            onOpenRegister={() => setIsModalOpen(true)}
-          />
-        )}
-      </div>
-    );
-  };
+  const handleOpenRegister = useCallback(() => setIsModalOpen(true), []);
 
   const HeroAndWeather = (
     <>
@@ -554,7 +568,17 @@ const App = () => {
           user={user}
         />
       </div>
-      {renderSectionContent(siteSections.find((s) => s.key === "weather"))}
+      <SectionContent
+        section={siteSections.find((s) => s.key === "weather")}
+        weatherCards={weatherCards}
+        isDarkMode={isDarkMode}
+        isLocationEnabled={isLocationEnabled}
+        handleRefreshCard={handleRefreshCard}
+        handleDeleteCard={handleDeleteCard}
+        setIsLocationEnabled={setIsLocationEnabled}
+        user={user}
+        handleOpenRegister={handleOpenRegister}
+      />
     </>
   );
 
@@ -612,7 +636,20 @@ const App = () => {
           </div>
         </SettingsContainer>
         {siteSections.map(
-          (section) => section.key !== "hero" && renderSectionContent(section),
+          (section) => section.key !== "hero" && (
+            <SectionContent
+              key={section.key}
+              section={section}
+              weatherCards={weatherCards}
+              isDarkMode={isDarkMode}
+              isLocationEnabled={isLocationEnabled}
+              handleRefreshCard={handleRefreshCard}
+              handleDeleteCard={handleDeleteCard}
+              setIsLocationEnabled={setIsLocationEnabled}
+              user={user}
+              handleOpenRegister={handleOpenRegister}
+            />
+          ),
         )}
       </div>
     </>
@@ -674,7 +711,17 @@ const App = () => {
                           user={user}
                         />
                       ) : (
-                        renderSectionContent(section)
+                        <SectionContent
+                          section={section}
+                          weatherCards={weatherCards}
+                          isDarkMode={isDarkMode}
+                          isLocationEnabled={isLocationEnabled}
+                          handleRefreshCard={handleRefreshCard}
+                          handleDeleteCard={handleDeleteCard}
+                          setIsLocationEnabled={setIsLocationEnabled}
+                          user={user}
+                          handleOpenRegister={handleOpenRegister}
+                        />
                       )}
                     </div>
                   )

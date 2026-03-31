@@ -40,6 +40,7 @@ const LoaderContent = styled.div`
 `;
 
 const LoaderImage = styled.img`
+aspect-ratio: 16 / 9;
   width: 122%;
   height: auto;
   margin-right: 1%;
@@ -153,7 +154,7 @@ export default function Loader({ isLoading, isFadingOut, randomPhrase }) {
   return (
     <LoaderWrapper $isFadingOut={isFadingOut}>
       <LoaderContent>
-        <LoaderImage src={loadimage} alt="Loading..." />
+        <LoaderImage src={loadimage} alt="Loading..." width="900" height="500" />
         <div className="mobile-loader-bar" style={{ width: "100%" }}>
           <ProgressContainer>
             <ProgressBar />
