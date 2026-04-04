@@ -14,6 +14,7 @@
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
+    "fabric": "^7.2.0",
     "formik": "^2.4.9",
     "framer-motion": "^12.34.4",
     "modern-normalize": "^3.0.1",
@@ -33,8 +34,8 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-"backup": "powershell -Command \"$date = Get-Date -Format 'yyyy-MM-dd_HH-mm'; Get-ChildItem -Path './*' -Exclude 'node_modules', 'server', '.next', '.git', 'out', 'build', '.env*' | Compress-Archive -DestinationPath ('../stykhiya-backup-' + $date + '.zip')\"",
- "predeploy": "npm run build",
+    "backup": "powershell -Command \"$date = Get-Date -Format 'yyyy-MM-dd_HH-mm'; Get-ChildItem -Path './*' -Exclude 'node_modules', 'server', '.next', '.git', 'out', 'build', '.env*' | Compress-Archive -DestinationPath ('../stykhiya-backup-' + $date + '.zip')\"",
+    "predeploy": "npm run build",
     "deploy": "gh-pages -d build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",

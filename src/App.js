@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import Loader from "./components/Loader/Loader.jsx";
 import WeatherCardComponent from "./components/Weather/Weather.jsx";
+import NotFound from "./components/NotFound.jsx";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -728,6 +729,8 @@ const App = () => {
                 }
               />
             ))}
+            {/* 404 Route */}
+            <Route path="*" element={<NotFound />} />
           </Routes>
           {isModalOpen && (
             <Modal

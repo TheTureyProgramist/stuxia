@@ -460,12 +460,27 @@ const Hero = ({ heroDateString, onAddCity, startAnimation, user }) => {
   const [limit, setLimit] = useState(5);
   const [showList, setShowList] = useState(false);
   const [hasMore, setHasMore] = useState(true);
-  const [cooldown, setCooldown] = useState(0);
+  const [cooldown, setCooldown] = useState(() => {
+    const saved = localStorage.getItem("hero_cooldown_until");
+    if (saved) {
+      const until = parseInt(saved, 10);
+      const now = Date.now();
+      return until > now ? Math.ceil((until - now) / 1000) : 0;
+    }
+    return 0;
+  });
   const searchRef = useRef(null);
   const API_KEY = "5104647d3e574f4a3f23c0aa092eb2b9";
 
   useEffect(() => {
     const handleClickOutside = (event) => {
+      // Не закривати при правому кліку або скролі по скролбару
+      if (event.type === "mousedown" && event.button !== 0) return;
+      // Якщо клік був по скролбару (event.target === document.body або html), не закривати
+      if (
+        event.type === "mousedown" &&
+        (event.target === document.body || event.target === document.documentElement)
+      ) return;
       if (searchRef.current && !searchRef.current.contains(event.target)) {
         setShowList(false);
       }
@@ -517,7 +532,13 @@ const Hero = ({ heroDateString, onAddCity, startAnimation, user }) => {
     let interval;
     if (cooldown > 0) {
       interval = setInterval(() => {
-        setCooldown((prev) => prev - 1);
+        setCooldown((prev) => {
+          if (prev <= 1) {
+            localStorage.removeItem("hero_cooldown_until");
+            return 0;
+          }
+          return prev - 1;
+        });
       }, 1000);
     }
     return () => clearInterval(interval);
@@ -528,9 +549,7 @@ const Hero = ({ heroDateString, onAddCity, startAnimation, user }) => {
 
     const cityObj = {
       name: city.name,
-      fullName: `${city.name}${city.state ? `, ${city.state}` : ""} (${
-        city.country
-      })`,
+      fullName: `${city.name}${city.state ? `, ${city.state}` : ""} (${city.country})`,
       lat: city.lat,
       lon: city.lon,
     };
@@ -538,6 +557,8 @@ const Hero = ({ heroDateString, onAddCity, startAnimation, user }) => {
     setInputValue("");
     setSuggestions([]);
     setShowList(false);
+    const until = Date.now() + 40000;
+    localStorage.setItem("hero_cooldown_until", until.toString());
     setCooldown(40);
   };
   return (
@@ -612,12 +633,14 @@ const Hero = ({ heroDateString, onAddCity, startAnimation, user }) => {
                 </SuggestionsList>
               )}
             </SearchContainer>
-            <HeroButton
-              onClick={() => suggestions[0] && handleSelect(suggestions[0])}
-            disabled={cooldown > 0}
-            >
-            {cooldown > 0 ? cooldown : "⌕"}
-            </HeroButton>
+              <HeroButton
+                onClick={() => {
+                  if (cooldown === 0 && suggestions[0]) handleSelect(suggestions[0]);
+                }}
+                disabled={cooldown > 0}
+              >
+                {cooldown > 0 ? cooldown : "⌕"}
+              </HeroButton>
           </HeroFormater>
         </SearchWrapper>
       </DelayedContent>

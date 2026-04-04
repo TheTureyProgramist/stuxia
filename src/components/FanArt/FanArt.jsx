@@ -327,6 +327,10 @@ const FanArt = ({ isDarkMode, user, onOpenRegister }) => {
     { src: dizel, category: "мультиплікація" },
     { src: turkeys, category: "тварини" },
     { src: nicerone, category: "мультиплікація" },
+    { src: nicerone, category: "мультиплікація" },
+        { src: flame, category: "природа" },
+            { src: flame, category: "природа" },
+    { src: flame, category: "природа" },
   ];
   const combinedImages = [...allImagesData, ...customImages];
 

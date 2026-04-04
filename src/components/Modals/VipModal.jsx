@@ -115,7 +115,66 @@ const VipModalDiv = styled.div`
   @media (max-width: 768px) {
     padding-bottom: 90px; /* Простір для нижньої навігації */
   }
+`;
 
+const ToggleContainer = styled.div`
+  display: flex;
+  position: relative;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+  padding: 3px;
+  width: 260px;
+  margin-bottom: 12px;
+  border: 1px solid ${(props) => (props.$isUltra ? "#710097" : "#ffb36c")};
+  cursor: pointer;
+  user-select: none;
+`;
+
+const ToggleSlider = styled.div`
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: calc(50% - 3px);
+  height: calc(100% - 6px);
+  background: ${(props) => (props.$isUltra ? "#710097" : "#ffb36c")};
+  border-radius: 7px;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateX(${(props) => (props.$cycle === "yearly" ? "100%" : "0")});
+  z-index: 1;
+`;
+
+const ToggleOption = styled.div`
+  flex: 1;
+  padding: 8px 0;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 900;
+  z-index: 2;
+  color: ${(props) => (props.$active ? "#3e2723" : "#ffb36c")};
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+`;
+
+const ToggleDivider = styled.div`
+  position: absolute;
+  left: 50%;
+  top: 20%;
+  bottom: 20%;
+  width: 1px;
+  background: rgba(255, 179, 108, 0.2);
+  z-index: 0;
+`;
+
+const SavingsBadge = styled.span`
+  background: #ff4d4d;
+  color: white;
+  font-size: 8px;
+  padding: 1px 4px;
+  border-radius: 4px;
+  margin-left: 2px;
   @media (max-width: 480px) {
     padding: 10px;
     padding-top: 35px;
@@ -514,6 +573,14 @@ const VipText = styled.p`
   display: flex;
   justify-content: flex-end;
   color: #ffb36c;
+`;
+
+const YearlyWarningRed = styled.p`
+  color: #ff4d4d;
+  font-size: 10px;
+  font-weight: bold;
+  margin-top: 6px;
+  text-align: center;
 `;
 
 const RedLine = styled.div`
@@ -1068,6 +1135,7 @@ const VipModal = ({ onClose }) => {
   const [isClosing, setIsClosing] = useState(false);
   const [tier, setTier] = useState("plus");
   const [showContent, setShowContent] = useState(true);
+  const [billingCycle, setBillingCycle] = useState("monthly"); // "monthly" or "yearly"
   const [volume, setVolume] = useState(0.5);
   const [isCaching, setIsCaching] = useState(false);
 
@@ -1321,7 +1389,7 @@ const VipModal = ({ onClose }) => {
           onClick={() => handleTierSwitch(tier === "plus" ? "ultra" : "plus")}
         >
           <AnimatedText $variant={tier} key={`title-${tier}`}>
-            {tier === "plus" ? "Стихія+" : "Стихія+ Ultra"}
+            {tier === "plus" ? "Стихія+" : "Стихія Ultra"}
           </AnimatedText>
         </HeaderToggle>
 
@@ -1329,7 +1397,7 @@ const VipModal = ({ onClose }) => {
           onClick={() => handleTierSwitch(tier === "plus" ? "ultra" : "plus")}
         >
           {tier === "plus"
-            ? "Переглянути переваги Стихія+ Ultra"
+            ? "Переглянути переваги Стихія Ultra"
             : "Повернутись до переваг Стихія+"}
         </SwitchBackText>
         <VipBlock>
@@ -1349,15 +1417,43 @@ const VipModal = ({ onClose }) => {
               )}
             </ImageContainer>
 
-            {tier === "plus" ? (
-              <>
-                <VipButton>19,99грн/30днів</VipButton>
-              </>
-            ) : (
-              <>
-                <VipButton>39,99грн/30днів</VipButton>
-              </>
+            <ToggleContainer
+              $isUltra={tier === "ultra"}
+              onClick={() =>
+                setBillingCycle(
+                  billingCycle === "monthly" ? "yearly" : "monthly"
+                )
+              }
+            >
+              <ToggleSlider $isUltra={tier === "ultra"} $cycle={billingCycle} />
+              <ToggleDivider />
+              <ToggleOption $active={billingCycle === "monthly"}>
+                щомісячна
+              </ToggleOption>
+              <ToggleOption $active={billingCycle === "yearly"}>
+                річна
+                <SavingsBadge>
+                  -{tier === "plus" ? "39.98" : "79.98"}грн
+                </SavingsBadge>
+              </ToggleOption>
+            </ToggleContainer>
+
+            <VipButton>
+              {tier === "plus"
+                ? billingCycle === "monthly"
+                  ? "19,99грн / 30 днів"
+                  : "199,90грн / 360днів"
+                : billingCycle === "monthly"
+                  ? "39,99грн / 30 днів"
+                  : "399,90грн / 360 днів"}
+            </VipButton>
+
+            {tier === "ultra" && (
+              <YearlyWarningRed>
+                річна доступна після 1 місячної
+              </YearlyWarningRed>
             )}
+
             <NavContainer>
               <NavButton
                 onClick={() => scrollToSection(aiRef)}
@@ -1388,9 +1484,6 @@ const VipModal = ({ onClose }) => {
               Підтримуючи проект підпискою або наборами 🧧, ви допомагаєте
               'Стихії' розвиватися. Ми тримаємо ціни доступними, щоб кожен міг
               отримати максимум можливостей, розвиваючи проект разом із нами.
-            </VipText>
-            <VipText>
-              Лімітована акція! Стихія+ після покупки Ultra дешевша удвічі!
             </VipText>
           </div>
           <VipFixScroll key={`scroll-area-${tier}`}>
@@ -1443,23 +1536,22 @@ const VipModal = ({ onClose }) => {
         </VipBlock>
         <RedLine />
         <VipWarning>
-          Примітка: 1.Mісячний тариф перемикається автоматично! При активній
-          Стихія+ ви можете миттєво перейти на Ultra. Система дозволяє бронювати
-          підписки до року вперед. Скасування броні повертає кошти на внутрішній
-          баланс (або у 🧧). Деякі функції в розробці.
+          Примітка: 1.Mісячний/Річний тариф перемикається автоматично! При активній
+          Стихія+ ви можете миттєво перейти на Ultra. Скасування Ultra, повертає Plus на решту терміну.
+          Помилки оплати повертають гроші (або 🧧). 
         </VipWarning>
         <VipWarning>
           2.Коли підписка закінчиться привілегії(не всі) зникнуть. Бонус
           лояльності: У тарифі Ultra діє лімітована акція, що активується після
-          другої оплати поспіль. Якщо підписка Ultra буде перервана на термін
+          другої оплати поспіль(річні миттєво!). Якщо підписка Ultra буде перервана на термін
           понад 3 місяці, бонус анулюється(доступ лише при дії Ultra, при Plus
           таймер заморожується.), і для його відновлення знадобиться повторна
-          серія оплат. Також доступна послуга «Швидкий старт» за 4,99 грн для
+          серія оплат. Також доступна послуга «Швидкий старт»(1ша безкоштовна) за 4,99 грн для
           миттєвої активації 1 акції.
         </VipWarning>
         <VipWarning>
-          3.Переваги Стихії+ оптимізовані в Стихія+ Ultrа, ті що не були вказані
-          в Стихія+ Ultra(присутні, але ті самі як в Стихія+.).
+          3.Переваги Стихії+ оптимізовані в Стихія Ultrа, ті що не були вказані
+          в Стихія Ultra(присутні, але ті самі як в Стихія+.).
         </VipWarning>
         <ViWarning>
           .
