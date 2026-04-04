@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styled, { keyframes, css } from "styled-components";
 import logo from "../../photos/hero-header/logo.webp";
 import BurgerMenu from "./Menu.jsx";
 import bell from "../../mp3/bell.mp3";
 import money from "../../photos/fan-art/money.webp";
 import UserSearchModal from "../Modals/UserSearchModal.jsx";
-
+import logofix from "../../photos/hero-header/logo-fix.webp";
 const flow = keyframes`
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
@@ -425,6 +425,70 @@ const FilterButton = styled.button`
   }
 `;
 
+const LogoContainer = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  &:hover .logo-action {
+    opacity: 1;
+    visibility: visible;
+  }
+`;
+
+const LogoActionBtn = styled.button`
+  position: absolute;
+  background: rgba(0, 0, 0, 0.7);
+  color: #ffb36c;
+  border: 1px solid #ffb36c;
+  border-radius: 4px;
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  z-index: 20;
+  padding: 1px 3px;
+  font-size: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background: #ffb36c;
+    color: #1a1a1a;
+  }
+
+  @media (min-width: 768px) {
+    font-size: 12px;
+    padding: 2px 5px;
+  }
+
+  @media (min-width: 1920px) {
+    font-size: 18px;
+    padding: 4px 10px;
+  }
+`;
+
+const PrintBtn = styled(LogoActionBtn)`
+  top: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+`;
+
+const DownloadBtn = styled(LogoActionBtn)`
+  left: 2px;
+  top: 50%;
+  transform: translateY(-50%);
+`;
+
+const FullscreenBtn = styled(LogoActionBtn)`
+  right: 2px;
+  top: 50%;
+  transform: translateY(-50%);
+`;
+
 const Header = ({
   onOpenLogin,
   onOpenRegister,
@@ -449,6 +513,34 @@ const Header = ({
   const [isBurgerOpen, setIsBurgerOpen] = useState(false);
   const [showVisualSettings, setShowVisualSettings] = useState(false);
   const [showTurkeyNotify, setShowTurkeyNotify] = useState(false);
+  const logoRef = useRef(null);
+
+  const handleDownloadLogo = (e) => {
+    e.stopPropagation();
+    const link = document.createElement("a");
+    link.href = logo;
+    link.download = "logo.webp";
+    link.click();
+  };
+
+  const handlePrintLogo = (e) => {
+    e.stopPropagation();
+    const printWindow = window.open("", "_blank");
+    printWindow.document.write(
+      `<html><head><title>Print Logo</title></head><body style="margin:0; display:flex; align-items:center; justify-content:center; height:100vh; background:#1a1a1a;"><img src="${logo}" style="max-width:90%; max-height:90%; object-fit:contain;" onload="window.print();window.close();"/></body></html>`
+    );
+    printWindow.document.close();
+  };
+
+  const handleFullscreenLogo = (e) => {
+    e.stopPropagation();
+    const elem = logoRef.current;
+    if (!elem) return;
+    if (elem.requestFullscreen) elem.requestFullscreen();
+    else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
+    else if (elem.msRequestFullscreen) elem.msRequestFullscreen();
+  };
+
 
   useEffect(() => {
     const status = localStorage.getItem("turkeyStudioStatus");
@@ -534,7 +626,13 @@ const Header = ({
           </NotificationCard>
         )}
         <HeaderFix>
-          <HeaderLogo src={logo} alt="Logo" />
+          <LogoContainer>
+            <PrintBtn className="logo-action" onClick={handlePrintLogo} title="Друкувати">⎙</PrintBtn>
+            <DownloadBtn className="logo-action" onClick={handleDownloadLogo} title="Скачати">⇩</DownloadBtn>
+            <HeaderLogo ref={logoRef} src={logofix} alt="Logo" />
+            <FullscreenBtn className="logo-action" onClick={handleFullscreenLogo} title="Повний екран">⛶</FullscreenBtn>
+          </LogoContainer>
+          
           {user && (
             <VipTextWrapper onClick={onOpenVip}>
               <RainbowText $show={!showUltra}>Стихія+</RainbowText>

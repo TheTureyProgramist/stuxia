@@ -178,9 +178,12 @@ const SectionContent = memo(({
   isLocationEnabled,
   handleRefreshCard,
   handleDeleteCard,
+  handleRenameCard,
+  moveWeatherCard,
   setIsLocationEnabled,
   user,
-  handleOpenRegister
+  handleOpenRegister,
+  isAnyModalOpen
 }) => {
   if (!section) return null;
 
@@ -188,7 +191,7 @@ const SectionContent = memo(({
     return (
       <div id="weather">
         <WeatherCardsContainer>
-          {weatherCards.map((card) => {
+          {weatherCards.map((card, index) => {
             const isExtremeTemp = card.current.tempNum > 30 || card.current.tempNum < -10;
             const isExtremeWind = card.current.windNum > 10;
             const isExtremeUV = card.current.uv_index > 7;
@@ -217,8 +220,12 @@ const SectionContent = memo(({
                 isExtremeWind={isExtremeWind}
                 isExtremeUV={isExtremeUV}
                 chartData={chartData}
+                index={index}
+                totalCards={weatherCards.length}
                 handleRefreshCard={handleRefreshCard}
                 handleDeleteCard={handleDeleteCard}
+                handleRenameCard={handleRenameCard}
+                moveWeatherCard={moveWeatherCard}
                 setIsLocationEnabled={setIsLocationEnabled}
               />
             );
@@ -234,7 +241,7 @@ const SectionContent = memo(({
       {section.key === "aihelp" && <Aihelp isDarkMode={isDarkMode} />}
       {section.key === "news" && <News />}
       {section.key === "music" && (
-        <MusicPhoto user={user} onOpenRegister={handleOpenRegister} />
+        <MusicPhoto user={user} onOpenRegister={handleOpenRegister} isAnyModalOpen={isAnyModalOpen} />
       )}
       {section.key === "fanart" && (
         <FanArt
@@ -282,6 +289,9 @@ const App = () => {
     const savedCards = localStorage.getItem("weather_cards");
     return savedCards ? JSON.parse(savedCards) : [];
   });
+
+  const isAnyModalOpen = isModalOpen || isLoginOpen || isSettingsModalOpen || isVipModalOpen || isShopOpen || isAchivmentsOpen;
+
   const [hideDeleteModalUntil, setHideDeleteModalUntil] = useState(() => {
     const val = localStorage.getItem("hideDeleteModalUntil");
     return val ? parseInt(val) : 0;
@@ -366,6 +376,7 @@ const App = () => {
             targetLat = geo.data.results[0].latitude;
             targetLon = geo.data.results[0].longitude;
             displayName = geo.data.results[0].name;
+            cityData = { id: Date.now() }; // Створюємо об'єкт для нової картки
           } else {
             alert("Місто не знайдено в базі Open-Meteo");
             return;
@@ -376,10 +387,14 @@ const App = () => {
         const res = await axios.get(url);
         const d = res.data;
 
+        setWeatherCards((prev) => {
+          const id = isMain ? "main-card" : (cityData?.id || Date.now());
+          const existingCard = prev.find(c => c.id === id);
+
         const newCardData = {
-          id: isMain ? "main-card" : Date.now(),
+          id: id,
           isMain: isMain,
-          locationName: displayName,
+          locationName: existingCard ? existingCard.locationName : displayName,
           lat: targetLat,
           lon: targetLon,
           current: {
@@ -412,17 +427,12 @@ const App = () => {
           })),
         };
 
-        setWeatherCards((prev) => {
           if (isMain) {
-            const filtered = prev.filter((c) => !c.isMain);
-            return [newCardData, ...filtered];
+            const hasMain = prev.some(c => c.isMain);
+            if (hasMain) return prev.map(c => c.isMain ? newCardData : c);
+            return [newCardData, ...prev];
           } else {
-            const exists = prev.find(
-              (c) => c.lat === targetLat && c.lon === targetLon,
-            );
-            if (exists) return prev;
-            if (prev.length >= 4) return prev;
-            return [...prev, newCardData];
+            return existingCard ? prev.map(c => c.id === id ? newCardData : c) : (prev.length >= 4 ? prev : [...prev, newCardData]);
           }
         });
       } catch (error) {
@@ -433,7 +443,7 @@ const App = () => {
   );
   const getInitialLocation = useCallback(() => {
     if (!isLocationEnabled) {
-      fetchWeather("Київ", true, 50.45, 30.52);
+      fetchWeather({ fullName: "Київ", id: "main-card" }, true, 50.45, 30.52);
       return;
     }
 
@@ -441,16 +451,16 @@ const App = () => {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           fetchWeather(
-            null,
+            { id: "main-card" },
             true,
             position.coords.latitude,
             position.coords.longitude,
           );
         },
-        () => fetchWeather("Київ", true, 50.45, 30.52),
+        () => fetchWeather({ fullName: "Київ", id: "main-card" }, true, 50.45, 30.52),
       );
     } else {
-      fetchWeather("Київ", true, 50.45, 30.52);
+      fetchWeather({ fullName: "Київ", id: "main-card" }, true, 50.45, 30.52);
     }
   }, [fetchWeather, isLocationEnabled]);
 
@@ -461,7 +471,7 @@ const App = () => {
   useEffect(() => {
     weatherCards.forEach((card) => {
       if (!card.isMain && (!card.hourly || card.hourly.length === 0)) {
-        fetchWeather(card.locationName, false);
+        fetchWeather(card, false);
       }
     });
   }, [weatherCards, fetchWeather]);
@@ -502,8 +512,28 @@ const App = () => {
   }, [hideDeleteModalUntil]);
 
   const handleRefreshCard = useCallback((card) => {
-    card.isMain ? getInitialLocation() : fetchWeather(card.locationName, false);
+    card.isMain ? getInitialLocation() : fetchWeather(card, false);
   }, [getInitialLocation, fetchWeather]);
+
+  const handleRenameCard = useCallback((id, newName) => {
+    setWeatherCards((prev) =>
+      prev.map((card) =>
+        card.id === id ? { ...card, locationName: newName } : card
+      )
+    );
+  }, []);
+
+  const moveWeatherCard = useCallback((id, dir) => {
+    setWeatherCards((prev) => {
+      const idx = prev.findIndex((c) => c.id === id);
+      if (idx === -1) return prev;
+      const newIdx = idx + dir;
+      if (newIdx < 0 || newIdx >= prev.length) return prev;
+      const arr = [...prev];
+      [arr[idx], arr[newIdx]] = [arr[newIdx], arr[idx]];
+      return arr;
+    });
+  }, []);
 
   useEffect(() => {
     const fadeTimer = setTimeout(() => setIsFadingOut(true), 3500);
@@ -576,8 +606,11 @@ const App = () => {
         isLocationEnabled={isLocationEnabled}
         handleRefreshCard={handleRefreshCard}
         handleDeleteCard={handleDeleteCard}
+        handleRenameCard={handleRenameCard}
+        moveWeatherCard={moveWeatherCard}
         setIsLocationEnabled={setIsLocationEnabled}
         user={user}
+        isAnyModalOpen={isAnyModalOpen}
         handleOpenRegister={handleOpenRegister}
       />
     </>
@@ -646,8 +679,11 @@ const App = () => {
               isLocationEnabled={isLocationEnabled}
               handleRefreshCard={handleRefreshCard}
               handleDeleteCard={handleDeleteCard}
+              handleRenameCard={handleRenameCard}
+              moveWeatherCard={moveWeatherCard}
               setIsLocationEnabled={setIsLocationEnabled}
               user={user}
+              isAnyModalOpen={isAnyModalOpen}
               handleOpenRegister={handleOpenRegister}
             />
           ),
@@ -719,8 +755,11 @@ const App = () => {
                           isLocationEnabled={isLocationEnabled}
                           handleRefreshCard={handleRefreshCard}
                           handleDeleteCard={handleDeleteCard}
+                          handleRenameCard={handleRenameCard}
+                          moveWeatherCard={moveWeatherCard}
                           setIsLocationEnabled={setIsLocationEnabled}
                           user={user}
+                          isAnyModalOpen={isAnyModalOpen}
                           handleOpenRegister={handleOpenRegister}
                         />
                       )}

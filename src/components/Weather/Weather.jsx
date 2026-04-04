@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { Line } from "react-chartjs-2";
 
@@ -70,6 +70,40 @@ const ActionButtons = styled.div`
   }
 `;
 
+const OrderControls = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  color: ${props => props.$isDarkMode ? "#fff" : "#333"};
+  
+  button {
+    background: ${props => props.$isDarkMode ? "#333" : "#ddd"};
+    color: ${props => props.$isDarkMode ? "#fff" : "#000"};
+    border: 1px solid #888;
+    border-radius: 4px;
+    padding: 2px 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.2s;
+    
+    &:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+    &:hover:not(:disabled) {
+      background: gold;
+      color: #000;
+    }
+  }
+  
+  span {
+    font-size: 14px;
+    font-weight: 900;
+  }
+`;
+
 const ImagePlaceholder = styled.div`
   width: ${(props) => props.size || "50px"};
   height: ${(props) => props.size || "50px"};
@@ -113,14 +147,50 @@ const WeatherCardComponent = ({
   isExtremeUV,
   chartOptions,
   chartData,
+  index,
+  totalCards,
   handleRefreshCard,
   handleDeleteCard,
+  handleRenameCard,
+  moveWeatherCard,
   setIsLocationEnabled,
-}) => (
-  <WeatherCard $isMain={card.isMain} $isDarkMode={isDarkMode}>
-    <CardHeader $isMain={card.isMain}>
-      <div>
-        <h3>{card.locationName} {card.isMain && "📍"}</h3>
+}) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [newName, setNewName] = useState(card.locationName);
+
+  const handleRenameSubmit = () => {
+    if (newName.trim()) {
+      handleRenameCard(card.id, newName);
+      setIsEditing(false);
+    }
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+      <OrderControls $isDarkMode={isDarkMode}>
+        <button disabled={index === 0} onClick={() => moveWeatherCard(card.id, -1)} title="Перемістити вгору">↑</button>
+        <span>{index + 1}.</span>
+        <button disabled={index === totalCards - 1} onClick={() => moveWeatherCard(card.id, 1)} title="Перемістити вниз">↓</button>
+      </OrderControls>
+      <WeatherCard $isMain={card.isMain} $isDarkMode={isDarkMode}>
+      <CardHeader $isMain={card.isMain}>
+        <div>
+          {isEditing ? (
+            <div style={{ display: "flex", gap: "5px" }}>
+              <input
+                type="text"
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                autoFocus
+                style={{ padding: "2px 5px", fontSize: "14px", borderRadius: "4px", border: "1px solid #ffb36c", background: isDarkMode ? "#333" : "#fff", color: isDarkMode ? "#fff" : "#000" }}
+              />
+              <button onClick={handleRenameSubmit} style={{ background: "green", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "12px", padding: "2px 8px" }}>✓</button>
+              <button onClick={() => setIsEditing(false)} style={{ background: "red", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "12px", padding: "2px 8px" }}>✕</button>
+            </div>
+          ) : (
+            <h3>{card.locationName} {card.isMain && "📍"}</h3>
+          )}
+
         {card.isMain && (
           <p style={{ margin: "5px 0 0 0", fontSize: "11px", color: "#888" }}>
             Lat: {card.lat?.toFixed(2)}, Lon: {card.lon?.toFixed(2)}
@@ -128,6 +198,7 @@ const WeatherCardComponent = ({
         )}
       </div>
       <ActionButtons>
+        {!isEditing && <button onClick={() => setIsEditing(true)} title="Перейменувати">✎</button>}
         {card.isMain && (
           <button
             onClick={() => setIsLocationEnabled((v) => !v)}
@@ -184,6 +255,8 @@ const WeatherCardComponent = ({
       ))}
     </ForecastScroll>
   </WeatherCard>
-);
+    </div>
+  );
+};
 
 export default WeatherCardComponent;

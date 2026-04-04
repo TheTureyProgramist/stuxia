@@ -974,6 +974,131 @@ const FullScreenOverlay = styled.div`
   }
 `;
 
+const MiniPlayerContainer = styled.div`
+  position: fixed;
+  z-index: 3000;
+  background: black;
+  border: 2px solid orange;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+  min-width: 100px;
+  min-height: 80px;
+  touch-action: none;
+`;
+
+const MiniPlayerHeader = styled.div`
+  height: 24px;
+  background: #1a1a1a;
+  cursor: move;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 8px;
+  gap: 8px;
+`;
+
+const MiniControlBtn = styled.button`
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  opacity: 0.7;
+  &:hover { opacity: 1; color: orange; }
+`;
+
+const MiniResizeHandle = styled.div`
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 16px;
+  height: 16px;
+  cursor: nwse-resize;
+  background: linear-gradient(135deg, transparent 50%, orange 50%);
+  z-index: 3010;
+`;
+
+const MiniPlayer = ({ track, initialTime, isPlaying: initialPlaying, onClose, onRestore }) => {
+  const [pos, setPos] = useState({ x: window.innerWidth - 320, y: window.innerHeight - 220 });
+  const [size, setSize] = useState({ width: 300, height: 180 });
+  const [isPlaying, setIsPlaying] = useState(initialPlaying);
+  const [currentTime, setCurrentTime] = useState(initialTime);
+  const mediaRef = useRef(null);
+
+  const isDinofroz = (track.category === "мультфільми" && track.video) || track.text?.toLowerCase().includes("динофроз");
+  
+  const activeFilters = useMemo(() => {
+    if (!track.filters) return [];
+    return track.filters.filter(f => currentTime >= f.start && currentTime <= f.end);
+  }, [track.filters, currentTime]);
+
+  const mainFilter = activeFilters.find(f => !["symbols", "flicker"].includes(f.type));
+
+  useEffect(() => {
+    if (mediaRef.current) mediaRef.current.currentTime = initialTime;
+  }, [initialTime]);
+
+  const handleDrag = (e) => {
+    const startX = e.clientX - pos.x;
+    const startY = e.clientY - pos.y;
+    const move = (me) => setPos({ x: me.clientX - startX, y: me.clientY - startY });
+    const up = () => { window.removeEventListener('mousemove', move); window.removeEventListener('mouseup', up); };
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', up);
+  };
+
+  const handleResize = (e) => {
+    e.stopPropagation();
+    const startW = size.width;
+    const startH = size.height;
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const move = (me) => {
+      setSize({ width: Math.max(100, startW + (me.clientX - startX)), height: Math.max(80, startH + (me.clientY - startY)) });
+    };
+    const up = () => { window.removeEventListener('mousemove', move); window.removeEventListener('mouseup', up); };
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', up);
+  };
+
+  return (
+    <MiniPlayerContainer style={{ left: pos.x, top: pos.y, width: size.width, height: size.height }}>
+      <MiniPlayerHeader onMouseDown={handleDrag}>
+        <MiniControlBtn onClick={() => onRestore(currentTime, isPlaying)} title="Повний екран">⬜</MiniControlBtn>
+        <MiniControlBtn onClick={onClose} title="Закрити">✕</MiniControlBtn>
+      </MiniPlayerHeader>
+      <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }} onClick={() => {
+        setIsPlaying(!isPlaying);
+        isPlaying ? mediaRef.current?.pause() : mediaRef.current?.play();
+      }}>
+        <FilterOverlay $active={!!mainFilter} $type={mainFilter?.type} $opacity={mainFilter?.opacity} $blur={mainFilter?.blur} />
+        {isDinofroz ? (
+          <video ref={mediaRef} src={track.video} autoPlay={isPlaying} muted loop style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+            onTimeUpdate={(e) => setCurrentTime(e.target.currentTime)} />
+        ) : (
+          <>
+            <img src={track.images?.[Math.min(Math.floor(currentTime / (track.duration / (track.images?.length || 1))), (track.images?.length || 1) - 1)] || track.image} 
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="" />
+            <audio ref={mediaRef} src={track.audio} autoPlay={isPlaying} loop onTimeUpdate={(e) => setCurrentTime(e.target.currentTime)} />
+          </>
+        )}
+        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', fontSize: 30, color: 'white', opacity: isPlaying ? 0 : 0.8 }}>▶</div>
+        {activeFilters.some(f => f.type === 'symbols') && (
+          <SymbolOverlay count={20} volume={0.5} speed={2} />
+        )}
+      </div>
+      <MiniResizeHandle onMouseDown={handleResize} />
+    </MiniPlayerContainer>
+  );
+};
+
+
 const FSHeader = styled.div`
   position: absolute;
   top: 0;
@@ -1403,6 +1528,7 @@ const FullScreenPlayer = ({
   onRate,
   isShuffle,
   onSetShuffle,
+  onMiniPlayer,
   playlist,
   onSelectTrack,
 }) => {
@@ -2050,6 +2176,7 @@ const FullScreenPlayer = ({
       >
         <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
           <FSCloseButton onClick={handleClose}>&times;</FSCloseButton>
+          <ActionButton onClick={() => onMiniPlayer(progress)} title="Міні-плеєр">🗗</ActionButton>
           <div style={{ display: "flex", flexDirection: "column" }}>
             <FSTitle>{track.author}</FSTitle>
             {track.category !== "мультфільми" && (
@@ -4269,6 +4396,7 @@ const PlaylistModal = ({
   onOpenRegister,
   customTracks,
   onEdit,
+  onMiniPlayer,
   onDeleteTrack,
   customPlaylistName,
 }) => {
@@ -4568,9 +4696,6 @@ const PlaylistModal = ({
             </div>
           ))}
         </MusicPhotoFix>
-{/* --- Level Editor Modal --- */}
-const [levelEditorTrack, setLevelEditorTrack] = useState(null);
-
 {levelEditorTrack && (
   <ModalOverlay onClick={handleCloseLevelEditor}>
     <PlaylistModalContent onClick={e => e.stopPropagation()}>
@@ -4757,6 +4882,10 @@ const [levelEditorTrack, setLevelEditorTrack] = useState(null);
           onRate={handleToggleFavorite}
           isShuffle={isShuffle}
           onSetShuffle={setIsShuffle}
+          onMiniPlayer={(time) => {
+            setFullScreenTrack(null);
+            onMiniPlayer(fullScreenTrack, time);
+          }}
           playlist={processedCards}
           onSelectTrack={setFullScreenTrack}
         />
@@ -4805,13 +4934,20 @@ const PlaylistCover = ({ playlistKey, defaultImage, customImage }) => {
   );
 };
 
-const MusicPhoto = ({ user, onOpenRegister }) => {
+const MusicPhoto = ({ user, onOpenRegister, isAnyModalOpen }) => {
   const [currentPlaylist, setCurrentPlaylist] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [miniPlayerTrack, setMiniPlayerTrack] = useState(null);
+  const [miniPlayerTime, setMiniPlayerTime] = useState(0);
+
   const [customPlaylist, setCustomPlaylist] = useState(() => {
     const saved = localStorage.getItem("custom_playlist");
     return saved ? JSON.parse(saved) : null;
   });
+
+  useEffect(() => {
+    if (isAnyModalOpen && miniPlayerTrack) setMiniPlayerTrack(null);
+  }, [isAnyModalOpen, miniPlayerTrack]);
 
   const deleteTrackFromCustomPlaylist = (trackId) => {
     if (!customPlaylist) return;
@@ -4918,12 +5054,32 @@ const MusicPhoto = ({ user, onOpenRegister }) => {
           onEdit={
             currentPlaylist === "custom" ? handleEditCustomPlaylist : null
           }
+          onMiniPlayer={(track, time) => {
+            setMiniPlayerTrack(track);
+            setMiniPlayerTime(time);
+            setCurrentPlaylist(null);
+          }}
           onDeleteTrack={
             currentPlaylist === "custom" ? deleteTrackFromCustomPlaylist : null
           }
           customPlaylistName={
             currentPlaylist === "custom" ? customPlaylist?.name : null
           }
+        />
+      )}
+
+      {miniPlayerTrack && (
+        <MiniPlayer 
+          track={miniPlayerTrack} 
+          initialTime={miniPlayerTime} 
+          isPlaying={true}
+          onClose={() => setMiniPlayerTrack(null)}
+          onRestore={(time) => {
+            const track = miniPlayerTrack;
+            setMiniPlayerTrack(null);
+            setCurrentPlaylist(track.category === "custom" ? "custom" : track.category);
+            // Fullscreen track will be set via PlaylistModal internal state or we can lift it
+          }}
         />
       )}
     </MusicPhotoDiv>
