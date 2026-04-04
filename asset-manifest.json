@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/react-weather-music-project/static/css/main.9f01f95e.css",
-    "main.js": "/react-weather-music-project/static/js/main.d95c8b4a.js",
+    "main.js": "/react-weather-music-project/static/js/main.2761aef2.js",
     "static/media/dinofroz.mp4": "/react-weather-music-project/static/media/dinofroz.2dbd53ecdac17dd14e9e.mp4",
     "static/media/unity.mp3": "/react-weather-music-project/static/media/unity.03a5211e31db9290e954.mp3",
     "static/media/theoty-of-everything-ll.mp3": "/react-weather-music-project/static/media/theoty-of-everything-ll.b04c0e12940feebb76e2.mp3",
@@ -108,6 +108,7 @@
     "static/media/monody.webp": "/react-weather-music-project/static/media/monody.91a34f1cf8f65d3dfaaf.webp",
     "static/media/fingerdash.webp": "/react-weather-music-project/static/media/fingerdash.a625592e176ee6b96abe.webp",
     "static/media/strangecloud.webp": "/react-weather-music-project/static/media/strangecloud.f782996898ac58d20639.webp",
+    "static/media/logo-fix.webp": "/react-weather-music-project/static/media/logo-fix.8e0f9c36f64f09211074.webp",
     "static/media/finance.webp": "/react-weather-music-project/static/media/finance.c02c03ff032b022df6db.webp",
     "static/media/horse.webp": "/react-weather-music-project/static/media/horse.936963431b0c0989198b.webp",
     "static/media/wall.webp": "/react-weather-music-project/static/media/wall.9c47f310bc30aac9cf38.webp",
@@ -146,10 +147,10 @@
     "static/media/user.webp": "/react-weather-music-project/static/media/user.dcd7396d3070abf3abbe.webp",
     "static/media/document.webp": "/react-weather-music-project/static/media/document.5b6c056b22794272794d.webp",
     "main.9f01f95e.css.map": "/react-weather-music-project/static/css/main.9f01f95e.css.map",
-    "main.d95c8b4a.js.map": "/react-weather-music-project/static/js/main.d95c8b4a.js.map"
+    "main.2761aef2.js.map": "/react-weather-music-project/static/js/main.2761aef2.js.map"
   },
   "entrypoints": [
     "static/css/main.9f01f95e.css",
-    "static/js/main.d95c8b4a.js"
+    "static/js/main.2761aef2.js"
   ]
 }
