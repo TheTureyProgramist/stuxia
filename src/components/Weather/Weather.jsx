@@ -10,7 +10,7 @@ const WeatherCard = styled.div`
   width: 100%;
   max-width: 320px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  border: ${(props) => (props.$isMain ? "2px solid orange" : "1px solid #444")};
+  border: ${(props) => (props.$isMain ? "2px solid #004cff" : "1px solid #444")};
   transition: all 0.3s ease;
   @media (min-width: 768px) {
     max-width: 380px;
@@ -38,7 +38,7 @@ const CardHeader = styled.div`
   h3 {
     margin: 0;
     font-size: 16px;
-    color: ${(props) => (props.$isMain ? "orange" : "skyblue")};
+    color: ${(props) => (props.$isMain ? "#008cff" : "skyblue")};
   }
 `;
 
@@ -104,7 +104,7 @@ const ImagePlaceholder = styled.div`
   width: ${(props) => props.size || "50px"};
   height: ${(props) => props.size || "50px"};
   background: rgba(58, 58, 58, 0.8);
-  border: 1px dashed #707070;
+  border: 1px dashed #00eaff;
   display: flex;
   align-items: center;
   justify-content: center;
