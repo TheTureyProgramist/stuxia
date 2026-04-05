@@ -305,14 +305,15 @@ const UltraText = styled.h1`
 `;
 
 const HeaderLogo = styled.img`
-  height: 32px;
   border-radius: 50%;
   flex-shrink: 0;
   @media (min-width: 768px) {
     height: 50px;
+    width: 50px;
   }
   @media (min-width: 1920px) {
     height: 100px;
+    width: 100px;
   }
 `;
 
@@ -629,7 +630,7 @@ const Header = ({
           <LogoContainer>
             <PrintBtn className="logo-action" onClick={handlePrintLogo} title="Друкувати">⎙</PrintBtn>
             <DownloadBtn className="logo-action" onClick={handleDownloadLogo} title="Скачати">⇩</DownloadBtn>
-            <HeaderLogo ref={logoRef} src={logofix} alt="Logo" />
+            <HeaderLogo ref={logoRef} src={logofix} alt="Logo" height="32px" width="32px"/>
             <FullscreenBtn className="logo-action" onClick={handleFullscreenLogo} title="Повний екран">⛶</FullscreenBtn>
           </LogoContainer>
           

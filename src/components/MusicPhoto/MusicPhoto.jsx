@@ -2664,7 +2664,7 @@ const FullScreenPlayer = ({
             style={{
               marginTop: "10px",
               width: "100%",
-              background: track.id === 2 ? "#888" : "orange",
+              background: track.id === 2 ? "#626262" : "orange",
               color: "white",
               border: "none",
               borderRadius: "5px",

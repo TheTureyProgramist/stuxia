@@ -10,16 +10,12 @@ const WeatherCard = styled.div`
   width: 100%;
   max-width: 320px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  border: ${(props) => (props.$isMain ? "2px solid gold" : "1px solid #444")};
+  border: ${(props) => (props.$isMain ? "2px solid orange" : "1px solid #444")};
   transition: all 0.3s ease;
-
-  /* Адаптивність для планшетів та ноутбуків */
   @media (min-width: 768px) {
     max-width: 380px;
     padding: 20px;
   }
-
-  /* Адаптивність для великих моніторів 1920px+ */
   @media (min-width: 1920px) {
     max-width: 550px;
     padding: 40px;
@@ -42,7 +38,7 @@ const CardHeader = styled.div`
   h3 {
     margin: 0;
     font-size: 16px;
-    color: ${(props) => (props.$isMain ? "gold" : "skyblue")};
+    color: ${(props) => (props.$isMain ? "orange" : "skyblue")};
   }
 `;
 
@@ -81,7 +77,7 @@ const OrderControls = styled.div`
   button {
     background: ${props => props.$isDarkMode ? "#333" : "#ddd"};
     color: ${props => props.$isDarkMode ? "#fff" : "#000"};
-    border: 1px solid #888;
+    border: 1px solid #737373;
     border-radius: 4px;
     padding: 2px 8px;
     cursor: pointer;
@@ -93,7 +89,7 @@ const OrderControls = styled.div`
       cursor: not-allowed;
     }
     &:hover:not(:disabled) {
-      background: gold;
+      background: orange;
       color: #000;
     }
   }
@@ -108,7 +104,7 @@ const ImagePlaceholder = styled.div`
   width: ${(props) => props.size || "50px"};
   height: ${(props) => props.size || "50px"};
   background: rgba(58, 58, 58, 0.8);
-  border: 1px dashed #888;
+  border: 1px dashed #707070;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -182,7 +178,7 @@ const WeatherCardComponent = ({
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
                 autoFocus
-                style={{ padding: "2px 5px", fontSize: "14px", borderRadius: "4px", border: "1px solid #ffb36c", background: isDarkMode ? "#333" : "#fff", color: isDarkMode ? "#fff" : "#000" }}
+                style={{ padding: "2px 5px", fontSize: "14px", borderRadius: "4px", border: "1px solid #ff6a00", background: isDarkMode ? "#333" : "#fff", color: isDarkMode ? "#fff" : "#000" }}
               />
               <button onClick={handleRenameSubmit} style={{ background: "green", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "12px", padding: "2px 8px" }}>✓</button>
               <button onClick={() => setIsEditing(false)} style={{ background: "red", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "12px", padding: "2px 8px" }}>✕</button>
@@ -192,7 +188,7 @@ const WeatherCardComponent = ({
           )}
 
         {card.isMain && (
-          <p style={{ margin: "5px 0 0 0", fontSize: "11px", color: "#888" }}>
+          <p style={{ margin: "5px 0 0 0", fontSize: "11px", color: "#686868" }}>
             Lat: {card.lat?.toFixed(2)}, Lon: {card.lon?.toFixed(2)}
           </p>
         )}
@@ -249,7 +245,7 @@ const WeatherCardComponent = ({
           <ImagePlaceholder size="35px" fontSize="16px">{day.iconPlaceholder}</ImagePlaceholder>
           <div style={{ display: "flex", gap: "10px", minWidth: "80px", justifyContent: "flex-end" }}>
             <span>{day.temp_day}</span>
-            <span style={{ color: "#888" }}>{day.temp_night}</span>
+            <span style={{ color: "#626262" }}>{day.temp_night}</span>
           </div>
         </div>
       ))}
