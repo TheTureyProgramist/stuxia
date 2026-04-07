@@ -284,7 +284,7 @@ const App = () => {
     const saved = localStorage.getItem("isRoutingMode");
     return saved !== null ? JSON.parse(saved) : false;
   });
-  const [isLocationEnabled, setIsLocationEnabled] = useState(true);
+  const [isLocationEnabled, setIsLocationEnabled] = useState(false);
   const [weatherCards, setWeatherCards] = useState(() => {
     const savedCards = localStorage.getItem("weather_cards");
     return savedCards ? JSON.parse(savedCards) : [];
@@ -726,6 +726,7 @@ const App = () => {
               currentPath={location.pathname.substring(1)}
             />
           </div>
+          <main>
           <Routes>
             <Route path="/" element={LandingPage} />
             {siteSections.map((section) => (
@@ -771,6 +772,7 @@ const App = () => {
             {/* 404 Route */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </main>
           {isModalOpen && (
             <Modal
               onClose={() => setIsModalOpen(false)}

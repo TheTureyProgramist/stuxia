@@ -5028,8 +5028,8 @@ const MusicPhoto = ({ user, onOpenRegister, isAnyModalOpen }) => {
               background: "#f0f0f0",
             }}
           >
-            <div style={{ fontSize: 50, color: "#ccc" }}>+</div>
-            <div style={{ color: "#aaa" }}>Створити плейлист</div>
+            <div style={{ color: "#00bdb3", fontSize: "56px" }}>+</div>
+            <div style={{ color: "#00baad", fontWeight: 600, fontSize: "26px" }}>Створити плейлист</div>
           </PlaylistCard>
         )}
       </PlaylistGrid>
