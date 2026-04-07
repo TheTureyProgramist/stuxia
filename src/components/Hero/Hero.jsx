@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import styled, { keyframes, css } from "styled-components";
 import hills from "../../photos/hero-header/hiils.webp";
-
+import herotext from "../../photos/hero-header/herotext.webp";
 const slideUpHero = keyframes`
-  0% { transform: translateY(120px) scale(1.4); }
+  0% { transform: translateY(120px) scale(1.8); }
   100% { transform: translateY(0) scale(1); }
 `;
 
@@ -22,7 +22,7 @@ const HeroDiv = styled.div`
   display: flex;
   background-size: cover;
   background-image:
-    linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0)), url(${hills});
+  linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0)), url(${hills});
   background-repeat: no-repeat;
   background-position: center;
   flex-direction: column;
@@ -47,52 +47,37 @@ const HeroDiv = styled.div`
     margin-bottom: 120px;
     gap: 120px;
   }
-`;
+`;const HeroDecors = styled.div`
+  display: block;
+  /* Задаємо розміри для мобільних (базові) */
+  width: 160px; 
+  height: 67px;
+  
+  /* Використовуємо props.$image для фону */
+  background-image: url(${(props) => props.$image});
+  background-size: cover;      /* Обрізає зайве, зберігаючи пропорції */
+  background-position: center; /* Залишає центр видимим */
+  background-repeat: no-repeat;
 
-const HeroDecors = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  transform: translateY(120px) scale(1.4);
+  /* Анімація */
+  transform: translateY(120px) scale(1.8);
   animation: ${(props) =>
-    props.$start ? css`${slideUpHero} 3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards` : "none"};
-`;
+    props.$start ? css`${slideUpHero} 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards` : "none"};
 
-const LogoText = styled.div`
-  display: flex;
-`;
-
-const CollectorText = styled.div`
-  font-family: var(--font-family);
-  color: #ffb36c;
-  text-transform: uppercase;
-  font-weight: 700;
-  letter-spacing: 2px;
-  margin-top: 5px;
-  font-size: 8px;
-  opacity: 0;
-  animation: ${(props) =>
-    props.$start ? css`${fadeInContent} 1s ease-out forwards` : "none"};
-  animation-delay: ${(props) => (props.$start ? "2.5s" : "0s")};
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-
+  /* Адаптивні розміри для більших екранів */
   @media (min-width: 768px) {
-    font-size: 12px;
-    letter-spacing: 4px;
-    margin-top: 8px;
+    width: 350px;
+    height: 140px;
   }
   @media (min-width: 1200px) {
-    font-size: 16px;
-    letter-spacing: 6px;
-    margin-top: 12px;
+    width: 350px;
+    height: 139px;
   }
   @media (min-width: 1920px) {
-    font-size: 24px;
-    letter-spacing: 10px;
-    margin-top: 20px;
+    width: 700px;
+    height: 280px;
   }
 `;
-
 const DelayedContent = styled.div`
   display: flex;
   flex-direction: column;
@@ -114,37 +99,6 @@ const DelayedContent = styled.div`
     gap: 80px;
   }
 `;
-
-const HeroBlue = styled.div`
-  color: skyblue;
-  font-weight: 600;
-  font-size: 14px;
-  @media (min-width: 768px) {
-    font-size: 20px;
-  }
-  @media (min-width: 1200px) {
-    font-size: 40px;
-  }
-  @media (min-width: 1920px) {
-    font-size: 90px;
-  }
-`;
-
-const HeroYellow = styled.div`
-  color: gold;
-  font-weight: 600;
-  font-size: 14px;
-  @media (min-width: 768px) {
-    font-size: 20px;
-  }
-  @media (min-width: 1200px) {
-    font-size: 40px;
-  }
-  @media (min-width: 1920px) {
-    font-size: 90px;
-  }
-`;
-
 const HeroTitle = styled.h1`
   text-align: center;
   font-family: var(--font-family);
@@ -563,14 +517,7 @@ const Hero = ({ heroDateString, onAddCity, startAnimation, user }) => {
   };
   return (
     <HeroDiv>
-      <HeroDecors $start={startAnimation}>
-        <LogoText>
-          <HeroBlue>Сти</HeroBlue>
-          <HeroYellow>хія</HeroYellow>
-        </LogoText>
-        <CollectorText $start={startAnimation}>Видання дракона</CollectorText>
-      </HeroDecors>
-
+      <HeroDecors $image={herotext} $start={startAnimation}/>
       <DelayedContent $start={startAnimation}>
         <HeroTitle>
           Погода, музика, фан-арти, ШІ, системи: 🧧, 🏆.
