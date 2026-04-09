@@ -351,10 +351,11 @@ const AchivmentsModal = ({ onClose }) => {
     setTimeout(() => onClose(), 300);
   };
 
-  const categoriesRaw = [
-    {
-      title: "🎮 Ігрові Майстри",
-      items: [
+  const categories = React.useMemo(() => {
+    const categoriesRaw = [
+      {
+        title: "🎮 Ігрові Майстри",
+        items: [
         {
           name: "Джуманджу",
           goal: "Ціль: пройти за 40с головоломку. І отримайте зелений колір імені.",
@@ -682,7 +683,6 @@ const AchivmentsModal = ({ onClose }) => {
     },
   ];
 
-  const categories = React.useMemo(() => {
     return categoriesRaw.map(cat => {
       if (cat.title.includes("Соціальні")) {
         let items = [...cat.items];

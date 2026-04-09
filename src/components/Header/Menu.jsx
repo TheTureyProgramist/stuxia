@@ -250,6 +250,34 @@ const OrderButton = styled.button`
   }
 `;
 
+const FilterGridInMenu = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 10px;
+`;
+
+const FilterButtonInMenu = styled.button`
+  background: ${(props) => (props.$active ? "#ffb36c" : "transparent")};
+  color: ${(props) => (props.$active ? "#3e2723" : props.$isDarkMode ? "#ffb36c" : "#333")};
+  border: 1px solid #ffb36c;
+  border-radius: 6px;
+  padding: 8px;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba(255, 179, 108, 0.3);
+  }
+  
+  @media (min-width: 1920px) {
+    padding: 12px;
+    font-size: 16px;
+  }
+`;
+
 const Menu = ({
   isOpen,
   onClose,
@@ -261,13 +289,66 @@ const Menu = ({
   onOpenShop,
   onOpenAchievements,
   onOpenSettings,
+  onOpenHelp,
   onLogout,
   isRoutingMode,
   setIsRoutingMode,
   currentPath,
+  visualConfig,
+  setVisualConfig,
 }) => {
   const [isRendered, setIsRendered] = useState(false);
   const navigate = useNavigate();
+
+  const FILTERS = [
+    { id: "none", label: "Вимкнено" },
+    { id: "grayscale", label: "Дальтонізм" },
+    { id: "sepia", label: "Сепія" },
+    { id: "invert", label: "Негатив" },
+    { id: "matrix", label: "Матриця" },
+    { id: "uv", label: "УФ-Лампа" },
+  ];
+
+  const applyFilterEffect = (config) => {
+    const brightness = 100 - (config.darkIntensity * 0.6);
+    let filters = `brightness(${brightness}%)`;
+    const { filterType, filterIntensity } = config;
+
+    if (filterType === "grayscale") {
+      filters += ` grayscale(${filterIntensity}%)`;
+    } else if (filterType === "sepia") {
+      filters += ` sepia(${filterIntensity}%)`;
+    } else if (filterType === "invert") {
+      filters += ` invert(${filterIntensity}%)`;
+    } else if (filterType === "matrix") {
+      filters += ` hue-rotate(180deg) grayscale(${filterIntensity}%)`;
+    } else if (filterType === "uv") {
+      filters += ` hue-rotate(280deg) saturate(${100 + filterIntensity}%)`;
+    }
+
+    document.documentElement.style.filter = filters;
+  };
+
+  const handleFilterChange = (filterId) => {
+    const newConfig = { ...visualConfig, filterType: filterId };
+    setVisualConfig(newConfig);
+    localStorage.setItem("visualConfig", JSON.stringify(newConfig));
+    applyFilterEffect(newConfig);
+  };
+
+  const handleBrightnessChange = (value) => {
+    const newConfig = { ...visualConfig, darkIntensity: value };
+    setVisualConfig(newConfig);
+    localStorage.setItem("visualConfig", JSON.stringify(newConfig));
+    applyFilterEffect(newConfig);
+  };
+
+  const handleIntensityChange = (value) => {
+    const newConfig = { ...visualConfig, filterIntensity: value };
+    setVisualConfig(newConfig);
+    localStorage.setItem("visualConfig", JSON.stringify(newConfig));
+    applyFilterEffect(newConfig);
+  };
 
   useEffect(() => {
     if (isOpen) setIsRendered(true);
@@ -385,6 +466,53 @@ const Menu = ({
                 </ActionButton>
               </li>
               <li>
+                <div style={{ marginTop: "15px", marginBottom: "15px" }}>
+                  <div style={{ fontSize: "14px", fontWeight: "bold", marginBottom: "10px", color: isDarkMode ? "#ffb36c" : "#ff005d" }}>☀️ Яскравість</div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={visualConfig.darkIntensity || 0}
+                    onChange={(e) => handleBrightnessChange(Number(e.target.value))}
+                    style={{ width: "100%", cursor: "pointer" }}
+                  />
+                  <div style={{ fontSize: "12px", textAlign: "right", marginTop: "5px" }}>{visualConfig.darkIntensity || 0}%</div>
+                </div>
+              </li>
+              <li>
+                <div style={{ marginTop: "15px", marginBottom: "15px" }}>
+                  <div style={{ fontSize: "14px", fontWeight: "bold", marginBottom: "10px", color: isDarkMode ? "#ffb36c" : "#ff005d" }}>🎨 Фільтри</div>
+                  <FilterGridInMenu $isDarkMode={isDarkMode}>
+                    {FILTERS.map((f) => (
+                      <FilterButtonInMenu
+                        key={f.id}
+                        $active={visualConfig.filterType === f.id}
+                        $isDarkMode={isDarkMode}
+                        onClick={() => handleFilterChange(f.id)}
+                      >
+                        {f.label}
+                      </FilterButtonInMenu>
+                    ))}
+                  </FilterGridInMenu>
+                </div>
+              </li>
+              {visualConfig.filterType !== "none" && (
+                <li>
+                  <div style={{ marginTop: "15px", marginBottom: "15px" }}>
+                    <div style={{ fontSize: "14px", fontWeight: "bold", marginBottom: "10px", color: isDarkMode ? "#ffb36c" : "#ff005d" }}>⚡ Сила ефекту</div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={visualConfig.filterIntensity || 50}
+                      onChange={(e) => handleIntensityChange(Number(e.target.value))}
+                      style={{ width: "100%", cursor: "pointer" }}
+                    />
+                    <div style={{ fontSize: "12px", textAlign: "right", marginTop: "5px" }}>{visualConfig.filterIntensity || 50}%</div>
+                  </div>
+                </li>
+              )}
+              <li>
                 <ActionButton
                   $isDarkMode={isDarkMode}
                   onClick={() => {
@@ -415,6 +543,17 @@ const Menu = ({
                   }}
                 >
                   <span className="icon">⚙️</span> Налаштування
+                </ActionButton>
+              </li>
+              <li>
+                <ActionButton
+                  $isDarkMode={isDarkMode}
+                  onClick={() => {
+                    onOpenHelp();
+                    onClose();
+                  }}
+                >
+                  <span className="icon">❓</span> Навчання
                 </ActionButton>
               </li>
               <li>

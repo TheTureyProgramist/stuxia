@@ -4,7 +4,6 @@ import logo from "../../photos/hero-header/logo.webp";
 import BurgerMenu from "./Menu.jsx";
 import bell from "../../mp3/bell.mp3";
 import money from "../../photos/fan-art/money.webp";
-import UserSearchModal from "../Modals/UserSearchModal.jsx";
 import logofix from "../../photos/hero-header/logo-fix.webp";
 const flow = keyframes`
   0% { background-position: 0% 50%; }
@@ -496,12 +495,15 @@ const Header = ({
   onOpenSettings,
   onOpenVip,
   onOpenShop,
-  user,
+  onOpenHelp,
+  onOpenInfo,
+  isInfoOpen,
   isDarkMode,
   toggleTheme,
   onOpenAchievements,
   currentAvatar,
   onLogout,
+  user,
   siteSections,
   moveSiteSection,
   resetSiteSections,
@@ -510,7 +512,6 @@ const Header = ({
   currentPath,
 }) => {
   const [showUltra, setShowUltra] = useState(false);
-  const [isUserSearchOpen, setIsUserSearchOpen] = useState(false);
   const [isBurgerOpen, setIsBurgerOpen] = useState(false);
   const [showVisualSettings, setShowVisualSettings] = useState(false);
   const [showTurkeyNotify, setShowTurkeyNotify] = useState(false);
@@ -662,7 +663,7 @@ const Header = ({
                 </IconButton>
 
                 <IconButton
-                  onClick={() => setIsUserSearchOpen(true)}
+                  onClick={onOpenHelp}
                   $isDarkMode={isDarkMode}
                 >
                   <EmojiWrapper style={{ fontWeight: 900 }}>?</EmojiWrapper>
@@ -711,6 +712,13 @@ const Header = ({
                   title="Налаштування вигляду"
                 >
                   <EmojiWrapper>👁️</EmojiWrapper>
+              </IconButton>
+              <IconButton
+                  onClick={onOpenHelp}
+                  $isDarkMode={isDarkMode}
+                  title="Навчання"
+                >
+                  <EmojiWrapper style={{ fontWeight: 900 }}>?</EmojiWrapper>
               </IconButton>
               <button
                 onClick={onOpenLogin}
@@ -800,15 +808,14 @@ const Header = ({
         onOpenShop={onOpenShop}
         onOpenAchievements={onOpenAchievements}
         onOpenSettings={onOpenSettings}
+        onOpenHelp={onOpenHelp}
+        onOpenInfo={onOpenInfo}
         onLogout={onLogout}
         isRoutingMode={isRoutingMode}
         setIsRoutingMode={setIsRoutingMode}
         currentPath={currentPath}
-      />
-      <UserSearchModal
-        isOpen={isUserSearchOpen}
-        onClose={() => setIsUserSearchOpen(false)}
-        currentAvatar={currentAvatar}
+        visualConfig={visualConfig}
+        setVisualConfig={setVisualConfig}
       />
     </>
   );

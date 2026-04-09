@@ -284,7 +284,34 @@ const App = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserSearchOpen, setIsUserSearchOpen] = useState(false);
   const [isInfoOpen, setIsInfoOpen] = useState(false);
+  const [hasInteracted, setHasInteracted] = useState(false);
+  const [isUpdatePending, setIsUpdatePending] = useState(false);
+  const [timerFinished, setTimerFinished] = useState(false);
+  const [isFirstTimeHelpOpen, setIsFirstTimeHelpOpen] = useState(false);
 
+  // Таймер на 8 секунд після старту
+  useEffect(() => {
+    const timer = setTimeout(() => setTimerFinished(true), 8000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Відстеження взаємодії (клік або скрол)
+  useEffect(() => {
+    const handleInteraction = () => {
+      setHasInteracted(true);
+      window.removeEventListener("mousedown", handleInteraction);
+      window.removeEventListener("scroll", handleInteraction);
+      window.removeEventListener("touchstart", handleInteraction);
+    };
+    window.addEventListener("mousedown", handleInteraction);
+    window.addEventListener("scroll", handleInteraction);
+    window.addEventListener("touchstart", handleInteraction);
+    return () => {
+      window.removeEventListener("mousedown", handleInteraction);
+      window.removeEventListener("scroll", handleInteraction);
+      window.removeEventListener("touchstart", handleInteraction);
+    };
+  }, []);
   const [isRoutingMode, setIsRoutingMode] = useState(() => {
     const saved = localStorage.getItem("isRoutingMode");
     return saved !== null ? JSON.parse(saved) : false;
@@ -295,10 +322,20 @@ const App = () => {
     const lastSeenVersion = localStorage.getItem("last_deployed_version");
 
     if (deployId && lastSeenVersion !== deployId) {
-      setIsUserSearchOpen(true);
-      localStorage.setItem("last_deployed_version", deployId);
+      setIsUpdatePending(true);
     }
   }, []);
+
+  useEffect(() => {
+    // Модалка оновлення відкриється тільки при збігу 3 умов:
+    // 1. Є оновлення. 2. Минуло 8 секунд. 3. Користувач клікнув або скролив.
+    if (isUpdatePending && timerFinished && hasInteracted && !isFirstTimeHelpOpen) {
+      setIsInfoOpen(true);
+      setIsUpdatePending(false);
+      setIsFirstTimeHelpOpen(true);
+      localStorage.setItem("last_deployed_version", process.env.REACT_APP_DEPLOY_ID);
+    }
+  }, [isUpdatePending, timerFinished, hasInteracted, isFirstTimeHelpOpen]);
 
   const [isLocationEnabled, setIsLocationEnabled] = useState(false);
   const [weatherCards, setWeatherCards] = useState(() => {
@@ -306,7 +343,7 @@ const App = () => {
     return savedCards ? JSON.parse(savedCards) : [];
   });
 
-  const isAnyModalOpen = isModalOpen || isLoginOpen || isSettingsModalOpen || isVipModalOpen || isShopOpen || isAchivmentsOpen || isUserSearchOpen || isInfoOpen;
+  const isAnyModalOpen = isModalOpen || isLoginOpen || isSettingsModalOpen || isVipModalOpen || isShopOpen || isAchivmentsOpen || isUserSearchOpen || isInfoOpen || isFirstTimeHelpOpen;
 
   const [hideDeleteModalUntil, setHideDeleteModalUntil] = useState(() => {
     const val = localStorage.getItem("hideDeleteModalUntil");
@@ -728,6 +765,8 @@ const App = () => {
               onOpenAchievements={() => setIsAchivmentsOpen(true)}
               onOpenHelp={() => setIsUserSearchOpen(true)}
               onOpenInfo={() => setIsInfoOpen(true)}
+              onCloseInfo={() => setIsInfoOpen(false)}
+              isInfoOpen={isInfoOpen}
               user={user}
               isDarkMode={isDarkMode}
               toggleTheme={toggleTheme}
@@ -831,7 +870,10 @@ const App = () => {
             />
           )}
           {isUserSearchOpen && (
-            <LearningModal onClose={() => setIsUserSearchOpen(false)} />
+            <LearningModal isOpen={isUserSearchOpen} onClose={() => setIsUserSearchOpen(false)} />
+          )}
+          {isFirstTimeHelpOpen && (
+            <LearningModal isOpen={isFirstTimeHelpOpen} onClose={() => setIsFirstTimeHelpOpen(false)} />
           )}
           {isInfoOpen && (
             <TermsModal onClose={() => setIsInfoOpen(false)} />

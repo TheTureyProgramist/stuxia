@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from 'react';
 import styled, { keyframes, css } from "styled-components";
 
 const slideIn = keyframes`
@@ -35,8 +35,9 @@ const Overlay = styled.div`
   justify-content: center;
   align-items: center;
   z-index: 3000;
-  transition: opacity 0.4s ease;
+  transition: opacity 0.4s ease, pointer-events 0.4s ease;
   opacity: ${(props) => (props.$isClosing ? 0 : 1)};
+  pointer-events: ${(props) => (props.$isClosing ? "none" : "auto")};
   backdrop-filter: blur(5px);
 `;
 
@@ -135,24 +136,32 @@ const AcceptBtn = styled.button`
   &:hover { transform: scale(1.05); }
 `;
 
-const InfoModal = ({ onClose }) => {
+const InfoModal = ({ onClose, isOpen }) => {
   const [isClosing, setIsClosing] = useState(false);
   const [activeIndex, setActiveIndex] = useState(null);
+
+  const handleClose = useCallback(() => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setIsClosing(false);
+      onClose();
+    }, 400);
+  }, [onClose]);
+
+  useEffect(() => {
+    const handleEsc = (e) => { if (e.key === "Escape") handleClose(); };
+    if (isOpen || isClosing) {
+      window.addEventListener("keydown", handleEsc);
+      return () => window.removeEventListener("keydown", handleEsc);
+    }
+  }, [isOpen, isClosing, handleClose]);
+
+  // Якщо модаль не видима, не рендеривати
+  if (!isOpen && !isClosing) return null;
 
   const toggleAccordion = (index) => {
     setActiveIndex(activeIndex === index ? null : index);
   };
-
-  const handleClose = () => {
-    setIsClosing(true);
-    setTimeout(() => onClose(), 400);
-  };
-
-  useEffect(() => {
-    const handleEsc = (e) => { if (e.key === "Escape") handleClose(); };
-    window.addEventListener("keydown", handleEsc);
-    return () => window.removeEventListener("keydown", handleEsc);
-  }, []);
 
   const faqData = [
     { q: "Останнє оновлення", a: "Тут текст про нову версію, виправлення помилок та покращення стабільності." },
