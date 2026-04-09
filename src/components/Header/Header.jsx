@@ -665,7 +665,7 @@ const Header = ({
                   onClick={() => setIsUserSearchOpen(true)}
                   $isDarkMode={isDarkMode}
                 >
-                  <EmojiWrapper style={{ fontWeight: 900 }}>+</EmojiWrapper>
+                  <EmojiWrapper style={{ fontWeight: 900 }}>?</EmojiWrapper>
                 </IconButton>
 
                 <IconButton onClick={onOpenShop} $isDarkMode={isDarkMode}>

@@ -33,6 +33,8 @@ import ShopModal from "./components/Modals/ShopModal.jsx";
 import News from "./components/News/News.jsx";
 import AchivmentsModal from "./components/Modals/AchivmentsModal.jsx";
 import Puzzles from "./components/Puzzles/Puzzles.jsx";
+import LearningModal from "./components/Modals/UserSearchModal.jsx";
+import TermsModal from "./components/Modals/InfoModal.jsx";
 import ClimateMap from "./components/ClimateMap/ClimateMap.jsx";
 import turkeys from "./photos/vip-images/turkeys/ultra-vip-turkeys.webp";
 import dragons from "./photos/vip-images/dinofroz/vip-dragons.webp";
@@ -710,6 +712,8 @@ const App = () => {
               onOpenVip={() => setIsVipModalOpen(true)}
               onOpenShop={() => setIsShopOpen(true)}
               onOpenAchievements={() => setIsAchivmentsOpen(true)}
+              onOpenHelp={() => setIsUserSearchOpen(true)}
+              onOpenInfo={() => setIsInfoOpen(true)}
               user={user}
               isDarkMode={isDarkMode}
               toggleTheme={toggleTheme}
@@ -812,6 +816,12 @@ const App = () => {
               isDarkMode={isDarkMode}
             />
           )}
+          {isUserSearchOpen && (
+            <LearningModal onClose={() => setIsUserSearchOpen(false)} />
+          )}
+          {isInfoOpen && (
+            <TermsModal onClose={() => setIsInfoOpen(false)} />
+          )}
 
           <Menu
             isOpen={isMenuOpen}
@@ -833,6 +843,14 @@ const App = () => {
             }}
             onOpenSettings={() => {
               setIsSettingsModalOpen(true);
+              handleCloseMenu();
+            }}
+            onOpenHelp={() => {
+              setIsUserSearchOpen(true);
+              handleCloseMenu();
+            }}
+            onOpenInfo={() => {
+              setIsInfoOpen(true);
               handleCloseMenu();
             }}
             onLogout={handleLogout}
