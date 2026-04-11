@@ -213,7 +213,7 @@ const MusicPhotoText = styled.div`
     font-size: 30px;
   }
 `;
-
+//
 const ControlsContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -1548,7 +1548,6 @@ const FullScreenPlayer = ({
   const [showDownload, setShowDownload] = useState(false);
   const [showScreenshotMenu, setShowScreenshotMenu] = useState(false);
   const [showPlaylist, setShowPlaylist] = useState(false);
-  const [showHelp, setShowHelp] = useState(false);
   const [loop, setLoop] = useState(false);
   const [progressMode, setProgressMode] = useState("linear"); // "linear" or "stereogram"
   const [currentImgIdx, setCurrentImgIdx] = useState(0);
@@ -2216,9 +2215,6 @@ const FullScreenPlayer = ({
           >
             📑
           </ActionButton>
-          <ActionButton onClick={() => setShowHelp(true)} title="Довідка">
-            ?
-          </ActionButton>
           <ActionButton
             onClick={() => setShowSettings(!showSettings)}
             title="Налаштування"
@@ -2814,7 +2810,7 @@ const FullScreenPlayer = ({
                     textOverflow: "ellipsis",
                   }}
                 >
-                  {t.text}
+                   {t.author}
                 </div>
                 <span style={{ fontSize: "11px", color: "#ccc" }}>
                   {formatTime(t.duration)}
@@ -2823,78 +2819,6 @@ const FullScreenPlayer = ({
             ))}
         </PlaylistOverlay>
       )}
-
-      {showHelp && (
-        <DownloadModal
-          style={{
-            width: "380px",
-            textAlign: "left",
-            background: "#222",
-            color: "#eee",
-            border: "1px solid #444",
-          }}
-        >
-          <h3 style={{ textAlign: "center", color: "#ffb36c" }}>Довідка</h3>
-          <ul
-            style={{ fontSize: "12px", paddingLeft: "20px", lineHeight: "1.6" }}
-          >
-            <li>
-              <b>Свайп/Стрілки:</b> Перемикання треків
-            </li>
-            <li>
-              <b>Пробіл:</b> Пауза/Старт
-            </li>
-            <li>
-              <b>Клік зліва/справа (20% екрану):</b> Промотка -2с/+2с
-            </li>
-            <li>
-              <b>Центр екрану:</b> Пауза/Старт
-            </li>
-            <li>
-              <b>Шестерня:</b> Налаштування швидкості, гучності, інтервалу
-              промотки
-            </li>
-            <li>
-              <b>Динофроз:</b> Навідміну від інших відео, замість свайпу
-              картинок
-            </li>
-            <li>
-              <b>Прев'ю:</b> Наведення на шкалу показує кадр (відео) або фото
-            </li>
-            <li>
-              <b>Регулятор:</b> Справа від звукового джойстика, натискайте для
-              зміни: Автоповтор, наступна пісня по черзі, чи випадково
-            </li>
-            <li>
-              <b>Кешування:</b> Зберігає пісню/відео (Доступ без інтернету).
-              Зліва від звукового джойстика
-            </li>
-            <li>
-              <b>Скрін:</b> Знак камери, вибір: скачати, сфотографувати.
-            </li>
-            <li>
-              <b>Обрізка:</b> Скріншоти та завантаження фото автоматично
-              обрізають 10% площі (по 5% з країв).
-            </li>
-          </ul>
-          <button
-            onClick={() => setShowHelp(false)}
-            style={{
-              width: "100%",
-              marginTop: "10px",
-              background: "#444",
-              color: "white",
-              border: "none",
-              padding: "8px",
-              borderRadius: "5px",
-              cursor: "pointer",
-            }}
-          >
-            Зрозуміло
-          </button>
-        </DownloadModal>
-      )}
-
       {showDownload && (
         <DownloadModal>
           <h3>Завантаження</h3>
@@ -3102,20 +3026,20 @@ const musicCards = [
     audio: christmasAudio,
     text: "",
     lyrics: [
-      { time: 17, text: "Літо в пагорбах." },
-      { time: 172, text: "Ті туманні дні у мене в спогадах." },
-      { time: 175, text: "Ми все ще бігали." },
-      { time: 179, text: "Весь світ був біля наших ніг." },
-      { time: 182, text: "Бачачи зміни сезону." },
-      { time: 182, text: "Наші дороги були вкриті пригодами." },
-      { time: 185, text: "Гори на шляху." },
-      { time: 189, text: "Від моря не могли втримати нас." },
-      { time: 195, text: "Ось ми стоїмо з розпростертими обіймами." },
-      { time: 199, text: "Це наш дім." },
-      { time: 202, text: "Завжди сильні у світі, який ми створили." },
-      { time: 209, text: "Я все ще чую тебе у вітрі." },
-      { time: 212, text: "Бачу твої тіні на деревах." },
-      { time: 216, text: "Тримаючись, спогади ніколи не змінюються." },
+      // { time: 17, text: "Літо в пагорбах." },
+      // { time: 172, text: "Ті туманні дні у мене в спогадах." },
+      // { time: 175, text: "Ми все ще бігали." },
+      // { time: 179, text: "Весь світ був біля наших ніг." },
+      // { time: 182, text: "Бачачи зміни сезону." },
+      // { time: 182, text: "Наші дороги були вкриті пригодами." },
+      // { time: 185, text: "Гори на шляху." },
+      // { time: 189, text: "Від моря не могли втримати нас." },
+      // { time: 195, text: "Ось ми стоїмо з розпростертими обіймами." },
+      // { time: 199, text: "Це наш дім." },
+      // { time: 202, text: "Завжди сильні у світі, який ми створили." },
+      // { time: 209, text: "Я все ще чую тебе у вітрі." },
+      // { time: 212, text: "Бачу твої тіні на деревах." },
+      // { time: 216, text: "Тримаючись, спогади ніколи не змінюються." },
       { time: 226, text: "" },
     ],
     category: "хіти",
@@ -3267,6 +3191,7 @@ const musicCards = [
   {
     id: 5,
     image: desert,
+    author: "Звуки вітру - Моя робота :)",
     audio: windAudio,
     category: "природа",
     text: "Звук дощу. Пустеля розділенна вічно грозовою і сонячною зоною.",
@@ -3280,7 +3205,7 @@ const musicCards = [
     audio: horseAudio,
     category: "природа",
     text: "",
-    author: "Телеканал Мега - Звуки коня.",
+    author: "Звуки коня - Телеканал Мега.",
     duration: 45,
     images: [horsethree, horsetwo, horse, chess],
   },
@@ -3310,7 +3235,7 @@ const musicCards = [
     audio: soloveykoAudio,
     category: "природа",
     text: "Хто кращий по звукам соловеко чи індик? Зроблено за ідеї сім'ї.",
-    author: "Телеканал Мега - Звук Соловейка",
+    author: "Звук Соловейка - Телеканал Мега",
     duration: 90,
     images: [soloveyko],
   },
@@ -3362,7 +3287,8 @@ const musicCards = [
     image: mia,
     audio: require("../../mp3/mia-and-me.mp3"),
     category: "мультфільми",
-    text: "Мія та я. Не пожалкуєте.",
+    text: "",
+    author: "Мія та я.",
     lyrics: "Текст в розробці.",
     duration: 180,
     images: [mia],
@@ -3407,8 +3333,8 @@ const musicCards = [
         randomColor: true,
         colorOptions: ["red", "green"],
         isRandom: true,
-        minOpacity: 0.15,
-        maxOpacity: 0.45,
+        minOpacity: 0.10,
+        maxOpacity: 0.25,
         isRandomBlur: true,
         minBlur: 0,
         maxBlur: 3,
@@ -3419,8 +3345,8 @@ const musicCards = [
         randomColor: true,
         colorOptions: ["orange", "cyan"],
         isRandom: true,
-        minOpacity: 0.2,
-        maxOpacity: 0.4,
+        minOpacity: 0.1,
+        maxOpacity: 0.25,
         isRandomBlur: true,
         minBlur: 1,
         maxBlur: 2,
@@ -3468,8 +3394,8 @@ const musicCards = [
         randomColor: true,
         colorOptions: ["purple", "blue"],
         isRandom: true,
-        minOpacity: 0.2,
-        maxOpacity: 0.4,
+        minOpacity: 0.1,
+        maxOpacity: 0.25,
         isRandomBlur: true,
         minBlur: 1,
         maxBlur: 2,
@@ -3480,8 +3406,8 @@ const musicCards = [
         randomColor: true,
         colorOptions: ["brown", "orange"],
         isRandom: true,
-        minOpacity: 0.2,
-        maxOpacity: 0.4,
+        minOpacity: 0.1,
+        maxOpacity: 0.25,
         isRandomBlur: true,
         minBlur: 1,
         maxBlur: 2,
@@ -3493,8 +3419,8 @@ const musicCards = [
         randomColor: true,
         colorOptions: ["cyan", "chaos"],
         isRandom: true,
-        minOpacity: 0.2,
-        maxOpacity: 0.4,
+        minOpacity: 0.1,
+        maxOpacity: 0.25,
         isRandomBlur: true,
         minBlur: 1,
         maxBlur: 2,
@@ -3506,7 +3432,7 @@ const musicCards = [
         type: "red",
         minOpacity: 0.15,
         isRandom: true,
-        maxOpacity: 0.45,
+        maxOpacity: 0.3,
       },
     ],
     category: "ігри",
@@ -3557,12 +3483,12 @@ const musicCards = [
   {
     id: 16,
     image: theorytwo,
-    text: "Theory of Everything II - DJ-Nate (GeometryDash)",
     audio: theorytwoAudio,
     author: "Theory of everything II - DJ-Nate(GeometryDash).",
     category: "ігри",
     lyrics: [{ time: 200, text: "Кінець, виконаний піаніно." }],
     duration: 140,
+    text: "",
     images: [theorytwo],
     filters: [
       { start: 70, end: 90, type: "flicker", opacity: 0.3 },
@@ -3644,9 +3570,9 @@ const musicCards = [
   {
     id: 18,
     image: theory,
-    text: "Theory of Everything - DJ-Nate (GeometryDash)",
     audio: theoryAudio,
-    author: "DJ-Nate - Theory of everything(GeometryDash).",
+    text: "",
+    author: "Theory of everything(GeometryDash) - DJ-Nate",
     category: "ігри",
     lyrics: [
       { time: 81, text: "Say Down" },

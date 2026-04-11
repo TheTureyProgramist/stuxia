@@ -141,7 +141,6 @@ const WeatherCardComponent = ({
   isExtremeTemp,
   isExtremeWind,
   isExtremeUV,
-  chartOptions,
   chartData,
   index,
   totalCards,
@@ -159,6 +158,59 @@ const WeatherCardComponent = ({
       handleRenameCard(card.id, newName);
       setIsEditing(false);
     }
+  };
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        mode: "index",
+        intersect: false,
+        callbacks: {
+          title: (items) => `Час: ${items[0].label}`,
+          label: (context) => {
+            const index = context.dataIndex;
+            const hourlyData = card.hourly?.[index];
+            const isTemp = context.datasetIndex === 0;
+            const value = context.parsed.y;
+            let label = isTemp ? ` Температура: ${value}°C` : ` Вітер: ${value} м/с`;
+            
+            let dangers = [];
+            if (isTemp) {
+              if (value > 30) dangers.push("СПЕКА");
+              if (value < -30) dangers.push("МОРОЗ");
+              if (hourlyData?.windNum > 10) dangers.push("СИЛЬНИЙ ВІТЕР");
+              
+              if (dangers.length > 0) {
+                label += ` ⚠️ УВАГА: ${dangers.join(", ")}!`;
+              }
+            }
+            return label;
+          },
+        },
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: false,
+        ticks: { color: isDarkMode ? "#aaa" : "#888", font: { size: 10 } },
+        grid: { color: isDarkMode ? "rgba(255, 255, 255, 0.1)" : "rgba(128, 128, 128, 0.1)" },
+      },
+      y1: {
+        type: 'linear',
+        display: true,
+        position: 'right',
+        beginAtZero: true,
+        ticks: { color: "rgba(0, 234, 255, 1)", font: { size: 10 } },
+        grid: { drawOnChartArea: false }, // Прибираємо сітку для другої осі
+      },
+      x: {
+        ticks: { color: isDarkMode ? "#aaa" : "#888", font: { size: 10 } },
+        grid: { display: false },
+      },
+    },
   };
 
   return (
@@ -226,7 +278,7 @@ const WeatherCardComponent = ({
     </div>
 
     <h4 style={{ margin: "0 0 10px 0" }}>Годинний прогноз:</h4>
-    {card.hourly && card.hourly.length > 0 && chartOptions && chartData && (
+    {card.hourly && card.hourly.length > 0 && chartData && (
       <div style={{ height: "180px", marginBottom: "20px" }}>
         <Line options={chartOptions} data={chartData} />
       </div>

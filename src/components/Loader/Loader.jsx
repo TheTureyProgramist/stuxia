@@ -154,7 +154,7 @@ export default function Loader({ isLoading, isFadingOut, randomPhrase }) {
   return (
     <LoaderWrapper $isFadingOut={isFadingOut}>
       <LoaderContent>
-        <LoaderImage src={loadimage} alt="Loading..." fetchpriority="high" width="900" height="500" />
+        <LoaderImage src={loadimage} alt="Loading..." fetchPriority="high" width="900" height="500" />
         <div className="mobile-loader-bar" style={{ width: "100%" }}>
           <ProgressContainer>
             <ProgressBar />

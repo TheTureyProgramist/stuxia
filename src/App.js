@@ -1,3 +1,4 @@
+// Міста для тесту: Дубай (>30°C), Якутськ (<-30°C), Кейптаун (вітер >10 м/с). Графік успішно оновлено: додано погодинну перевірку вітру та деталізовані причини небезпеки в підказках.
 import { useState, useEffect, useCallback, memo } from "react";
 import styled from "styled-components";
 import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
@@ -16,6 +17,7 @@ import {
   Filler,
 } from "chart.js";
 // import { Line } from "react-chartjs-2";
+import Prison from "./components/Prison/Prison.jsx";
 import Menu, { DEFAULT_SITE_SECTIONS } from "./components/Header/Menu.jsx";
 import axios from "axios";
 import "./App.css";
@@ -50,7 +52,6 @@ import flame from "./photos/vip-images/flame.webp";
 import finances from "./photos/fan-art/finance.webp";
 import parol from "./photos/fan-art/parol.webp";
 import vovk from "./photos/fan-art/kolada.webp";
-
 // Ресурси для фонового завантаження кат-сцени
 import dinofrozVideo from "./mp3/dinofroz.mp4";
 import startImage from "./photos/hero-header/start-image.webp";
@@ -84,6 +85,20 @@ ChartJS.register(
   Legend,
   Filler,
 );
+
+// Функція для створення іконки знака оклику для графіка
+const createExclamationIcon = (color) => {
+  const canvas = document.createElement("canvas");
+  canvas.width = 16;
+  canvas.height = 16;
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = color;
+  ctx.font = "bold 16px Arial";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText("!", 8, 8);
+  return canvas;
+};
 
 const getWeatherIcon = (code) => {
   if (code === 0) return "☀️";
@@ -194,7 +209,7 @@ const SectionContent = memo(({
       <div id="weather">
         <WeatherCardsContainer>
           {weatherCards.map((card, index) => {
-            const isExtremeTemp = card.current.tempNum > 30 || card.current.tempNum < -10;
+            const isExtremeTemp = card.current.tempNum > 30 || card.current.tempNum < -30;
             const isExtremeWind = card.current.windNum > 10;
             const isExtremeUV = card.current.uv_index > 7;
 
@@ -207,7 +222,23 @@ const SectionContent = memo(({
                   fill: true,
                   backgroundColor: "rgba(255, 179, 108, 0.2)",
                   borderColor: "rgba(255, 179, 108, 1)",
+                  pointRadius: card.hourly?.map((h) => (h.tempNum > 30 || h.tempNum < -30 || h.windNum > 10 ? 8 : 4)),
+                  pointStyle: card.hourly?.map((h) => {
+                    if (h.tempNum > 30) return createExclamationIcon("#ff0000");
+                    if (h.tempNum < -30) return createExclamationIcon("#004cff");
+                    if (h.windNum > 10) return createExclamationIcon("#ff6a00");
+                    return "circle";
+                  }),
                   tension: 0.4,
+                  animations: {
+                    radius: {
+                      duration: 1000,
+                      easing: "easeInOutQuad",
+                      loop: true,
+                      from: (ctx) => (ctx.raw > 30 || ctx.raw < -30 || card.hourly?.[ctx.dataIndex]?.windNum > 10 ? 6 : 4),
+                      to: (ctx) => (ctx.raw > 30 || ctx.raw < -30 || card.hourly?.[ctx.dataIndex]?.windNum > 10 ? 12 : 4),
+                    },
+                  },
                 },
               ],
             };
@@ -251,6 +282,9 @@ const SectionContent = memo(({
           user={user}
           onOpenRegister={handleOpenRegister}
         />
+      )}
+      {section.key === "prison" && (
+       <Prison/>
       )}
     </div>
   );
@@ -327,8 +361,6 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    // Модалка оновлення відкриється тільки при збігу 3 умов:
-    // 1. Є оновлення. 2. Минуло 8 секунд. 3. Користувач клікнув або скролив.
     if (isUpdatePending && timerFinished && hasInteracted && !isFirstTimeHelpOpen) {
       setIsInfoOpen(true);
       setIsUpdatePending(false);
@@ -458,17 +490,18 @@ const App = () => {
             pressure: `${Math.round(d.current.surface_pressure)} hPa`,
             wind_speed: `${d.current.wind_speed_10m} м/с`,
             windNum: d.current.wind_speed_10m,
-            uv_index: d.daily.uv_index_max[0],
+            uv_index: d.daily?.uv_index_max?.[0] || 0,
             description: "За кодом: " + d.current.weather_code,
             iconPlaceholder: getWeatherIcon(d.current.weather_code),
           },
-          hourly: d.hourly.time.slice(0, 24).map((t, i) => ({
+          hourly: (d.hourly?.time || []).slice(0, 24).map((t, i) => ({
             time: new Date(t).getHours() + ":00",
-            temp: `${Math.round(d.hourly.temperature_2m[i])}°C`,
-            tempNum: Math.round(d.hourly.temperature_2m[i]),
-            iconPlaceholder: getWeatherIcon(d.hourly.weather_code[i]),
+            temp: `${Math.round(d.hourly?.temperature_2m?.[i] || 0)}°C`,
+            tempNum: Math.round(d.hourly?.temperature_2m?.[i] || 0),
+            windNum: d.hourly?.wind_speed_10m?.[i] || 0,
+            iconPlaceholder: getWeatherIcon(d.hourly?.weather_code?.[i] || 0),
           })),
-          daily16: d.daily.time.map((t, i) => ({
+          daily16: (d.daily?.time || []).map((t, i) => ({
             date: new Date(t).toLocaleDateString("uk", {
               day: "numeric",
               month: "2-digit",
@@ -494,6 +527,34 @@ const App = () => {
     },
     [],
   );
+
+  const checkWeatherDanger = useCallback(async (lat, lon) => {
+    try {
+      const res = await axios.get(
+        `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,uv_index_max,wind_speed_10m_max&timezone=auto&forecast_days=3`
+      );
+      const { current, daily } = res.data || {};
+      if (!current || !daily) return null;
+
+      const isExtreme = (tMax, tMin, wind, uv) =>
+        tMax > 30 || tMin < -30 || wind > 10 || uv > 7;
+
+      // Пріоритет червоному: небезпечно прямо зараз
+      if (isExtreme(current.temperature_2m, current.temperature_2m, current.wind_speed_10m, daily?.uv_index_max?.[0] || 0)) {
+        return "red";
+      }
+
+      // Оранжевий: небезпека протягом найближчих 3-х днів
+      const futureDanger = daily?.time?.some((_, i) =>
+        isExtreme(daily.temperature_2m_max?.[i], daily.temperature_2m_min?.[i], daily.wind_speed_10m_max?.[i], daily.uv_index_max?.[i])
+      );
+
+      return futureDanger ? "orange" : null;
+    } catch (error) {
+      return null;
+    }
+  }, []);
+
   const getInitialLocation = useCallback(() => {
     if (!isLocationEnabled) {
       fetchWeather({ fullName: "Київ", id: "main-card" }, true, 50.45, 30.52);
@@ -650,6 +711,7 @@ const App = () => {
           onAddCity={handleAddCityFromHero}
           startAnimation={!isLoading}
           user={user}
+          checkWeatherDanger={checkWeatherDanger}
         />
       </div>
       <SectionContent
@@ -677,6 +739,7 @@ const App = () => {
           onAddCity={handleAddCityFromHero}
           startAnimation={!isLoading}
           user={user}
+          checkWeatherDanger={checkWeatherDanger}
         />
       </div>
       <div className="container">
@@ -804,6 +867,7 @@ const App = () => {
                           onAddCity={handleAddCityFromHero}
                           startAnimation={!isLoading}
                           user={user}
+                          checkWeatherDanger={checkWeatherDanger}
                         />
                       ) : (
                         <SectionContent

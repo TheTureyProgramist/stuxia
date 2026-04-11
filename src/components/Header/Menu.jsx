@@ -10,6 +10,7 @@ export const DEFAULT_SITE_SECTIONS = [
   { key: "news", label: "📰 Новини", path: "news" },
   { key: "music", label: "🎵 Музика", path: "music" },
   { key: "fanart", label: "🎨 FanArt", path: "fanart" },
+  { key: "prison", label: "🔒 Prison", path: "prison" },
 ];
 
 const slideDown = keyframes`
