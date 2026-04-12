@@ -1,9 +1,12 @@
 import React, { useState } from "react";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import { Line } from "react-chartjs-2";
+
+const fadeIn = keyframes`from { opacity: 0; } to { opacity: 1; }`;
 
 const WeatherCard = styled.div`
   background: ${(props) => (props.$isDarkMode ? "#1e1e1e" : "#f5f5f5")};
+  position: relative;
   color: ${(props) => (props.$isDarkMode ? "#fff" : "#333")};
   border-radius: 15px;
   padding: 15px;
@@ -119,6 +122,20 @@ const ImagePlaceholder = styled.div`
   }
 `;
 
+const ChartScrollWrapper = styled.div`
+  width: 100%;
+  overflow-x: auto;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  &::-webkit-scrollbar { height: 6px; }
+  &::-webkit-scrollbar-thumb { background: #555; border-radius: 10px; }
+`;
+
+const ChartInnerContainer = styled.div`
+  width: ${props => props.$width}px;
+  height: ${props => props.$height || "200px"};
+`;
+
 const ForecastScroll = styled.div`
   max-height: 300px;
   overflow-y: auto;
@@ -134,6 +151,43 @@ const ForecastScroll = styled.div`
   }
 `;
 
+const DailyDetailOverlay = styled.div`
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: ${(props) => (props.$isDarkMode ? "rgba(30, 30, 30, 0.98)" : "rgba(255, 255, 255, 0.98)")};
+  color: ${(props) => (props.$isDarkMode ? "#fff" : "#333")};
+  z-index: 100;
+  border-radius: 15px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  animation: ${fadeIn} 0.2s ease-in;
+  
+  h3 { font-size: 1.2rem; margin-bottom: 10px; color: #ffb36c; }
+  p { font-size: 14px; margin: 5px 0; }
+
+  button {
+    margin-top: 20px;
+    background: #ffb36c;
+    color: #000;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    &:hover { background: #ff9800; }
+  }
+
+  @media (min-width: 1920px) {
+    h3 { font-size: 2.2rem; }
+    p { font-size: 20px; }
+    button { font-size: 20px; padding: 12px 30px; }
+  }
+`;
+
 const WeatherCardComponent = ({
   card,
   isDarkMode,
@@ -141,7 +195,6 @@ const WeatherCardComponent = ({
   isExtremeTemp,
   isExtremeWind,
   isExtremeUV,
-  chartData,
   index,
   totalCards,
   handleRefreshCard,
@@ -152,12 +205,78 @@ const WeatherCardComponent = ({
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [newName, setNewName] = useState(card.locationName);
+  const [selectedDay, setSelectedDay] = useState(null);
+
+  const createIconCanvas = (icon, size = 24, dangerColor = null) => {
+    const canvas = document.createElement("canvas");
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext("2d");
+    
+    ctx.font = `${size - 8}px serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(icon, size / 2, size / 2);
+
+    if (dangerColor) {
+      ctx.fillStyle = dangerColor;
+      ctx.font = `bold ${size / 2}px Arial`;
+      ctx.fillText("!", size - 5, 5);
+    }
+    return canvas;
+  };
 
   const handleRenameSubmit = () => {
     if (newName.trim()) {
       handleRenameCard(card.id, newName);
       setIsEditing(false);
     }
+  };
+
+  const hourlyChartData = {
+    labels: card.hourly?.map((h) => h.time) || [],
+    datasets: [
+      {
+        label: "Температура (°C)",
+        data: card.hourly?.map((h) => h.tempNum) || [],
+        fill: true,
+        backgroundColor: "rgba(255, 179, 108, 0.2)",
+        borderColor: "rgba(255, 179, 108, 1)",
+        pointRadius: 12,
+        pointStyle: card.hourly?.map((h) => {
+          let danger = null;
+          if (h.tempNum > 30) danger = "#ff0000";
+          else if (h.tempNum < -30) danger = "#004cff";
+          else if (h.windNum > 10) danger = "#ff6a00";
+          return createIconCanvas(h.iconPlaceholder, 24, danger);
+        }),
+        tension: 0.4,
+      },
+    ],
+  };
+
+  const dailyChartData = {
+    labels: card.daily16?.map((d) => d.date) || [],
+    datasets: [
+      {
+        label: "День (°C)",
+        data: card.daily16?.map((d) => parseInt(d.temp_day)) || [],
+        borderColor: "#ffb36c",
+        backgroundColor: "rgba(255, 179, 108, 0.5)",
+        pointRadius: 12,
+        pointStyle: card.daily16?.map((d) => createIconCanvas(d.iconPlaceholder, 24)),
+        tension: 0.3,
+      },
+      {
+        label: "Ніч (°C)",
+        data: card.daily16?.map((d) => parseInt(d.temp_night)) || [],
+        borderColor: "#00eaff",
+        backgroundColor: "rgba(0, 234, 255, 0.2)",
+        pointStyle: "circle",
+        pointRadius: 4,
+        tension: 0.3,
+      }
+    ],
   };
 
   const chartOptions = {
@@ -213,6 +332,28 @@ const WeatherCardComponent = ({
     },
   };
 
+  const dailyChartOptions = {
+    ...chartOptions,
+    plugins: {
+      ...chartOptions.plugins,
+      tooltip: {
+        callbacks: {
+          title: (items) => `Дата: ${items[0].label}`,
+          label: (context) => {
+            const isDay = context.datasetIndex === 0;
+            return `${isDay ? "День" : "Ніч"}: ${context.parsed.y}°C`;
+          }
+        }
+      }
+    },
+    onClick: (event, elements) => {
+      if (elements.length > 0) {
+        const index = elements[0].index;
+        setSelectedDay(card.daily16[index]);
+      }
+    }
+  };
+
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
       <OrderControls $isDarkMode={isDarkMode}>
@@ -221,6 +362,21 @@ const WeatherCardComponent = ({
         <button disabled={index === totalCards - 1} onClick={() => moveWeatherCard(card.id, 1)} title="Перемістити вниз">↓</button>
       </OrderControls>
       <WeatherCard $isMain={card.isMain} $isDarkMode={isDarkMode}>
+      {selectedDay && (
+        <DailyDetailOverlay $isDarkMode={isDarkMode}>
+          <h3 style={{ margin: 0 }}>Детально: {selectedDay.date} ({selectedDay.day})</h3>
+          <ImagePlaceholder size="60px" fontSize="30px" style={{ margin: "15px 0" }}>
+            {selectedDay.iconPlaceholder}
+          </ImagePlaceholder>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", width: "100%", maxWidth: "300px" }}>
+            <p style={{ margin: 0 }}>☀️ День: <b>{selectedDay.temp_day}</b></p>
+            <p style={{ margin: 0 }}>🌙 Ніч: <b>{selectedDay.temp_night}</b></p>
+            <p style={{ margin: 0 }}>🌬️ Вітер: <b>{selectedDay.wind_speed}</b></p>
+            <p style={{ margin: 0 }}>🧴 УФ: <b>{selectedDay.uv_index}</b></p>
+          </div>
+          <button onClick={() => setSelectedDay(null)}>Закрити</button>
+        </DailyDetailOverlay>
+      )}
       <CardHeader $isMain={card.isMain}>
         <div>
           {isEditing ? (
@@ -278,13 +434,21 @@ const WeatherCardComponent = ({
     </div>
 
     <h4 style={{ margin: "0 0 10px 0" }}>Годинний прогноз:</h4>
-    {card.hourly && card.hourly.length > 0 && chartData && (
-      <div style={{ height: "180px", marginBottom: "20px" }}>
-        <Line options={chartOptions} data={chartData} />
-      </div>
+    {card.hourly && card.hourly.length > 0 && (
+      <ChartScrollWrapper>
+        <ChartInnerContainer $width={1200} $height="220px">
+          <Line options={chartOptions} data={hourlyChartData} />
+        </ChartInnerContainer>
+      </ChartScrollWrapper>
     )}
 
     <h4 style={{ margin: "15px 0 10px 0" }}>Прогноз на 16 днів:</h4>
+    <ChartScrollWrapper>
+      <ChartInnerContainer $width={1000} $height="220px">
+        <Line options={dailyChartOptions} data={dailyChartData} />
+      </ChartInnerContainer>
+    </ChartScrollWrapper>
+
     <ForecastScroll>
       {card.daily16.map((day, idx) => (
         <div key={idx} style={{

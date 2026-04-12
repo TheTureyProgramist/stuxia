@@ -812,6 +812,7 @@ const PuzzleOne = ({ onExit }) => {
   const [moves, setMoves] = useState(0);
   const [timeLeft, setTimeLeft] = useState(config.maxTime);
   const [showSettings, setShowSettings] = useState(false);
+  const [isChaosMode, setIsChaosMode] = useState(false);
   const [showThemeModal, setShowThemeModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [volume, setVolume] = useState(0.5);
@@ -911,6 +912,23 @@ const PuzzleOne = ({ onExit }) => {
     }
   };
 
+  // Логіка перемикання в режимі Хаосу (кожні 5 секунд)
+  useEffect(() => {
+    if (isChaosMode && !isWon && !isLoading) {
+      const elapsed = config.maxTime - timeLeft;
+      const newIdx = Math.floor(elapsed / 5) % puzzleImages.length;
+      if (newIdx !== currentMediaIndex) {
+        setCurrentMediaIndex(newIdx);
+      }
+    }
+  }, [timeLeft, isChaosMode, isWon, isLoading, puzzleImages.length, config.maxTime, currentMediaIndex]);
+
+  // Реф для відстеження часу без тригерування useEffect завантаження медіа
+  const timeLeftRef = useRef(timeLeft);
+  useEffect(() => {
+    timeLeftRef.current = timeLeft;
+  }, [timeLeft]);
+
   // On mount and unmount
   useEffect(() => {
     audioRef.current = new Audio();
@@ -934,6 +952,17 @@ const PuzzleOne = ({ onExit }) => {
       if (audioRef.current) {
         audioRef.current.src = currentItem.audio;
         audioRef.current.load();
+        
+        // Якщо режим Хаосу, синхронізуємо час відтворення за формулою користувача
+        if (isChaosMode) {
+          const syncAudio = () => {
+            const elapsed = config.maxTime - timeLeftRef.current;
+            if (audioRef.current.duration) {
+              audioRef.current.currentTime = elapsed % audioRef.current.duration;
+            }
+          };
+          audioRef.current.addEventListener('loadedmetadata', syncAudio, { once: true });
+        }
       }
 
       // Load Image
@@ -952,7 +981,7 @@ const PuzzleOne = ({ onExit }) => {
     };
 
     loadMedia();
-  }, [currentMediaIndex, puzzleImages]);
+  }, [currentMediaIndex, puzzleImages, isChaosMode, config.maxTime]);
 
   // On volume change
   useEffect(() => {
@@ -1120,6 +1149,7 @@ const PuzzleOne = ({ onExit }) => {
 
   const handleSelectTheme = (selectedItem) => {
     handleThemeLeave(false);
+    setIsChaosMode(false);
     const originalIndex = puzzleImages.findIndex(
       (p) => p.image === selectedItem.image,
     );
@@ -1142,6 +1172,7 @@ const PuzzleOne = ({ onExit }) => {
       { id: "turkeys", label: "Індики", icon: turkeys },
       { id: "swamp_horror", label: "Болото і Хоррор", icon: deadlocked },
       { id: "other", label: "Інше", icon: mecha },
+      { id: "chaos", label: "Режим Хаосу", icon: fingerdash },
     ],
     [],
   );
@@ -1213,7 +1244,13 @@ const PuzzleOne = ({ onExit }) => {
           </span>
           <span>
             <strong>Час:</strong>{" "}
-            <span style={{ color: timeLeft < 30 ? "#ff5252" : "#ffb36c" }}>
+            <span
+              style={{
+                color: isChaosMode
+                  ? "#7afcff"
+                  : timeLeft < 30 ? "#ff5252" : "#ffb36c",
+              }}
+            >
               {formatTime(timeLeft)}
             </span>{" "}
             | <strong>Ходи:</strong> {moves}/{config.maxMoves}
@@ -1417,7 +1454,15 @@ const PuzzleOne = ({ onExit }) => {
                   {CATEGORIES.map((cat) => (
                     <CategoryCard
                       key={cat.id}
-                      onClick={() => setSelectedCategory(cat.id)}
+                      onClick={() => {
+                        if (cat.id === "chaos") {
+                          setIsChaosMode(true);
+                          setShowThemeModal(false);
+                          initGame();
+                        } else {
+                          setSelectedCategory(cat.id);
+                        }
+                      }}
                     >
                       <Im src={cat.icon} alt={cat.label} />
                       <CategoryLabel>{cat.label}</CategoryLabel>

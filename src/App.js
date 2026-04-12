@@ -86,20 +86,6 @@ ChartJS.register(
   Filler,
 );
 
-// Функція для створення іконки знака оклику для графіка
-const createExclamationIcon = (color) => {
-  const canvas = document.createElement("canvas");
-  canvas.width = 16;
-  canvas.height = 16;
-  const ctx = canvas.getContext("2d");
-  ctx.fillStyle = color;
-  ctx.font = "bold 16px Arial";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText("!", 8, 8);
-  return canvas;
-};
-
 const getWeatherIcon = (code) => {
   if (code === 0) return "☀️";
   if (code >= 1 && code <= 3) return "🌤️";
@@ -213,36 +199,6 @@ const SectionContent = memo(({
             const isExtremeWind = card.current.windNum > 10;
             const isExtremeUV = card.current.uv_index > 7;
 
-            const chartData = {
-              labels: card.hourly?.map((h) => h.time) || [],
-              datasets: [
-                {
-                  label: "Температура (°C)",
-                  data: card.hourly?.map((h) => h.tempNum) || [],
-                  fill: true,
-                  backgroundColor: "rgba(255, 179, 108, 0.2)",
-                  borderColor: "rgba(255, 179, 108, 1)",
-                  pointRadius: card.hourly?.map((h) => (h.tempNum > 30 || h.tempNum < -30 || h.windNum > 10 ? 8 : 4)),
-                  pointStyle: card.hourly?.map((h) => {
-                    if (h.tempNum > 30) return createExclamationIcon("#ff0000");
-                    if (h.tempNum < -30) return createExclamationIcon("#004cff");
-                    if (h.windNum > 10) return createExclamationIcon("#ff6a00");
-                    return "circle";
-                  }),
-                  tension: 0.4,
-                  animations: {
-                    radius: {
-                      duration: 1000,
-                      easing: "easeInOutQuad",
-                      loop: true,
-                      from: (ctx) => (ctx.raw > 30 || ctx.raw < -30 || card.hourly?.[ctx.dataIndex]?.windNum > 10 ? 6 : 4),
-                      to: (ctx) => (ctx.raw > 30 || ctx.raw < -30 || card.hourly?.[ctx.dataIndex]?.windNum > 10 ? 12 : 4),
-                    },
-                  },
-                },
-              ],
-            };
-
             return (
               <WeatherCardComponent
                 key={card.id}
@@ -252,7 +208,6 @@ const SectionContent = memo(({
                 isExtremeTemp={isExtremeTemp}
                 isExtremeWind={isExtremeWind}
                 isExtremeUV={isExtremeUV}
-                chartData={chartData}
                 index={index}
                 totalCards={weatherCards.length}
                 handleRefreshCard={handleRefreshCard}
@@ -468,7 +423,7 @@ const App = () => {
           }
         }
 
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${targetLat}&longitude=${targetLon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,surface_pressure&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,uv_index_max&timezone=auto&forecast_days=16`;
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${targetLat}&longitude=${targetLon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,surface_pressure&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,uv_index_max,wind_speed_10m_max&timezone=auto&forecast_days=16`;
         const res = await axios.get(url);
         const d = res.data;
 
@@ -509,6 +464,8 @@ const App = () => {
             day: new Date(t).toLocaleDateString("uk", { weekday: "short" }),
             temp_day: `${Math.round(d.daily.temperature_2m_max[i])}°C`,
             temp_night: `${Math.round(d.daily.temperature_2m_min[i])}°C`,
+              uv_index: d.daily.uv_index_max[i],
+              wind_speed: `${d.daily.wind_speed_10m_max[i]} м/с`,
             iconPlaceholder: getWeatherIcon(d.daily.weather_code[i]),
           })),
         };
