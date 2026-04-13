@@ -423,13 +423,60 @@ const App = () => {
           }
         }
 
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${targetLat}&longitude=${targetLon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,surface_pressure&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,uv_index_max,wind_speed_10m_max&timezone=auto&forecast_days=16`;
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${targetLat}&longitude=${targetLon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m,surface_pressure&hourly=temperature_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,uv_index_max,wind_speed_10m_max&timezone=auto&forecast_days=16`;
+        console.log("Fetching weather from URL:", url);
         const res = await axios.get(url);
         const d = res.data;
+        
+        // СИРИЙ лог для перевірки що повертає API
+        console.log("💾 RAW API RESPONSE for", displayName, d);
+        
+        // Детальне логування для діагностики
+        console.log("API Response raw data:", {
+          hasResponse: !!d,
+          currentData: d.current,
+          hourlyData: d.hourly ? { time: d.hourly.time?.slice(0, 2), wind: d.hourly.wind_speed_10m?.slice(0, 2) } : null,
+          dailyData: d.daily ? {
+            time: d.daily.time?.slice(0, 2),
+            uv_index_max: d.daily.uv_index_max?.slice(0, 2),
+            wind_speed_10m_max: d.daily.wind_speed_10m_max?.slice(0, 2)
+          } : null,
+        });
+        
+        // Попередження за відсутність даних
+        if (!d.current || d.current.wind_speed_10m === undefined) {
+          console.error("❌ Wind speed data missing from current!", {
+            hasCurrentData: !!d.current,
+            currentKeys: d.current ? Object.keys(d.current) : [],
+            windSpeed: d.current?.wind_speed_10m
+          });
+        }
+        if (!d.daily?.uv_index_max || d.daily.uv_index_max.length === 0) {
+          console.error("❌ UV index data missing from daily!", {
+            hasDailyData: !!d.daily,
+            dailyKeys: d.daily ? Object.keys(d.daily) : [],
+            uvIndex: d.daily?.uv_index_max,
+            uvLength: d.daily?.uv_index_max?.length
+          });
+        }
+        if (!d.hourly?.wind_speed_10m) {
+          console.error("❌ Hourly wind data missing!", {
+            hasHourlyData: !!d.hourly,
+            hourlyKeys: d.hourly ? Object.keys(d.hourly) : [],
+            wind: d.hourly?.wind_speed_10m
+          });
+        }
 
         setWeatherCards((prev) => {
           const id = isMain ? "main-card" : (cityData?.id || Date.now());
           const existingCard = prev.find(c => c.id === id);
+
+        // Логування перед створенням карти
+        console.log(`Creating weather card for ${displayName}`, {
+          windSpeedCurrent: d.current?.wind_speed_10m,
+          windSpeedHourly: d.hourly?.wind_speed_10m?.slice(0, 3),
+          uvIndexDaily: d.daily?.uv_index_max?.slice(0, 3),
+        });
 
         const newCardData = {
           id: id,
@@ -443,18 +490,18 @@ const App = () => {
             feels_like: `${Math.round(d.current.apparent_temperature)}°C`,
             humidity: `${d.current.relative_humidity_2m}%`,
             pressure: `${Math.round(d.current.surface_pressure)} hPa`,
-            wind_speed: `${d.current.wind_speed_10m} м/с`,
-            windNum: d.current.wind_speed_10m,
-            uv_index: d.daily?.uv_index_max?.[0] || 0,
+            wind_speed: `${d.current.wind_speed_10m ?? 0} м/с`,
+            windNum: d.current.wind_speed_10m ?? 0,
+            uv_index: d.daily?.uv_index_max?.[0] ?? 0,
             description: "За кодом: " + d.current.weather_code,
             iconPlaceholder: getWeatherIcon(d.current.weather_code),
           },
           hourly: (d.hourly?.time || []).slice(0, 24).map((t, i) => ({
             time: new Date(t).getHours() + ":00",
-            temp: `${Math.round(d.hourly?.temperature_2m?.[i] || 0)}°C`,
-            tempNum: Math.round(d.hourly?.temperature_2m?.[i] || 0),
-            windNum: d.hourly?.wind_speed_10m?.[i] || 0,
-            iconPlaceholder: getWeatherIcon(d.hourly?.weather_code?.[i] || 0),
+            temp: `${Math.round(d.hourly?.temperature_2m?.[i] ?? 0)}°C`,
+            tempNum: Math.round(d.hourly?.temperature_2m?.[i] ?? 0),
+            windNum: d.hourly?.wind_speed_10m?.[i] ?? 0,
+            iconPlaceholder: getWeatherIcon(d.hourly?.weather_code?.[i] ?? 0),
           })),
           daily16: (d.daily?.time || []).map((t, i) => ({
             date: new Date(t).toLocaleDateString("uk", {
@@ -462,13 +509,20 @@ const App = () => {
               month: "2-digit",
             }),
             day: new Date(t).toLocaleDateString("uk", { weekday: "short" }),
-            temp_day: `${Math.round(d.daily.temperature_2m_max[i])}°C`,
-            temp_night: `${Math.round(d.daily.temperature_2m_min[i])}°C`,
-              uv_index: d.daily.uv_index_max[i],
-              wind_speed: `${d.daily.wind_speed_10m_max[i]} м/с`,
-            iconPlaceholder: getWeatherIcon(d.daily.weather_code[i]),
+            temp_day: `${Math.round(d.daily.temperature_2m_max[i] ?? 0)}°C`,
+            temp_night: `${Math.round(d.daily.temperature_2m_min[i] ?? 0)}°C`,
+            uv_index: d.daily.uv_index_max?.[i] ?? 0,
+            wind_speed: `${d.daily.wind_speed_10m_max?.[i] ?? 0} м/с`,
+            iconPlaceholder: getWeatherIcon(d.daily.weather_code[i] ?? 0),
           })),
         };
+
+        console.log(`Card data created for ${displayName}:`, {
+          windSpeedStored: newCardData.current.windNum,
+          uvIndexStored: newCardData.current.uv_index,
+          hourlyWindSample: newCardData.hourly?.slice(0, 2).map(h => h.windNum),
+          dailyWindSample: newCardData.daily16?.slice(0, 2).map(d => d.wind_speed),
+        });
 
           if (isMain) {
             const hasMain = prev.some(c => c.isMain);
@@ -491,23 +545,37 @@ const App = () => {
         `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,uv_index_max,wind_speed_10m_max&timezone=auto&forecast_days=3`
       );
       const { current, daily } = res.data || {};
-      if (!current || !daily) return null;
+      if (!current || !daily) {
+        console.warn("Weather danger check: Missing data", { hasCurrent: !!current, hasDaily: !!daily });
+        return null;
+      }
+
+      const windSpeed = current.wind_speed_10m ?? 0;
+      const currentTemp = current.temperature_2m ?? 0;
+      const uvIndex = daily?.uv_index_max?.[0] ?? 0;
+      
+      // Логування для діагностики
+      console.log("Weather danger check data:", { windSpeed, currentTemp, uvIndex, hasUvData: !!daily.uv_index_max });
 
       const isExtreme = (tMax, tMin, wind, uv) =>
-        tMax > 30 || tMin < -30 || wind > 10 || uv > 7;
+        (tMax > 30 || tMin < -30 || wind > 10 || uv > 7);
 
       // Пріоритет червоному: небезпечно прямо зараз
-      if (isExtreme(current.temperature_2m, current.temperature_2m, current.wind_speed_10m, daily?.uv_index_max?.[0] || 0)) {
+      const tMax = daily?.temperature_2m_max?.[0] ?? currentTemp;
+      const tMin = daily?.temperature_2m_min?.[0] ?? currentTemp;
+      
+      if (isExtreme(tMax, tMin, windSpeed, uvIndex)) {
         return "red";
       }
 
       // Оранжевий: небезпека протягом найближчих 3-х днів
       const futureDanger = daily?.time?.some((_, i) =>
-        isExtreme(daily.temperature_2m_max?.[i], daily.temperature_2m_min?.[i], daily.wind_speed_10m_max?.[i], daily.uv_index_max?.[i])
+        isExtreme(daily.temperature_2m_max?.[i], daily.temperature_2m_min?.[i], daily.wind_speed_10m_max?.[i] || 0, daily.uv_index_max?.[i] || 0)
       );
 
       return futureDanger ? "orange" : null;
     } catch (error) {
+      console.error("Weather danger check error:", error);
       return null;
     }
   }, []);

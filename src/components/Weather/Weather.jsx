@@ -238,25 +238,37 @@ const WeatherCardComponent = ({
     datasets: [
       {
         label: "Температура (°C)",
-        data: card.hourly?.map((h) => h.tempNum) || [],
+        data: card.hourly?.map((h) => h.tempNum ?? 0) || [],
         fill: true,
         backgroundColor: "rgba(255, 179, 108, 0.2)",
         borderColor: "rgba(255, 179, 108, 1)",
         pointRadius: 12,
         pointStyle: card.hourly?.map((h) => {
           let danger = null;
-          if (h.tempNum > 30) danger = "#ff0000";
-          else if (h.tempNum < -30) danger = "#004cff";
-          else if (h.windNum > 10) danger = "#ff6a00";
-          return createIconCanvas(h.iconPlaceholder, 24, danger);
+          if ((h.tempNum ?? 0) > 30) danger = "#ff0000";
+          else if ((h.tempNum ?? 0) < -30) danger = "#004cff";
+          else if ((h.windNum ?? 0) > 10) danger = "#ff6a00";
+          return createIconCanvas(h.iconPlaceholder ?? "☁️", 24, danger);
         }),
         tension: 0.4,
+        yAxisID: "y",
+      },
+      {
+        label: "Вітер (м/с)",
+        data: card.hourly?.map((h) => h.windNum ?? 0) || [],
+        borderColor: "rgba(0, 190, 235, 1)",
+        backgroundColor: "rgba(0, 190, 235, 0.1)",
+        pointRadius: 8,
+        pointStyle: "circle",
+        pointBackgroundColor: card.hourly?.map((h) => (h.windNum ?? 0) > 10 ? "#ff6a00" : "rgba(0, 190, 235, 1)") || [],
+        tension: 0.4,
+        yAxisID: "y1",
       },
     ],
   };
 
   const dailyChartData = {
-    labels: card.daily16?.map((d) => d.date) || [],
+    labels: card.daily16?.map((d) => `${d.date}\n${d.day}`) || [],
     datasets: [
       {
         label: "День (°C)",
@@ -279,41 +291,69 @@ const WeatherCardComponent = ({
     ],
   };
 
+  const getWeatherDescription = (code) => {
+    if (code === 0) return "Ясно";
+    if (code >= 1 && code <= 3) return "Частково хмарно";
+    if (code >= 45 && code <= 48) return "Туман";
+    if (code >= 51 && code <= 55) return "Дрібна сяка";
+    if (code >= 61 && code <= 65) return "Дощ";
+    if (code >= 71 && code <= 77) return "Сніг";
+    if (code >= 80 && code <= 82) return "Шквальний дощ";
+    if (code >= 95 && code <= 99) return "Гроза";
+    return "Хмарно";
+  };
+
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { display: false },
+      legend: { display: true, labels: { color: isDarkMode ? "#fff" : "#333" } },
       tooltip: {
         mode: "index",
         intersect: false,
         callbacks: {
-          title: (items) => `Час: ${items[0].label}`,
+          title: (items) => `⏰ Час: ${items[0].label}`,
           label: (context) => {
             const index = context.dataIndex;
             const hourlyData = card.hourly?.[index];
-            const isTemp = context.datasetIndex === 0;
-            const value = context.parsed.y;
-            let label = isTemp ? ` Температура: ${value}°C` : ` Вітер: ${value} м/с`;
             
-            let dangers = [];
-            if (isTemp) {
-              if (value > 30) dangers.push("СПЕКА");
-              if (value < -30) dangers.push("МОРОЗ");
-              if (hourlyData?.windNum > 10) dangers.push("СИЛЬНИЙ ВІТЕР");
+            if (context.datasetIndex === 0) {
+              // Температура
+              const temp = context.parsed.y || 0;
+              let label = `🌡️ Температура: ${temp}°C`;
+              
+              let dangers = [];
+              if (temp > 30) dangers.push("СПЕКА ☀️");
+              if (temp < -30) dangers.push("МОРОЗ ❄️");
               
               if (dangers.length > 0) {
-                label += ` ⚠️ УВАГА: ${dangers.join(", ")}!`;
+                label += ` ⚠️ ${dangers.join(", ")}`;
               }
+              return label;
+            } else if (context.datasetIndex === 1) {
+              // Вітер
+              const wind = context.parsed.y || 0;
+              let label = `🌬️ Вітер: ${wind.toFixed(1)} м/с`;
+              if (wind > 10) label += ` ⚠️ СИЛЬНИЙ ВІТЕР`;
+              return label;
             }
-            return label;
+            return "";
           },
+          afterLabel: (context) => {
+            const index = context.dataIndex;
+            const hourlyData = card.hourly?.[index];
+            if (context.datasetIndex === 0 && hourlyData) {
+              return `${hourlyData.iconPlaceholder} ${getWeatherDescription(parseInt(hourlyData.iconPlaceholder.charCodeAt(0)))}`;
+            }
+            return "";
+          }
         },
       },
     },
     scales: {
       y: {
         beginAtZero: false,
+        title: { display: true, text: "Температура (°C)", color: "#ffb36c" },
         ticks: { color: isDarkMode ? "#aaa" : "#888", font: { size: 10 } },
         grid: { color: isDarkMode ? "rgba(255, 255, 255, 0.1)" : "rgba(128, 128, 128, 0.1)" },
       },
@@ -322,8 +362,9 @@ const WeatherCardComponent = ({
         display: true,
         position: 'right',
         beginAtZero: true,
-        ticks: { color: "rgba(0, 234, 255, 1)", font: { size: 10 } },
-        grid: { drawOnChartArea: false }, // Прибираємо сітку для другої осі
+        title: { display: true, text: "Вітер (м/с)", color: "rgba(0, 190, 235, 1)" },
+        ticks: { color: "rgba(0, 190, 235, 1)", font: { size: 10 } },
+        grid: { drawOnChartArea: false },
       },
       x: {
         ticks: { color: isDarkMode ? "#aaa" : "#888", font: { size: 10 } },
@@ -369,10 +410,10 @@ const WeatherCardComponent = ({
             {selectedDay.iconPlaceholder}
           </ImagePlaceholder>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", width: "100%", maxWidth: "300px" }}>
-            <p style={{ margin: 0 }}>☀️ День: <b>{selectedDay.temp_day}</b></p>
-            <p style={{ margin: 0 }}>🌙 Ніч: <b>{selectedDay.temp_night}</b></p>
-            <p style={{ margin: 0 }}>🌬️ Вітер: <b>{selectedDay.wind_speed}</b></p>
-            <p style={{ margin: 0 }}>🧴 УФ: <b>{selectedDay.uv_index}</b></p>
+            <p style={{ margin: 0 }}>☀️ День: <b>{selectedDay.temp_day ?? "—"}</b></p>
+            <p style={{ margin: 0 }}>🌙 Ніч: <b>{selectedDay.temp_night ?? "—"}</b></p>
+            <p style={{ margin: 0 }}>🌬️ Вітер: <b>{selectedDay.wind_speed ?? "0 м/с"}</b></p>
+            <p style={{ margin: 0 }}>🧴 УФ: <b>{selectedDay.uv_index ?? 0}</b></p>
           </div>
           <button onClick={() => setSelectedDay(null)}>Закрити</button>
         </DailyDetailOverlay>
@@ -427,10 +468,10 @@ const WeatherCardComponent = ({
     </div>
 
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", fontSize: "13px", marginBottom: "20px" }}>
-      <div>Вологість: <b>{card.current.humidity}</b></div>
-      <div style={{ color: isExtremeWind ? "#ff4d4d" : "inherit" }}>Вітер: <b>{card.current.wind_speed}</b></div>
-      <div>Тиск: <b>{card.current.pressure}</b></div>
-      <div style={{ color: isExtremeUV ? "#ff4d4d" : "inherit" }}>УФ-індекс: <b>{card.current.uv_index}</b></div>
+      <div>Вологість: <b>{card.current.humidity ?? "—"}</b></div>
+      <div style={{ color: isExtremeWind ? "#ff4d4d" : "inherit" }}>🌬️ Вітер: <b>{card.current.wind_speed ?? "0 м/с"}</b></div>
+      <div>Тиск: <b>{card.current.pressure ?? "—"}</b></div>
+      <div style={{ color: isExtremeUV ? "#ff4d4d" : "inherit" }}>🧴 УФ-індекс: <b>{card.current.uv_index ?? 0}</b></div>
     </div>
 
     <h4 style={{ margin: "0 0 10px 0" }}>Годинний прогноз:</h4>
@@ -448,24 +489,6 @@ const WeatherCardComponent = ({
         <Line options={dailyChartOptions} data={dailyChartData} />
       </ChartInnerContainer>
     </ChartScrollWrapper>
-
-    <ForecastScroll>
-      {card.daily16.map((day, idx) => (
-        <div key={idx} style={{
-          display: "flex", justifyContent: "space-between", alignItems: "center",
-          marginBottom: "12px", fontSize: "13px", borderBottom: "1px solid rgba(128,128,128,0.2)",
-          paddingBottom: "8px"
-        }}>
-          <span style={{ width: "50px" }}>{day.date}</span>
-          <span style={{ width: "40px", fontWeight: "bold" }}>{day.day}</span>
-          <ImagePlaceholder size="35px" fontSize="16px">{day.iconPlaceholder}</ImagePlaceholder>
-          <div style={{ display: "flex", gap: "10px", minWidth: "80px", justifyContent: "flex-end" }}>
-            <span>{day.temp_day}</span>
-            <span style={{ color: "#626262" }}>{day.temp_night}</span>
-          </div>
-        </div>
-      ))}
-    </ForecastScroll>
   </WeatherCard>
     </div>
   );

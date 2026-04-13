@@ -681,7 +681,7 @@ const StyledSymbol = styled.span`
   text-shadow: 0 0 8px rgba(0, 0, 0, 0.6); /* Стійкість до світлих фонів */
 `;
 
-const musicSymbols = ["♩", "♪", "♫", "𝄞"];
+const musicSymbols = ["♫"];
 
 const SymbolOverlay = ({
   count = 50,
@@ -716,7 +716,7 @@ const SymbolOverlay = ({
       };
     });
   }, [count, speed, blur]);
-
+//
   return (
     <div
       style={{
@@ -1090,11 +1090,42 @@ const MiniPlayer = ({ track, initialTime, isPlaying: initialPlaying, speed, volu
     }
   }, [speed, volume]);
 
+  // Допоміжна функція для отримання індексу зображення за часом
+  // Підтримує два формати:
+  // 1. Простий (без таймінгу): [img1, img2, img3] - рівна тривалість для кожного
+  // 2. З таймінгом: [{image: img1, time: 0}, {image: img2, time: 30}] - конкретні часові позначки
+  const getImageIndexByTime = (images, currentTime, duration) => {
+    if (!images || images.length === 0) return 0;
+    
+    // Перевіряємо, чи це тимчасовий формат (об'єкти з 'image' та 'time')
+    const isTimedFormat = images[0] && typeof images[0] === 'object' && 'image' in images[0];
+    
+    if (isTimedFormat) {
+      // Формат з таймінгом: знаходимо зображення, яке має час <= поточний час
+      for (let i = images.length - 1; i >= 0; i--) {
+        if (images[i].time <= currentTime) {
+          return i;
+        }
+      }
+      return 0; // Якщо поточний час менше за перший таймінг, показуємо перше
+    } else {
+      // Простий формат: ділимо тривалість порівну між усіма зображеннями
+      const segment = (duration || 1) / images.length;
+      return Math.min(Math.floor(currentTime / segment), images.length - 1);
+    }
+  };
+
   const currentImgIdx = useMemo(() => {
-    if (!track.images || track.images.length === 0) return 0;
-    const segment = (track.duration || 1) / track.images.length;
-    return Math.min(Math.floor(currentTime / segment), track.images.length - 1);
+    return getImageIndexByTime(track.images, currentTime, track.duration);
   }, [track, currentTime]);
+
+  // Отримуємо URL зображення, враховуючи обидва формати (простий і з таймінгом)
+  const getCurrentImageSrc = useCallback((index) => {
+    if (!track.images || !track.images[index]) return track.image;
+    const imageItem = track.images[index];
+    // Якщо це об'єкт з 'image' властивістю (тимчасовий формат)
+    return imageItem.image ? imageItem.image : imageItem;
+  }, [track.images, track.image]);
 
   // Малюємо вміст на canvas для PiP (якщо це не відео)
   useEffect(() => {
@@ -1103,7 +1134,7 @@ const MiniPlayer = ({ track, initialTime, isPlaying: initialPlaying, speed, volu
     const ctx = canvas.getContext('2d');
     const img = new Image();
     img.crossOrigin = "anonymous";
-    img.src = track.images?.[currentImgIdx] || track.image;
+    img.src = getCurrentImageSrc(currentImgIdx);
     img.onload = () => {
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
       // Додаємо плашку з текстом
@@ -1113,7 +1144,7 @@ const MiniPlayer = ({ track, initialTime, isPlaying: initialPlaying, speed, volu
       ctx.font = "bold 20px Inter, sans-serif";
       ctx.fillText(track.author || "Стихія", 15, canvas.height - 20);
     };
-  }, [track, currentImgIdx, isDinofroz]);
+  }, [track, currentImgIdx, isDinofroz, getCurrentImageSrc]);
 
   const activeFilters = useMemo(() => {
     if (!track.filters) return [];
@@ -1905,7 +1936,14 @@ const FullScreenPlayer = ({
   ]);
 
   const sliderImages = useMemo(() => {
-    if (track.images && track.images.length > 0) return track.images;
+    if (track.images && track.images.length > 0) {
+      // Якщо це тимчасовий формат (об'єкти з 'image' властивістю), 
+      // витягуємо лише URL зображень для відображення
+      if (track.images[0] && typeof track.images[0] === 'object' && 'image' in track.images[0]) {
+        return track.images.map(item => item.image);
+      }
+      return track.images;
+    }
     return [track.image, track.image, track.image];
   }, [track]);
 
@@ -2344,7 +2382,7 @@ const FullScreenPlayer = ({
       >
         <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
           <FSCloseButton onClick={handleClose}>&times;</FSCloseButton>
-          <ActionButton onClick={() => onMiniPlayer(progress, isPlaying, volume, speed)} title="Згорнути в міні-плеєр">🗗 Міні</ActionButton>
+          <ActionButton onClick={() => onMiniPlayer(progress, isPlaying, volume, speed)} title="Згорнути в міні-плеєр">🗗</ActionButton>
           <div style={{ display: "flex", flexDirection: "column" }}>
             <FSTitle>{track.author}</FSTitle>
             {track.category !== "мультфільми" && (
@@ -3188,7 +3226,76 @@ const MusicCard = ({ cardData, onOpenModal, rating, onOpenPlayer, onRate }) => {
   );
 };
 
+/*
+  ============================================================================
+  МУЗИЧНІ КАРТИ - ФОРМАТИ ЗОБРАЖЕНЬ
+  ============================================================================
+  
+  Підтримуються два формати для властивості 'images':
+  
+  1. ПРОСТИЙ ФОРМАТ (без таймінгу) - ЗВОРОТНО СУМІСНИЙ:
+  ─────────────────────────────────────────────────────
+  images: [img1, img2, img3, img4]
+  
+  Тривалість розподіляється рівномірно. Якщо трек 60 секунд і 4 зображення,
+  кожне показується 15 секунд.
+  
+  Приклад:
+    images: [turkeysone, turkeytwo, turkeythree, turkeys]
+  
+  
+  2. ФОРМАТ З ТАЙМІНГОМ (новий):
+  ──────────────────────────────
+  images: [
+    { image: img1, time: 0 },      // 0-5 сек
+    { image: img2, time: 5 },      // 5-15 сек
+    { image: img3, time: 15 },     // 15-35 сек
+    { image: img4, time: 35 }      // 35+ сек
+  ]
+  
+  Кожне зображення показується від його часової позначки до наступної.
+  
+  Приклад:
+    images: [
+      { image: dinofrozthree, time: 0 },
+      { image: dinofrozfour, time: 15 },
+      { image: dinofrozfive, time: 30 },
+      { image: dinofrozsix, time: 45 },
+      { image: dinofrozseven, time: 60 },
+      { image: dinofrozeight, time: 75 }
+    ]
+  
+  ============================================================================
+*/
+
 const musicCards = [
+/*
+  ПРИКЛАД З ТАЙМІНГОМ (для "Динофроз" багатозображена версія):
+  
+  {
+    id: 2,
+    ...
+    images: [
+      { image: dinofrozone, time: 0 },
+      { image: dinofrozthree, time: 20 },
+      { image: dinofrozfour, time: 40 },
+      { image: dinofrozfive, time: 60 },
+      { image: dinofrozsix, time: 80 },
+      { image: dinofrozseven, time: 100 }
+    ],
+    duration: 120,
+    ...
+  }
+  
+  У цьому випадку:
+  • 0-20 сек: dinofrozone
+  • 20-40 сек: dinofrozthree
+  • 40-60 сек: dinofrozfour
+  • 60-80 сек: dinofrozfive
+  • 80-100 сек: dinofrozsix
+  • 100+ сек: dinofrozseven
+*/
+
   {
     id: 1,
     image: christmas,

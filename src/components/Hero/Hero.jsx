@@ -232,13 +232,124 @@ const SearchWrapper = styled.div`
   z-index: 99;
 `;
 
+const SearchModeToggle = styled.div`
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  justify-content: center;
+
+  @media (min-width: 768px) {
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+
+  @media (min-width: 1920px) {
+    gap: 20px;
+    margin-bottom: 30px;
+  }
+`;
+
+const ModeButton = styled.button`
+  padding: 8px 16px;
+  background: ${(props) => (props.$active ? "#ffb36c" : "rgba(255, 255, 255, 0.1)")};
+  color: ${(props) => (props.$active ? "#000" : "#fff")};
+  border: 2px solid ${(props) => (props.$active ? "#ffb36c" : "rgba(255, 179, 108, 0.5)")};
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 600;
+  font-family: var(--font-family);
+  font-size: 12px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+
+  &:hover {
+    background: ${(props) => (props.$active ? "#ffb36c" : "rgba(255, 179, 108, 0.2)")};
+    border-color: #ffb36c;
+  }
+
+  @media (min-width: 768px) {
+    font-size: 14px;
+    padding: 10px 20px;
+  }
+
+  @media (min-width: 1920px) {
+    font-size: 20px;
+    padding: 15px 30px;
+  }
+`;
+
+const CoordinatesContainer = styled.div`
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 15px;
+
+  @media (min-width: 1920px) {
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+`;
+
+const CoordinateInput = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-items: center;
+
+  label {
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    text-align: center;
+
+    @media (min-width: 1920px) {
+      font-size: 18px;
+    }
+  }
+
+  input {
+    width: 100px;
+    height: 20px;
+    padding: 5px 10px;
+    font-size: 10px;
+    border-radius: 8px;
+    border: 1px solid #ffb36c;
+    background: #d9d9d9;
+    color: #222;
+    font-weight: 500;
+
+    @media (min-width: 768px) {
+      width: 120px;
+      height: 25px;
+      font-size: 12px;
+    }
+
+    @media (min-width: 1920px) {
+      width: 200px;
+      height: 50px;
+      font-size: 18px;
+      padding: 10px 15px;
+    }
+
+    &::placeholder {
+      color: #888;
+    }
+  }
+`;
+
 const HeroFormater = styled.div`
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
 `;
 
 const SearchContainer = styled.div`
   position: relative;
   display: flex;
+  width: 100%;
+  justify-content: center;
 `;
 
 const HeroInput = styled.input`
@@ -414,6 +525,9 @@ const Hero = ({ heroDateString, onAddCity, startAnimation, user }) => {
   const [limit, setLimit] = useState(5);
   const [showList, setShowList] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [searchMode, setSearchMode] = useState("city"); // "city" або "coordinates"
+  const [latitude, setLatitude] = useState("");
+  const [longitude, setLongitude] = useState("");
   const [cooldown, setCooldown] = useState(() => {
     const saved = localStorage.getItem("hero_cooldown_until");
     if (saved) {
@@ -498,6 +612,57 @@ const Hero = ({ heroDateString, onAddCity, startAnimation, user }) => {
     return () => clearInterval(interval);
   }, [cooldown]);
 
+  const handleSelectByCoordinates = async () => {
+    if (cooldown > 0) return;
+
+    const lat = parseFloat(latitude);
+    const lon = parseFloat(longitude);
+
+    if (isNaN(lat) || isNaN(lon)) {
+      alert("Будь ласка, введіть правильні координати");
+      return;
+    }
+
+    if (lat < -90 || lat > 90) {
+      alert("Широта має бути від -90 до 90");
+      return;
+    }
+
+    if (lon < -180 || lon > 180) {
+      alert("Довгота має бути від -180 до 180");
+      return;
+    }
+
+    try {
+      // Обернене геокодування - отримуємо назву місця за координатами
+      const response = await fetch(
+        `https://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=1&appid=${API_KEY}`,
+      );
+      const data = await response.json();
+
+      if (data.length > 0) {
+        const city = data[0];
+        const cityObj = {
+          name: city.name,
+          fullName: `${city.name}${city.state ? `, ${city.state}` : ""} (${city.country})`,
+          lat: lat,
+          lon: lon,
+        };
+        onAddCity(cityObj);
+        setLatitude("");
+        setLongitude("");
+        const until = Date.now() + 40000;
+        localStorage.setItem("hero_cooldown_until", until.toString());
+        setCooldown(40);
+      } else {
+        alert("Місто за цими координатами не знайдено");
+      }
+    } catch (error) {
+      console.error("Помилка при пошуку за координатами:", error);
+      alert("Помилка при пошуку. Спробуйте ще раз.");
+    }
+  };
+
   const handleSelect = (city) => {
     if (cooldown > 0) return;
 
@@ -515,6 +680,7 @@ const Hero = ({ heroDateString, onAddCity, startAnimation, user }) => {
     localStorage.setItem("hero_cooldown_until", until.toString());
     setCooldown(40);
   };
+
   return (
     <HeroDiv>
       <HeroDecors $image={herotext} $start={startAnimation}/>
@@ -535,8 +701,6 @@ const Hero = ({ heroDateString, onAddCity, startAnimation, user }) => {
           </HeroFix>
         </HeroDecor>
 
-        <DownloadAppsContainer>
-        </DownloadAppsContainer>
         {user && (
           <DownloadAppsContainer>
             <DownloadAppButton href="/downloads/stykhiya-pc.exe" download="stykhiya-pc.exe" title="Завантажити для Windows">
@@ -549,38 +713,64 @@ const Hero = ({ heroDateString, onAddCity, startAnimation, user }) => {
         )}
 
         <SearchWrapper ref={searchRef}>
-          <HeroFormater>
-            <SearchContainer>
-              <HeroInput
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onFocus={() => suggestions.length > 0 && setShowList(true)}
-                placeholder={cooldown > 0 ? `Зачекайте ${cooldown}с` : "Уведіть місто, село."}
-                disabled={cooldown > 0}
-              />
-              {showList && suggestions.length > 0 && (
-                <SuggestionsList>
-                  {suggestions.map((city, index) => (
-                    <SuggestionItem
-                      key={`${city.lat}-${city.lon}-${index}`}
-                      onClick={() => handleSelect(city)}
-                    >
-                      📍 {city.name}
-                      {city.state ? `, ${city.state}` : ""} ({city.country})
-                    </SuggestionItem>
-                  ))}
+          <SearchModeToggle>
+            <ModeButton
+              $active={searchMode === "city"}
+              onClick={() => {
+                setSearchMode("city");
+                setLatitude("");
+                setLongitude("");
+                setSuggestions([]);
+                setShowList(false);
+              }}
+            >
+              🏙️ За назвою міста
+            </ModeButton>
+            <ModeButton
+              $active={searchMode === "coordinates"}
+              onClick={() => {
+                setSearchMode("coordinates");
+                setInputValue("");
+                setSuggestions([]);
+                setShowList(false);
+              }}
+            >
+              📍 За координатами
+            </ModeButton>
+          </SearchModeToggle>
 
-                  {hasMore ? (
-                    <LoadMoreButton onClick={handleLoadMore}>
-                      ⬇ Завантажити ще варіанти
-                    </LoadMoreButton>
-                  ) : (
-                    <LoadMoreButton disabled>Кінець списку</LoadMoreButton>
-                  )}
-                </SuggestionsList>
-              )}
-            </SearchContainer>
-              <HeroButton
+          {searchMode === "city" ? (
+            <HeroFormater>
+              <SearchContainer>
+                <HeroInput
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onFocus={() => suggestions.length > 0 && setShowList(true)}
+                  placeholder={cooldown > 0 ? `Зачекайте ${cooldown}с` : "Уведіть місто, село."}
+                  disabled={cooldown > 0}
+                />
+                {showList && suggestions.length > 0 && (
+                  <SuggestionsList>
+                    {suggestions.map((city, index) => (
+                      <SuggestionItem
+                        key={`${city.lat}-${city.lon}-${index}`}
+                        onClick={() => handleSelect(city)}
+                      >
+                        📍 {city.name}
+                        {city.state ? `, ${city.state}` : ""} ({city.country})
+                      </SuggestionItem>
+                    ))}
+
+                    {hasMore ? (
+                      <LoadMoreButton onClick={handleLoadMore}>
+                        ⬇ Завантажити ще варіанти
+                      </LoadMoreButton>
+                    ) : (
+                      <LoadMoreButton disabled>Кінець списку</LoadMoreButton>
+                    )}
+                  </SuggestionsList>
+                )}
+                              <HeroButton
                 onClick={() => {
                   if (cooldown === 0 && suggestions[0]) handleSelect(suggestions[0]);
                 }}
@@ -588,7 +778,47 @@ const Hero = ({ heroDateString, onAddCity, startAnimation, user }) => {
               >
                 {cooldown > 0 ? cooldown : "⌕"}
               </HeroButton>
-          </HeroFormater>
+              </SearchContainer>
+            </HeroFormater>
+          ) : (
+            <div style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center", gap: "15px" }}>
+              <CoordinatesContainer>
+                <CoordinateInput>
+                  <label>🧭 Широта (N/S)<br/>-90 до +90</label>
+                  <input
+                    type="number"
+                    value={latitude}
+                    onChange={(e) => setLatitude(e.target.value)}
+                    placeholder="55.75"
+                    disabled={cooldown > 0}
+                    min="-90"
+                    max="90"
+                    step="0.01"
+                  />
+                </CoordinateInput>
+                <CoordinateInput>
+                  <label>📍 Довгота (E/W)<br/>-180 до +180</label>
+                  <input
+                    type="number"
+                    value={longitude}
+                    onChange={(e) => setLongitude(e.target.value)}
+                    placeholder="37.62"
+                    disabled={cooldown > 0}
+                    min="-180"
+                    max="180"
+                    step="0.01"
+                  />
+                </CoordinateInput>
+              <HeroButton
+                onClick={handleSelectByCoordinates}
+                disabled={cooldown > 0}
+                style={{marginBottom: "15px" }}
+              >
+                {cooldown > 0 ? cooldown : "⌕"}
+              </HeroButton>
+              </CoordinatesContainer>
+            </div>
+          )}
         </SearchWrapper>
       </DelayedContent>
     </HeroDiv>
