@@ -98,4 +98,9 @@ JS-код чистий і зрозумілий, використовується
 
 
 Завдання 2. Запушити написаний код в репозиторій HW-27-react. Прикріпити у ДЗ посилання на репозиторій з кодом та на деплой github-pages. */
-/* npm install @redux-devtools/extension */
+/* npm install @redux-devtools/extension
+// Для патчу (виправлення помилок): npm version patch (0.1.0 -> 0.1.1)
+
+// Для нової фічі: npm version minor (0.1.0 -> 0.2.0)
+
+// Для великого релізу: npm version major (0.1.0 -> 1.0.0) */

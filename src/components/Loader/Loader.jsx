@@ -159,7 +159,7 @@ export default function Loader({ isLoading, isFadingOut, randomPhrase }) {
           <ProgressContainer>
             <ProgressBar />
           </ProgressContainer>
-          <LoaderText>Версія 1.9.8. Конотоп-Україна</LoaderText>
+          <LoaderText>Версія 0.9.9. Конотоп-Україна</LoaderText>
           <LoaderText
             style={{
               fontSize: "11px",

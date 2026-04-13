@@ -135,22 +135,6 @@ const ChartInnerContainer = styled.div`
   width: ${props => props.$width}px;
   height: ${props => props.$height || "200px"};
 `;
-
-const ForecastScroll = styled.div`
-  max-height: 300px;
-  overflow-y: auto;
-  padding-right: 10px;
-  margin-top: 10px;
-
-  &::-webkit-scrollbar { width: 6px; }
-  &::-webkit-scrollbar-thumb { background: #555; border-radius: 10px; }
-
-  @media (min-width: 1920px) {
-    max-height: 500px;
-    padding-right: 20px;
-  }
-`;
-
 const DailyDetailOverlay = styled.div`
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -314,9 +298,6 @@ const WeatherCardComponent = ({
         callbacks: {
           title: (items) => `⏰ Час: ${items[0].label}`,
           label: (context) => {
-            const index = context.dataIndex;
-            const hourlyData = card.hourly?.[index];
-            
             if (context.datasetIndex === 0) {
               // Температура
               const temp = context.parsed.y || 0;

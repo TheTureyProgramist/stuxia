@@ -1,6 +1,7 @@
+
 {
   "name": "react-weather-music-project",
-  "version": "0.1.0",
+  "version": "0.9.9",
   "homepage": "https://thetureyprogramist.github.io/react-weather-music-project/",
   "private": true,
   "dependencies": {
