@@ -30,7 +30,7 @@ const WeatherCard = styled.div`
     p, div, span { font-size: 20px !important; }
   }
 `;
-
+//
 const CardHeader = styled.div`
   display: flex;
   justify-content: space-between;
@@ -173,6 +173,7 @@ const DailyDetailOverlay = styled.div`
 `;
 
 const WeatherCardComponent = ({
+  user,
   card,
   isDarkMode,
   isLocationEnabled,
@@ -251,6 +252,102 @@ const WeatherCardComponent = ({
     ],
   };
 
+
+
+  const getWeatherDescription = (code) => {
+    if (code === 0) return "Ясно";
+    if (code >= 1 && code <= 3) return "Частково хмарно";
+    if (code >= 45 && code <= 48) return "Туман";
+    if (code >= 51 && code <= 55) return "Дрібна сяка";
+    if (code >= 61 && code <= 65) return "Дощ";
+    if (code >= 71 && code <= 77) return "Сніг";
+    if (code >= 80 && code <= 82) return "Шквальний дощ";
+    if (code >= 95 && code <= 99) return "Гроза";
+    return "Хмарно";
+  };
+
+  // Реєстр свят 2026
+  const HOLIDAYS_2026 = {
+    "01.01": "Вітаю з Новим роком!",
+    "06.01": "Богоявлення (Водохреще)",
+    "07.01": "Різдво Христове (старий стиль)",
+    "02.02": "Стрітення Господнє",
+    "14.02": "З Днем святого Валентина!",
+    "08.03": "Жінки, всіх вас вітаю з вашим днем!",
+    "25.03": "Благовіщення",
+    "01.04": "Сьогодні день дурня, не святого лежня. Нікому не вірте!",
+    "12.04": "З Великоднем (Пасха). Бажаю всім всього найкращого.", // Орієнтовно для 2026
+    "01.05": "День праці",
+    "08.05": "День пам'яті та перемоги. В цей день ми(наші прадіди) перемогли фашизм",
+    "10.05": "День матері. Подякуйте їм, за те що вони підтримували вас у тяжкі дні. А радісні робили, ще кращими.",
+    "21.05": "Вознесіння Господнє",
+    "31.05": "Трійця (П'ятдесятниця). ",
+    "21.06": "День батька",
+    "28.06": "День Конституції України",
+    "01.08": "День Малятко ТВ. Ще раз особиста подяка.",
+    "06.08": "Преображення (Спас)",
+    "15.08": "Успіння Пресвятої Богородиці",
+    "24.08": "День Незалежності України",
+    "01.09": "День знань. Цей день усі ненавидять, бо термін відпустки закінчився.",
+    "11.09": "Випуск 1шої серії м/с Динофроз. Легенда.",
+    "01.10": "Покрова і день Козацтва (Новий стиль)",
+    "14.10": "Покрова і день Козацтва (Старий стиль)",
+    "27.10": "День писемності та мови",
+    "19.11": "Міжнародний чоловічий день. Наш день :)",
+    "21.11": "Введення в храм Пресвятої Богородиці",
+    "25.12": "Різдво Христове (новий стиль)"
+  };
+
+  const isWeekend = (dayName) => {
+    const name = dayName.toLowerCase();
+    return name.includes("сб") || name.includes("нд");
+  };
+
+  const isBirthday = (dateStr) => {
+    if (!user?.birthDate || !dateStr) return false;
+    // user.birthDate: YYYY-MM-DD, dateStr: DD.MM
+    const [, uMonth, uDay] = user.birthDate.split("-");
+    const [dDay, dMonth] = dateStr.split(".");
+    return parseInt(uDay) === parseInt(dDay) && parseInt(uMonth) === parseInt(dMonth);
+  };
+
+  const getDateType = (dateStr, dayName) => {
+    const holidayName = HOLIDAYS_2026[dateStr];
+    const isWknd = isWeekend(dayName);
+    const isBday = isBirthday(dateStr);
+    
+    // Пріоритет: Свято (Кораловий) > День народження (Райдужний/Фіолетовий) > Вихідний (Оранжевий)
+    if (holidayName) {
+      return { 
+        type: "holiday", 
+        color: "#ff6666", 
+        label: holidayName + (isWknd ? " + вихідний" : "") 
+      };
+    }
+    if (isBday) {
+      return { 
+        type: "birthday", 
+        color: "#e066ff", // Використовуємо фіолетовий для "райдужного" ефекту в hex
+        label: "З Днем Народження! 🎉",
+        isRainbow: true 
+      };
+    }
+    if (isWknd) {
+      return { 
+        type: "weekend", 
+        color: "#ff9966", 
+        label: "вихідний" 
+      };
+    }
+    return { type: "regular", color: null, label: "" };
+  };
+
+  const getHolidayMessage = (dateStr, dayName) => {
+    if (isBirthday(dateStr)) return `🎂 Вітаємо, ${user?.firstName}! З Днем Народження! 🌈`;
+    const holiday = HOLIDAYS_2026[dateStr];
+    if (holiday) return `✨ Вітаємо з святом: ${holiday}!`;
+    return null;
+  }; 
   const dailyChartData = {
     labels: card.daily16?.map((d) => `${d.date}\n${d.day}`) || [],
     datasets: [
@@ -261,6 +358,14 @@ const WeatherCardComponent = ({
         backgroundColor: "rgba(255, 179, 108, 0.5)",
         pointRadius: 12,
         pointStyle: card.daily16?.map((d) => createIconCanvas(d.iconPlaceholder, 24)),
+        pointBorderColor: card.daily16?.map((d) => {
+          const dateType = getDateType(d.date, d.day);
+          return dateType.color || "#ffb36c";
+        }),
+        pointBorderWidth: card.daily16?.map((d) => {
+          const dateType = getDateType(d.date, d.day);
+          return dateType.color ? 3 : 2;
+        }),
         tension: 0.3,
       },
       {
@@ -273,18 +378,6 @@ const WeatherCardComponent = ({
         tension: 0.3,
       }
     ],
-  };
-
-  const getWeatherDescription = (code) => {
-    if (code === 0) return "Ясно";
-    if (code >= 1 && code <= 3) return "Частково хмарно";
-    if (code >= 45 && code <= 48) return "Туман";
-    if (code >= 51 && code <= 55) return "Дрібна сяка";
-    if (code >= 61 && code <= 65) return "Дощ";
-    if (code >= 71 && code <= 77) return "Сніг";
-    if (code >= 80 && code <= 82) return "Шквальний дощ";
-    if (code >= 95 && code <= 99) return "Гроза";
-    return "Хмарно";
   };
 
   const chartOptions = {
@@ -359,11 +452,52 @@ const WeatherCardComponent = ({
     plugins: {
       ...chartOptions.plugins,
       tooltip: {
+        ...chartOptions.plugins.tooltip,
         callbacks: {
-          title: (items) => `Дата: ${items[0].label}`,
+          title: (items) => {
+            const daily = card.daily16?.[items[0].dataIndex];
+            if (!daily) return items[0].label;
+            const dateType = getDateType(daily.date, daily.day);
+            const holidayMsg = getHolidayMessage(daily.date, daily.day);
+            const label = dateType.label ? ` [${dateType.label}]` : "";
+            const titleText = items[0].label + label;
+            // Повертаємо масив для коректного відображення кількох рядків
+            return holidayMsg ? [holidayMsg, titleText] : titleText;
+          },
           label: (context) => {
             const isDay = context.datasetIndex === 0;
-            return `${isDay ? "День" : "Ніч"}: ${context.parsed.y}°C`;
+            return `${isDay ? "☀️ День" : "🌙 Ніч"}: ${context.parsed.y}°C`;
+          },
+          afterLabel: (context) => {
+            const daily = card.daily16?.[context.dataIndex];
+            if (!daily || context.datasetIndex !== 0) return "";
+            return `\nОписання: ${daily.description || "—"}`;
+          }
+        }
+      }
+    },
+    scales: {
+      ...chartOptions.scales,
+      x: {
+        ...chartOptions.scales.x,
+        ticks: {
+          ...chartOptions.scales.x.ticks,
+          color: (ctx) => {
+            if (!card.daily16 || ctx.index >= card.daily16.length) {
+              return isDarkMode ? "#aaa" : "#888";
+            }
+            const daily = card.daily16[ctx.index];
+            const dateType = getDateType(daily.date, daily.day);
+            return dateType.color || (isDarkMode ? "#aaa" : "#888");
+          },
+          font: {
+            ...chartOptions.scales.x.ticks.font,
+            weight: (ctx) => {
+              if (!card.daily16 || ctx.index >= card.daily16.length) return "normal";
+              const daily = card.daily16[ctx.index];
+              const dateType = getDateType(daily.date, daily.day);
+              return dateType.color ? "bold" : "normal";
+            }
           }
         }
       }
@@ -387,6 +521,16 @@ const WeatherCardComponent = ({
       {selectedDay && (
         <DailyDetailOverlay $isDarkMode={isDarkMode}>
           <h3 style={{ margin: 0 }}>Детально: {selectedDay.date} ({selectedDay.day})</h3>
+          {getDateType(selectedDay.date, selectedDay.day).label && (
+            <p style={{ margin: "5px 0", fontSize: "12px", color: getDateType(selectedDay.date, selectedDay.day).color, fontWeight: "bold" }}>
+              {getDateType(selectedDay.date, selectedDay.day).label.toUpperCase()}
+            </p>
+          )}
+          {getHolidayMessage(selectedDay.date, selectedDay.day) && (
+            <p style={{ margin: "8px 0", fontSize: "16px", fontWeight: "bold", color: "#ffb36c" }}>
+              {getHolidayMessage(selectedDay.date, selectedDay.day)}
+            </p>
+          )}
           <ImagePlaceholder size="60px" fontSize="30px" style={{ margin: "15px 0" }}>
             {selectedDay.iconPlaceholder}
           </ImagePlaceholder>
@@ -417,11 +561,9 @@ const WeatherCardComponent = ({
             <h3>{card.locationName} {card.isMain && "📍"}</h3>
           )}
 
-        {card.isMain && (
-          <p style={{ margin: "5px 0 0 0", fontSize: "11px", color: "#686868" }}>
-            Lat: {card.lat?.toFixed(2)}, Lon: {card.lon?.toFixed(2)}
-          </p>
-        )}
+        <p style={{ margin: "5px 0 0 0", fontSize: "11px", color: "#686868" }}>
+          Lat: {card.lat?.toFixed(2)}, Lon: {card.lon?.toFixed(2)}
+        </p>
       </div>
       <ActionButtons>
         {!isEditing && <button onClick={() => setIsEditing(true)} title="Перейменувати">✎</button>}

@@ -212,6 +212,7 @@ const SectionContent = memo(({
             return (
               <WeatherCardComponent
                 key={card.id}
+                user={user}
                 card={card}
                 isDarkMode={isDarkMode}
                 isLocationEnabled={isLocationEnabled}
