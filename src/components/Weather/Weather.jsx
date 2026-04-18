@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useSelector } from "react-redux";
 import styled, { keyframes } from "styled-components";
 import { Line } from "react-chartjs-2";
 
@@ -188,6 +189,7 @@ const WeatherCardComponent = ({
   moveWeatherCard,
   setIsLocationEnabled,
 }) => {
+  const customDays = useSelector((state) => state.calendar.customDays);
   const [isEditing, setIsEditing] = useState(false);
   const [newName, setNewName] = useState(card.locationName);
   const [selectedDay, setSelectedDay] = useState(null);
@@ -312,11 +314,17 @@ const WeatherCardComponent = ({
   };
 
   const getDateType = (dateStr, dayName) => {
+    // 1. Перевірка на власні дні (Синій пріоритет)
+    const customDay = customDays.find(d => d.date === dateStr);
+    if (customDay) {
+      return { type: "custom", color: "#004cff", label: customDay.reason };
+    }
+
     const holidayName = HOLIDAYS_2026[dateStr];
     const isWknd = isWeekend(dayName);
     const isBday = isBirthday(dateStr);
     
-    // Пріоритет: Свято (Кораловий) > День народження (Райдужний/Фіолетовий) > Вихідний (Оранжевий)
+    // Пріоритет: Власний (Синій) > Свято (Кораловий) > День народження > Вихідний
     if (holidayName) {
       return { 
         type: "holiday", 
@@ -343,6 +351,8 @@ const WeatherCardComponent = ({
   };
 
   const getHolidayMessage = (dateStr, dayName) => {
+    const customDay = customDays.find(d => d.date === dateStr);
+    if (customDay) return `💙 Ваша подія: ${customDay.reason}`;
     if (isBirthday(dateStr)) return `🎂 Вітаємо, ${user?.firstName}! З Днем Народження! 🌈`;
     const holiday = HOLIDAYS_2026[dateStr];
     if (holiday) return `✨ Вітаємо з святом: ${holiday}!`;

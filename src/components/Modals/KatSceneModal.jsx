@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import styled, { keyframes, css } from "styled-components";
+import styled, { keyframes } from "styled-components";
 import { motion, AnimatePresence } from "framer-motion";
 import dinofrozVideo from "../../mp3/dinofroz.mp4";
 import ultra from "../../photos/hero-header/start-image.webp";
@@ -688,6 +688,7 @@ const KatSceneModal = ({ onClose }) => {
       clearInterval(countdownInterval);
     };
   }, [
+    timeLeft,
     stepIndex,
     step.duration,
     step.text,

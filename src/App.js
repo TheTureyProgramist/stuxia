@@ -161,28 +161,6 @@ const LOADING_PHRASES = [
   "Mondo TV - Thanks for legendary cartoons.",
   "Canada!",
 ];
-
-const SettingsContainer = styled.div`
-  max-width: 1200px;
-  margin: 0 auto 20px auto;
-  background: #00ffd5;
-  border-radius: 12px;
-  padding: 16px;
-  box-shadow: 0 2px 8px #0001;
-  @media (min-width: 1920px) {
-    max-width: 1600px;
-    padding: 24px;
-    h4 {
-      font-size: 22px !important;
-    }
-    label,
-    input,
-    button,
-    span {
-      font-size: 18px !important;
-    }
-  }
-`;
 const SECTION_ORDER_STORAGE_KEY = "siteSectionsOrder";
 
 const SectionContent = memo(({
@@ -780,48 +758,6 @@ const App = () => {
         />
       </div>
       <div className="container">
-        <SettingsContainer>
-          <h4 style={{ fontWeight: 700, fontSize: 16, marginBottom: 10 }}>
-            Налаштування підтвердження видалення картки
-          </h4>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <label htmlFor="hideDeleteModalHours">
-              Час приховування (1-72 год):
-            </label>
-            <input
-              id="hideDeleteModalHours"
-              type="number"
-              min={1}
-              max={72}
-              value={
-                hideDeleteModalUntil > Date.now()
-                  ? Math.ceil((hideDeleteModalUntil - Date.now()) / 3600000)
-                  : 1
-              }
-              onChange={(e) => {
-                let val = Math.max(
-                  1,
-                  Math.min(72, parseInt(e.target.value) || 1),
-                );
-                const newUntil = Date.now() + val * 3600 * 1000;
-                localStorage.setItem(
-                  "hideDeleteModalUntil",
-                  newUntil.toString(),
-                );
-                setHideDeleteModalUntil(newUntil);
-              }}
-              style={{ width: 60, padding: "2px 8px" }}
-            />
-            <button
-              onClick={() => {
-                localStorage.removeItem("hideDeleteModalUntil");
-                setHideDeleteModalUntil(0);
-              }}
-            >
-              Показувати завжди
-            </button>
-          </div>
-        </SettingsContainer>
         {siteSections.map(
           (section) => section.key !== "hero" && (
             <SectionContent

@@ -1,4 +1,6 @@
-import React, { useState, useMemo } from "react";
+import Reacdeployt, { useState, useMemo } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { addCustomDay, removeCustomDay } from "../../features/counter/Counter.js";
 import styled, { keyframes, css } from "styled-components";
 import InfoModal from "./InfoModal";
 import KatSceneModal from "./KatSceneModal";
@@ -400,9 +402,14 @@ const SECTION_LABELS = {
   textColor: "Колір тексту",
   borderColor: "Колір рамки",
   avatar: "Аватар",
+  customCalendar: "Мої важливі дні",
 };
 
 const UserSettingsModal = ({ onClose, user, availableAvatars, onUpdate }) => {
+  const dispatch = useDispatch();
+  const customDays = useSelector((state) => state.calendar.customDays);
+  const [newDay, setNewDay] = useState({ d: "", m: "", reason: "" });
+
   const [y, m, d] = user?.birthDate ? user.birthDate.split("-") : ["", "", ""];
   const [formData, setFormData] = useState({
     name: user?.firstName || "",
@@ -750,6 +757,51 @@ const UserSettingsModal = ({ onClose, user, availableAvatars, onUpdate }) => {
                       </AvatarOption>
                     ))}
                   </AvatarSlider>
+                </Section>
+              );
+            } else if (section === "customCalendar") {
+              content = (
+                <Section key="customCalendar">
+                  <label style={{ fontSize: "13px", fontWeight: "bold" }}>Мої пам'ятні дні (макс. 10)</label>
+                  <div style={{ display: "flex", gap: "5px", marginBottom: "10px" }}>
+                    <Select value={newDay.d} onChange={e => setNewDay({...newDay, d: e.target.value})}>
+                      <option value="">День</option>
+                      {days.map(d => <option key={d} value={d}>{d}</option>)}
+                    </Select>
+                    <Select value={newDay.m} onChange={e => setNewDay({...newDay, m: e.target.value})}>
+                      <option value="">Місяць</option>
+                      {months.map((m, i) => <option key={i} value={i+1}>{m}</option>)}
+                    </Select>
+                  </div>
+                  <Input 
+                    placeholder="Чому цей день важливий?" 
+                    value={newDay.reason} 
+                    onChange={e => setNewDay({...newDay, reason: e.target.value})}
+                    style={{ marginBottom: "5px" }}
+                  />
+                  <button 
+                    style={{ background: "#004cff", color: "white", border: "none", borderRadius: "5px", padding: "8px", cursor: "pointer" }}
+                    disabled={!newDay.d || !newDay.m || !newDay.reason || customDays.length >= 10}
+                    onClick={() => {
+                      const formattedDate = `${newDay.d.toString().padStart(2, '0')}.${newDay.m.toString().padStart(2, '0')}`;
+                      dispatch(addCustomDay({ date: formattedDate, reason: newDay.reason }));
+                      setNewDay({ d: "", m: "", reason: "" });
+                    }}
+                  >
+                    Додати день
+                  </button>
+                  <div style={{ marginTop: "10px", maxHeight: "150px", overflowY: "auto" }}>
+                    {customDays.map(day => (
+                      <div key={day.date} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#f0f0f0", padding: "5px", marginBottom: "3px", borderRadius: "5px", fontSize: "12px" }}>
+                        <span style={{ color: "#004cff", fontWeight: "bold" }}>{day.date}</span>
+                        <span style={{ flex: 1, marginLeft: "10px", color: "#333" }}>{day.reason}</span>
+                        <button 
+                          onClick={() => dispatch(removeCustomDay(day.date))}
+                          style={{ background: "none", border: "none", color: "red", cursor: "pointer", fontWeight: "bold" }}
+                        >✕</button>
+                      </div>
+                    ))}
+                  </div>
                 </Section>
               );
             }
