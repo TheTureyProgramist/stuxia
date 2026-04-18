@@ -9,6 +9,7 @@ import PuzzleSix from "./PuzzleCollection/PuzzleSix";
 import PuzzleFive from "./PuzzleCollection/PuzzleFive";
 import PuzzleSeven from "./PuzzleCollection/PuzzleSeven";
 import PuzzleEight from "./PuzzleCollection/PuzzleEight";
+import PuzzleNine from "./PuzzleCollection/PuzzleNine";
 
 // Імпорти картинок...
 import puzzl from "../../photos/vip-modal/puzzle.webp";
@@ -120,6 +121,7 @@ const Puzzles = () => {
     { id: 6, title: "Оптична лінза", img: disk, type: "lens" },
     { id: 7, title: "Лабіринт ІІ", img: labytwo, type: "line" },
     { id: 8, title: "Сапер", img: labytwo, type: "hex" },
+    { id: 9, title: "Енергомережа", img: cod, type: "drag" },
   ];
 
   const filteredPuzzles = puzzleData.filter((p) =>
@@ -142,6 +144,7 @@ const Puzzles = () => {
       case "lens": return <PuzzleSix onExit={() => setActiveGame(null)} />;
       case "line": return <PuzzleSeven onExit={() => setActiveGame(null)} />;
       case "hex": return <PuzzleEight onExit={() => setActiveGame(null)} />;
+      case "drag": return <PuzzleNine onExit={() => setActiveGame(null)} />;
       default: return null;
     }
   };

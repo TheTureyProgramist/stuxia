@@ -1199,65 +1199,54 @@ const MiniPlayer = ({ track, initialTime, isPlaying: initialPlaying, speed, volu
     window.addEventListener('mousemove', move);
     window.addEventListener('mouseup', up);
   };
-
-  const handlePiP = async () => {
-    try {
-      let elementToPip;
-      
-      if (isDinofroz && mediaRef.current) {
-        elementToPip = mediaRef.current;
-      } else if (canvasRef.current && pipVideoRef.current) {
-        // Переконуємось, що canvas готовий
-        const stream = canvasRef.current.captureStream(30);
-        pipVideoRef.current.srcObject = stream;
-        
-        // Чекаємо, поки відео буде готове
-        await new Promise((resolve) => {
-          if (pipVideoRef.current.readyState >= 2) {
-            resolve();
-          } else {
-            const handler = () => {
-              if (pipVideoRef.current.readyState >= 2) {
-                pipVideoRef.current.removeEventListener('canplay', handler);
-                resolve();
-              }
-            };
-            pipVideoRef.current.addEventListener('canplay', handler);
-            setTimeout(resolve, 500); // Fallback timeout
-          }
-        });
-        
-        await pipVideoRef.current.play().catch(err => console.error("Play error:", err));
-        elementToPip = pipVideoRef.current;
-      }
-
-      if (!elementToPip) {
-        alert("⚠️ Помилка: не можу знайти джерело для PiP. Переконайтеся, що медіа завантажено.");
-        return;
-      }
-
-      // Вихід з PiP якщо вже активно
-      if (document.pictureInPictureElement) {
-        await document.exitPictureInPicture();
-      } else {
-        // Вхід в PiP
-        if (elementToPip.requestPictureInPicture) {
-          try {
-            console.log("✅ PiP активований успішно!");
-          } catch (pipErr) {
-            console.error("Помилка PiP:", pipErr);
-            alert(`❌ Помилка PiP: ${pipErr.message || pipErr}`);
-          }
+const handlePiP = async () => {
+  try {
+    let elementToPip;
+    if (isDinofroz && mediaRef.current) {
+      elementToPip = mediaRef.current;
+    } else if (canvasRef.current && pipVideoRef.current) {
+      const stream = canvasRef.current.captureStream(30);
+      pipVideoRef.current.srcObject = stream;
+      await new Promise((resolve) => {
+        if (pipVideoRef.current.readyState >= 2) {
+          resolve();
         } else {
-          alert("⚠️ Ваш браузер не підтримує Picture-in-Picture режим. Спробуйте Chrome, Edge або Firefox.");
+          const handler = () => {
+            if (pipVideoRef.current.readyState >= 2) {
+              pipVideoRef.current.removeEventListener('canplay', handler);
+              resolve();
+            }
+          };
+          pipVideoRef.current.addEventListener('canplay', handler);
+          setTimeout(resolve, 500); 
         }
-      }
-    } catch (err) {
-      console.error("Помилка режиму PiP:", err);
-      alert(`❌ Помилка: ${err.message}`);
-    }
-  };
+      });
 
+      await pipVideoRef.current.play().catch(err => console.error("Play error:", err));
+      elementToPip = pipVideoRef.current;
+    }
+    if (!elementToPip) {
+      alert("⚠️ Помилка: не можу знайти джерело для PiP. Переконайтеся, що медіа завантажено.");
+      return;
+    }
+    if (document.pictureInPictureElement) {
+      await document.exitPictureInPicture();
+    } else if (elementToPip.requestPictureInPicture) {
+      try {
+        await elementToPip.requestPictureInPicture();
+        console.log("✅ PiP активований успішно!");
+      } catch (pipErr) {
+        console.error("Помилка PiP:", pipErr);
+        alert(`❌ Помилка PiP: ${pipErr.message || pipErr}`);
+      }
+    } else {
+      alert("⚠️ Ваш браузер не підтримує Picture-in-Picture режим. Спробуйте Chrome, Edge або Firefox.");
+    }
+  } catch (err) {
+    console.error("Загальна помилка режиму PiP:", err);
+    alert(`❌ Помилка: ${err.message}`);
+  }
+};
   return (
     <MiniPlayerContainer style={{ left: pos.x, top: pos.y, width: size.width, height: size.height }}>
       <MiniPlayerHeader onMouseDown={handleDrag}>
@@ -1271,7 +1260,7 @@ const MiniPlayer = ({ track, initialTime, isPlaying: initialPlaying, speed, volu
         ref={pipVideoRef} 
         muted 
         playsInline 
-        style={{ display: 'none' }} />
+        style={{ position: 'absolute', opacity: 0, pointerEvents: 'none', width: '1px', height: '1px' }} />
         
       <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }} onClick={() => {
         setIsPlaying(!isPlaying);
@@ -1766,9 +1755,76 @@ const FullScreenPlayer = ({
   const [dynamicColor, setDynamicColor] = useState(null); // New state for random color
   const [dynamicIntensity, setDynamicIntensity] = useState(null);
   const mediaRef = useRef(null);
-  
   const [waveform, setWaveform] = useState([]);
   const [isGeneratingWave, setIsGeneratingWave] = useState(false);
+  const [playbackDirection, setPlaybackDirection] = useState("forward"); // "forward" or "backward"
+  const fsCanvasRef = useRef(null);
+  const fsPipVideoRef = useRef(null);
+
+  const lastActionRef = useRef(0);
+  const ACTION_COOLDOWN = 300;
+
+  const canPerformAction = useCallback(() => {
+    const now = Date.now();
+    if (now - lastActionRef.current < ACTION_COOLDOWN) return false;
+    lastActionRef.current = now;
+    return true;
+  }, []);
+
+  const togglePiP = async () => {
+    try {
+      if (document.pictureInPictureElement) {
+        await document.exitPictureInPicture();
+      } else if (mediaRef.current && isDinofroz) {
+        await mediaRef.current.requestPictureInPicture();
+        return;
+      }
+
+      let elementToPip;
+      if (isDinofroz && mediaRef.current) {
+        elementToPip = mediaRef.current;
+      } else if (fsCanvasRef.current && fsPipVideoRef.current) {
+        const stream = fsCanvasRef.current.captureStream(30);
+        fsPipVideoRef.current.srcObject = stream;
+        await fsPipVideoRef.current.play();
+        elementToPip = fsPipVideoRef.current;
+      }
+
+      if (elementToPip && elementToPip.requestPictureInPicture) {
+        await elementToPip.requestPictureInPicture();
+      }
+    } catch (error) {
+      console.error("PiP failed", error);
+    }
+  };
+
+  // Logic for backward playback mechanic
+  useEffect(() => {
+    let interval;
+    const media = mediaRef.current;
+    if (!media) return;
+
+    if (playbackDirection === "backward" && isPlaying) {
+      // Native audio doesn't support negative playbackRate, so we manually seek
+      media.pause();
+      media.muted = true; // Вимикаємо звук під час руху назад, щоб уникнути артефактів
+      interval = setInterval(() => {
+        const nextTime = media.currentTime - (0.1 * speed);
+        if (nextTime <= 0) {
+          media.currentTime = 0;
+          setIsPlaying(false);
+        } else {
+          media.currentTime = nextTime;
+        }
+      }, 100);
+    } else {
+      media.muted = false; // Повертаємо звук для звичайного режиму
+      if (isPlaying && playbackDirection === "forward") {
+        media.play().catch(() => {});
+      }
+    }
+    return () => clearInterval(interval);
+  }, [playbackDirection, isPlaying, speed]);
 
   const previewVideoRef = useRef(null);
   const controlsTimeoutRef = useRef(null);
@@ -2143,8 +2199,13 @@ const FullScreenPlayer = ({
     const handleKeyDown = (e) => {
       resetControlsTimeout();
       if (e.code === "Escape") handleClose();
-      if (!mediaRef.current) return;
+      
       if (e.code === "Space") {
+        e.preventDefault(); // Запобігаємо скролу сторінки
+      }
+
+      if (!mediaRef.current) return;
+      if (e.code === "Space" && canPerformAction()) {
         togglePlay();
       } else if (e.code === "ArrowRight") {
         mediaRef.current.currentTime = Math.min(
@@ -2161,7 +2222,7 @@ const FullScreenPlayer = ({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleClose, togglePlay, resetControlsTimeout]);
+  }, [handleClose, togglePlay, resetControlsTimeout, canPerformAction]);
 
   useEffect(() => {
     if (isDinofroz || !duration || sliderImages.length === 0) return;
@@ -2366,6 +2427,25 @@ const FullScreenPlayer = ({
     return `${m}:${s < 10 ? "0" : ""}${s}`;
   };
 
+  // Canvas Drawing for FullScreen PiP (Audio tracks)
+  useEffect(() => {
+    if (isDinofroz || !fsCanvasRef.current) return;
+    const canvas = fsCanvasRef.current;
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.src = sliderImages[currentImgIdx];
+    img.onload = () => {
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      // Draw Title Overlay
+      ctx.fillStyle = "rgba(0,0,0,0.6)";
+      ctx.fillRect(0, canvas.height - 40, canvas.width, 40);
+      ctx.fillStyle = "white";
+      ctx.font = "bold 16px Inter, sans-serif";
+      ctx.fillText(track.author || "Стихія", 10, canvas.height - 15);
+    };
+  }, [sliderImages, currentImgIdx, isDinofroz, track.author]);
+
   return (
     <FullScreenOverlay
       ref={overlayRef}
@@ -2377,12 +2457,17 @@ const FullScreenPlayer = ({
       $closing={isClosing}
       onWheel={handleWheel}
     >
+      {/* Hidden elements for PiP stream generation */}
+      <canvas ref={fsCanvasRef} width="640" height="360" style={{ display: 'none' }} />
+      <video ref={fsPipVideoRef} muted playsInline style={{ display: 'none' }} />
+
       <FSHeader
         style={{ opacity: showControls ? 1 : 0, transition: "opacity 0.3s" }}
       >
         <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-          <FSCloseButton onClick={handleClose}>&times;</FSCloseButton>
-          <ActionButton onClick={() => onMiniPlayer(progress, isPlaying, volume, speed)} title="Згорнути в міні-плеєр">🗗</ActionButton>
+          <FSCloseButton onClick={() => { if(canPerformAction()) handleClose(); }}>&times;</FSCloseButton>
+          <ActionButton onClick={() => { if(canPerformAction()) onMiniPlayer(progress, isPlaying, volume, speed); }} title="Згорнути в міні-плеєр">🗗</ActionButton>
+          <ActionButton onClick={() => { if(canPerformAction()) togglePiP(); }} title="Режим картинка в картинці">🖼️</ActionButton>
           <div style={{ display: "flex", flexDirection: "column" }}>
             <FSTitle>{track.author}</FSTitle>
             {track.category !== "мультфільми" && (
@@ -2396,7 +2481,7 @@ const FullScreenPlayer = ({
         </div>
         <div style={{ display: "flex", gap: "15px" }}>
           <ActionButton
-            onClick={() => onRate(track.id)}
+            onClick={() => { if(canPerformAction()) onRate(track.id); }}
             title={`Оцінка: ${rating} балів. (Макс 4 пісні з оцінками)`}
           >
             {rating === 2 ? "💛" : rating === 1 ? "❤️" : "🤍"}
@@ -2689,19 +2774,23 @@ const FullScreenPlayer = ({
           }}
         >
           <div style={{ display: "flex", gap: "10px" }}>
-            <ActionButton onClick={onPrev}>⏮</ActionButton>
+          <ActionButton onClick={() => { if(canPerformAction()) onPrev(); }}>⏮</ActionButton>
             <ActionButton onClick={togglePlay}>
               {isPlaying ? "⏸" : "▶"}
             </ActionButton>
-            <ActionButton onClick={onNext}>⏭</ActionButton>
+          <ActionButton onClick={() => { if(canPerformAction()) onNext(); }}>⏭</ActionButton>
           </div>
 
           <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-            <ActionButton
-              onClick={() => (mediaRef.current.currentTime -= seekAmount)}
-            >
-              -{seekAmount}s
-            </ActionButton>
+          <ActionButton
+            onClick={() => {
+              if (mediaRef.current && canPerformAction()) {
+                mediaRef.current.currentTime = Math.max(0, mediaRef.current.currentTime - seekAmount);
+              }
+            }}
+          >
+            -{seekAmount}s
+          </ActionButton>
             <div
               style={{
                 display: "flex",
@@ -2735,7 +2824,11 @@ const FullScreenPlayer = ({
               </span>
             </div>
             <ActionButton
-              onClick={() => (mediaRef.current.currentTime += seekAmount)}
+              onClick={() => {
+                if (mediaRef.current && canPerformAction()) {
+                  mediaRef.current.currentTime = Math.min(duration, mediaRef.current.currentTime + seekAmount);
+                }
+              }}
             >
               +{seekAmount}s
             </ActionButton>
@@ -2744,7 +2837,7 @@ const FullScreenPlayer = ({
           <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
             <LoopButton
               $active={isCached}
-              onClick={toggleCache}
+              onClick={() => { if(canPerformAction()) toggleCache(); }}
               title={isCached ? "Збережено" : "Кешувати"}
             >
               {isCached ? "✓" : "⇩"}
@@ -2763,7 +2856,7 @@ const FullScreenPlayer = ({
             </div>
             <LoopButton
               $active={true}
-              onClick={togglePlayMode}
+              onClick={() => { if(canPerformAction()) togglePlayMode(); }}
               title={
                 playMode === 0
                   ? "По порядку"
@@ -2850,6 +2943,25 @@ const FullScreenPlayer = ({
               }}
             >
               {progressMode === "linear" ? "Ютуб" : "Стереограми"}
+            </button>
+          </SliderRow>
+          <SliderRow>
+            <span style={{ color: "white" }}>Напрямок</span>
+            <button
+              onClick={() =>
+                setPlaybackDirection((prev) => (prev === "forward" ? "backward" : "forward"))
+              }
+              style={{
+                background: playbackDirection === "forward" ? "#444" : "red",
+                color: "white",
+                border: "none",
+                borderRadius: "4px",
+                padding: "3px 8px",
+                cursor: "pointer",
+                fontSize: "11px",
+              }}
+            >
+              {playbackDirection === "forward" ? "Звичайний" : "Навпаки"}
             </button>
           </SliderRow>
           <button

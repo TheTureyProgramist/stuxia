@@ -1,5 +1,5 @@
 // Міста для тесту: Дубай (>30°C), Якутськ (<-30°C), Кейптаун (вітер >10 м/с). Графік успішно оновлено: додано погодинну перевірку вітру та деталізовані причини небезпеки в підказках.
-import { useState, useEffect, useCallback, memo } from "react";
+import { useState, useEffect, useCallback, memo, lazy, Suspense } from "react";
 import styled from "styled-components";
 import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import Loader from "./components/Loader/Loader.jsx";
@@ -35,8 +35,6 @@ import ShopModal from "./components/Modals/ShopModal.jsx";
 import News from "./components/News/News.jsx";
 import AchivmentsModal from "./components/Modals/AchivmentsModal.jsx";
 import Puzzles from "./components/Puzzles/Puzzles.jsx";
-import LearningModal from "./components/Modals/UserSearchModal.jsx";
-import TermsModal from "./components/Modals/InfoModal.jsx";
 import ClimateMap from "./components/ClimateMap/ClimateMap.jsx";
 import turkeys from "./photos/vip-images/turkeys/ultra-vip-turkeys.webp";
 import dragons from "./photos/vip-images/dinofroz/vip-dragons.webp";
@@ -57,6 +55,9 @@ import dinofrozVideo from "./mp3/dinofroz.mp4";
 import startImage from "./photos/hero-header/start-image.webp";
 import turkeysAudio from "./mp3/turkeys.mp3";
 import ultraImage from "./photos/vip-modal/realultra.webp";
+
+const LearningModal = lazy(() => import("./components/Modals/UserSearchModal.jsx"));
+const TermsModal = lazy(() => import("./components/Modals/InfoModal.jsx"));
 
 const AVAILABLE_AVATARS = [
   monody,
@@ -969,15 +970,17 @@ const App = () => {
               isDarkMode={isDarkMode}
             />
           )}
-          {isUserSearchOpen && (
-            <LearningModal isOpen={isUserSearchOpen} onClose={() => setIsUserSearchOpen(false)} />
-          )}
-          {isFirstTimeHelpOpen && (
-            <LearningModal isOpen={isFirstTimeHelpOpen} onClose={() => setIsFirstTimeHelpOpen(false)} />
-          )}
-          {isInfoOpen && (
-            <TermsModal onClose={() => setIsInfoOpen(false)} />
-          )}
+          <Suspense fallback={null}>
+            {isUserSearchOpen && (
+              <LearningModal isOpen={isUserSearchOpen} onClose={() => setIsUserSearchOpen(false)} />
+            )}
+            {isFirstTimeHelpOpen && (
+              <LearningModal isOpen={isFirstTimeHelpOpen} onClose={() => setIsFirstTimeHelpOpen(false)} />
+            )}
+            {isInfoOpen && (
+              <TermsModal onClose={() => setIsInfoOpen(false)} />
+            )}
+          </Suspense>
 
           <Menu
             isOpen={isMenuOpen}

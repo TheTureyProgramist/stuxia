@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import styled, { keyframes, css } from "styled-components";
+import { motion, AnimatePresence } from "framer-motion";
 // Імпорти фото
 import turkeys from "../../photos/vip-images/collectors-edition.webp";
 import dinofroz from "../../photos/vip-images/dinofroz/vip-dinofroz.webp";
@@ -733,6 +734,51 @@ const FullscreenBtn = styled.button`
   }
 `;
 
+const PausedOverlay = styled(motion.div)`
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 100;
+  gap: 20px;
+`;
+
+const PauseIcon = styled.div`
+  font-size: 80px;
+  color: rgba(255, 255, 255, 0.7);
+  text-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+`;
+
+const PausedButtonsRow = styled.div`
+  display: flex;
+  gap: 15px;
+  pointer-events: auto;
+`;
+
+const PausedButton = styled.button`
+  background: rgba(148, 255, 250, 0.2);
+  backdrop-filter: blur(5px);
+  color: #94fffa;
+  border: 1px solid rgba(148, 255, 250, 0.5);
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s;
+  &:hover {
+    background: #94fffa;
+    color: #000;
+  }
+  @media (max-width: 768px) {
+    padding: 8px 15px;
+    font-size: 12px;
+  }
+`;
+
 const StyledVideo = styled.video`
   width: 100%;
   height: 100%;
@@ -894,16 +940,21 @@ const SEQUENCE = [
   },
 ];
 
-const UltraPlayer = ({ volume, setVolume }) => {
+const UltraPlayer = ({ volume, setVolume, onPlayerClose }) => {
   const containerRef = useRef(null);
   const videoRef = useRef(null);
   const audioRef = useRef(null);
   const [stepIndex, setStepIndex] = useState(0);
   const [text, setText] = useState("");
   const [showText, setShowText] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const step = SEQUENCE[stepIndex];
   const [timeLeft, setTimeLeft] = useState(0);
   const volumeRef = useRef(volume);
+  const isPausedRef = useRef(isPaused);
+  const [isWatched] = useState(() => {
+    return localStorage.getItem("katSceneWatched") === "true";
+  });
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [isAssetsLoaded, setIsAssetsLoaded] = useState(false);
@@ -954,7 +1005,48 @@ const UltraPlayer = ({ volume, setVolume }) => {
   }, []);
 
   useEffect(() => {
-    if (!isAssetsLoaded) return;
+    isPausedRef.current = isPaused;
+    if (videoRef.current) {
+      if (isPaused) videoRef.current.pause();
+      else if (step.type === "video" || step.type === "black") videoRef.current.play().catch(() => {});
+    }
+    if (audioRef.current) {
+      if (isPaused) audioRef.current.pause();
+      else if (step.type === "card") audioRef.current.play().catch(() => {});
+    }
+  }, [isPaused, step.type]);
+
+  const togglePause = (e) => {
+    if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.closest('label')) return;
+    setIsPaused(prev => !prev);
+  };
+
+  const handleScreenshot = (e) => {
+    e.stopPropagation();
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    
+    let source = null;
+    if (step.type === "video" || step.type === "black") {
+      source = videoRef.current;
+    }
+
+    if (source && source.videoWidth) {
+      canvas.width = source.videoWidth;
+      canvas.height = source.videoHeight;
+      ctx.drawImage(source, 0, 0, canvas.width, canvas.height);
+      
+      const link = document.createElement("a");
+      link.download = `stykhiya-screenshot-${Date.now()}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    } else {
+      alert("Скріншот збережено! (Емуляція для статичних кадрів)");
+    }
+  };
+
+  useEffect(() => {
+    if (!isAssetsLoaded || isPaused) return;
 
     let nextStepTimer;
     let textOutTimer;
@@ -971,7 +1063,7 @@ const UltraPlayer = ({ volume, setVolume }) => {
     if (step.type !== "video") {
       setTimeLeft(Math.ceil(step.duration / 1000));
       countdownInterval = setInterval(() => {
-        setTimeLeft((prev) => Math.max(0, prev - 1));
+        if (!isPausedRef.current) setTimeLeft((prev) => Math.max(0, prev - 1));
       }, 1000);
     }
 
@@ -1028,6 +1120,7 @@ const UltraPlayer = ({ volume, setVolume }) => {
     step.imgIdx,
     step.start,
     step.end,
+    isPaused,
     isAssetsLoaded,
   ]);
 
@@ -1047,13 +1140,13 @@ const UltraPlayer = ({ volume, setVolume }) => {
   }, []);
 
   const handleVideoEnded = () => {
-    if (step.type === "video" && step.end === "end") {
+    if (step.type === "video" && step.end === "end" && !isPaused) {
       setStepIndex((prev) => (prev + 1) % SEQUENCE.length);
     }
   };
 
   const handleTimeUpdate = () => {
-    if (step.type === "video" && videoRef.current) {
+    if (step.type === "video" && videoRef.current && !isPaused) {
       const end = step.end === "end" ? videoRef.current.duration : step.end;
       const remaining = Math.max(0, end - videoRef.current.currentTime);
       setTimeLeft(Math.ceil(remaining));
@@ -1073,7 +1166,7 @@ const UltraPlayer = ({ volume, setVolume }) => {
   };
 
   return (
-    <UltraPlayerContainer ref={containerRef} $isFullscreen={isFullscreen}>
+    <UltraPlayerContainer ref={containerRef} $isFullscreen={isFullscreen} onClick={togglePause}>
       {!isAssetsLoaded && (
         <LoadingContainer>
           <div
@@ -1087,27 +1180,51 @@ const UltraPlayer = ({ volume, setVolume }) => {
         </LoadingContainer>
       )}
 
-      <FullscreenBtn onClick={toggleFullscreen}>
-        {isFullscreen ? "❌" : "⛶"}
-      </FullscreenBtn>
+      {!isPaused && (
+        <>
+          <FullscreenBtn onClick={toggleFullscreen}>
+            {isFullscreen ? "❌" : "⛶"}
+          </FullscreenBtn>
 
-      <VolumeControlContainer>
-        <span style={{ fontSize: "14px" }}>🔊</span>
-        <input
-          type="range"
-          min="0"
-          max="1"
-          step="0.05"
-          value={volume}
-          onChange={(e) => setVolume(parseFloat(e.target.value))}
-          style={{
-            width: "80px",
-            accentColor: "#710097",
-            cursor: "pointer",
-            height: "4px",
-          }}
-        />
-      </VolumeControlContainer>
+          <VolumeControlContainer>
+            <span style={{ fontSize: "14px" }}>🔊</span>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.05"
+              value={volume}
+              onChange={(e) => setVolume(parseFloat(e.target.value))}
+              style={{
+                width: "80px",
+                accentColor: "#710097",
+                cursor: "pointer",
+                height: "4px",
+              }}
+            />
+          </VolumeControlContainer>
+        </>
+      )}
+
+      <AnimatePresence>
+        {isPaused && (
+          <PausedOverlay
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ duration: 0.3 }}
+          >
+            <PauseIcon>Ⅱ</PauseIcon>
+            <PausedButtonsRow>
+              <PausedButton onClick={handleScreenshot}>📸 Скріншот</PausedButton>
+              {isWatched && (
+                <PausedButton onClick={(e) => { e.stopPropagation(); onPlayerClose(); }}>Закрити</PausedButton>
+              )}
+            </PausedButtonsRow>
+          </PausedOverlay>
+        )}
+      </AnimatePresence>
+
       <StyledImage src={ultra} $show={step.type === "thematic"} />
       <TimeIndicator>{timeLeft}</TimeIndicator>
       <StyledVideo
@@ -1413,7 +1530,7 @@ const VipModal = ({ onClose }) => {
               {tier === "plus" ? (
                 <VipImage src={turkeys} key="img-plus" $isUltra={false} />
               ) : (
-                <UltraPlayer volume={volume} setVolume={setVolume} />
+                <UltraPlayer volume={volume} setVolume={setVolume} onPlayerClose={handleClose} />
               )}
             </ImageContainer>
 

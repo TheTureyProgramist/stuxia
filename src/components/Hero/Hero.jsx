@@ -528,6 +528,8 @@ const Hero = ({ heroDateString, onAddCity, startAnimation, user }) => {
   const [searchMode, setSearchMode] = useState("city"); // "city" або "coordinates"
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
+  const [coordinateSuggestions, setCoordinateSuggestions] = useState([]);
+  const [showCoordinateSuggestions, setShowCoordinateSuggestions] = useState(false);
   const [cooldown, setCooldown] = useState(() => {
     const saved = localStorage.getItem("hero_cooldown_until");
     if (saved) {
@@ -629,38 +631,56 @@ const Hero = ({ heroDateString, onAddCity, startAnimation, user }) => {
     }
 
     if (lon < -180 || lon > 180) {
-      alert("Довгота має бути від -180 до 180");
+      alert("Довгота має бути від -180 до +180");
       return;
     }
 
     try {
       // Обернене геокодування - отримуємо назву місця за координатами
+      // limit=10 щоб отримати варіанти поруч, якщо точних немає
       const response = await fetch(
-        `https://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=1&appid=${API_KEY}`,
+        `https://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=10&appid=${API_KEY}`,
       );
       const data = await response.json();
 
-      if (data.length > 0) {
-        const city = data[0];
-        const cityObj = {
-          name: city.name,
-          fullName: `${city.name}${city.state ? `, ${city.state}` : ""} (${city.country})`,
-          lat: lat,
-          lon: lon,
-        };
-        onAddCity(cityObj);
-        setLatitude("");
-        setLongitude("");
-        const until = Date.now() + 40000;
-        localStorage.setItem("hero_cooldown_until", until.toString());
-        setCooldown(40);
-      } else {
-        alert("Місто за цими координатами не знайдено");
-      }
+      // Додаємо саму точку координат як перший варіант ("Обрана точка")
+      // Це дозволяє створити картку погоди навіть там, де немає міст
+      const currentPoint = {
+        name: "Обрана точка",
+        state: `Широта: ${lat}`,
+        country: `Довгота: ${lon}`,
+        lat: lat,
+        lon: lon,
+        isManual: true
+      };
+
+      // Об'єднуємо результати пошуку з нашою точкою
+      setCoordinateSuggestions([currentPoint, ...data]);
+      setShowCoordinateSuggestions(true);
+
     } catch (error) {
       console.error("Помилка при пошуку за координатами:", error);
       alert("Помилка при пошуку. Спробуйте ще раз.");
     }
+  };
+
+  const handleSelectCoordinateResult = (city) => {
+    if (cooldown > 0) return;
+
+    const cityObj = {
+      name: city.name,
+      fullName: `${city.name}${city.state ? `, ${city.state}` : ""} (${city.country})`,
+      lat: city.lat,
+      lon: city.lon,
+    };
+    onAddCity(cityObj);
+    setLatitude("");
+    setLongitude("");
+    setShowCoordinateSuggestions(false);
+    setCoordinateSuggestions([]);
+    const until = Date.now() + 40000;
+    localStorage.setItem("hero_cooldown_until", until.toString());
+    setCooldown(40);
   };
 
   const handleSelect = (city) => {
@@ -758,6 +778,10 @@ const Hero = ({ heroDateString, onAddCity, startAnimation, user }) => {
                       >
                         📍 {city.name}
                         {city.state ? `, ${city.state}` : ""} ({city.country})
+                        <br />
+                        <span style={{ fontSize: "0.85em", color: "#666" }}>
+                          🧭 {city.lat.toFixed(2)}°, {city.lon.toFixed(2)}°
+                        </span>
                       </SuggestionItem>
                     ))}
 
@@ -781,7 +805,7 @@ const Hero = ({ heroDateString, onAddCity, startAnimation, user }) => {
               </SearchContainer>
             </HeroFormater>
           ) : (
-            <div style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center", gap: "15px" }}>
+    <div style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center", gap: "15px", position: "relative" }}>
               <CoordinatesContainer>
                 <CoordinateInput>
                   <label>🧭 Широта (N/S)<br/>-90 до +90</label>
@@ -817,6 +841,45 @@ const Hero = ({ heroDateString, onAddCity, startAnimation, user }) => {
                 {cooldown > 0 ? cooldown : "⌕"}
               </HeroButton>
               </CoordinatesContainer>
+
+              {showCoordinateSuggestions && (
+                <SuggestionsList style={{ width: "auto", minWidth: "300px", marginTop: "10px", left: "50%", transform: "translateX(-50%)" }}>
+                  <div style={{ color: "#333", fontWeight: "bold", marginBottom: "10px", textAlign: "center" }}>
+                    📍 Знайдено поруч з координатами:
+                  </div>
+                  {coordinateSuggestions.map((city, index) => (
+                    <SuggestionItem
+                      key={`${city.lat}-${city.lon}-${index}`}
+                      onClick={() => handleSelectCoordinateResult(city)}
+                    >
+                      📍 {city.name}
+                      {city.state ? `, ${city.state}` : ""} ({city.country})
+                      <br />
+                      <span style={{ fontSize: "0.85em", color: "#666" }}>
+                        🧭 {city.lat.toFixed(2)}°, {city.lon.toFixed(2)}°
+                      </span>
+                    </SuggestionItem>
+                  ))}
+                  <button
+                    onClick={() => {
+                      setShowCoordinateSuggestions(false);
+                      setCoordinateSuggestions([]);
+                    }}
+                    style={{
+                      width: "100%",
+                      padding: "8px",
+                      background: "#f0f0f0",
+                      border: "1px solid #ccc",
+                      borderRadius: "8px",
+                      cursor: "pointer",
+                      marginTop: "10px",
+                      fontSize: "12px",
+                    }}
+                  >
+                    ✕ Закрити
+                  </button>
+                </SuggestionsList>
+              )}
             </div>
           )}
         </SearchWrapper>

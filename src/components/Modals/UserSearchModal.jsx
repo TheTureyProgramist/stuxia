@@ -103,6 +103,40 @@ const Question = styled.div`
   }
 `;
 
+const QuestionContent = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  gap: 15px;
+`;
+
+const QuestionText = styled.div`
+  flex: 1;
+`;
+
+const LikeButton = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 24px;
+  padding: 5px;
+  transition: transform 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 50px;
+  justify-content: flex-end;
+
+  &:hover { transform: scale(1.2); }
+`;
+
+const ArrowContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`;
+
 const Arrow = styled.span`
   font-size: 12px;
   transition: transform 0.3s ease;
@@ -136,9 +170,25 @@ const AcceptBtn = styled.button`
   &:hover { transform: scale(1.05); }
 `;
 
+const PointsCounter = styled.div`
+  text-align: center;
+  margin: 20px 0;
+  font-weight: 700;
+  font-size: 14px;
+  color: #111;
+  padding: 10px;
+  background: rgba(138, 43, 226, 0.1);
+  border-radius: 10px;
+`;
+
 const InfoModal = ({ onClose, isOpen }) => {
   const [isClosing, setIsClosing] = useState(false);
   const [activeIndex, setActiveIndex] = useState(null);
+  const [ratings, setRatings] = useState({});
+  const [totalPoints, setTotalPoints] = useState(0);
+  const MAX_POINTS = 15;
+  const RED_HEART = 1;
+  const GOLD_HEART = 2;
 
   const handleClose = useCallback(() => {
     setIsClosing(true);
@@ -155,6 +205,28 @@ const InfoModal = ({ onClose, isOpen }) => {
       return () => window.removeEventListener("keydown", handleEsc);
     }
   }, [isOpen, isClosing, handleClose]);
+
+  const handleLike = (index, points) => {
+    const currentRating = ratings[index] || 0;
+    let newRating;
+
+    // Якщо клікнути двічі на те ж сердечко - видалити голос
+    if (currentRating === points) {
+      newRating = 0;
+      setTotalPoints(totalPoints - currentRating);
+    } else {
+      // Перевіримо, чи можемо додати нові бали
+      const pointsNeeded = points - currentRating;
+      if (totalPoints + pointsNeeded > MAX_POINTS) {
+        alert(`❌ Лімітовано! Ви можете додати максимум ${MAX_POINTS} балів. Залишилось: ${MAX_POINTS - totalPoints}`);
+        return;
+      }
+      newRating = points;
+      setTotalPoints(totalPoints - currentRating + points);
+    }
+
+    setRatings({ ...ratings, [index]: newRating });
+  };
 
   // Якщо модаль не видима, не рендеривати
   if (!isOpen && !isClosing) return null;
@@ -227,6 +299,13 @@ Clubstep: рандомні фільтри.
 }
   ];
 
+  // Сортуємо питання за кількістю балів (вище вище)
+  const sortedFaqData = [...faqData].map((item, originalIndex) => ({
+    ...item,
+    originalIndex,
+    rating: ratings[originalIndex] || 0
+  })).sort((a, b) => b.rating - a.rating);
+
   return (
     <Overlay $isClosing={isClosing} onClick={handleClose}>
       <Content $isClosing={isClosing} onClick={(e) => e.stopPropagation()}>
@@ -238,18 +317,49 @@ Clubstep: рандомні фільтри.
           Останнє оновлення: 8 квітня 2026 року
         </p>
 
+        <PointsCounter>
+          💛 Використано балів: {totalPoints} / {MAX_POINTS}
+        </PointsCounter>
+
         <AccordionWrapper>
-          {faqData.map((item, i) => (
-            <AccordionItem key={i} $index={i + 1}>
-              <Question onClick={() => toggleAccordion(i)}>
-                {item.q}
-                <Arrow $isOpen={activeIndex === i}>▼</Arrow>
-              </Question>
-              <Answer $isOpen={activeIndex === i}>
-                {item.a}
-              </Answer>
-            </AccordionItem>
-          ))}
+          {sortedFaqData.map((item, displayIndex) => {
+            const originalIndex = item.originalIndex;
+            const rating = ratings[originalIndex] || 0;
+            
+            return (
+              <AccordionItem key={originalIndex} $index={displayIndex + 1}>
+                <Question onClick={() => toggleAccordion(originalIndex)}>
+                  <QuestionContent>
+                    <QuestionText>{item.q}</QuestionText>
+                    <ArrowContainer>
+                      <LikeButton 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleLike(originalIndex, RED_HEART);
+                        }}
+                        title="1 бал"
+                      >
+                        {rating === RED_HEART ? '❤️' : '🤍'}
+                      </LikeButton>
+                      <LikeButton 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleLike(originalIndex, GOLD_HEART);
+                        }}
+                        title="2 бали"
+                      >
+                        {rating === GOLD_HEART ? '💛' : '🤎'}
+                      </LikeButton>
+                      <Arrow $isOpen={activeIndex === originalIndex}>▼</Arrow>
+                    </ArrowContainer>
+                  </QuestionContent>
+                </Question>
+                <Answer $isOpen={activeIndex === originalIndex}>
+                  {item.a}
+                </Answer>
+              </AccordionItem>
+            );
+          })}
         </AccordionWrapper>
 
         <div style={{ textAlign: "center" }}>
