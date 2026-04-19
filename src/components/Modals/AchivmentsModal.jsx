@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled, { keyframes, css } from "styled-components";
+import localforage from "localforage";
 import horse from "../../photos/vip-images/horse/horse.webp";
 import asium from "../../photos/vip-images/asium/asium.webp";
 import chess from "../../photos/vip-images/horse/chess.webp";
@@ -342,9 +343,15 @@ const NavButton = styled.button`
 const AchivmentsModal = ({ onClose }) => {
   const [isClosing, setIsClosing] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
-  const [turkeyStatus, setTurkeyStatus] = useState(
-    localStorage.getItem("turkeyStudioStatus") || "idle"
-  );
+  const [turkeyStatus, setTurkeyStatus] = useState("idle");
+
+  useEffect(() => {
+    const loadStatus = async () => {
+      const status = await localforage.getItem("turkeyStudioStatus");
+      if (status) setTurkeyStatus(status);
+    };
+    loadStatus();
+  }, []);
 
   const handleClose = () => {
     setIsClosing(true);
@@ -701,9 +708,9 @@ const AchivmentsModal = ({ onClose }) => {
     });
   }, [turkeyStatus]);
 
-  const handleTurkeyClick = () => {
+  const handleTurkeyClick = async () => {
     window.open("https://www.facebook.com/groups/33984901414490236/?notif_id=1770630384341499&notif_t=group_milestone&ref=notif", "_blank");
-    localStorage.setItem("turkeyStudioStatus", "completed");
+    await localforage.setItem("turkeyStudioStatus", "completed");
     setTurkeyStatus("completed");
   };
 

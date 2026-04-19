@@ -189,7 +189,7 @@ const WeatherCardComponent = ({
   moveWeatherCard,
   setIsLocationEnabled,
 }) => {
-  const customDays = useSelector((state) => state.calendar.customDays);
+  const customDays = useSelector((state) => state.calendar?.customDays || []);
   const [isEditing, setIsEditing] = useState(false);
   const [newName, setNewName] = useState(card.locationName);
   const [selectedDay, setSelectedDay] = useState(null);

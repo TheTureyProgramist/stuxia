@@ -1,6 +1,7 @@
 // Міста для тесту: Дубай (>30°C), Якутськ (<-30°C), Кейптаун (вітер >10 м/с). Графік успішно оновлено: додано погодинну перевірку вітру та деталізовані причини небезпеки в підказках.
 import { useState, useEffect, useCallback, memo, lazy, Suspense } from "react";
 import styled from "styled-components";
+import localforage from "localforage";
 import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import Loader from "./components/Loader/Loader.jsx";
 import WeatherCardComponent from "./components/Weather/Weather.jsx";
@@ -242,18 +243,9 @@ const App = () => {
     () => LOADING_PHRASES[Math.floor(Math.random() * LOADING_PHRASES.length)],
   );
   const [now, setNow] = useState(new Date());
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    const saved = localStorage.getItem("isDarkMode");
-    return saved !== null ? JSON.parse(saved) : false;
-  });
-  const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem("active_user");
-    return saved ? JSON.parse(saved) : null;
-  });
-  const [currentAvatar, setCurrentAvatar] = useState(() => {
-    const saved = localStorage.getItem("currentAvatar");
-    return saved || userDefault;
-  });
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [user, setUser] = useState(null);
+  const [currentAvatar, setCurrentAvatar] = useState(userDefault);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
@@ -267,6 +259,47 @@ const App = () => {
   const [isUpdatePending, setIsUpdatePending] = useState(false);
   const [timerFinished, setTimerFinished] = useState(false);
   const [isFirstTimeHelpOpen, setIsFirstTimeHelpOpen] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  // Гідратація даних з localforage
+  useEffect(() => {
+    const hydrate = async () => {
+      try {
+        const savedDarkMode = await localforage.getItem("isDarkMode");
+        if (savedDarkMode !== null) setIsDarkMode(savedDarkMode);
+
+        const savedUser = await localforage.getItem("active_user");
+        if (savedUser) setUser(savedUser);
+
+        const savedAvatar = await localforage.getItem("currentAvatar");
+        if (savedAvatar) setCurrentAvatar(savedAvatar);
+
+        const savedRoutingMode = await localforage.getItem("isRoutingMode");
+        if (savedRoutingMode !== null) setIsRoutingMode(savedRoutingMode);
+
+        const savedCards = await localforage.getItem("weather_cards");
+        if (savedCards) setWeatherCards(savedCards);
+
+        const savedHideUntil = await localforage.getItem("hideDeleteModalUntil");
+        if (savedHideUntil) setHideDeleteModalUntil(parseInt(savedHideUntil));
+
+        const savedOrder = await localforage.getItem(SECTION_ORDER_STORAGE_KEY);
+        if (savedOrder) setSiteSections(savedOrder);
+
+        const lastSeenVersion = await localforage.getItem("last_deployed_version");
+        const deployId = process.env.REACT_APP_DEPLOY_ID;
+        if (deployId && lastSeenVersion !== deployId) {
+          setIsUpdatePending(true);
+        }
+
+        setIsHydrated(true);
+      } catch (err) {
+        console.error("Помилка завантаження з localforage:", err);
+        setIsHydrated(true);
+      }
+    };
+    hydrate();
+  }, []);
 
   // Таймер на 8 секунд після старту
   useEffect(() => {
@@ -291,41 +324,23 @@ const App = () => {
       window.removeEventListener("touchstart", handleInteraction);
     };
   }, []);
-  const [isRoutingMode, setIsRoutingMode] = useState(() => {
-    const saved = localStorage.getItem("isRoutingMode");
-    return saved !== null ? JSON.parse(saved) : false;
-  });
-
-  useEffect(() => {
-    const deployId = process.env.REACT_APP_DEPLOY_ID;
-    const lastSeenVersion = localStorage.getItem("last_deployed_version");
-
-    if (deployId && lastSeenVersion !== deployId) {
-      setIsUpdatePending(true);
-    }
-  }, []);
+  const [isRoutingMode, setIsRoutingMode] = useState(false);
 
   useEffect(() => {
     if (isUpdatePending && timerFinished && hasInteracted && !isFirstTimeHelpOpen) {
       setIsInfoOpen(true);
       setIsUpdatePending(false);
       setIsFirstTimeHelpOpen(true);
-      localStorage.setItem("last_deployed_version", process.env.REACT_APP_DEPLOY_ID);
+      localforage.setItem("last_deployed_version", process.env.REACT_APP_DEPLOY_ID);
     }
   }, [isUpdatePending, timerFinished, hasInteracted, isFirstTimeHelpOpen]);
 
   const [isLocationEnabled, setIsLocationEnabled] = useState(false);
-  const [weatherCards, setWeatherCards] = useState(() => {
-    const savedCards = localStorage.getItem("weather_cards");
-    return savedCards ? JSON.parse(savedCards) : [];
-  });
+  const [weatherCards, setWeatherCards] = useState([]);
 
   const isAnyModalOpen = isModalOpen || isLoginOpen || isSettingsModalOpen || isVipModalOpen || isShopOpen || isAchivmentsOpen || isUserSearchOpen || isInfoOpen || isFirstTimeHelpOpen;
 
-  const [hideDeleteModalUntil, setHideDeleteModalUntil] = useState(() => {
-    const val = localStorage.getItem("hideDeleteModalUntil");
-    return val ? parseInt(val) : 0;
-  });
+  const [hideDeleteModalUntil, setHideDeleteModalUntil] = useState(0);
 
   // Фонове завантаження ресурсів кат-сцени
   useEffect(() => {
@@ -352,38 +367,42 @@ const App = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const [siteSections, setSiteSections] = useState(() => {
-    const savedOrder = localStorage.getItem(SECTION_ORDER_STORAGE_KEY);
-    return savedOrder ? JSON.parse(savedOrder) : [...DEFAULT_SITE_SECTIONS];
-  });
-  useEffect(() => {
-    setIsMenuOpen(false);
-    localStorage.setItem("weather_cards", JSON.stringify(weatherCards));
-  }, [weatherCards]);
+  const [siteSections, setSiteSections] = useState([...DEFAULT_SITE_SECTIONS]);
 
   useEffect(() => {
-    localStorage.setItem("isRoutingMode", JSON.stringify(isRoutingMode));
-    localStorage.setItem(
-      SECTION_ORDER_STORAGE_KEY,
-      JSON.stringify(siteSections),
-    );
-  }, [siteSections, isRoutingMode]);
-
-  useEffect(() => {
-    localStorage.setItem("isDarkMode", JSON.stringify(isDarkMode));
-  }, [isDarkMode]);
-
-  useEffect(() => {
-    if (user) {
-      localStorage.setItem("active_user", JSON.stringify(user));
-      if (user.avatar) {
-        setCurrentAvatar(user.avatar);
-        localStorage.setItem("currentAvatar", user.avatar);
-      }
-    } else {
-      localStorage.removeItem("active_user");
+    if (isHydrated) {
+      setIsMenuOpen(false);
+      localforage.setItem("weather_cards", weatherCards);
     }
-  }, [user]);
+  }, [weatherCards, isHydrated]);
+
+  useEffect(() => {
+    if (isHydrated) {
+      localforage.setItem("isRoutingMode", isRoutingMode);
+      localforage.setItem(SECTION_ORDER_STORAGE_KEY, siteSections);
+    }
+  }, [siteSections, isRoutingMode, isHydrated]);
+
+  useEffect(() => {
+    if (isHydrated) {
+      localforage.setItem("isDarkMode", isDarkMode);
+    }
+  }, [isDarkMode, isHydrated]);
+
+  useEffect(() => {
+    if (isHydrated) {
+      if (user) {
+        localforage.setItem("active_user", user);
+        if (user.avatar) {
+          setCurrentAvatar(user.avatar);
+          localforage.setItem("currentAvatar", user.avatar);
+        }
+      } else {
+        localforage.removeItem("active_user");
+      }
+    }
+  }, [user, isHydrated]);
+
   const fetchWeather = useCallback(
     async (cityData, isMain, lat = null, lon = null) => {
       try {
@@ -633,7 +652,7 @@ const App = () => {
         const num = Math.max(1, Math.min(72, parseInt(input)));
         const hours = isNaN(num) ? 1 : num;
         const until = nowTimestamp + hours * 3600 * 1000;
-        localStorage.setItem("hideDeleteModalUntil", until.toString());
+        localforage.setItem("hideDeleteModalUntil", until.toString());
         setHideDeleteModalUntil(until);
       }
       setWeatherCards((prev) => prev.filter((card) => card.id !== id));
@@ -678,7 +697,7 @@ const App = () => {
   const handleLogout = () => {
     setUser(null);
     setCurrentAvatar(userDefault);
-    localStorage.removeItem("currentAvatar");
+    localforage.removeItem("currentAvatar");
     setIsSettingsModalOpen(false);
   };
 

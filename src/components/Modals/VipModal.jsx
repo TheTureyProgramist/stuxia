@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import styled, { keyframes, css } from "styled-components";
 import { motion, AnimatePresence } from "framer-motion";
+import localforage from "localforage";
 // Імпорти фото
 import turkeys from "../../photos/vip-images/collectors-edition.webp";
 import dinofroz from "../../photos/vip-images/dinofroz/vip-dinofroz.webp";
@@ -952,9 +953,18 @@ const UltraPlayer = ({ volume, setVolume, onPlayerClose }) => {
   const [timeLeft, setTimeLeft] = useState(0);
   const volumeRef = useRef(volume);
   const isPausedRef = useRef(isPaused);
-  const [isWatched] = useState(() => {
+  const [isWatched, setIsWatched] = useState(() => {
     return localStorage.getItem("katSceneWatched") === "true";
   });
+
+  useEffect(() => {
+    const checkWatched = async () => {
+      const val = await localforage.getItem("katSceneWatched");
+      if (val === "true") setIsWatched(true);
+    };
+    checkWatched();
+  }, []);
+
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [isAssetsLoaded, setIsAssetsLoaded] = useState(false);

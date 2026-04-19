@@ -1,5 +1,6 @@
 import styled, { keyframes, css } from "styled-components";
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
+import localforage from "localforage";
 import dinofrozVideo from "../../mp3/dinofroz.mp4";
 import soloveyko from "../../photos/vip-images/vip-soloveyko.webp";
 import harmony from "../../photos/vip-images/asium/asium.webp";
@@ -4739,28 +4740,44 @@ const PlaylistModal = ({
   const [levelEditorTrack, setLevelEditorTrack] = useState(null);
   const handleCloseLevelEditor = () => setLevelEditorTrack(null);
 
-  const handleSaveLevelEditor = (updatedTrack) => {
+  const handleSaveLevelEditor = async (updatedTrack) => {
     if (!customTracks) return;
     const updatedTracks = customTracks.map((t) =>
       t.id === updatedTrack.id ? updatedTrack : t
     );
-    const saved = localStorage.getItem("custom_playlist");
-    const currentCP = saved ? JSON.parse(saved) : {};
+    const currentCP = (await localforage.getItem("custom_playlist")) || {};
     
     const updatedPlaylist = { ...currentCP, tracks: updatedTracks };
-    localStorage.setItem('custom_playlist', JSON.stringify(updatedPlaylist));
+    await localforage.setItem('custom_playlist', updatedPlaylist);
     setLevelEditorTrack(null);
     window.location.reload(); 
   };
-  const [favorites, setFavorites] = useState(() => {
-    if (!user) return [];
-    const saved = localStorage.getItem("music_favorites");
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [favorites, setFavorites] = useState([]);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem("music_favorites", JSON.stringify(favorites));
-  }, [favorites]);
+    const loadFavorites = async () => {
+      if (!user) {
+        setIsHydrated(true);
+        return;
+      }
+      try {
+        const saved = await localforage.getItem("music_favorites");
+        if (saved) setFavorites(saved);
+      } catch (e) {
+        console.error("Помилка завантаження обраного:", e);
+      } finally {
+        setIsHydrated(true);
+      }
+    };
+    loadFavorites();
+  }, [user]);
+
+  useEffect(() => {
+    if (isHydrated && user) {
+      localforage.setItem("music_favorites", favorites);
+    }
+  }, [favorites, isHydrated, user]);
 
   const getRating = useCallback(
     (id) => {
@@ -5269,21 +5286,33 @@ const MusicPhoto = ({ user, onOpenRegister, isAnyModalOpen }) => {
   const [miniPlayerState, setMiniPlayerState] = useState({ isPlaying: false, volume: 1, speed: 1 });
   const [restoreTrack, setRestoreTrack] = useState(null);
 
-  const [customPlaylist, setCustomPlaylist] = useState(() => {
-    const saved = localStorage.getItem("custom_playlist");
-    return saved ? JSON.parse(saved) : null;
-  });
+  const [customPlaylist, setCustomPlaylist] = useState(null);
+  const [isPlaylistHydrated, setIsPlaylistHydrated] = useState(false);
+
+  useEffect(() => {
+    const loadPlaylist = async () => {
+      try {
+        const saved = await localforage.getItem("custom_playlist");
+        if (saved) setCustomPlaylist(saved);
+      } catch (e) {
+        console.error("Помилка завантаження плейлиста:", e);
+      } finally {
+        setIsPlaylistHydrated(true);
+      }
+    };
+    loadPlaylist();
+  }, []);
 
   useEffect(() => {
     if (isAnyModalOpen && miniPlayerTrack) setMiniPlayerTrack(null);
   }, [isAnyModalOpen, miniPlayerTrack]);
 
-  const deleteTrackFromCustomPlaylist = (trackId) => {
+  const deleteTrackFromCustomPlaylist = async (trackId) => {
     if (!customPlaylist) return;
     const updatedTracks = customPlaylist.tracks.filter((t) => t.id !== trackId);
     const updatedPlaylist = { ...customPlaylist, tracks: updatedTracks };
     setCustomPlaylist(updatedPlaylist);
-    localStorage.setItem("custom_playlist", JSON.stringify(updatedPlaylist));
+    await localforage.setItem("custom_playlist", updatedPlaylist);
   };
 
   const handleEditCustomPlaylist = () => {
@@ -5295,10 +5324,10 @@ const MusicPhoto = ({ user, onOpenRegister, isAnyModalOpen }) => {
     setCurrentPlaylist(null);
   };
 
-  const saveCustomPlaylist = (data) => {
+  const saveCustomPlaylist = async (data) => {
     try {
       setCustomPlaylist(data);
-      localStorage.setItem("custom_playlist", JSON.stringify(data));
+      await localforage.setItem("custom_playlist", data);
       setShowCreateModal(false);
     } catch (e) {
       alert("Помилка збереження! Можливо, файли занадто великі.");

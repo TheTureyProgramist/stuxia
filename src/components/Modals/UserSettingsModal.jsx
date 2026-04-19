@@ -1,4 +1,4 @@
-import Reacdeployt, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { addCustomDay, removeCustomDay } from "../../features/counter/Counter.js";
 import styled, { keyframes, css } from "styled-components";
@@ -25,7 +25,6 @@ const slideOut = keyframes`
     opacity: 0; 
   }
 `;
-
 const fadeOut = keyframes`
   0% { opacity: 1; }
   100% { opacity: 0; }
@@ -407,7 +406,7 @@ const SECTION_LABELS = {
 
 const UserSettingsModal = ({ onClose, user, availableAvatars, onUpdate }) => {
   const dispatch = useDispatch();
-  const customDays = useSelector((state) => state.calendar.customDays);
+  const customDays = useSelector((state) => state.calendar?.customDays || []);
   const [newDay, setNewDay] = useState({ d: "", m: "", reason: "" });
 
   const [y, m, d] = user?.birthDate ? user.birthDate.split("-") : ["", "", ""];

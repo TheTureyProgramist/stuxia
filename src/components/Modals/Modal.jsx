@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from "react";
 import styled, { keyframes, css } from "styled-components";
+import localforage from "localforage";
 import InfoModal from "./InfoModal";
 import KatSceneModal from "./KatSceneModal";
 const slideIn = keyframes`
@@ -430,7 +431,7 @@ const Modal = ({ onClose, onRegister, availableAvatars = [] }) => {
     return age;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (
       !formData.account ||
       !formData.firstName ||
@@ -457,7 +458,7 @@ const Modal = ({ onClose, onRegister, availableAvatars = [] }) => {
     );
     if (age < 13) return setError("Реєстрація дозволена лише з 13 років!");
 
-    const existingUser = JSON.parse(localStorage.getItem("registered_user"));
+    const existingUser = await localforage.getItem("registered_user");
     if (existingUser && existingUser.account === formData.account) {
       return setError("Акаунт з таким Gmail вже існує!");
     }
@@ -465,7 +466,7 @@ const Modal = ({ onClose, onRegister, availableAvatars = [] }) => {
     setShowKatScene(true);
   };
 
-  const completeRegistration = () => {
+  const completeRegistration = async () => {
     const registrationData = {
       account: formData.account,
       firstName: formData.firstName,
@@ -475,7 +476,7 @@ const Modal = ({ onClose, onRegister, availableAvatars = [] }) => {
       borderColor: formData.borderColor,
       birthDate: `${birthDate.year}-${birthDate.month.padStart(2, "0")}-${birthDate.day.padStart(2, "0")}`,
     };
-    localStorage.setItem("registered_user", JSON.stringify(registrationData));
+    await localforage.setItem("registered_user", registrationData);
     onRegister(registrationData);
   };
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import styled from "styled-components";
 import { motion, AnimatePresence } from "framer-motion";
+import localforage from "localforage";
 import * as fabric from "fabric";
 import turkeys from "../../photos/vip-images/turkeys/ultra-vip-turkeys.webp";
 import dragons from "../../photos/vip-images/dinofroz/vip-dragons.webp";
@@ -577,15 +578,8 @@ const FabricEditor = ({ onAddImage, isDarkMode, startCooldown, isCooldown, coold
 };
 
 const FanArt = ({ isDarkMode, user, onOpenRegister }) => {
-  const [customImages, setCustomImages] = useState(() => {
-    try {
-      const saved = localStorage.getItem('fanart_custom_images');
-      return saved ? JSON.parse(saved) : [];
-    } catch (error) {
-      console.error("Failed to parse custom images from localStorage", error);
-      return [];
-    }
-  });
+  const [customImages, setCustomImages] = useState([]);
+  const [isHydrated, setIsHydrated] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [searchStatus, setSearchStatus] = useState('idle');
@@ -621,8 +615,24 @@ const FanArt = ({ isDarkMode, user, onOpenRegister }) => {
   const combinedImages = [...allImagesData, ...customImages];
 
   useEffect(() => {
-    localStorage.setItem('fanart_custom_images', JSON.stringify(customImages));
-  }, [customImages]);
+    const hydrate = async () => {
+      try {
+        const saved = await localforage.getItem('fanart_custom_images');
+        if (saved) setCustomImages(saved);
+      } catch (error) {
+        console.error("Failed to load custom images:", error);
+      } finally {
+        setIsHydrated(true);
+      }
+    };
+    hydrate();
+  }, []);
+
+  useEffect(() => {
+    if (isHydrated) {
+      localforage.setItem('fanart_custom_images', customImages);
+    }
+  }, [customImages, isHydrated]);
 
   const [playlistTick, setPlaylistTick] = useState(0);
   const [selectedPlaylist, setSelectedPlaylist] = useState(null);
@@ -714,15 +724,15 @@ const FanArt = ({ isDarkMode, user, onOpenRegister }) => {
       }, 1000);
     } else {
       setIsCooldown(false);
-      localStorage.removeItem('fanart_cooldown_end');
+      localforage.removeItem('fanart_cooldown_end');
     }
 
     return () => clearTimeout(timer);
   }, [isCooldown, cooldownTime]);
 
-  const startCooldown = () => {
+  const startCooldown = async () => {
     const endTime = Date.now() + 40 * 1000;
-    localStorage.setItem('fanart_cooldown_end', endTime);
+    await localforage.setItem('fanart_cooldown_end', endTime);
     setIsCooldown(true);
     setCooldownTime(40);
   };
@@ -807,7 +817,7 @@ const FanArt = ({ isDarkMode, user, onOpenRegister }) => {
       console.error("Error searching:", error);
       setSearchStatus('error');
     } finally {
-      startCooldown();
+      await startCooldown();
     }
   };
 
@@ -845,7 +855,7 @@ const FanArt = ({ isDarkMode, user, onOpenRegister }) => {
       console.error("Error loading more from Pixabay:", error);
       setSearchStatus('error');
     } finally {
-      startCooldown();
+      await startCooldown();
     }
   };
 

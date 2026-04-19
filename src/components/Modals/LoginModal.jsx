@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import styled, { keyframes } from "styled-components";
+import localforage from "localforage";
 const slideIn = keyframes`
   0% {
     transform: translateY(100%) scale(0.5);
@@ -109,11 +110,12 @@ const LoginModal = ({ onClose, onLogin }) => {
     }, 500);
   };
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    const savedUser =
-      JSON.parse(localStorage.getItem("active_user")) ||
-      JSON.parse(localStorage.getItem("registered_user"));
+    const activeUser = await localforage.getItem("active_user");
+    const registeredUser = await localforage.getItem("registered_user");
+    const savedUser = activeUser || registeredUser;
+
     if (
       savedUser &&
       savedUser.account === email &&

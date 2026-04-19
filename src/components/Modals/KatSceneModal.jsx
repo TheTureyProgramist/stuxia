@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import styled, { keyframes } from "styled-components";
 import { motion, AnimatePresence } from "framer-motion";
+import localforage from "localforage";
 import dinofrozVideo from "../../mp3/dinofroz.mp4";
 import ultra from "../../photos/hero-header/start-image.webp";
 import ultraTurkeys from "../../photos/vip-images/turkeys/ultra-vip-turkeys.webp";
@@ -378,12 +379,18 @@ const KatSceneModal = ({ onClose }) => {
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [connectionError, setConnectionError] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
-  const [isWatched, setIsWatched] = useState(() => {
-    return localStorage.getItem("katSceneWatched") === "true";
-  });
+  const [isWatched, setIsWatched] = useState(false);
+
+  useEffect(() => {
+    const checkWatched = async () => {
+      const val = await localforage.getItem("katSceneWatched");
+      if (val === "true") setIsWatched(true);
+    };
+    checkWatched();
+  }, []);
+
   const [skipBlockTimer, setSkipBlockTimer] = useState(() => {
-    const watched = localStorage.getItem("katSceneWatched") === "true";
-    return watched ? 0 : Math.ceil(calculateTotalSequenceTime());
+    return isWatched ? 0 : Math.ceil(calculateTotalSequenceTime());
   });
   const [isAssetsLoaded, setIsAssetsLoaded] = useState(false);
   const stepStartTimeRef = useRef(null);
@@ -640,7 +647,7 @@ const KatSceneModal = ({ onClose }) => {
 
     const handleNextStep = () => {
       if (stepIndex === SEQUENCE.length - 1 && !isLooping) {
-        localStorage.setItem("katSceneWatched", "true");
+        localforage.setItem("katSceneWatched", "true");
         setIsWatched(true);
         if (handleCloseRef.current) handleCloseRef.current();
       } else {
