@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/react-weather-music-project/static/css/main.364d78cf.css",
-    "main.js": "/react-weather-music-project/static/js/main.6efb78d6.js",
+    "main.js": "/react-weather-music-project/static/js/main.be3cf492.js",
     "static/js/676.50267cf1.chunk.js": "/react-weather-music-project/static/js/676.50267cf1.chunk.js",
     "static/media/dinofroz.mp4": "/react-weather-music-project/static/media/dinofroz.2dbd53ecdac17dd14e9e.mp4",
     "static/media/unity.mp3": "/react-weather-music-project/static/media/unity.03a5211e31db9290e954.mp3",
@@ -150,11 +150,11 @@
     "static/media/user.webp": "/react-weather-music-project/static/media/user.dcd7396d3070abf3abbe.webp",
     "static/media/document.webp": "/react-weather-music-project/static/media/document.5b6c056b22794272794d.webp",
     "main.364d78cf.css.map": "/react-weather-music-project/static/css/main.364d78cf.css.map",
-    "main.6efb78d6.js.map": "/react-weather-music-project/static/js/main.6efb78d6.js.map",
+    "main.be3cf492.js.map": "/react-weather-music-project/static/js/main.be3cf492.js.map",
     "676.50267cf1.chunk.js.map": "/react-weather-music-project/static/js/676.50267cf1.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.364d78cf.css",
-    "static/js/main.6efb78d6.js"
+    "static/js/main.be3cf492.js"
   ]
 }
