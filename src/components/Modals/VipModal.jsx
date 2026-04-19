@@ -953,9 +953,7 @@ const UltraPlayer = ({ volume, setVolume, onPlayerClose }) => {
   const [timeLeft, setTimeLeft] = useState(0);
   const volumeRef = useRef(volume);
   const isPausedRef = useRef(isPaused);
-  const [isWatched, setIsWatched] = useState(() => {
-    return localStorage.getItem("katSceneWatched") === "true";
-  });
+  const [isWatched, setIsWatched] = useState(false);
 
   useEffect(() => {
     const checkWatched = async () => {

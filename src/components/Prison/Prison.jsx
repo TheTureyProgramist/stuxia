@@ -1,11 +1,8 @@
 import prison from "../../photos/hero-header/prison.webp";
 import React, { useState, useEffect, useMemo } from "react";
 import styled, { keyframes, css } from "styled-components";
-
-// ==========================================
-// 1. КОНСТАНТИ ТА КОНФІГУРАЦІЯ
-// ==========================================
-
+import turkeys from "../../photos/vip-images/turkeys/ultra-vip-turkeys.webp";
+import localforage from "localforage";
 const RARITY_CONFIG = {
   common: { name: "Звичайна", color: "#b0b0b0", shadow: "0 0 5px #b0b0b0" },
   uncommon: { name: "Особлива", color: "#4caf50", shadow: "0 0 10px #4caf50" },
@@ -37,14 +34,14 @@ const CHARACTERS_BASE = [
     hint: "1. Індичка",
     answers: ["Кейт", "Kate"],
     rarity: "ultralegendary",
-    desc: "Героїня, що сховала пристрій Сценотвір.",
-    images: [],
+    desc: "Хранителька Сценотвіру.",
+    images: [turkeys],
   },
   {
     id: 2,
     hint: "2. НЕ Ніцерон(але дракон з м/с Динофроз).",
     answers: ["Генерал Трік", "General Trick"],
-    rarity: "common",
+    rarity: "ultralegendary",
     desc: "Зрадник Ніцерона.",
     images: [],
   },
@@ -52,7 +49,7 @@ const CHARACTERS_BASE = [
     id: 3,
     hint: "3. Містика(ТВ шоу).",
     answers: ["Марина", "Marina"],
-    rarity: "legendary",
+    rarity: "ultralegendary",
     desc: "Т/с Реальна містика",
     images: [],
   },
@@ -68,7 +65,7 @@ const CHARACTERS_BASE = [
     id: 5,
     hint: "5. Футбол.",
     answers: ["Роналду", "Ronaldo"],
-    rarity: "mythic",
+    rarity: "legendary",
     desc: "Легенда спорту.",
     images: [],
   },
@@ -76,203 +73,133 @@ const CHARACTERS_BASE = [
     id: 6,
     hint: "6. Не зовсім слон.",
     answers: ["Мелтстон", "Meltston"],
-    rarity: "mythic",
+    rarity: "legendary",
     desc: "м/с Динофроз.",
     images: [],
   },
   {
     id: 7,
-    hint: "7. Неживе, небезпечне, підказка у назві сайту.",
-    answers: ["Вогонь", "Fire"],
-    rarity: "common",
-    desc: "Володіння ним, привело людину, до прогресу.",
-    images: [],
-  },
-  {
-    id: 8,
-    hint: "8. шифру із рандомний текст під час завантаження.",
+    hint: "7. шифру із рандомний текст під час завантаження.",
     answers: ["Зона туману", "Fog zone"],
-    rarity: "common",
+    rarity: "mythic",
     desc: "Ви його зупинятимете.",
     images: [],
   },
   {
-    id: 9,
-    hint: "9. Цифра невдахи.",
+    id: 8,
+    hint: "8. Цифра невдахи.",
     answers: ["13"],
-    rarity: "common",
+    rarity: "mythic",
     desc: "Число, якого всі бояться.",
     images: [],
   },
   {
-    id: 10,
-    hint: "10. Полум'я.",
+    id: 9,
+    hint: "9. Полум'я.",
     answers: ["Еліс", "Alice"],
-    rarity: "uncommon",
+    rarity: "mythic",
     desc: "Гра Темрява та Полум'я.",
     images: [],
   },
   {
-    id: 11,
-    hint: "11. .... жлоб.",
-    answers: ["Саня", "Sanya"],
-    rarity: "uncommon",
-    desc: "Персонаж із народних анекдотів.",
-    images: [],
-  },
-  {
-    id: 12,
-    hint: "12. К.с. В.х.н.",
+    id: 10,
+    hint: "10. К.с. В.х.н.",
     answers: ["Кося Вухань", "Kosya Vukhanya"],
-    rarity: "uncommon",
+    rarity: "epic",
     desc: "Всеволод Нестайко. .",
     images: [],
   },
   {
-    id: 13,
-    hint: "13. Це воно.",
+    id: 11,
+    hint: "11. Це воно.",
     answers: ["Пеннівайз", "Pennywise"],
-    rarity: "uncommon",
+    rarity: "epic",
     desc: "Жах у подобі клоуна.",
     images: [],
   },
   {
-    id: 14,
-    hint: "14. Вогняний павук.",
+    id: 12,
+    hint: "12. Вогняний павук.",
     answers: ["Німергон", "Nimergon"],
-    rarity: "uncommon",
+    rarity: "epic",
     desc: "м/с Атака вірусів.",
     images: [],
   },
   {
-    id: 15,
-    hint: "15. Власник архіву.",
-    answers: ["Хранитель", "Keeper"],
-    rarity: "rare",
-    desc: "Знає все про минуле.",
-    images: [],
-  },
-  {
-    id: 16,
-    hint: "16. Слово із підказок.",
+    id: 13,
+    hint: "13. Слово із підказок.",
     answers: ["..-"],
     rarity: "rare",
     desc: "Здогадався.",
     images: [],
   },
   {
-    id: 17,
-    hint: "17. Місце.",
-    answers: ["Катакомби", "Catacombs"],
-    rarity: "rare",
-    desc: "Там, де Кейт сховала пристрій.",
-    images: [],
-  },
-  {
-    id: 18,
-    hint: "18. Ворог Кіри.",
+    id: 14,
+    hint: "14. Ворог Кіри.",
     answers: ["Тітка Ерна", "Aunt Erna"],
     rarity: "rare",
     desc: "Бодо Шефер. Кіра й таємниця бублика.",
     images: [],
   },
   {
-    id: 19,
-    hint: "19. Жарт Дизель шоу.",
+    id: 15,
+    hint: "15. Жарт Дизель шоу.",
     answers: ["Я чекаю на маньяка", "I'm waiting for the maniac"],
     rarity: "rare",
     desc: "Об'єкт вічного гумору.",
     images: [],
   },
   {
-    id: 20,
-    hint: "20. ..-",
+    id: 16,
+    hint: "16. ..-",
     answers: ["у", "u"],
-    rarity: "common",
+    rarity: "uncommon",
     desc: "Азбука морзе.",
     images: [],
   },
   {
-    id: 21,
-    hint: "21. 12 18 6 11 15.",
+    id: 17,
+    hint: "17. 12 18 6 11 15.",
     answers: ["Індик", "Turkey"],
     rarity: "uncommon",
     desc: "А я недооцінював вас.",
     images: [],
   },
   {
-    id: 22,
-    hint: "22. У книзі",
-    answers: ["Сторінка", "Page"],
-    rarity: "epic",
-    desc: "Місце для тексту.",
-    images: [],
-  },
-  {
-    id: 23,
-    hint: "23. Лео, Ларс і 3персонажі.",
-    answers: ["Знайди злочинця", "Find a crimary", "Find a criminal"],
-    rarity: "epic",
-    desc: "Юліан Пресс. Книга.",
-    images: [],
-  },
-  {
-    id: 24,
-    hint: "24. Наші акції ростуть швидше, ніж Microsoft.",
+    id: 18,
+    hint: "18. Наші акції ростуть швидше, ніж Microsoft.",
     answers: ["Радіопромінь", "Radiobeam"],
-    rarity: "epic",
+    rarity: "uncommon",
     desc: ".",
     images: [],
   },
   {
-    id: 25,
-    hint: "25. Японія.",
-    answers: ["Гейша", "Geisha"],
-    rarity: "epic",
-    desc: "Мистецтво висхідного сонця.",
-    images: [],
-  },
-  {
-    id: 26,
-    hint: "26. Зоотрополіс.",
-    answers: ["Шеф Гримало", "Chief Bogo"],
-    rarity: "mythic",
-    desc: "М/ф Зоотросполіс.",
-    images: [],
-  },
-  {
-    id: 27,
-    hint: "27. Бік моху.",
+    id: 19,
+    hint: "19. Бік моху.",
     answers: ["Північ", "North"],
     rarity: "common",
     desc: "Орієнтир для мандрівників.",
     images: [],
   },
   {
-    id: 28,
-    hint: "28. 3 (↑↑) 3.",
+    id: 20,
+    hint: "20. 3 (↑↑) 3.",
     answers: ["7 625 597 484 987", "7625597484987"],
     rarity: "common",
     desc: "Математики і калькулятори це знають :)",
     images: [],
   },
   {
-    id: 29,
-    hint: "29. Ворог індика.",
+    id: 21,
+    hint: "21. Ворог індика.",
     answers: ["Півень", "Rooster"],
     rarity: "common",
     desc: "Нічого сюжетного, це істина у мене вдома.",
     images: [],
   },
 ];
-
-// ==========================================
-// 2. СТИЛІЗОВАНІ КОМПОНЕНТИ
-// ==========================================
-
 const fadeIn = keyframes`from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); }`;
 const shake = keyframes`0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); }`;
-
 const PrisonDiv = styled.div`
   position: relative;
   width: 98vw;
@@ -306,14 +233,11 @@ const Title = styled.h2`
   margin: 0;
   text-shadow: 0 0 15px rgba(160, 32, 240, 0.8);
 `;
-
-// --- Прогрес Бар ---
 const ProgressWrapper = styled.div`
   width: 95%;
   max-width: 600px;
   margin-bottom: -5px;
 `;
-
 const ProgressInfo = styled.div`
   display: flex;
   justify-content: space-between;
@@ -401,7 +325,7 @@ const ActionButton = styled.button`
   transition: 0.3s;
   &:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(160, 32, 240, 0.4);
+    box-shadow: 0 5px 15px rgba(157, 0, 255, 0.4);
   }
   &:disabled {
     opacity: 0.3;
@@ -448,7 +372,7 @@ const ModalOverlay = styled.div`
 const ModalContent = styled.div`
   background: #050505;
   border: 1px solid #a020f0;
-  padding: 30px;
+  padding: 20px;
   border-radius: 15px;
   width: 90%;
   max-width: 700px;
@@ -464,7 +388,7 @@ const CollectionGrid = styled.div`
 `;
 
 const GridItem = styled.div`
-  aspect-ratio: 1;
+  aspect-ratio: 3 / 2;
   border-radius: 5px;
   background: ${(props) =>
     props.$solved ? "rgba(160, 32, 240, 0.4)" : "#111"};
@@ -475,11 +399,6 @@ const GridItem = styled.div`
   font-size: 0.7rem;
   color: ${(props) => (props.$solved ? "#fff" : "#444")};
 `;
-
-// ==========================================
-// 3. ХАКЕРСЬКИЙ ПЛЕЙСХОЛДЕР (Логіка символів)
-// ==========================================
-
 const HackerPlaceholder = ({ active, hint, isFinished }) => {
   const [display, setDisplay] = useState("");
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*<>?/[]{}";
@@ -490,33 +409,161 @@ const HackerPlaceholder = ({ active, hint, isFinished }) => {
       return;
     }
     if (!active) return;
-
     const interval = setInterval(() => {
-      // Створюємо рядок випадкових символів тієї ж довжини, що і підказка
       let res = "";
       for (let i = 0; i < hint.length; i++) {
         res += chars[Math.floor(Math.random() * chars.length)];
       }
       setDisplay(res);
-    }, 100); // Оновлення кожні 100мс для ефекту мерехтіння
-
+    }, 100); 
     return () => clearInterval(interval);
   }, [hint, active, isFinished]);
-
   return <span>{display}</span>;
 };
+const layouts = {
+  cyrillic: [
+    "Й", "Ц", "У", "К", "Е", "Н", "Г", "Ш", "Щ", "З", "Х", "Ї",
+    "Ф", "І", "В", "А", "П", "Р", "О", "Л", "Д", "Ж", "Є", "Ґ",
+    "Я", "Ч", "С", "М", "И", "Т", "Ь", "Б", "Ю", "SPACE", "BACK"
+  ],
+  english: [
+    "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P",
+    "A", "S", "D", "F", "G", "H", "J", "K", "L",
+    "Z", "X", "C", "V", "B", "N", "M", "SPACE", "BACK"
+  ],
+  numbers: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", ".", "SPACE", "BACK"]
+};
+const KeyboardWrapper = styled.div`
+  margin-top: 20px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  @media (max-width: 480px) {
+    gap: 8px;
+  }
+`;
 
-// ==========================================
-// 4. ОСНОВНИЙ КОМПОНЕНТ
-// ==========================================
+const ModeSwitcher = styled.div`
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  @media (max-width: 480px) {
+    gap: 4px;
+  }
+`;
+
+const KeysGrid = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: center;
+`;
+
+const splitKeyAnimation = keyframes`
+  0% { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--tx), var(--ty)) rotate(var(--rot)) scale(1.1); opacity: 0; }
+`;
+
+const KeyBtn = styled.button`
+  position: relative;
+  background: #000;
+  border: 1px solid #a020f0;
+  color: #a020f0;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+  border-radius: 4px;
+  &:hover { background: #1a0025; }
+  &.wide { width: 26px; }
+
+  @media (max-width: 480px) {
+    width: 20px;
+    height: 20px;
+    font-size: 11px;
+    &.wide { width: 20px; }
+  }
+
+  @media (max-width: 340px) {
+    width: 22px;
+    &.wide { width: 22px; }
+  }
+`;
+
+const FlyPart = styled.div`
+  position: absolute;
+  inset: -1px;
+  background: #a020f0;
+  color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  pointer-events: none;
+  z-index: 10;
+  animation: ${splitKeyAnimation} 0.5s ease-out forwards;
+`;
+
+const Key = ({ char, onClick }) => {
+  const [isPressing, setIsPressing] = useState(false);
+  const [coords, setCoords] = useState({ x: 0, y: 0, r: 0 });
+  const displayChar = char === "SPACE" ? "" : char === "BACK" ? "⌫" : char;
+
+  const handlePress = () => {
+    // Генеруємо випадковий вектор розліту
+    const rx = (Math.random() - 0.5) * 160; 
+    const ry = -80 - Math.random() * 100;  
+    const rr = (Math.random() - 0.5) * 120; 
+    setCoords({ x: rx, y: ry, r: rr });
+
+    setIsPressing(true);
+    onClick(char);
+    setTimeout(() => setIsPressing(false), 500);
+  };
+
+  return (
+    <KeyBtn 
+      className={char === "SPACE" || char === "BACK" ? "wide" : ""} 
+      onClick={handlePress}
+    >
+      {displayChar}
+      {isPressing && (
+        <FlyPart 
+          style={{ 
+            '--tx': `${coords.x}px`, 
+            '--ty': `${coords.y}px`, 
+            '--rot': `${coords.r}deg` 
+          }}
+        >
+          {displayChar}
+        </FlyPart>
+      )}
+    </KeyBtn>
+  );
+};
 
 const Prison = () => {
-  const [solvedIds, setSolvedIds] = useState(() =>
-    JSON.parse(localStorage.getItem("prison_solved") || "[]"),
-  );
+  const [solvedIds, setSolvedIds] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const [isError, setIsError] = useState(false);
   const [showCollection, setShowCollection] = useState(false);
+  const [selectedCharDetails, setSelectedCharDetails] = useState(null);
+  const [keyboardMode, setKeyboardMode] = useState("cyrillic");
+
+  useEffect(() => {
+    const loadProgress = async () => {
+      const saved = await localforage.getItem("prison_solved");
+      if (saved) setSolvedIds(saved);
+    };
+    loadProgress();
+  }, []);
 
   const unsolvedPool = useMemo(
     () => CHARACTERS_BASE.filter((c) => !solvedIds.includes(c.id)),
@@ -542,7 +589,7 @@ const Prison = () => {
     if (isCorrect) {
       const newSolved = [...solvedIds, currentChar.id];
       setSolvedIds(newSolved);
-      localStorage.setItem("prison_solved", JSON.stringify(newSolved));
+      localforage.setItem("prison_solved", newSolved);
       setInputValue("");
       setIsError(false);
     } else {
@@ -552,10 +599,20 @@ const Prison = () => {
     }
   };
 
+  const handleKeyPress = (char) => {
+    if (char === "SPACE") {
+      setInputValue(prev => prev + " ");
+    } else if (char === "BACK") {
+      setInputValue(prev => prev.slice(0, -1));
+    } else {
+      setInputValue(prev => prev + char);
+    }
+  };
+
   const handleReset = () => {
     if (window.confirm("Ви дійсно хочете скинути весь прогрес в'язниці?")) {
       setSolvedIds([]);
-      localStorage.removeItem("prison_solved");
+      localforage.removeItem("prison_solved");
       setCurrentChar(null);
       setInputValue("");
     }
@@ -576,8 +633,6 @@ const Prison = () => {
           Колекція
         </ActionButton>
       </div>
-
-      {/* ПРОГРЕС БАР */}
       <ProgressWrapper>
         <ProgressInfo>
           <span>Прогрес</span>
@@ -640,14 +695,27 @@ const Prison = () => {
           </ActionButton>
         </InputGroup>
 
-        {/* ПІДКАЗКА (справжня) з'являється тільки якщо користувач навів мишку або вона стабільна під інпутом */}
+        <KeyboardWrapper>
+          <ModeSwitcher>
+            <ActionButton $alt={keyboardMode !== "cyrillic"} onClick={() => setKeyboardMode("cyrillic")} style={{fontSize: '10px', padding: '5px 10px'}}>UA</ActionButton>
+            <ActionButton $alt={keyboardMode !== "english"} onClick={() => setKeyboardMode("english")} style={{fontSize: '10px', padding: '5px 10px'}}>EN</ActionButton>
+            <ActionButton $alt={keyboardMode !== "numbers"} onClick={() => setKeyboardMode("numbers")} style={{fontSize: '10px', padding: '5px 10px'}}>123</ActionButton>
+          </ModeSwitcher>
+          <KeysGrid>
+            {layouts[keyboardMode].map((char, idx) => (
+              <Key 
+                key={`${keyboardMode}-${char}-${idx}`} 
+                char={char} 
+                onClick={handleKeyPress} 
+              />
+            ))}
+          </KeysGrid>
+        </KeyboardWrapper>
         {!isFinished && (
           <p style={{ fontSize: "17px", color: "#808080", marginTop: "10px" }}>
             Підказка: {currentChar?.hint}
           </p>
         )}
-
-        {/* КАРТКА ПРИ ВІДГАДУВАННІ */}
         {solvedIds.includes(currentChar?.id) && (
           <ResultCard $rarity={currentChar.rarity}>
             <div style={{ color: RARITY_CONFIG[currentChar.rarity].color }}>
@@ -658,6 +726,19 @@ const Prison = () => {
             >
               {currentChar.answers[0].toUpperCase()}
             </h3>
+            {currentChar.images && currentChar.images.length > 0 && (
+              <img 
+                src={currentChar.images[0]} 
+                alt={currentChar.answers[0]} 
+                style={{ 
+                  width: '100%', 
+                  maxWidth: '220px', 
+                  borderRadius: '8px', 
+                  marginBottom: '15px',
+                  border: '1px solid #a020f0' 
+                }} 
+              />
+            )}
             <p style={{ color: "#888", fontSize: "0.85rem" }}>
               {currentChar.desc}
             </p>
@@ -670,18 +751,41 @@ const Prison = () => {
           </ResultCard>
         )}
       </GameContainer>
-
-      {/* МОДАЛКА КОЛЕКЦІЇ */}
       {showCollection && (
         <ModalOverlay onClick={() => setShowCollection(false)}>
           <ModalContent onClick={(e) => e.stopPropagation()}>
             <h3 style={{ color: "#a020f0", textAlign: "center" }}>Архів</h3>
+            <p
+              style={{
+                color: "#888",
+                textAlign: "center",
+                fontSize: "0.7rem",
+                fontStyle: "italic",
+                margin: "5px 0 20px 0",
+                lineHeight: "1.4",
+              }}
+            >
+              Вхід розміщений у скромному вході, закинутого заводу. В якому безліч картин. Щоправда лунають моторошні звуки періодично. Відвідувачі не поверталися. Чи розгадаєте ви секрети місця? 
+            </p>
             <CollectionGrid>
               {CHARACTERS_BASE.map((c) => (
-                <GridItem key={c.id} $solved={solvedIds.includes(c.id)}>
-                  {solvedIds.includes(c.id)
-                    ? c.answers[0].substring(0, 6)
-                    : "???"}
+                <GridItem 
+                  key={c.id} 
+                  $solved={solvedIds.includes(c.id)}
+                  onClick={() => solvedIds.includes(c.id) && setSelectedCharDetails(c)}
+                  style={{ cursor: solvedIds.includes(c.id) ? 'pointer' : 'default' }}
+                >
+                  {solvedIds.includes(c.id) ? (
+                    c.images && c.images.length > 0 ? (
+                      <img 
+                        src={c.images[0]} 
+                        alt={c.answers[0]} 
+                        style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '4px' }} 
+                      />
+                    ) : (
+                      c.answers[0].substring(0, 26)
+                    )
+                  ) : "???"}
                 </GridItem>
               ))}
             </CollectionGrid>
@@ -694,8 +798,54 @@ const Prison = () => {
           </ModalContent>
         </ModalOverlay>
       )}
+
+      {/* МОДАЛКА ДЕТАЛЕЙ ПЕРСОНАЖА */}
+      {selectedCharDetails && (
+        <ModalOverlay onClick={() => setSelectedCharDetails(null)} style={{ zIndex: 2100 }}>
+          <ModalContent onClick={(e) => e.stopPropagation()} style={{ maxWidth: "400px" }}>
+            <ActionButton 
+              onClick={() => setSelectedCharDetails(null)} 
+              style={{ position: 'absolute', top: '10px', right: '10px', padding: '5px 10px', zIndex: 10 }}
+            >
+              ×
+            </ActionButton>
+            <ResultCard $rarity={selectedCharDetails.rarity} style={{ marginTop: 0 }}>
+              <div style={{ color: RARITY_CONFIG[selectedCharDetails.rarity].color }}>
+                {RARITY_CONFIG[selectedCharDetails.rarity].name.toUpperCase()}
+              </div>
+              <h3 style={{ margin: "10px 0", color: "#fff", letterSpacing: "2px" }}>
+                {selectedCharDetails.answers[0].toUpperCase()}
+              </h3>
+              {selectedCharDetails.images && selectedCharDetails.images.length > 0 && (
+                <img 
+                  src={selectedCharDetails.images[0]} 
+                  alt={selectedCharDetails.answers[0]} 
+                  style={{ 
+                    width: '100%', 
+                    maxWidth: '220px', 
+                    borderRadius: '8px', 
+                    marginBottom: '15px',
+                    border: '1px solid #a020f0' 
+                  }} 
+                />
+              )}
+              <p style={{ color: "#888", fontSize: "0.85rem", marginBottom: "15px" }}>
+                {selectedCharDetails.desc}
+              </p>
+              <div style={{ fontSize: '0.7rem', color: '#444' }}>
+                ID: {selectedCharDetails.id}
+              </div>
+              <ActionButton
+                onClick={() => setSelectedCharDetails(null)}
+                style={{ marginTop: "15px", width: '100%' }}
+              >
+                Назад до архіву
+              </ActionButton>
+            </ResultCard>
+          </ModalContent>
+        </ModalOverlay>
+      )}
     </PrisonDiv>
   );
 };
-
 export default Prison;
