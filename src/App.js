@@ -1,4 +1,4 @@
-// Міста для тесту: Дубай (>30°C), Якутськ (<-30°C), Кейптаун (вітер >10 м/с). Графік успішно оновлено: додано погодинну перевірку вітру та деталізовані причини небезпеки в підказках.
+// Міста для тесту: Дубай (>30°C), Якутськ (<-30°C), Кейптаун (вітер >10 м/с). Графік have погодинну перевірку вітру та деталізовані причини небезпеки в підказках.
 import { useState, useEffect, useCallback, memo, lazy, Suspense } from "react";
 import styled from "styled-components";
 import localforage from "localforage";
@@ -6,6 +6,7 @@ import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import Loader from "./components/Loader/Loader.jsx";
 import WeatherCardComponent from "./components/Weather/Weather.jsx";
 import NotFound from "./components/NotFound.jsx";
+import fogBackground from "./photos/hero-header/fogtwo.webp";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -348,6 +349,7 @@ const App = () => {
       const assets = [
         dinofrozVideo,
         startImage,
+        fogBackground,
         turkeys, // Вже імпортовано вище
         turkeysAudio,
         ultraImage,

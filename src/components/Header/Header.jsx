@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import styled, { keyframes, css } from "styled-components";
 import logo from "../../photos/hero-header/logo.webp";
 import BurgerMenu from "./Menu.jsx";
-import bell from "../../mp3/bell.mp3";
+import bell from "../../mp3/modals/bell.mp3";
 import money from "../../photos/fan-art/money.webp";
 import logofix from "../../photos/hero-header/logo-fix.webp";
 const flow = keyframes`
@@ -26,6 +26,11 @@ const fadeShowHide = keyframes`
   15% { opacity: 1; transform: translateX(-50%) translateY(0); }
   85% { opacity: 1; transform: translateX(-50%) translateY(0); }
   100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+`;
+
+const fadeInHeader = keyframes`
+  from { opacity: 0; transform: translateY(-100%); }
+  to { opacity: 1; transform: translateY(0); }
 `;
 
 const NotificationCard = styled.div`
@@ -112,6 +117,7 @@ const HeaderDiv = styled.div`
   z-index: 1000;
   transition: background-color 0.3s ease;
   box-sizing: border-box;
+  animation: ${fadeInHeader} 0.8s ease-out 5.3s both;
   margin: 0;
 
   @media (min-width: 768px) {

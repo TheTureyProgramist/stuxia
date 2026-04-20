@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import styled, { keyframes, css } from "styled-components";
-import hills from "../../photos/hero-header/hiils.webp";
+import hills from "../../photos/hero-header/fog.webp";
 import herotext from "../../photos/hero-header/herotext.webp";
 const slideUpHero = keyframes`
-  0% { transform: translateY(120px) scale(1.8); }
-  100% { transform: translateY(0) scale(1); }
+  0% { transform: translateY(120px) scale(1.8); opacity: 0; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
 `;
 
 const fadeInContent = keyframes`
@@ -16,8 +16,7 @@ const HeroDiv = styled.div`
   position: relative;
   width: 100%;
   min-height: 360px;
-  gap: 40px;
-  margin-top: 50px;
+  gap: 30px;
   margin-bottom: 35px;
   display: flex;
   background-size: cover;
@@ -31,40 +30,32 @@ const HeroDiv = styled.div`
   overflow: visible;
 
   @media (min-width: 768px) {
-    gap: 35px;
+    gap: 25px;
     margin-bottom: 50px;
-    margin-top: 70px;
   }
   @media (min-width: 1200px) {
-    gap: 80px;
+    gap: 60px;
     min-height: 620px;
-    margin-bottom: 80px;
-    margin-top: 80px;
+    margin-bottom: 75px;
   }
   @media (min-width: 1920px) {
     min-height: 1200px;
-    margin-top: 133px;
     margin-bottom: 120px;
-    gap: 120px;
+    gap: 90px;
   }
 `;const HeroDecors = styled.div`
   display: block;
-  /* Задаємо розміри для мобільних (базові) */
   width: 160px; 
+  margin-top: 85px;
   height: 67px;
-  
-  /* Використовуємо props.$image для фону */
   background-image: url(${(props) => props.$image});
-  background-size: cover;      /* Обрізає зайве, зберігаючи пропорції */
-  background-position: center; /* Залишає центр видимим */
+  background-size: cover;     
+  background-position: center; 
   background-repeat: no-repeat;
-
-  /* Анімація */
+  opacity: 0;
   transform: translateY(120px) scale(1.8);
   animation: ${(props) =>
     props.$start ? css`${slideUpHero} 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards` : "none"};
-
-  /* Адаптивні розміри для більших екранів */
   @media (min-width: 768px) {
     width: 350px;
     height: 140px;
@@ -642,9 +633,6 @@ const Hero = ({ heroDateString, onAddCity, startAnimation, user }) => {
         `https://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=10&appid=${API_KEY}`,
       );
       const data = await response.json();
-
-      // Додаємо саму точку координат як перший варіант ("Обрана точка")
-      // Це дозволяє створити картку погоди навіть там, де немає міст
       const currentPoint = {
         name: "Обрана точка",
         state: `Широта: ${lat}`,
@@ -653,8 +641,6 @@ const Hero = ({ heroDateString, onAddCity, startAnimation, user }) => {
         lon: lon,
         isManual: true
       };
-
-      // Об'єднуємо результати пошуку з нашою точкою
       setCoordinateSuggestions([currentPoint, ...data]);
       setShowCoordinateSuggestions(true);
 

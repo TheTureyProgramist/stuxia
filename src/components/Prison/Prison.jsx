@@ -3,6 +3,9 @@ import React, { useState, useEffect, useMemo } from "react";
 import styled, { keyframes, css } from "styled-components";
 import turkeys from "../../photos/vip-images/turkeys/ultra-vip-turkeys.webp";
 import localforage from "localforage";
+import marina from "../../photos/vip-modal/mystic.webp";
+import turkeythree from "../../photos/vip-images/turkeys/turkeysthree.webp";
+import candyman from "../../photos/vip-modal/candyman.webp";
 const RARITY_CONFIG = {
   common: { name: "Звичайна", color: "#b0b0b0", shadow: "0 0 5px #b0b0b0" },
   uncommon: { name: "Особлива", color: "#4caf50", shadow: "0 0 10px #4caf50" },
@@ -51,15 +54,15 @@ const CHARACTERS_BASE = [
     answers: ["Марина", "Marina"],
     rarity: "ultralegendary",
     desc: "Т/с Реальна містика",
-    images: [],
+    images: [marina],
   },
   {
     id: 4,
     hint: "4. Містика(відеогра).",
     answers: ["Кендімен", "Candyman"],
     rarity: "legendary",
-    desc: "Майнкрафт кріпіпаста.",
-    images: [],
+    desc: "Майнкрафт кріпіпаста. ",
+    images: [candyman],
   },
   {
     id: 5,
@@ -79,7 +82,7 @@ const CHARACTERS_BASE = [
   },
   {
     id: 7,
-    hint: "7. шифру із рандомний текст під час завантаження.",
+    hint: "7. Шифр рандомного тексту під час завантаження.",
     answers: ["Зона туману", "Fog zone"],
     rarity: "mythic",
     desc: "Ви його зупинятимете.",
@@ -163,14 +166,14 @@ const CHARACTERS_BASE = [
     answers: ["Індик", "Turkey"],
     rarity: "uncommon",
     desc: "А я недооцінював вас.",
-    images: [],
+    images: [turkeythree],
   },
   {
     id: 18,
     hint: "18. Наші акції ростуть швидше, ніж Microsoft.",
     answers: ["Радіопромінь", "Radiobeam"],
     rarity: "uncommon",
-    desc: ".",
+    desc: "Жарт із Дизель шоу",
     images: [],
   },
   {
@@ -184,7 +187,7 @@ const CHARACTERS_BASE = [
   {
     id: 20,
     hint: "20. 3 (↑↑) 3.",
-    answers: ["7 625 597 484 987", "7625597484987"],
+    answers: ["7 625 597 484 987", "7625597484987", "7, 625, 597, 484, 987"],
     rarity: "common",
     desc: "Математики і калькулятори це знають :)",
     images: [],
@@ -338,6 +341,9 @@ const ResultCard = styled.div`
   padding: 20px;
   background: #000;
   border-radius: 12px;
+  image-rendering: -webkit-optimize-contrast; 
+  object-fit: contain;
+  aspect-ratio: attr(width) / attr(height);
   border: 2px solid;
   text-align: center;
   width: 100%;
@@ -396,7 +402,7 @@ const GridItem = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.7rem;
+  font-size: 0.6rem;
   color: ${(props) => (props.$solved ? "#fff" : "#444")};
 `;
 const HackerPlaceholder = ({ active, hint, isFinished }) => {
