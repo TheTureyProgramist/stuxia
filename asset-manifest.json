@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/react-weather-music-project/static/css/main.364d78cf.css",
-    "main.js": "/react-weather-music-project/static/js/main.ffae65bc.js",
+    "main.js": "/react-weather-music-project/static/js/main.652a4b37.js",
     "static/js/676.50267cf1.chunk.js": "/react-weather-music-project/static/js/676.50267cf1.chunk.js",
     "static/media/dinofroz.mp4": "/react-weather-music-project/static/media/dinofroz.2dbd53ecdac17dd14e9e.mp4",
     "static/media/unity.mp3": "/react-weather-music-project/static/media/unity.03a5211e31db9290e954.mp3",
@@ -40,6 +40,7 @@
     "static/media/swampnine.webp": "/react-weather-music-project/static/media/swampnine.1d817b0d5f351f9d9292.webp",
     "static/media/desertone.webp": "/react-weather-music-project/static/media/desertone.b5214153e58f5a3f64b6.webp",
     "static/media/asiumone.webp": "/react-weather-music-project/static/media/asiumone.2cda9509d052426ab95b.webp",
+    "static/media/nimergone.webp": "/react-weather-music-project/static/media/nimergone.688036103934ab853fe2.webp",
     "static/media/prison.webp": "/react-weather-music-project/static/media/prison.e873cd514e908753e3d9.webp",
     "static/media/asiumthree.webp": "/react-weather-music-project/static/media/asiumthree.55a66fae64db9640ccb6.webp",
     "static/media/theory.webp": "/react-weather-music-project/static/media/theory.cb0c55966940a8329544.webp",
@@ -101,6 +102,7 @@
     "static/media/vip-lebid.webp": "/react-weather-music-project/static/media/vip-lebid.438462f34102a67d2261.webp",
     "static/media/horror.webp": "/react-weather-music-project/static/media/horror.f5b580cc622a915bbcd3.webp",
     "static/media/dizel.webp": "/react-weather-music-project/static/media/dizel.d87306d4c97c71a30def.webp",
+    "static/media/ronaldy.webp": "/react-weather-music-project/static/media/ronaldy.5f87e12bbb822505062f.webp",
     "static/media/dinofrozseven.webp": "/react-weather-music-project/static/media/dinofrozseven.af9f5750d19d786b4acd.webp",
     "static/media/turkeyssix.webp": "/react-weather-music-project/static/media/turkeyssix.01e6475d7405e21299ee.webp",
     "static/media/dinofrozfive.webp": "/react-weather-music-project/static/media/dinofrozfive.e0a44bdc6210f9e627fa.webp",
@@ -109,7 +111,9 @@
     "static/media/dinofrozsix.webp": "/react-weather-music-project/static/media/dinofrozsix.576ce4ec524bf5f5756d.webp",
     "static/media/impossible2.webp": "/react-weather-music-project/static/media/impossible2.58dc1ac3eec60403383a.webp",
     "static/media/virus.webp": "/react-weather-music-project/static/media/virus.ca13fb41f2e51e384c34.webp",
+    "static/media/north.webp": "/react-weather-music-project/static/media/north.c7cf10b68683aa69bffd.webp",
     "static/media/matrix.webp": "/react-weather-music-project/static/media/matrix.8ed079a55b547a47165c.webp",
+    "static/media/penny.webp": "/react-weather-music-project/static/media/penny.839a0c7c9a89d4657280.webp",
     "static/media/strangecloud.webp": "/react-weather-music-project/static/media/strangecloud.f782996898ac58d20639.webp",
     "static/media/fingerdash.webp": "/react-weather-music-project/static/media/fingerdash.db6d90f6e8c4337a45ca.webp",
     "static/media/finance.webp": "/react-weather-music-project/static/media/finance.c02c03ff032b022df6db.webp",
@@ -154,11 +158,11 @@
     "static/media/candyman.webp": "/react-weather-music-project/static/media/candyman.a6618edddc503deb962f.webp",
     "static/media/document.webp": "/react-weather-music-project/static/media/document.5b6c056b22794272794d.webp",
     "main.364d78cf.css.map": "/react-weather-music-project/static/css/main.364d78cf.css.map",
-    "main.ffae65bc.js.map": "/react-weather-music-project/static/js/main.ffae65bc.js.map",
+    "main.652a4b37.js.map": "/react-weather-music-project/static/js/main.652a4b37.js.map",
     "676.50267cf1.chunk.js.map": "/react-weather-music-project/static/js/676.50267cf1.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.364d78cf.css",
-    "static/js/main.ffae65bc.js"
+    "static/js/main.652a4b37.js"
   ]
 }
