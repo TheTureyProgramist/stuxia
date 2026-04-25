@@ -6,6 +6,15 @@ import localforage from "localforage";
 import marina from "../../photos/vip-modal/mystic.webp";
 import turkeythree from "../../photos/vip-images/turkeys/turkeysthree.webp";
 import candyman from "../../photos/vip-modal/candyman.webp";
+import flame from "../../photos/vip-images/flame.webp";
+import trick from "../../photos/vip-images/dinofroz/dinofrozeight.webp";
+import ronaldy from "../../photos/vip-modal/ronaldy.webp";
+import meltston from "../../photos/vip-images/dinofroz/dinofrozfive.webp";
+import hills from "../../photos/hero-header/fog.webp";
+import nimergone from "../../photos/hero-header/nimergone.webp";
+import rooster from "../../photos/vip-images/vip-rooster.webp";
+import north from "../../photos/vip-modal/north.webp";
+import penny from "../../photos/vip-modal/penny.webp";
 const RARITY_CONFIG = {
   common: { name: "Звичайна", color: "#b0b0b0", shadow: "0 0 5px #b0b0b0" },
   uncommon: { name: "Особлива", color: "#4caf50", shadow: "0 0 10px #4caf50" },
@@ -46,7 +55,7 @@ const CHARACTERS_BASE = [
     answers: ["Генерал Трік", "General Trick"],
     rarity: "ultralegendary",
     desc: "Зрадник Ніцерона.",
-    images: [],
+    images: [trick],
   },
   {
     id: 3,
@@ -70,7 +79,7 @@ const CHARACTERS_BASE = [
     answers: ["Роналду", "Ronaldo"],
     rarity: "legendary",
     desc: "Легенда спорту.",
-    images: [],
+    images: [ronaldy],
   },
   {
     id: 6,
@@ -78,7 +87,7 @@ const CHARACTERS_BASE = [
     answers: ["Мелтстон", "Meltston"],
     rarity: "legendary",
     desc: "м/с Динофроз.",
-    images: [],
+    images: [meltston],
   },
   {
     id: 7,
@@ -86,7 +95,7 @@ const CHARACTERS_BASE = [
     answers: ["Зона туману", "Fog zone"],
     rarity: "mythic",
     desc: "Ви його зупинятимете.",
-    images: [],
+    images: [hills],
   },
   {
     id: 8,
@@ -102,7 +111,7 @@ const CHARACTERS_BASE = [
     answers: ["Еліс", "Alice"],
     rarity: "mythic",
     desc: "Гра Темрява та Полум'я.",
-    images: [],
+    images: [flame],
   },
   {
     id: 10,
@@ -118,7 +127,7 @@ const CHARACTERS_BASE = [
     answers: ["Пеннівайз", "Pennywise"],
     rarity: "epic",
     desc: "Жах у подобі клоуна.",
-    images: [],
+    images: [penny],
   },
   {
     id: 12,
@@ -126,7 +135,7 @@ const CHARACTERS_BASE = [
     answers: ["Німергон", "Nimergon"],
     rarity: "epic",
     desc: "м/с Атака вірусів.",
-    images: [],
+    images: [nimergone],
   },
   {
     id: 13,
@@ -149,7 +158,7 @@ const CHARACTERS_BASE = [
     hint: "15. Жарт Дизель шоу.",
     answers: ["Я чекаю на маньяка", "I'm waiting for the maniac"],
     rarity: "rare",
-    desc: "Об'єкт вічного гумору.",
+    desc: "Ще один з Дизель шоу.",
     images: [],
   },
   {
@@ -182,7 +191,7 @@ const CHARACTERS_BASE = [
     answers: ["Північ", "North"],
     rarity: "common",
     desc: "Орієнтир для мандрівників.",
-    images: [],
+    images: [north],
   },
   {
     id: 20,
@@ -198,7 +207,7 @@ const CHARACTERS_BASE = [
     answers: ["Півень", "Rooster"],
     rarity: "common",
     desc: "Нічого сюжетного, це істина у мене вдома.",
-    images: [],
+    images: [rooster],
   },
 ];
 const fadeIn = keyframes`from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); }`;
@@ -396,14 +405,29 @@ const CollectionGrid = styled.div`
 const GridItem = styled.div`
   aspect-ratio: 3 / 2;
   border-radius: 5px;
-  background: ${(props) =>
-    props.$solved ? "rgba(160, 32, 240, 0.4)" : "#111"};
-  border: 1px solid ${(props) => (props.$solved ? "#a020f0" : "#222")};
+  background: #111;
+  border: 1px solid #222;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.6rem;
   color: ${(props) => (props.$solved ? "#fff" : "#444")};
+  transition: all 0.3s ease;
+
+  ${(props) => props.$solved && css`
+    ${({ $rarity }) => {
+      const config = RARITY_CONFIG[$rarity];
+      if (config.color === "rainbow")
+        return css`
+          animation: ${config.anim} 3s linear infinite;
+        `;
+      return css`
+        border-color: ${config.color};
+        box-shadow: ${config.shadow};
+        background: ${config.color + "33"}; /* Напівпрозорий фон кольору рідкості */
+      `;
+    }}
+  `}
 `;
 const HackerPlaceholder = ({ active, hint, isFinished }) => {
   const [display, setDisplay] = useState("");
@@ -778,6 +802,7 @@ const Prison = () => {
                 <GridItem 
                   key={c.id} 
                   $solved={solvedIds.includes(c.id)}
+                  $rarity={c.rarity}
                   onClick={() => solvedIds.includes(c.id) && setSelectedCharDetails(c)}
                   style={{ cursor: solvedIds.includes(c.id) ? 'pointer' : 'default' }}
                 >

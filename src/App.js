@@ -177,6 +177,9 @@ const SectionContent = memo(({
   setIsLocationEnabled,
   user,
   handleOpenRegister,
+  setHeroBg,
+  customHeroBgs,
+  setCustomHeroBgs,
   isAnyModalOpen
 }) => {
   if (!section) return null;
@@ -228,6 +231,9 @@ const SectionContent = memo(({
           isDarkMode={isDarkMode}
           user={user}
           onOpenRegister={handleOpenRegister}
+          setHeroBg={setHeroBg}
+          customHeroBgs={customHeroBgs}
+          setCustomHeroBgs={setCustomHeroBgs}
         />
       )}
       {section.key === "prison" && (
@@ -246,6 +252,22 @@ const App = () => {
   const [now, setNow] = useState(new Date());
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [user, setUser] = useState(null);
+  
+  const [heroBg, setHeroBg] = useState(null);
+  const [customHeroBgs, setCustomHeroBgs] = useState([]);
+  const [heroBg2, setHeroBg2] = useState(null);
+  const [heroBgMode, setHeroBgMode] = useState("static"); // "static" або "slideshow"
+  const [heroOverlayOpacity, setHeroOverlayOpacity] = useState(0.2);
+  const [bgRatings, setBgRatings] = useState({});
+  const [slideshowInterval, setSlideshowInterval] = useState(5);
+  const [slideshowTransition, setSlideshowTransition] = useState(0.8);
+  const [heroBgFilterCategory, setHeroBgFilterCategory] = useState("all");
+  const [heroBgZoom, setHeroBgZoom] = useState(1);
+  const [heroBgBlur, setHeroBgBlur] = useState(0);
+  const [heroBgRotation, setHeroBgRotation] = useState(0);
+  const [heroBgFocal1, setHeroBgFocal1] = useState({ x: 50, y: 50 });
+  const [heroBgFocal2, setHeroBgFocal2] = useState({ x: 50, y: 50 });
+
   const [currentAvatar, setCurrentAvatar] = useState(userDefault);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
@@ -286,6 +308,22 @@ const App = () => {
 
         const savedOrder = await localforage.getItem(SECTION_ORDER_STORAGE_KEY);
         if (savedOrder) setSiteSections(savedOrder);
+
+        const savedHeroBg = await localforage.getItem("hero_background");
+        if (savedHeroBg) setHeroBg(savedHeroBg);
+        const savedCustomBgs = await localforage.getItem("custom_hero_backgrounds");
+        if (savedCustomBgs) setCustomHeroBgs(savedCustomBgs);
+        const savedHeroFilter = await localforage.getItem("hero_bg_filter_category");
+        if (savedHeroFilter) setHeroBgFilterCategory(savedHeroFilter);
+        const savedZoom = await localforage.getItem("hero_bg_zoom");
+        if (savedZoom !== null) setHeroBgZoom(savedZoom);
+        const savedRotation = await localforage.getItem("hero_bg_rotation");
+        if (savedRotation !== null) setHeroBgRotation(savedRotation);
+
+        const savedFocal1 = await localforage.getItem("hero_bg_focal1");
+        if (savedFocal1) setHeroBgFocal1(savedFocal1);
+        const savedFocal2 = await localforage.getItem("hero_bg_focal2");
+        if (savedFocal2) setHeroBgFocal2(savedFocal2);
 
         const lastSeenVersion = await localforage.getItem("last_deployed_version");
         const deployId = process.env.REACT_APP_DEPLOY_ID;
@@ -388,8 +426,21 @@ const App = () => {
   useEffect(() => {
     if (isHydrated) {
       localforage.setItem("isDarkMode", isDarkMode);
+      localforage.setItem("hero_background", heroBg);
+      localforage.setItem("custom_hero_backgrounds", customHeroBgs);
+      localforage.setItem("hero_background_2", heroBg2);
+      localforage.setItem("hero_bg_ratings", bgRatings);
+      localforage.setItem("hero_bg_mode", heroBgMode);
+      localforage.setItem("hero_overlay_opacity", heroOverlayOpacity);
+      localforage.setItem("hero_slideshow_interval", slideshowInterval);
+      localforage.setItem("hero_slideshow_transition", slideshowTransition);
+      localforage.setItem("hero_bg_filter_category", heroBgFilterCategory);
+      localforage.setItem("hero_bg_zoom", heroBgZoom);
+      localforage.setItem("hero_bg_rotation", heroBgRotation);
+      localforage.setItem("hero_bg_focal1", heroBgFocal1);
+      localforage.setItem("hero_bg_focal2", heroBgFocal2);
     }
-  }, [isDarkMode, isHydrated]);
+  }, [heroBg, heroBg2, customHeroBgs, bgRatings, heroBgMode, heroOverlayOpacity, slideshowInterval, slideshowTransition, heroBgFilterCategory, heroBgZoom, heroBgRotation, isHydrated, isDarkMode]);
 
   useEffect(() => {
     if (isHydrated) {
@@ -748,6 +799,34 @@ const App = () => {
           startAnimation={!isLoading}
           user={user}
           checkWeatherDanger={checkWeatherDanger}
+          heroBg={heroBg}
+          setHeroBg={setHeroBg}
+          heroBg2={heroBg2}
+          setHeroBg2={setHeroBg2}
+          customHeroBgs={customHeroBgs}
+          setCustomHeroBgs={setCustomHeroBgs}
+          heroBgMode={heroBgMode}
+          setHeroBgMode={setHeroBgMode}
+          heroOverlayOpacity={heroOverlayOpacity}
+          setHeroOverlayOpacity={setHeroOverlayOpacity}
+          bgRatings={bgRatings}
+          setBgRatings={setBgRatings}
+          slideshowInterval={slideshowInterval}
+          setSlideshowInterval={setSlideshowInterval}
+          slideshowTransition={slideshowTransition}
+          setSlideshowTransition={setSlideshowTransition}
+          filterCategory={heroBgFilterCategory}
+          setFilterCategory={setHeroBgFilterCategory}
+          heroBgZoom={heroBgZoom}
+          setHeroBgZoom={setHeroBgZoom}
+          heroBgRotation={heroBgRotation}
+          setHeroBgRotation={setHeroBgRotation}
+          heroBgBlur={heroBgBlur}
+          setHeroBgBlur={setHeroBgBlur}
+          heroBgFocal1={heroBgFocal1}
+          setHeroBgFocal1={setHeroBgFocal1}
+          heroBgFocal2={heroBgFocal2}
+          setHeroBgFocal2={setHeroBgFocal2}
         />
       </div>
       <SectionContent
@@ -762,6 +841,9 @@ const App = () => {
         setIsLocationEnabled={setIsLocationEnabled}
         user={user}
         isAnyModalOpen={isAnyModalOpen}
+        setHeroBg={setHeroBg}
+        customHeroBgs={customHeroBgs}
+        setCustomHeroBgs={setCustomHeroBgs}
         handleOpenRegister={handleOpenRegister}
       />
     </>
@@ -776,6 +858,34 @@ const App = () => {
           startAnimation={!isLoading}
           user={user}
           checkWeatherDanger={checkWeatherDanger}
+          heroBg={heroBg}
+          setHeroBg={setHeroBg}
+          heroBg2={heroBg2}
+          setHeroBg2={setHeroBg2}
+          customHeroBgs={customHeroBgs}
+          setCustomHeroBgs={setCustomHeroBgs}
+          heroBgMode={heroBgMode}
+          setHeroBgMode={setHeroBgMode}
+          heroOverlayOpacity={heroOverlayOpacity}
+          setHeroOverlayOpacity={setHeroOverlayOpacity}
+          bgRatings={bgRatings}
+          setBgRatings={setBgRatings}
+          slideshowInterval={slideshowInterval}
+          setSlideshowInterval={setSlideshowInterval}
+          slideshowTransition={slideshowTransition}
+          setSlideshowTransition={setSlideshowTransition}
+          filterCategory={heroBgFilterCategory}
+          setFilterCategory={setHeroBgFilterCategory}
+          heroBgZoom={heroBgZoom}
+          setHeroBgZoom={setHeroBgZoom}
+          heroBgRotation={heroBgRotation}
+          setHeroBgRotation={setHeroBgRotation}
+          heroBgBlur={heroBgBlur}
+          setHeroBgBlur={setHeroBgBlur}
+          heroBgFocal1={heroBgFocal1}
+          setHeroBgFocal1={setHeroBgFocal1}
+          heroBgFocal2={heroBgFocal2}
+          setHeroBgFocal2={setHeroBgFocal2}
         />
       </div>
       <div className="container">
@@ -794,6 +904,9 @@ const App = () => {
               setIsLocationEnabled={setIsLocationEnabled}
               user={user}
               isAnyModalOpen={isAnyModalOpen}
+              setHeroBg={setHeroBg}
+              customHeroBgs={customHeroBgs}
+              setCustomHeroBgs={setCustomHeroBgs}
               handleOpenRegister={handleOpenRegister}
             />
           ),
@@ -862,6 +975,34 @@ const App = () => {
                           startAnimation={!isLoading}
                           user={user}
                           checkWeatherDanger={checkWeatherDanger}
+                          heroBg={heroBg}
+                          setHeroBg={setHeroBg}
+                          heroBg2={heroBg2}
+                          setHeroBg2={setHeroBg2}
+                          customHeroBgs={customHeroBgs}
+                          setCustomHeroBgs={setCustomHeroBgs}
+                          heroBgMode={heroBgMode}
+                          setHeroBgMode={setHeroBgMode}
+                          heroOverlayOpacity={heroOverlayOpacity}
+                          setHeroOverlayOpacity={setHeroOverlayOpacity}
+                          bgRatings={bgRatings}
+                          setBgRatings={setBgRatings}
+                          slideshowInterval={slideshowInterval}
+                          setSlideshowInterval={setSlideshowInterval}
+                          slideshowTransition={slideshowTransition}
+                          setSlideshowTransition={setSlideshowTransition}
+                          filterCategory={heroBgFilterCategory}
+                          setFilterCategory={setHeroBgFilterCategory}
+                          heroBgZoom={heroBgZoom}
+                          setHeroBgZoom={setHeroBgZoom}
+                          heroBgRotation={heroBgRotation}
+                          setHeroBgRotation={setHeroBgRotation}
+                          heroBgBlur={heroBgBlur}
+                          setHeroBgBlur={setHeroBgBlur}
+                          heroBgFocal1={heroBgFocal1}
+                          setHeroBgFocal1={setHeroBgFocal1}
+                          heroBgFocal2={heroBgFocal2}
+                          setHeroBgFocal2={setHeroBgFocal2}
                         />
                       ) : (
                         <SectionContent
@@ -876,6 +1017,9 @@ const App = () => {
                           setIsLocationEnabled={setIsLocationEnabled}
                           user={user}
                           isAnyModalOpen={isAnyModalOpen}
+                          setHeroBg={setHeroBg}
+                          customHeroBgs={customHeroBgs}
+                          setCustomHeroBgs={setCustomHeroBgs}
                           handleOpenRegister={handleOpenRegister}
                         />
                       )}

@@ -577,7 +577,7 @@ const FabricEditor = ({ onAddImage, isDarkMode, startCooldown, isCooldown, coold
   );
 };
 
-const FanArt = ({ isDarkMode, user, onOpenRegister }) => {
+const FanArt = ({ isDarkMode, user, onOpenRegister, setHeroBg, setCustomHeroBgs }) => {
   const [customImages, setCustomImages] = useState([]);
   const [isHydrated, setIsHydrated] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -1066,6 +1066,19 @@ const FanArt = ({ isDarkMode, user, onOpenRegister }) => {
                           title="Роздрукувати"
                         >
                           ⎙
+                        </ActionButton>
+                        <ActionButton
+                          onClick={() => {
+                            setHeroBg(imgData.src);
+                            setCustomHeroBgs(prev => {
+                              if (prev.some(bg => bg.src === imgData.src)) return prev;
+                              return [{ src: imgData.src, name: imgData.title || "Фанарт" }, ...prev];
+                            });
+                          }}
+                          title="Встановити на шпалери"
+                          style={{ background: '#4caf50', color: 'white' }}
+                        >
+                          🖼️
                         </ActionButton>
                         {selectedPlaylist === "ваші картинки" && (
                           <ActionButton
