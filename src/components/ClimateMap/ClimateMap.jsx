@@ -13,7 +13,7 @@ const MapWrapper = styled.div`
   position: relative;
   width: 95%;
   max-width: 1200px;
-  aspect-ratio: 16 / 9; 
+  aspect-ratio: 16 / 9;
   min-height: 450px;
   margin: 0 auto;
   border-radius: 20px;
@@ -31,9 +31,9 @@ const StyledIframe = styled.iframe`
   border: none;
   width: 100%;
   height: 100%;
-  pointer-events: ${props => (props.$isReady ? "auto" : "none")};
+  pointer-events: ${(props) => (props.$isReady ? "auto" : "none")};
   transition: opacity 0.5s ease;
-  opacity: ${props => (props.$isLoading ? "0" : "1")};
+  opacity: ${(props) => (props.$isLoading ? "0" : "1")};
 `;
 
 const Loader = styled.div`
@@ -56,8 +56,9 @@ const Controls = styled.div`
 `;
 
 const ActionButton = styled.button`
-  background: ${props => (props.$active ? "skyblue" : "rgba(255, 255, 255, 0.1)")};
-  color: ${props => (props.$active ? "#000" : "#fff")};
+  background: ${(props) =>
+    props.$active ? "skyblue" : "rgba(255, 255, 255, 0.1)"};
+  color: ${(props) => (props.$active ? "#000" : "#fff")};
   border: 1px solid rgba(255, 255, 255, 0.2);
   padding: 8px 16px;
   border-radius: 10px;
@@ -99,17 +100,29 @@ const ClimateMap = () => {
   return (
     <OuterContainer>
       <Controls>
-        <ActionButton $active={overlay === "wind"} onClick={() => setOverlay("wind")}>
+        <ActionButton
+          $active={overlay === "wind"}
+          onClick={() => setOverlay("wind")}
+        >
           Вітер
         </ActionButton>
-        <ActionButton $active={overlay === "rain"} onClick={() => setOverlay("rain")}>
+        <ActionButton
+          $active={overlay === "rain"}
+          onClick={() => setOverlay("rain")}
+        >
           Дощ
         </ActionButton>
-        <ActionButton $active={overlay === "temp"} onClick={() => setOverlay("temp")}>
+        <ActionButton
+          $active={overlay === "temp"}
+          onClick={() => setOverlay("temp")}
+        >
           Температура
         </ActionButton>
         {!isMapActive && (
-          <ActionButton onClick={() => setIsMapActive(true)} style={{border: '1px solid skyblue'}}>
+          <ActionButton
+            onClick={() => setIsMapActive(true)}
+            style={{ border: "1px solid skyblue" }}
+          >
             Активувати карту 🖱️
           </ActionButton>
         )}
@@ -122,7 +135,7 @@ const ClimateMap = () => {
             <p>Завантаження метеоданих...</p>
           </Loader>
         )}
-        
+
         <StyledIframe
           title="Windy Live Weather Map"
           src={embedUrl}
@@ -130,7 +143,7 @@ const ClimateMap = () => {
           $isReady={isMapActive}
           onLoad={() => setIsLoading(false)}
           allowFullScreen
-          loading="lazy" 
+          loading="lazy"
         />
       </MapWrapper>
 

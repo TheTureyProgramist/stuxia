@@ -107,10 +107,10 @@ const DEFAULT_BGS = [
 
   // Природа та Локації (Пустеля, Болото, Азіум)
   { src: desert, name: "Загадки пустелі", category: "Локації" },
-  { src: desertone, name: "Пустеля 1", category: "Локації" },
-  { src: deserttwo, name: "Пустеля 2", category: "Локації" },
-  { src: desertthree, name: "Пустеля 3", category: "Локації" },
-  { src: desertfour, name: "Пустеля 4", category: "Локації" },
+  { src: desertone, name: "Кораблі у пустелі", category: "Локації" },
+  { src: deserttwo, name: "Пустельні міражі", category: "Локації" },
+  { src: desertthree, name: "Какстуси", category: "Локації" },
+  { src: desertfour, name: "Піраміда", category: "Локації" },
   { src: swampnine, name: "Озеро волі", category: "Локації" },
   { src: swamptwo, name: "Записка", category: "Локації" },
   { src: asiumten, name: "Зимовий ліс", category: "Локації" },
@@ -153,6 +153,27 @@ const DEFAULT_BGS = [
   { src: swampthree, name: "Підказка свічки", category: "Аркада" },
   { src: swampsix, name: "Печера кристалів", category: "Аркада" },
 ];
+
+const fadeIn = keyframes`
+  from { opacity: 0; }
+  to { opacity: 1; }
+`;
+
+const fadeOut = keyframes`
+  from { opacity: 1; }
+  to { opacity: 0; }
+`;
+
+const slideIn = keyframes`
+  0% { transform: translateY(100%) scale(0.5); opacity: 0; }
+  100% { transform: translateY(0%) scale(1); opacity: 1; }
+`;
+
+const slideOut = keyframes`
+  0% { transform: translateY(0%) scale(1); opacity: 1; }
+  100% { transform: translateY(100%) scale(0.5); opacity: 0; }
+`;
+
 const slideUpHero = keyframes`
   0% { transform: translateY(120px) scale(1.8); opacity: 0; }
   100% { transform: translateY(0) scale(1); opacity: 1; }
@@ -179,28 +200,33 @@ const HeroDiv = styled.div`
     margin-bottom: 50px;
   }
   @media (min-width: 1200px) {
-    gap: 60px;
+    gap: 95px;
     min-height: 620px;
     margin-bottom: 75px;
   }
   @media (min-width: 1920px) {
-    min-height: 1200px;
+    min-height: 1080px;
     margin-bottom: 120px;
-    gap: 90px;
+    gap: 96px;
   }
-`;const HeroDecors = styled.div`
+`;
+const HeroDecors = styled.div`
   display: block;
-  width: 160px; 
+  width: 160px;
   margin-top: 85px;
   height: 67px;
   background-image: url(${(props) => props.$image});
-  background-size: cover;     
-  background-position: center; 
+  background-size: cover;
+  background-position: center;
   background-repeat: no-repeat;
   opacity: 0;
   transform: translateY(120px) scale(1.8);
   animation: ${(props) =>
-    props.$start ? css`${slideUpHero} 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards` : "none"};
+    props.$start
+      ? css`
+          ${slideUpHero} 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards
+        `
+      : "none"};
   @media (min-width: 768px) {
     width: 350px;
     height: 140px;
@@ -222,7 +248,11 @@ const DelayedContent = styled.div`
   gap: 20px;
   opacity: 0;
   animation: ${(props) =>
-    props.$start ? css`${fadeInContent} 1s ease-out forwards` : "none"};
+    props.$start
+      ? css`
+          ${fadeInContent} 1s ease-out forwards
+        `
+      : "none"};
   animation-delay: ${(props) => (props.$start ? "3s" : "0s")};
 
   @media (min-width: 768px) {
@@ -236,23 +266,45 @@ const DelayedContent = styled.div`
   }
 `;
 
+const panAnimation = keyframes`
+  0% { background-position-x: 0%; }
+  50% { background-position-x: 100%; }
+  100% { background-position-x: 0%; }
+`;
+
 const BgLayer = styled.div`
   position: absolute;
-  top: 0; left: 0; width: 100%; height: 100%;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background-size: cover;
-  background-position: center;
+  background-position: ${(props) => props.$focalX}% ${(props) => props.$focalY}%;
   background-repeat: no-repeat;
   background-image: url(${(props) => props.$image || hills});
   opacity: ${(props) => (props.$active ? 1 : 0)};
   transition: opacity ${(props) => props.$transition}s ease-in-out;
-  transform: scale(${(props) => (props.$zoom || 1) * (props.$rotationScale || 1)}) rotate(${(props) => props.$rotation || 0}deg); /* Apply zoom and rotation */
-  filter: blur(${(props) => props.$blur || 0}px); /* Apply blur */
+  transform: scale(
+      ${(props) => (props.$zoom || 1) * (props.$rotationScale || 1)}
+    )
+    rotate(${(props) => props.$rotation || 0}deg);
+  transform-origin: ${(props) => props.$focalX}% ${(props) => props.$focalY}%;
+  filter: blur(${(props) => props.$blur || 0}px);
   z-index: -2;
+  animation: ${(props) =>
+    props.$panEnabled && props.$zoom > 1
+      ? css`
+          ${panAnimation} ${props.$panSpeed || 6}s infinite linear
+        `
+      : "none"};
 `;
 
 const Overlay = styled.div`
   position: absolute;
-  top: 0; left: 0; width: 100%; height: 100%;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background: rgba(0, 0, 0, ${(props) => props.$opacity});
   z-index: -1;
   pointer-events: none;
@@ -266,7 +318,9 @@ const HeroTitle = styled.h1`
   color: #fff;
   width: 250px;
   margin: 0;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 10px rgba(0, 0, 0, 0.5);
+  text-shadow:
+    2px 2px 4px rgba(0, 0, 0, 0.8),
+    0 0 10px rgba(0, 0, 0, 0.5);
   @media (min-width: 768px) {
     font-size: 15px;
     width: 450px;
@@ -313,11 +367,13 @@ const HeroTextLink = styled.a`
   text-align: center;
   width: auto;
   margin: 0;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 10px rgba(0, 0, 0, 0.5);
+  text-shadow:
+    2px 2px 4px rgba(0, 0, 0, 0.8),
+    0 0 10px rgba(0, 0, 0, 0.5);
 
   @media (min-width: 768px) {
     font-size: 11px;
-    flex: 1; 
+    flex: 1;
     text-align: right;
     padding-right: 20px;
   }
@@ -334,11 +390,13 @@ const HeroDate = styled.div`
   color: #fff;
   font-size: 10px;
   text-align: center;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 10px rgba(0, 0, 0, 0.5);
+  text-shadow:
+    2px 2px 4px rgba(0, 0, 0, 0.8),
+    0 0 10px rgba(0, 0, 0, 0.5);
 
   @media (min-width: 768px) {
     font-size: 11px;
-    flex: 1; 
+    flex: 1;
     text-align: left;
     padding-left: 20px;
   }
@@ -413,9 +471,11 @@ const SearchModeToggle = styled.div`
 
 const ModeButton = styled.button`
   padding: 8px 16px;
-  background: ${(props) => (props.$active ? "#ffb36c" : "rgba(255, 255, 255, 0.1)")};
+  background: ${(props) =>
+    props.$active ? "#ffb36c" : "rgba(255, 255, 255, 0.1)"};
   color: ${(props) => (props.$active ? "#000" : "#fff")};
-  border: 2px solid ${(props) => (props.$active ? "#ffb36c" : "rgba(255, 179, 108, 0.5)")};
+  border: 2px solid
+    ${(props) => (props.$active ? "#ffb36c" : "rgba(255, 179, 108, 0.5)")};
   border-radius: 20px;
   cursor: pointer;
   font-weight: 600;
@@ -425,7 +485,8 @@ const ModeButton = styled.button`
   backdrop-filter: blur(5px);
 
   &:hover {
-    background: ${(props) => (props.$active ? "#ffb36c" : "rgba(255, 179, 108, 0.2)")};
+    background: ${(props) =>
+      props.$active ? "#ffb36c" : "rgba(255, 179, 108, 0.2)"};
     border-color: #ffb36c;
   }
 
@@ -561,7 +622,7 @@ const HeroButton = styled.button`
   font-size: 20px;
   color: black;
   transition: all 0.7s ease-in-out;
-  overflow: hidden; 
+  overflow: hidden;
   &:hover {
     background: ${(props) => (props.disabled ? "#ccc" : "skyblue")};
     color: ${(props) => (props.disabled ? "black" : "transparent")};
@@ -585,13 +646,17 @@ const HeroButton = styled.button`
     width: 28px;
     height: 26px;
     font-size: 22px;
-    &:hover::after { font-size: 24px; }
+    &:hover::after {
+      font-size: 24px;
+    }
   }
   @media (min-width: 1200px) {
     width: 40px;
     height: 43px;
     font-size: 30px;
-    &:hover::after { font-size: 34px; }
+    &:hover::after {
+      font-size: 34px;
+    }
   }
   @media (min-width: 1920px) {
     width: 95px;
@@ -599,7 +664,9 @@ const HeroButton = styled.button`
     border-radius: 0 20px 20px 0;
     border-width: 4px;
     font-size: 60px;
-    &:hover::after { font-size: 70px; }
+    &:hover::after {
+      font-size: 70px;
+    }
   }
 `;
 const SuggestionsList = styled.div`
@@ -684,8 +751,8 @@ const LoadMoreButton = styled.button`
 
 const ChangeBgButton = styled.button`
   position: absolute;
-  top: 140px;
-  right: 30px;
+  top: 60px;
+  right: 10px;
   background: rgba(0, 0, 0, 0.4);
   border: 1px solid rgba(255, 179, 108, 0.5);
   color: white;
@@ -705,34 +772,72 @@ const ChangeBgButton = styled.button`
     color: black;
     transform: scale(1.1);
   }
-  @media (min-width: 1920px) {
+  @media (min-width: 720px) {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    top: 90px;
+  }
+  @media (min-width: 1200px) {
+    top: 100px;
     width: 60px;
     height: 60px;
     font-size: 30px;
+  }
+  @media (min-width: 1920px) {
+    width: 100px;
+    height: 100px;
+    font-size: 50px;
+    top: 136px;
   }
 `;
 
 const ModalOverlay = styled.div`
   position: fixed;
-  top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0,0,0,0.85);
-  display: flex; justify-content: center; align-items: center;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
   z-index: 1000;
+  backdrop-filter: blur(5px);
+  animation: ${(props) => (props.$isClosing ? fadeOut : fadeIn)} 0.3s ease-out
+    forwards;
 `;
 
 const ModalContent = styled.div`
   background: #1e1e1e;
-  padding: 30px;
+  padding: 20px;
   border-radius: 20px;
-  width: 90%;
+  width: 95%;
   max-width: 800px;
-  max-height: 80vh;
+  max-height: 90vh;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 15px;
   border: 1px solid #ffb36c;
   color: white;
+  position: relative;
+  animation: ${(props) => (props.$isClosing ? slideOut : slideIn)} 0.4s
+    cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+
+  @media (min-width: 768px) {
+    padding: 30px;
+    width: 90%;
+    gap: 20px;
+  }
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #ffb36c;
+    border-radius: 10px;
+  }
 `;
 
 const DeleteBtn = styled.button`
@@ -751,7 +856,9 @@ const DeleteBtn = styled.button`
   justify-content: center;
   font-size: 14px;
   z-index: 10;
-  &:hover { background: red; }
+  &:hover {
+    background: red;
+  }
 `;
 
 const EditBtn = styled.button`
@@ -770,7 +877,9 @@ const EditBtn = styled.button`
   justify-content: center;
   font-size: 14px;
   z-index: 10;
-  &:hover { background: #ffb36c; }
+  &:hover {
+    background: #ffb36c;
+  }
 `;
 
 const NameOverlay = styled.div`
@@ -798,7 +907,7 @@ const NameOverlay = styled.div`
 //   overflow: hidden;
 //   border: 2px solid ${(props) => (props.$active ? "#ffb36c" : "transparent")};
 //   transition: transform 0.2s;
-//   &:hover { 
+//   &:hover {
 //     transform: scale(1.05);
 //     ${NameOverlay} { opacity: 1; }
 //   }
@@ -808,16 +917,43 @@ const ConfigRow = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.05);
   padding: 15px;
   border-radius: 12px;
-  label { font-size: 14px; font-weight: bold; color: #ffb36c; }
+  label {
+    font-size: 14px;
+    font-weight: bold;
+    color: #ffb36c;
+  }
+`;
+
+const ModalConfigGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 15px;
+  align-items: end;
+  @media (min-width: 600px) {
+    grid-template-columns: 1fr 1fr;
+  }
+`;
+
+const FocusButtonsGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 15px;
+  @media (min-width: 600px) {
+    grid-template-columns: 1fr 1fr;
+  }
 `;
 
 const BgGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 15px;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 15px;
+  }
 `;
 
 const BgItem = styled.div`
@@ -826,7 +962,7 @@ const BgItem = styled.div`
   overflow: hidden;
   border: 2px solid ${(props) => (props.$active ? "#ffb36c" : "transparent")};
   transition: transform 0.2s;
-  &:hover { 
+  &:hover {
     transform: scale(1.05);
     ${NameOverlay} {
       opacity: 1;
@@ -843,13 +979,18 @@ const BgSquare = styled.img`
 
 const RatingOverlay = styled.div`
   position: absolute;
-  top: 5px; left: 5px;
-  display: flex; gap: 4px;
+  top: 5px;
+  left: 5px;
+  display: flex;
+  gap: 4px;
   z-index: 5;
 `;
 
 const HeartIcon = styled.button`
-  background: none; border: none; cursor: pointer; padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
   font-size: 16px;
   color: ${(props) => props.$color || "white"};
   text-shadow: 0 0 3px black;
@@ -857,16 +998,22 @@ const HeartIcon = styled.button`
 
 const SlotButtons = styled.div`
   position: absolute;
-  bottom: 0; left: 0; width: 100%;
+  bottom: 0;
+  left: 0;
+  width: 100%;
   display: flex;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0, 0, 0, 0.6);
 `;
 
 const SlotBtn = styled.button`
   flex: 1;
   background: ${(props) => (props.$active ? "#ffb36c" : "transparent")};
   color: ${(props) => (props.$active ? "black" : "white")};
-  border: none; padding: 4px; cursor: pointer; font-size: 10px; font-weight: bold;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: bold;
 `;
 
 const DropZone = styled.div`
@@ -878,7 +1025,10 @@ const DropZone = styled.div`
   color: #ccc;
   background: rgba(255, 255, 255, 0.05);
   transition: all 0.3s;
-  &:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+  }
 `;
 
 const CloseBtn = styled.button`
@@ -901,8 +1051,13 @@ const ModalSearchInput = styled.input`
   max-width: 300px;
   font-size: 14px;
   outline: none;
-  &::placeholder { color: #aaa; }
-  &:focus { background: rgba(255, 255, 255, 0.15); border-color: white; }
+  &::placeholder {
+    color: #aaa;
+  }
+  &:focus {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: white;
+  }
 `;
 
 const ModalDivider = styled.hr`
@@ -922,15 +1077,45 @@ const ModalSectionTitle = styled.h3`
   padding-left: 10px;
 `;
 
-const Hero = ({ 
-  heroDateString, onAddCity, startAnimation, user, 
-  heroBg, setHeroBg, heroBg2, setHeroBg2, customHeroBgs = [], setCustomHeroBgs,
-  heroBgMode, setHeroBgMode, heroOverlayOpacity, setHeroOverlayOpacity,
-  bgRatings, setBgRatings, slideshowInterval, setSlideshowInterval,
-  slideshowTransition, setSlideshowTransition,
-  filterCategory, setFilterCategory,
-  heroBgZoom, setHeroBgZoom, heroBgRotation, setHeroBgRotation,
-  heroBgBlur, setHeroBgBlur
+const Hero = ({
+  heroDateString,
+  onAddCity,
+  startAnimation,
+  user,
+  checkWeatherDanger,
+  heroBg,
+  setHeroBg,
+  heroBg2,
+  setHeroBg2,
+  customHeroBgs = [],
+  setCustomHeroBgs,
+  heroBgMode,
+  setHeroBgMode,
+  heroOverlayOpacity,
+  setHeroOverlayOpacity,
+  bgRatings,
+  setBgRatings,
+  slideshowInterval,
+  setSlideshowInterval,
+  slideshowTransition,
+  setSlideshowTransition,
+  filterCategory,
+  setFilterCategory,
+  heroBgZoom,
+  setHeroBgZoom,
+  heroBgRotation,
+  setHeroBgRotation,
+  heroBgBlur,
+  setHeroBgBlur,
+  heroBgFocal1,
+  setHeroBgFocal1,
+  heroBgFocal2,
+  setHeroBgFocal2,
+  heroBgPanEnabled,
+  setHeroBgPanEnabled,
+  heroBgPanSpeed,
+  setHeroBgPanSpeed,
+  screenshots = [],
 }) => {
   const [inputValue, setInputValue] = useState("");
   const [suggestions, setSuggestions] = useState([]);
@@ -939,7 +1124,8 @@ const Hero = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [visibleBgCount, setVisibleBgCount] = useState(30);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
+  const [isClosing, setIsClosing] = useState(false);
+
   // FIX: Added missing states to resolve ESLint errors
   const [hasMore, setHasMore] = useState(true);
   const [searchMode, setSearchMode] = useState("city");
@@ -956,29 +1142,50 @@ const Hero = ({
   // Логіка слайд-шоу
   useEffect(() => {
     if (heroBgMode !== "slideshow" || !heroBg || !heroBg2) return;
-    
+
     const timer = setInterval(() => {
-      setActiveLayer(prev => (prev === 1 ? 2 : 1));
+      setActiveLayer((prev) => (prev === 1 ? 2 : 1));
     }, slideshowInterval * 1000);
-    
+
     return () => clearInterval(timer);
   }, [heroBgMode, heroBg, heroBg2, slideshowInterval]);
 
-  const isCustom = (src) => !DEFAULT_BGS.some(bg => bg.src === src);
+  const handleCloseModal = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setIsModalOpen(false);
+      setIsClosing(false);
+    }, 350);
+  };
 
-  const allBgs = [...DEFAULT_BGS, ...(customHeroBgs || [])];
-  
-  const filteredBgs = (allBgs || []).filter(bg => {
-    const matchesCategory = filterCategory === "all" || 
-                           (filterCategory === "custom" ? isCustom(bg.src) : bg.category === filterCategory);
-    const matchesSearch = (bg.name || "").toLowerCase().includes(searchTerm.toLowerCase());
+  const isCustom = (src) => !DEFAULT_BGS.some((bg) => bg.src === src);
+
+  const allBgs = [
+    ...DEFAULT_BGS,
+    ...(customHeroBgs || []),
+    ...(screenshots || []).map((s) => ({
+      src: s.image,
+      name: `Скріншот: ${s.trackName}`,
+      category: "Скріншоти",
+    })),
+  ];
+
+  const filteredBgs = (allBgs || []).filter((bg) => {
+    const matchesCategory =
+      filterCategory === "all" ||
+      (filterCategory === "custom"
+        ? isCustom(bg.src)
+        : bg.category === filterCategory);
+    const matchesSearch = (bg.name || "")
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
   const sortedBgs = [...filteredBgs].sort((a, b) => {
     if (sortType === "az") return a.name.localeCompare(b.name);
     if (sortType === "za") return b.name.localeCompare(a.name);
-    
+
     const rA = bgRatings[a.src] || 0;
     const rB = bgRatings[b.src] || 0;
     if (rA !== rB) return rB - rA;
@@ -994,10 +1201,14 @@ const Hero = ({
     setHeroBgZoom(1);
     setHeroBgRotation(0);
     setHeroBgBlur(0);
+    setHeroBgFocal1({ x: 50, y: 50 });
+    setHeroBgFocal2({ x: 50, y: 50 });
+    setHeroBgPanEnabled(false);
+    setHeroBgPanSpeed(6);
   };
 
   const handleRate = (src) => {
-    setBgRatings(prev => {
+    setBgRatings((prev) => {
       const current = prev[src] || 0;
       const next = (current + 1) % 3; // 0 -> 1 -> 2 -> 0
       return { ...prev, [src]: next };
@@ -1022,7 +1233,10 @@ const Hero = ({
         const ctx = canvas.getContext("2d");
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
         const compressed = canvas.toDataURL("image/jpeg", 0.7);
-        setCustomHeroBgs(prev => [{ src: compressed, name: file.name }, ...prev]);
+        setCustomHeroBgs((prev) => [
+          { src: compressed, name: file.name },
+          ...prev,
+        ]);
         setHeroBg(compressed);
       };
     };
@@ -1040,7 +1254,8 @@ const Hero = ({
   };
 
   const [coordinateSuggestions, setCoordinateSuggestions] = useState([]);
-  const [showCoordinateSuggestions, setShowCoordinateSuggestions] = useState(false);
+  const [showCoordinateSuggestions, setShowCoordinateSuggestions] =
+    useState(false);
   const [cooldown, setCooldown] = useState(() => {
     const saved = localStorage.getItem("hero_cooldown_until");
     if (saved) {
@@ -1060,8 +1275,10 @@ const Hero = ({
       // Якщо клік був по скролбару (event.target === document.body або html), не закривати
       if (
         event.type === "mousedown" &&
-        (event.target === document.body || event.target === document.documentElement)
-      ) return;
+        (event.target === document.body ||
+          event.target === document.documentElement)
+      )
+        return;
       if (searchRef.current && !searchRef.current.contains(event.target)) {
         setShowList(false);
       }
@@ -1159,11 +1376,10 @@ const Hero = ({
         country: `Довгота: ${lon}`,
         lat: lat,
         lon: lon,
-        isManual: true
+        isManual: true,
       };
       setCoordinateSuggestions([currentPoint, ...data]);
       setShowCoordinateSuggestions(true);
-
     } catch (error) {
       console.error("Помилка при пошуку за координатами:", error);
       alert("Помилка при пошуку. Спробуйте ще раз.");
@@ -1209,16 +1425,40 @@ const Hero = ({
 
   return (
     <HeroDiv>
-      <BgLayer $image={heroBg} $active={heroBgMode === 'static' || activeLayer === 1} $transition={slideshowTransition} $zoom={heroBgZoom} $rotation={heroBgRotation} $rotationScale={rotationScale} $blur={heroBgBlur} />
-      <BgLayer $image={heroBg2} $active={heroBgMode === 'slideshow' && activeLayer === 2} $transition={slideshowTransition} $zoom={heroBgZoom} $rotation={heroBgRotation} $rotationScale={rotationScale} $blur={heroBgBlur} />
+      <BgLayer
+        $image={heroBg}
+        $active={heroBgMode === "static" || activeLayer === 1}
+        $transition={slideshowTransition}
+        $zoom={heroBgZoom}
+        $rotation={heroBgRotation}
+        $rotationScale={rotationScale}
+        $blur={heroBgBlur}
+        $focalX={heroBgFocal1?.x || 50}
+        $focalY={heroBgFocal1?.y || 50}
+        $panEnabled={heroBgPanEnabled && heroBgZoom > 1}
+        $panSpeed={heroBgPanSpeed}
+      />
+      <BgLayer
+        $image={heroBg2}
+        $active={heroBgMode === "slideshow" && activeLayer === 2}
+        $transition={slideshowTransition}
+        $zoom={heroBgZoom}
+        $rotation={heroBgRotation}
+        $rotationScale={rotationScale}
+        $blur={heroBgBlur}
+        $focalX={heroBgFocal2?.x || 50}
+        $focalY={heroBgFocal2?.y || 50}
+        $panEnabled={heroBgPanEnabled && heroBgZoom > 1}
+        $panSpeed={heroBgPanSpeed}
+      />
       <Overlay $opacity={heroOverlayOpacity} />
 
-      <ChangeBgButton onClick={() => setIsModalOpen(true)} title="Змінити фон">🎨</ChangeBgButton>
-      <HeroDecors $image={herotext} $start={startAnimation}/>
+      <ChangeBgButton onClick={() => setIsModalOpen(true)} title="Змінити фон">
+        🎨
+      </ChangeBgButton>
+      <HeroDecors $image={herotext} $start={startAnimation} />
       <DelayedContent $start={startAnimation}>
-        <HeroTitle>
-          Погода, музика, фан-арти, ШІ, системи: 🧧, 🏆.
-        </HeroTitle>
+        <HeroTitle>Погода, музика, фан-арти, ШІ, системи: 🧧, 🏆.</HeroTitle>
 
         <HeroDecor>
           <HeroFix>
@@ -1234,10 +1474,18 @@ const Hero = ({
 
         {user && (
           <DownloadAppsContainer>
-            <DownloadAppButton href="/downloads/stykhiya-pc.exe" download="stykhiya-pc.exe" title="Завантажити для Windows">
+            <DownloadAppButton
+              href="/downloads/stykhiya-pc.exe"
+              download="stykhiya-pc.exe"
+              title="Завантажити для Windows"
+            >
               💻 Скачати для ПК
             </DownloadAppButton>
-            <DownloadAppButton href="/downloads/stykhiya-mobile.apk" download="stykhiya-mobile.apk" title="Завантажити для Android">
+            <DownloadAppButton
+              href="/downloads/stykhiya-mobile.apk"
+              download="stykhiya-mobile.apk"
+              title="Завантажити для Android"
+            >
               📱 Мобільний додаток
             </DownloadAppButton>
           </DownloadAppsContainer>
@@ -1277,7 +1525,11 @@ const Hero = ({
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onFocus={() => suggestions.length > 0 && setShowList(true)}
-                  placeholder={cooldown > 0 ? `Зачекайте ${cooldown}с` : "Уведіть місто, село."}
+                  placeholder={
+                    cooldown > 0
+                      ? `Зачекайте ${cooldown}с`
+                      : "Уведіть місто, село."
+                  }
                   disabled={cooldown > 0}
                 />
                 {showList && suggestions.length > 0 && (
@@ -1305,21 +1557,35 @@ const Hero = ({
                     )}
                   </SuggestionsList>
                 )}
-                              <HeroButton
-                onClick={() => {
-                  if (cooldown === 0 && suggestions[0]) handleSelect(suggestions[0]);
-                }}
-                disabled={cooldown > 0}
-              >
-                {cooldown > 0 ? cooldown : "⌕"}
-              </HeroButton>
+                <HeroButton
+                  onClick={() => {
+                    if (cooldown === 0 && suggestions[0])
+                      handleSelect(suggestions[0]);
+                  }}
+                  disabled={cooldown > 0}
+                >
+                  {cooldown > 0 ? cooldown : "⌕"}
+                </HeroButton>
               </SearchContainer>
             </HeroFormater>
           ) : (
-    <div style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center", gap: "15px", position: "relative" }}>
+            <div
+              style={{
+                width: "100%",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: "15px",
+                position: "relative",
+              }}
+            >
               <CoordinatesContainer>
                 <CoordinateInput>
-                  <label>🧭 Широта (N/S)<br/>-90 до +90</label>
+                  <label>
+                    🧭 Широта (N/S)
+                    <br />
+                    -90 до +90
+                  </label>
                   <input
                     type="number"
                     value={latitude}
@@ -1332,7 +1598,11 @@ const Hero = ({
                   />
                 </CoordinateInput>
                 <CoordinateInput>
-                  <label>📍 Довгота (E/W)<br/>-180 до +180</label>
+                  <label>
+                    📍 Довгота (E/W)
+                    <br />
+                    -180 до +180
+                  </label>
                   <input
                     type="number"
                     value={longitude}
@@ -1344,18 +1614,33 @@ const Hero = ({
                     step="0.01"
                   />
                 </CoordinateInput>
-              <HeroButton
-                onClick={handleSelectByCoordinates}
-                disabled={cooldown > 0}
-                style={{marginBottom: "15px" }}
-              >
-                {cooldown > 0 ? cooldown : "⌕"}
-              </HeroButton>
+                <HeroButton
+                  onClick={handleSelectByCoordinates}
+                  disabled={cooldown > 0}
+                  style={{ marginBottom: "15px" }}
+                >
+                  {cooldown > 0 ? cooldown : "⌕"}
+                </HeroButton>
               </CoordinatesContainer>
 
               {showCoordinateSuggestions && (
-                <SuggestionsList style={{ width: "auto", minWidth: "300px", marginTop: "10px", left: "50%", transform: "translateX(-50%)" }}>
-                  <div style={{ color: "#333", fontWeight: "bold", marginBottom: "10px", textAlign: "center" }}>
+                <SuggestionsList
+                  style={{
+                    width: "auto",
+                    minWidth: "300px",
+                    marginTop: "10px",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                  }}
+                >
+                  <div
+                    style={{
+                      color: "#333",
+                      fontWeight: "bold",
+                      marginBottom: "10px",
+                      textAlign: "center",
+                    }}
+                  >
                     📍 Знайдено поруч з координатами:
                   </div>
                   {coordinateSuggestions.map((city, index) => (
@@ -1397,71 +1682,345 @@ const Hero = ({
       </DelayedContent>
 
       {isModalOpen && (
-        <ModalOverlay onClick={() => setIsModalOpen(false)}>
-          <ModalContent onClick={(e) => e.stopPropagation()}>
-            <h2 style={{color: '#fff', textAlign: 'center', margin: 0}}>Налаштування фону</h2>
-            
+        <ModalOverlay $isClosing={isClosing} onClick={handleCloseModal}>
+          <ModalContent
+            $isClosing={isClosing}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 style={{ color: "#fff", textAlign: "center", margin: 0 }}>
+              Налаштування фону
+            </h2>
+
             <ModalSectionTitle>🎨 Налаштування вигляду</ModalSectionTitle>
-            <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', alignItems: 'end'}}>
+            <ModalConfigGrid>
               <ConfigRow>
                 <label>Режим фону:</label>
-                <select value={heroBgMode} onChange={e => setHeroBgMode(e.target.value)} style={{padding: '8px', borderRadius: '5px'}}>
+                <select
+                  value={heroBgMode}
+                  onChange={(e) => setHeroBgMode(e.target.value)}
+                  style={{ padding: "8px", borderRadius: "5px" }}
+                >
                   <option value="static">Статичний (1 фото)</option>
                   <option value="slideshow">Слайд-шоу (2 фото)</option>
                 </select>
               </ConfigRow>
               <ConfigRow>
-                <label>Затемнення: {(heroOverlayOpacity * 100).toFixed(0)}%</label>
-                <input type="range" min="0" max="0.8" step="0.05" value={heroOverlayOpacity} onChange={e => setHeroOverlayOpacity(parseFloat(e.target.value))} />
+                <label>
+                  Затемнення: {(heroOverlayOpacity * 100).toFixed(0)}%
+                </label>
+                <input
+                  type="range"
+                  min="0"
+                  max="0.8"
+                  step="0.05"
+                  value={heroOverlayOpacity}
+                  onChange={(e) =>
+                    setHeroOverlayOpacity(parseFloat(e.target.value))
+                  }
+                />
               </ConfigRow>
               <ConfigRow>
                 <label>Наближення: {heroBgZoom.toFixed(2)}x</label>
-                <input type="range" min="1" max="2" step="0.01" value={heroBgZoom} onChange={e => setHeroBgZoom(parseFloat(e.target.value))} />
+                <input
+                  type="range"
+                  min="1"
+                  max="2"
+                  step="0.01"
+                  value={heroBgZoom}
+                  onChange={(e) => setHeroBgZoom(parseFloat(e.target.value))}
+                />
               </ConfigRow>
               <ConfigRow>
                 <label>Розворот: {heroBgRotation}°</label>
-                <input type="range" min="-180" max="180" step="1" value={heroBgRotation} onChange={e => setHeroBgRotation(parseInt(e.target.value))} />
+                <input
+                  type="range"
+                  min="-180"
+                  max="180"
+                  step="1"
+                  value={heroBgRotation}
+                  onChange={(e) => setHeroBgRotation(parseInt(e.target.value))}
+                />
               </ConfigRow>
               <ConfigRow>
                 <label>Розмиття: {heroBgBlur.toFixed(1)}px</label>
-                <input type="range" min="0" max="20" step="0.5" value={heroBgBlur} onChange={e => setHeroBgBlur(parseFloat(e.target.value))} />
+                <input
+                  type="range"
+                  min="0"
+                  max="20"
+                  step="0.5"
+                  value={heroBgBlur}
+                  onChange={(e) => setHeroBgBlur(parseFloat(e.target.value))}
+                />
               </ConfigRow>
-              <CloseBtn onClick={resetBgSettings} style={{ marginTop: '10px', width: 'auto', justifySelf: 'start' }}>
-                Скинути налаштування
+            </ModalConfigGrid>
+
+            <ModalDivider />
+            <ModalSectionTitle>🎯 Фокус та ротація</ModalSectionTitle>
+            {heroBgMode === "slideshow" ? (
+              <FocusButtonsGrid>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "10px",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: "12px",
+                      color: "#ffb36c",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Слот 1
+                  </span>
+                  <div style={{ display: "flex", gap: "8px" }}>
+                    <button
+                      onClick={() => setHeroBgFocal1({ x: 50, y: 50 })}
+                      style={{
+                        flex: 1,
+                        padding: "8px",
+                        background: "#ffb36c",
+                        border: "none",
+                        borderRadius: "5px",
+                        cursor: "pointer",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      🎯 Центр фокусу
+                    </button>
+                    <button
+                      onClick={() => setHeroBgRotation(0)}
+                      style={{
+                        flex: 1,
+                        padding: "8px",
+                        background: "#ffb36c",
+                        border: "none",
+                        borderRadius: "5px",
+                        cursor: "pointer",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      ↻ Нулювати поворот
+                    </button>
+                  </div>
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "10px",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: "12px",
+                      color: "#ffb36c",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Слот 2
+                  </span>
+                  <div style={{ display: "flex", gap: "8px" }}>
+                    <button
+                      onClick={() => setHeroBgFocal2({ x: 50, y: 50 })}
+                      style={{
+                        flex: 1,
+                        padding: "8px",
+                        background: "#ffb36c",
+                        border: "none",
+                        borderRadius: "5px",
+                        cursor: "pointer",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      🎯 Центр фокусу
+                    </button>
+                    <button
+                      onClick={() => setHeroBgRotation(0)}
+                      style={{
+                        flex: 1,
+                        padding: "8px",
+                        background: "#ffb36c",
+                        border: "none",
+                        borderRadius: "5px",
+                        cursor: "pointer",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      ↻ Нулювати поворот
+                    </button>
+                  </div>
+                </div>
+              </FocusButtonsGrid>
+            ) : (
+              <div style={{ display: "flex", gap: "8px" }}>
+                <button
+                  onClick={() => setHeroBgFocal1({ x: 50, y: 50 })}
+                  style={{
+                    flex: 1,
+                    padding: "10px",
+                    background: "#ffb36c",
+                    border: "none",
+                    borderRadius: "5px",
+                    cursor: "pointer",
+                    fontWeight: "bold",
+                  }}
+                >
+                  🎯 Центр фокусу
+                </button>
+                <button
+                  onClick={() => setHeroBgRotation(0)}
+                  style={{
+                    flex: 1,
+                    padding: "10px",
+                    background: "#ffb36c",
+                    border: "none",
+                    borderRadius: "5px",
+                    cursor: "pointer",
+                    fontWeight: "bold",
+                  }}
+                >
+                  ↻ Нулювати поворот
+                </button>
+              </div>
+            )}
+
+            <ModalDivider />
+            <ModalSectionTitle>
+              🎬 Анімація панінгу (при зумі)
+            </ModalSectionTitle>
+            <ModalConfigGrid>
+              <ConfigRow>
+                <label
+                  style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={heroBgPanEnabled}
+                    onChange={(e) => setHeroBgPanEnabled(e.target.checked)}
+                  />
+                  Вмикач панінгу
+                </label>
+              </ConfigRow>
+              <ConfigRow>
+                <label>Швидкість: {heroBgPanSpeed}с</label>
+                <input
+                  type="range"
+                  min="4"
+                  max="8"
+                  step="1"
+                  value={heroBgPanSpeed}
+                  onChange={(e) => setHeroBgPanSpeed(parseInt(e.target.value))}
+                  disabled={!heroBgPanEnabled}
+                />
+              </ConfigRow>
+            </ModalConfigGrid>
+
+            <ModalDivider />
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr",
+                gap: "15px",
+              }}
+            >
+              <CloseBtn
+                onClick={resetBgSettings}
+                style={{ marginTop: "10px", width: "100%" }}
+              >
+                🔄 Скинути всі налаштування
               </CloseBtn>
             </div>
 
-            {heroBgMode === 'slideshow' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {heroBgMode === "slideshow" && (
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "10px",
+                }}
+              >
                 <ModalDivider />
-              <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px'}}>
-                <ConfigRow>
-                  <label>Інтервал: {slideshowInterval}с</label>
-                  <input type="range" min="4" max="8" step="1" value={slideshowInterval} onChange={e => setSlideshowInterval(parseInt(e.target.value))} />
-                </ConfigRow>
-                <ConfigRow>
-                  <label>Перехід: {slideshowTransition}с</label>
-                  <input type="range" min="0.5" max="1" step="0.1" value={slideshowTransition} onChange={e => setSlideshowTransition(parseFloat(e.target.value))} />
-                </ConfigRow>
-              </div>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: "15px",
+                  }}
+                >
+                  <ConfigRow>
+                    <label>Інтервал: {slideshowInterval}с</label>
+                    <input
+                      type="range"
+                      min="4"
+                      max="8"
+                      step="1"
+                      value={slideshowInterval}
+                      onChange={(e) =>
+                        setSlideshowInterval(parseInt(e.target.value))
+                      }
+                    />
+                  </ConfigRow>
+                  <ConfigRow>
+                    <label>Перехід: {slideshowTransition}с</label>
+                    <input
+                      type="range"
+                      min="0.5"
+                      max="1"
+                      step="0.1"
+                      value={slideshowTransition}
+                      onChange={(e) =>
+                        setSlideshowTransition(parseFloat(e.target.value))
+                      }
+                    />
+                  </ConfigRow>
+                </div>
               </div>
             )}
 
             <ModalDivider />
             <ModalSectionTitle>🖼️ Бібліотека зображень</ModalSectionTitle>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
-              <ModalSearchInput 
-                placeholder="Пошук картин за назвою..." 
-                value={searchTerm} 
-                onChange={e => {
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                flexWrap: "wrap",
+                gap: "15px",
+              }}
+            >
+              <ModalSearchInput
+                placeholder="Пошук картин за назвою..."
+                value={searchTerm}
+                onChange={(e) => {
                   setSearchTerm(e.target.value);
                   setVisibleBgCount(30);
                 }}
               />
-              <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
-                <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
-                  <label style={{ fontSize: '12px' }}>Категорія:</label>
-                  <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)} style={{ background: '#333', color: '#fff', border: '1px solid #555', borderRadius: '4px', padding: '2px 5px' }}>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "10px",
+                  alignItems: "center",
+                  flexWrap: "wrap",
+                }}
+              >
+                <div
+                  style={{ display: "flex", gap: "5px", alignItems: "center" }}
+                >
+                  <label style={{ fontSize: "12px" }}>Категорія:</label>
+                  <select
+                    value={filterCategory}
+                    onChange={(e) => setFilterCategory(e.target.value)}
+                    style={{
+                      background: "#333",
+                      color: "#fff",
+                      border: "1px solid #555",
+                      borderRadius: "4px",
+                      padding: "2px 5px",
+                    }}
+                  >
                     <option value="all">Усі</option>
                     <option value="Динофроз">Динофроз</option>
                     <option value="Тварини">Тварини</option>
@@ -1469,13 +2028,26 @@ const Hero = ({
                     <option value="Локації">Локації</option>
                     <option value="Фентезі">Фентезі</option>
                     <option value="Хоррор">Хоррор</option>
-                      <option value="Аркада">Аркада</option>
+                    <option value="Аркада">Аркада</option>
+                    <option value="Скріншоти">Скріншоти</option>
                     <option value="custom">Ваші завантажені</option>
                   </select>
                 </div>
-                <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
-                  <label style={{ fontSize: '12px' }}>Сортувати:</label>
-                  <select value={sortType} onChange={e => setSortType(e.target.value)} style={{ background: '#333', color: '#fff', border: '1px solid #555', borderRadius: '4px', padding: '2px 5px' }}>
+                <div
+                  style={{ display: "flex", gap: "5px", alignItems: "center" }}
+                >
+                  <label style={{ fontSize: "12px" }}>Сортувати:</label>
+                  <select
+                    value={sortType}
+                    onChange={(e) => setSortType(e.target.value)}
+                    style={{
+                      background: "#333",
+                      color: "#fff",
+                      border: "1px solid #555",
+                      borderRadius: "4px",
+                      padding: "2px 5px",
+                    }}
+                  >
                     <option value="rating">За рейтингом</option>
                     <option value="az">Назва А-Я</option>
                     <option value="za">Назва Я-А</option>
@@ -1488,10 +2060,15 @@ const Hero = ({
               {pagedBgs.map((bg, idx) => {
                 const rating = bgRatings[bg.src] || 0;
                 return (
-                  <BgItem key={idx} $active={heroBg === bg.src || heroBg2 === bg.src}>
+                  <BgItem
+                    key={idx}
+                    $active={heroBg === bg.src || heroBg2 === bg.src}
+                  >
                     <RatingOverlay>
-                      <HeartIcon 
-                        $color={rating === 2 ? "gold" : rating === 1 ? "red" : "white"}
+                      <HeartIcon
+                        $color={
+                          rating === 2 ? "gold" : rating === 1 ? "red" : "white"
+                        }
                         onClick={() => handleRate(bg.src)}
                       >
                         {rating === 2 ? "💛" : rating === 1 ? "❤️" : "🤍"}
@@ -1499,40 +2076,75 @@ const Hero = ({
                     </RatingOverlay>
                     {isCustom(bg.src) && (
                       <>
-                        <EditBtn onClick={(e) => {
-                          e.stopPropagation();
-                          const newName = window.prompt("Введіть нову назву для цих шпалер:", bg.name);
-                          if (newName) {
-                            setCustomHeroBgs(prev => prev.map(b => b.src === bg.src ? { ...b, name: newName } : b));
-                          }
-                        }} title="Редагувати назву">✎</EditBtn>
-                        <DeleteBtn onClick={(e) => {
-                          e.stopPropagation();
-                          if(window.confirm(`Видалити шпалери "${bg.name}"?`)) {
-                            setCustomHeroBgs(prev => prev.filter(b => b.src !== bg.src));
-                            // Видаляємо з рейтингів
-                            setBgRatings(prev => {
-                              const newRatings = { ...prev };
-                              delete newRatings[bg.src];
-                              return newRatings;
-                            });
-                            if(heroBg === bg.src) setHeroBg(hills);
-                            if(heroBg2 === bg.src) setHeroBg2(hills);
-                          }
-                        }} title="Видалити">✕</DeleteBtn>
+                        <EditBtn
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const newName = window.prompt(
+                              "Введіть нову назву для цих шпалер:",
+                              bg.name,
+                            );
+                            if (newName) {
+                              setCustomHeroBgs((prev) =>
+                                prev.map((b) =>
+                                  b.src === bg.src
+                                    ? { ...b, name: newName }
+                                    : b,
+                                ),
+                              );
+                            }
+                          }}
+                          title="Редагувати назву"
+                        >
+                          ✎
+                        </EditBtn>
+                        <DeleteBtn
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (
+                              window.confirm(`Видалити шпалери "${bg.name}"?`)
+                            ) {
+                              setCustomHeroBgs((prev) =>
+                                prev.filter((b) => b.src !== bg.src),
+                              );
+                              // Видаляємо з рейтингів
+                              setBgRatings((prev) => {
+                                const newRatings = { ...prev };
+                                delete newRatings[bg.src];
+                                return newRatings;
+                              });
+                              if (heroBg === bg.src) setHeroBg(hills);
+                              if (heroBg2 === bg.src) setHeroBg2(hills);
+                            }
+                          }}
+                          title="Видалити"
+                        >
+                          ✕
+                        </DeleteBtn>
                       </>
                     )}
-                    <NameOverlay $hasSlots={heroBgMode === 'slideshow'}>{bg.name}</NameOverlay>
-                    <BgSquare 
-                      src={bg.src} 
+                    <NameOverlay $hasSlots={heroBgMode === "slideshow"}>
+                      {bg.name}
+                    </NameOverlay>
+                    <BgSquare
+                      src={bg.src}
                       loading="lazy"
                       onClick={() => setHeroBg(bg.src)}
                       title={bg.name}
                     />
-                    {heroBgMode === 'slideshow' && (
+                    {heroBgMode === "slideshow" && (
                       <SlotButtons>
-                        <SlotBtn $active={heroBg === bg.src} onClick={() => setHeroBg(bg.src)}>Слот 1</SlotBtn>
-                        <SlotBtn $active={heroBg2 === bg.src} onClick={() => setHeroBg2(bg.src)}>Слот 2</SlotBtn>
+                        <SlotBtn
+                          $active={heroBg === bg.src}
+                          onClick={() => setHeroBg(bg.src)}
+                        >
+                          Слот 1
+                        </SlotBtn>
+                        <SlotBtn
+                          $active={heroBg2 === bg.src}
+                          onClick={() => setHeroBg2(bg.src)}
+                        >
+                          Слот 2
+                        </SlotBtn>
                       </SlotButtons>
                     )}
                   </BgItem>
@@ -1541,25 +2153,30 @@ const Hero = ({
             </BgGrid>
 
             {sortedBgs.length > visibleBgCount && (
-              <LoadMoreButton onClick={() => setVisibleBgCount(prev => prev + 30)}>
+              <LoadMoreButton
+                onClick={() => setVisibleBgCount((prev) => prev + 30)}
+              >
                 Завантажити ще
               </LoadMoreButton>
             )}
 
             <ModalDivider />
-            <DropZone 
+            <DropZone
               onDragOver={handleDragOver}
               onDrop={handleDrop}
               onClick={() => fileInputRef.current.click()}
             >
               📁 Перетягніть сюди картинку або натисніть для вибору
-              <input 
-                type="file" ref={fileInputRef} hidden accept="image/*" 
-                onChange={(e) => handleFileUpload(e.target.files[0])} 
+              <input
+                type="file"
+                ref={fileInputRef}
+                hidden
+                accept="image/*"
+                onChange={(e) => handleFileUpload(e.target.files[0])}
               />
             </DropZone>
 
-            <CloseBtn onClick={() => setIsModalOpen(false)}>Закрити</CloseBtn>
+            <CloseBtn onClick={handleCloseModal}>Закрити</CloseBtn>
           </ModalContent>
         </ModalOverlay>
       )}

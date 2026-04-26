@@ -98,8 +98,10 @@ const ImageCircle = styled(motion.div)`
   margin-left: -25px;
   margin-top: -25px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif;
-  color: initial; 
+  font-family:
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+    "Noto Color Emoji", sans-serif;
+  color: initial;
   text-shadow: none;
 `;
 
@@ -133,10 +135,10 @@ const PuzzleTriangleFinal = ({ onExit }) => {
   const [positions, setPositions] = useState([]);
 
   const slotCoords = [
-    { x: 200, y: 70 }, 
-    { x: 125, y: 200 }, 
+    { x: 200, y: 70 },
+    { x: 125, y: 200 },
     { x: 275, y: 200 },
-    { x: 50, y: 330 }, 
+    { x: 50, y: 330 },
     { x: 200, y: 330 },
     { x: 350, y: 330 },
   ];
@@ -181,7 +183,7 @@ const PuzzleTriangleFinal = ({ onExit }) => {
   const rotateOuter = () => {
     if (isWon) return;
     const newPos = [...positions];
-    const outerIndices = [0, 3, 5]; 
+    const outerIndices = [0, 3, 5];
     const temp = newPos[outerIndices[2]];
     newPos[outerIndices[2]] = newPos[outerIndices[1]];
     newPos[outerIndices[1]] = newPos[outerIndices[0]];
@@ -198,16 +200,24 @@ const PuzzleTriangleFinal = ({ onExit }) => {
   };
 
   return (
-    <GameWrapper >
-      <h2 style={{ letterSpacing: "4px", margin: "0" }}>
-        Синхронізатор
-      </h2>
+    <GameWrapper>
+      <h2 style={{ letterSpacing: "4px", margin: "0" }}>Синхронізатор</h2>
 
       <GameArea>
         <ControlsContainer>
-          <SideButton onClick={onExit} title="Закрити">✖</SideButton>
-          <SideButton onClick={initGame} title="Перезавантажити">⏭</SideButton>
-          <SideButton onClick={rotateOuter} title="Зсув вершин" disabled={isWon}>△</SideButton>
+          <SideButton onClick={onExit} title="Закрити">
+            ✖
+          </SideButton>
+          <SideButton onClick={initGame} title="Перезавантажити">
+            ⏭
+          </SideButton>
+          <SideButton
+            onClick={rotateOuter}
+            title="Зсув вершин"
+            disabled={isWon}
+          >
+            △
+          </SideButton>
         </ControlsContainer>
 
         <ConnectionLines>

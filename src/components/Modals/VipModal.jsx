@@ -141,7 +141,9 @@ const ToggleSlider = styled.div`
   background: ${(props) => (props.$isUltra ? "#710097" : "#ffb36c")};
   border-radius: 7px;
   transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  transform: translateX(${(props) => (props.$cycle === "yearly" ? "100%" : "0")});
+  transform: translateX(
+    ${(props) => (props.$cycle === "yearly" ? "100%" : "0")}
+  );
   z-index: 1;
 `;
 
@@ -389,11 +391,11 @@ const SectionTitle = styled.div`
   animation-delay: ${(props) => props.$delay || "0.2s"};
 `;
 const ViWarning = styled.p`
-margin-top: 37px;
-    @media (min-width: 768px) {
+  margin-top: 37px;
+  @media (min-width: 768px) {
     display: none;
   }
-  `;
+`;
 const ImageContainer = styled.div`
   position: relative;
   width: 260px;
@@ -1016,7 +1018,8 @@ const UltraPlayer = ({ volume, setVolume, onPlayerClose }) => {
     isPausedRef.current = isPaused;
     if (videoRef.current) {
       if (isPaused) videoRef.current.pause();
-      else if (step.type === "video" || step.type === "black") videoRef.current.play().catch(() => {});
+      else if (step.type === "video" || step.type === "black")
+        videoRef.current.play().catch(() => {});
     }
     if (audioRef.current) {
       if (isPaused) audioRef.current.pause();
@@ -1025,15 +1028,20 @@ const UltraPlayer = ({ volume, setVolume, onPlayerClose }) => {
   }, [isPaused, step.type]);
 
   const togglePause = (e) => {
-    if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.closest('label')) return;
-    setIsPaused(prev => !prev);
+    if (
+      e.target.tagName === "BUTTON" ||
+      e.target.tagName === "INPUT" ||
+      e.target.closest("label")
+    )
+      return;
+    setIsPaused((prev) => !prev);
   };
 
   const handleScreenshot = (e) => {
     e.stopPropagation();
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
-    
+
     let source = null;
     if (step.type === "video" || step.type === "black") {
       source = videoRef.current;
@@ -1043,7 +1051,7 @@ const UltraPlayer = ({ volume, setVolume, onPlayerClose }) => {
       canvas.width = source.videoWidth;
       canvas.height = source.videoHeight;
       ctx.drawImage(source, 0, 0, canvas.width, canvas.height);
-      
+
       const link = document.createElement("a");
       link.download = `stykhiya-screenshot-${Date.now()}.png`;
       link.href = canvas.toDataURL("image/png");
@@ -1174,7 +1182,11 @@ const UltraPlayer = ({ volume, setVolume, onPlayerClose }) => {
   };
 
   return (
-    <UltraPlayerContainer ref={containerRef} $isFullscreen={isFullscreen} onClick={togglePause}>
+    <UltraPlayerContainer
+      ref={containerRef}
+      $isFullscreen={isFullscreen}
+      onClick={togglePause}
+    >
       {!isAssetsLoaded && (
         <LoadingContainer>
           <div
@@ -1224,9 +1236,18 @@ const UltraPlayer = ({ volume, setVolume, onPlayerClose }) => {
           >
             <PauseIcon>Ⅱ</PauseIcon>
             <PausedButtonsRow>
-              <PausedButton onClick={handleScreenshot}>📸 Скріншот</PausedButton>
+              <PausedButton onClick={handleScreenshot}>
+                📸 Скріншот
+              </PausedButton>
               {isWatched && (
-                <PausedButton onClick={(e) => { e.stopPropagation(); onPlayerClose(); }}>Закрити</PausedButton>
+                <PausedButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onPlayerClose();
+                  }}
+                >
+                  Закрити
+                </PausedButton>
               )}
             </PausedButtonsRow>
           </PausedOverlay>
@@ -1538,7 +1559,11 @@ const VipModal = ({ onClose }) => {
               {tier === "plus" ? (
                 <VipImage src={turkeys} key="img-plus" $isUltra={false} />
               ) : (
-                <UltraPlayer volume={volume} setVolume={setVolume} onPlayerClose={handleClose} />
+                <UltraPlayer
+                  volume={volume}
+                  setVolume={setVolume}
+                  onPlayerClose={handleClose}
+                />
               )}
             </ImageContainer>
 
@@ -1546,7 +1571,7 @@ const VipModal = ({ onClose }) => {
               $isUltra={tier === "ultra"}
               onClick={() =>
                 setBillingCycle(
-                  billingCycle === "monthly" ? "yearly" : "monthly"
+                  billingCycle === "monthly" ? "yearly" : "monthly",
                 )
               }
             >
@@ -1661,26 +1686,25 @@ const VipModal = ({ onClose }) => {
         </VipBlock>
         <RedLine />
         <VipWarning>
-          Примітка: 1.Mісячний/Річний тариф перемикається автоматично! При активній
-          Стихія+ ви можете миттєво перейти на Ultra. Скасування Ultra, повертає Plus на решту терміну.
-          Помилки оплати повертають гроші (або 🧧). 
+          Примітка: 1.Mісячний/Річний тариф перемикається автоматично! При
+          активній Стихія+ ви можете миттєво перейти на Ultra. Скасування Ultra,
+          повертає Plus на решту терміну. Помилки оплати повертають гроші (або
+          🧧).
         </VipWarning>
         <VipWarning>
           2.Коли підписка закінчиться привілегії(не всі) зникнуть. Бонус
           лояльності: У тарифі Ultra діє лімітована акція, що активується після
-          другої оплати поспіль(річні миттєво!). Якщо підписка Ultra буде перервана на термін
-          понад 3 місяці, бонус анулюється(доступ лише при дії Ultra, при Plus
-          таймер заморожується.), і для його відновлення знадобиться повторна
-          серія оплат. Також доступна послуга «Швидкий старт»(1ша безкоштовна) за 4,99 грн для
-          миттєвої активації 1 акції.
+          другої оплати поспіль(річні миттєво!). Якщо підписка Ultra буде
+          перервана на термін понад 3 місяці, бонус анулюється(доступ лише при
+          дії Ultra, при Plus таймер заморожується.), і для його відновлення
+          знадобиться повторна серія оплат. Також доступна послуга «Швидкий
+          старт»(1ша безкоштовна) за 4,99 грн для миттєвої активації 1 акції.
         </VipWarning>
         <VipWarning>
           3.Переваги Стихії+ оптимізовані в Стихія Ultrа, ті що не були вказані
           в Стихія Ultra(присутні, але ті самі як в Стихія+.).
         </VipWarning>
-        <ViWarning>
-          .
-        </ViWarning>
+        <ViWarning>.</ViWarning>
       </VipModalDiv>
 
       <MobileStickyNav onClick={(e) => e.stopPropagation()}>

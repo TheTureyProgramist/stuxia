@@ -1,12 +1,12 @@
 export const getImageBrightness = async (imageUrl) => {
   return new Promise((resolve) => {
     const img = new Image();
-    img.crossOrigin = 'anonymous';
+    img.crossOrigin = "anonymous";
     img.onload = () => {
-      const canvas = document.createElement('canvas');
+      const canvas = document.createElement("canvas");
       canvas.width = img.width;
       canvas.height = img.height;
-      const ctx = canvas.getContext('2d');
+      const ctx = canvas.getContext("2d");
       ctx.drawImage(img, 0, 0);
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const data = imageData.data;
@@ -28,10 +28,10 @@ export const getImageBrightness = async (imageUrl) => {
       const centerStartX = Math.floor(canvas.width * 0.4);
       const centerStartY = Math.floor(canvas.height * 0.3);
       const centerImageData = ctx.getImageData(
-        centerStartX, 
-        centerStartY, 
-        centerWidth, 
-        centerHeight
+        centerStartX,
+        centerStartY,
+        centerWidth,
+        centerHeight,
       );
       const centerData = centerImageData.data;
       for (let i = 0; i < centerData.length; i += 4) {
@@ -43,7 +43,7 @@ export const getImageBrightness = async (imageUrl) => {
         centerCount++;
       }
       centerBrightness = centerBrightness / centerCount;
-      const blueRedRatio = getColorRatio(data);  
+      const blueRedRatio = getColorRatio(data);
       resolve({
         average: brightness,
         center: centerBrightness,
@@ -79,14 +79,17 @@ const getColorRatio = (data) => {
 };
 export const getTextColorForImage = async (imageUrl) => {
   const analysis = await getImageBrightness(imageUrl);
-  if (analysis.blueRedRatio?.blue > 0.4 || analysis.blueRedRatio?.orange > 0.01) {
-    return 'white';
+  if (
+    analysis.blueRedRatio?.blue > 0.4 ||
+    analysis.blueRedRatio?.orange > 0.01
+  ) {
+    return "white";
   }
   if (analysis.center > 180) {
-    return 'white';
+    return "white";
   }
   if (analysis.average > 150) {
-    return 'black';
+    return "black";
   }
-  return 'white';
+  return "white";
 };

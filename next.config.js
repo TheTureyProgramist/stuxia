@@ -1,8 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export', // Обов'язково для GitHub Pages
-  basePath: '/react-weather-music-project',
-  assetPrefix: '/react-weather-music-project',
+  output: "export", // Обов'язково для GitHub Pages
+  basePath: "/react-weather-music-project",
+  assetPrefix: "/react-weather-music-project",
   compiler: {
     styledComponents: true,
   },

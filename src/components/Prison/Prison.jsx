@@ -350,7 +350,7 @@ const ResultCard = styled.div`
   padding: 20px;
   background: #000;
   border-radius: 12px;
-  image-rendering: -webkit-optimize-contrast; 
+  image-rendering: -webkit-optimize-contrast;
   object-fit: contain;
   aspect-ratio: attr(width) / attr(height);
   border: 2px solid;
@@ -414,20 +414,23 @@ const GridItem = styled.div`
   color: ${(props) => (props.$solved ? "#fff" : "#444")};
   transition: all 0.3s ease;
 
-  ${(props) => props.$solved && css`
-    ${({ $rarity }) => {
-      const config = RARITY_CONFIG[$rarity];
-      if (config.color === "rainbow")
+  ${(props) =>
+    props.$solved &&
+    css`
+      ${({ $rarity }) => {
+        const config = RARITY_CONFIG[$rarity];
+        if (config.color === "rainbow")
+          return css`
+            animation: ${config.anim} 3s linear infinite;
+          `;
         return css`
-          animation: ${config.anim} 3s linear infinite;
+          border-color: ${config.color};
+          box-shadow: ${config.shadow};
+          background: ${config.color +
+          "33"}; /* Напівпрозорий фон кольору рідкості */
         `;
-      return css`
-        border-color: ${config.color};
-        box-shadow: ${config.shadow};
-        background: ${config.color + "33"}; /* Напівпрозорий фон кольору рідкості */
-      `;
-    }}
-  `}
+      }}
+    `}
 `;
 const HackerPlaceholder = ({ active, hint, isFinished }) => {
   const [display, setDisplay] = useState("");
@@ -445,23 +448,94 @@ const HackerPlaceholder = ({ active, hint, isFinished }) => {
         res += chars[Math.floor(Math.random() * chars.length)];
       }
       setDisplay(res);
-    }, 100); 
+    }, 100);
     return () => clearInterval(interval);
   }, [hint, active, isFinished]);
   return <span>{display}</span>;
 };
 const layouts = {
   cyrillic: [
-    "Й", "Ц", "У", "К", "Е", "Н", "Г", "Ш", "Щ", "З", "Х", "Ї",
-    "Ф", "І", "В", "А", "П", "Р", "О", "Л", "Д", "Ж", "Є", "Ґ",
-    "Я", "Ч", "С", "М", "И", "Т", "Ь", "Б", "Ю", "SPACE", "BACK"
+    "Й",
+    "Ц",
+    "У",
+    "К",
+    "Е",
+    "Н",
+    "Г",
+    "Ш",
+    "Щ",
+    "З",
+    "Х",
+    "Ї",
+    "Ф",
+    "І",
+    "В",
+    "А",
+    "П",
+    "Р",
+    "О",
+    "Л",
+    "Д",
+    "Ж",
+    "Є",
+    "Ґ",
+    "Я",
+    "Ч",
+    "С",
+    "М",
+    "И",
+    "Т",
+    "Ь",
+    "Б",
+    "Ю",
+    "SPACE",
+    "BACK",
   ],
   english: [
-    "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P",
-    "A", "S", "D", "F", "G", "H", "J", "K", "L",
-    "Z", "X", "C", "V", "B", "N", "M", "SPACE", "BACK"
+    "Q",
+    "W",
+    "E",
+    "R",
+    "T",
+    "Y",
+    "U",
+    "I",
+    "O",
+    "P",
+    "A",
+    "S",
+    "D",
+    "F",
+    "G",
+    "H",
+    "J",
+    "K",
+    "L",
+    "Z",
+    "X",
+    "C",
+    "V",
+    "B",
+    "N",
+    "M",
+    "SPACE",
+    "BACK",
   ],
-  numbers: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", ".", "SPACE", "BACK"]
+  numbers: [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "0",
+    ".",
+    "SPACE",
+    "BACK",
+  ],
 };
 const KeyboardWrapper = styled.div`
   margin-top: 20px;
@@ -505,25 +579,33 @@ const KeyBtn = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
   font-size: 14px;
   font-weight: bold;
   cursor: pointer;
   transition: background 0.2s;
   border-radius: 4px;
-  &:hover { background: #1a0025; }
-  &.wide { width: 26px; }
+  &:hover {
+    background: #1a0025;
+  }
+  &.wide {
+    width: 26px;
+  }
 
   @media (max-width: 480px) {
     width: 20px;
     height: 20px;
     font-size: 11px;
-    &.wide { width: 20px; }
+    &.wide {
+      width: 20px;
+    }
   }
 
   @media (max-width: 340px) {
     width: 22px;
-    &.wide { width: 22px; }
+    &.wide {
+      width: 22px;
+    }
   }
 `;
 
@@ -548,9 +630,9 @@ const Key = ({ char, onClick }) => {
 
   const handlePress = () => {
     // Генеруємо випадковий вектор розліту
-    const rx = (Math.random() - 0.5) * 160; 
-    const ry = -80 - Math.random() * 100;  
-    const rr = (Math.random() - 0.5) * 120; 
+    const rx = (Math.random() - 0.5) * 160;
+    const ry = -80 - Math.random() * 100;
+    const rr = (Math.random() - 0.5) * 120;
     setCoords({ x: rx, y: ry, r: rr });
 
     setIsPressing(true);
@@ -559,17 +641,17 @@ const Key = ({ char, onClick }) => {
   };
 
   return (
-    <KeyBtn 
-      className={char === "SPACE" || char === "BACK" ? "wide" : ""} 
+    <KeyBtn
+      className={char === "SPACE" || char === "BACK" ? "wide" : ""}
       onClick={handlePress}
     >
       {displayChar}
       {isPressing && (
-        <FlyPart 
-          style={{ 
-            '--tx': `${coords.x}px`, 
-            '--ty': `${coords.y}px`, 
-            '--rot': `${coords.r}deg` 
+        <FlyPart
+          style={{
+            "--tx": `${coords.x}px`,
+            "--ty": `${coords.y}px`,
+            "--rot": `${coords.r}deg`,
           }}
         >
           {displayChar}
@@ -613,7 +695,7 @@ const Prison = () => {
     if (!currentChar || !inputValue) return;
 
     const isCorrect = currentChar.answers.some(
-      (ans) => ans.toLowerCase() === inputValue.trim().toLowerCase()
+      (ans) => ans.toLowerCase() === inputValue.trim().toLowerCase(),
     );
 
     if (isCorrect) {
@@ -631,11 +713,11 @@ const Prison = () => {
 
   const handleKeyPress = (char) => {
     if (char === "SPACE") {
-      setInputValue(prev => prev + " ");
+      setInputValue((prev) => prev + " ");
     } else if (char === "BACK") {
-      setInputValue(prev => prev.slice(0, -1));
+      setInputValue((prev) => prev.slice(0, -1));
     } else {
-      setInputValue(prev => prev + char);
+      setInputValue((prev) => prev + char);
     }
   };
 
@@ -727,16 +809,34 @@ const Prison = () => {
 
         <KeyboardWrapper>
           <ModeSwitcher>
-            <ActionButton $alt={keyboardMode !== "cyrillic"} onClick={() => setKeyboardMode("cyrillic")} style={{fontSize: '10px', padding: '5px 10px'}}>UA</ActionButton>
-            <ActionButton $alt={keyboardMode !== "english"} onClick={() => setKeyboardMode("english")} style={{fontSize: '10px', padding: '5px 10px'}}>EN</ActionButton>
-            <ActionButton $alt={keyboardMode !== "numbers"} onClick={() => setKeyboardMode("numbers")} style={{fontSize: '10px', padding: '5px 10px'}}>123</ActionButton>
+            <ActionButton
+              $alt={keyboardMode !== "cyrillic"}
+              onClick={() => setKeyboardMode("cyrillic")}
+              style={{ fontSize: "10px", padding: "5px 10px" }}
+            >
+              UA
+            </ActionButton>
+            <ActionButton
+              $alt={keyboardMode !== "english"}
+              onClick={() => setKeyboardMode("english")}
+              style={{ fontSize: "10px", padding: "5px 10px" }}
+            >
+              EN
+            </ActionButton>
+            <ActionButton
+              $alt={keyboardMode !== "numbers"}
+              onClick={() => setKeyboardMode("numbers")}
+              style={{ fontSize: "10px", padding: "5px 10px" }}
+            >
+              123
+            </ActionButton>
           </ModeSwitcher>
           <KeysGrid>
             {layouts[keyboardMode].map((char, idx) => (
-              <Key 
-                key={`${keyboardMode}-${char}-${idx}`} 
-                char={char} 
-                onClick={handleKeyPress} 
+              <Key
+                key={`${keyboardMode}-${char}-${idx}`}
+                char={char}
+                onClick={handleKeyPress}
               />
             ))}
           </KeysGrid>
@@ -757,16 +857,16 @@ const Prison = () => {
               {currentChar.answers[0].toUpperCase()}
             </h3>
             {currentChar.images && currentChar.images.length > 0 && (
-              <img 
-                src={currentChar.images[0]} 
-                alt={currentChar.answers[0]} 
-                style={{ 
-                  width: '100%', 
-                  maxWidth: '220px', 
-                  borderRadius: '8px', 
-                  marginBottom: '15px',
-                  border: '1px solid #a020f0' 
-                }} 
+              <img
+                src={currentChar.images[0]}
+                alt={currentChar.answers[0]}
+                style={{
+                  width: "100%",
+                  maxWidth: "220px",
+                  borderRadius: "8px",
+                  marginBottom: "15px",
+                  border: "1px solid #a020f0",
+                }}
               />
             )}
             <p style={{ color: "#888", fontSize: "0.85rem" }}>
@@ -795,28 +895,41 @@ const Prison = () => {
                 lineHeight: "1.4",
               }}
             >
-              Вхід розміщений у скромному вході, закинутого заводу. В якому безліч картин. Щоправда лунають моторошні звуки періодично. Відвідувачі не поверталися. Чи розгадаєте ви секрети місця? 
+              Вхід розміщений у скромному вході, закинутого заводу. В якому
+              безліч картин. Щоправда лунають моторошні звуки періодично.
+              Відвідувачі не поверталися. Чи розгадаєте ви секрети місця?
             </p>
             <CollectionGrid>
               {CHARACTERS_BASE.map((c) => (
-                <GridItem 
-                  key={c.id} 
+                <GridItem
+                  key={c.id}
                   $solved={solvedIds.includes(c.id)}
                   $rarity={c.rarity}
-                  onClick={() => solvedIds.includes(c.id) && setSelectedCharDetails(c)}
-                  style={{ cursor: solvedIds.includes(c.id) ? 'pointer' : 'default' }}
+                  onClick={() =>
+                    solvedIds.includes(c.id) && setSelectedCharDetails(c)
+                  }
+                  style={{
+                    cursor: solvedIds.includes(c.id) ? "pointer" : "default",
+                  }}
                 >
                   {solvedIds.includes(c.id) ? (
                     c.images && c.images.length > 0 ? (
-                      <img 
-                        src={c.images[0]} 
-                        alt={c.answers[0]} 
-                        style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '4px' }} 
+                      <img
+                        src={c.images[0]}
+                        alt={c.answers[0]}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                          borderRadius: "4px",
+                        }}
                       />
                     ) : (
                       c.answers[0].substring(0, 26)
                     )
-                  ) : "???"}
+                  ) : (
+                    "???"
+                  )}
                 </GridItem>
               ))}
             </CollectionGrid>
@@ -832,43 +945,75 @@ const Prison = () => {
 
       {/* МОДАЛКА ДЕТАЛЕЙ ПЕРСОНАЖА */}
       {selectedCharDetails && (
-        <ModalOverlay onClick={() => setSelectedCharDetails(null)} style={{ zIndex: 2100 }}>
-          <ModalContent onClick={(e) => e.stopPropagation()} style={{ maxWidth: "400px" }}>
-            <ActionButton 
-              onClick={() => setSelectedCharDetails(null)} 
-              style={{ position: 'absolute', top: '10px', right: '10px', padding: '5px 10px', zIndex: 10 }}
+        <ModalOverlay
+          onClick={() => setSelectedCharDetails(null)}
+          style={{ zIndex: 2100 }}
+        >
+          <ModalContent
+            onClick={(e) => e.stopPropagation()}
+            style={{ maxWidth: "400px" }}
+          >
+            <ActionButton
+              onClick={() => setSelectedCharDetails(null)}
+              style={{
+                position: "absolute",
+                top: "10px",
+                right: "10px",
+                padding: "5px 10px",
+                zIndex: 10,
+              }}
             >
               ×
             </ActionButton>
-            <ResultCard $rarity={selectedCharDetails.rarity} style={{ marginTop: 0 }}>
-              <div style={{ color: RARITY_CONFIG[selectedCharDetails.rarity].color }}>
+            <ResultCard
+              $rarity={selectedCharDetails.rarity}
+              style={{ marginTop: 0 }}
+            >
+              <div
+                style={{
+                  color: RARITY_CONFIG[selectedCharDetails.rarity].color,
+                }}
+              >
                 {RARITY_CONFIG[selectedCharDetails.rarity].name.toUpperCase()}
               </div>
-              <h3 style={{ margin: "10px 0", color: "#fff", letterSpacing: "2px" }}>
+              <h3
+                style={{
+                  margin: "10px 0",
+                  color: "#fff",
+                  letterSpacing: "2px",
+                }}
+              >
                 {selectedCharDetails.answers[0].toUpperCase()}
               </h3>
-              {selectedCharDetails.images && selectedCharDetails.images.length > 0 && (
-                <img 
-                  src={selectedCharDetails.images[0]} 
-                  alt={selectedCharDetails.answers[0]} 
-                  style={{ 
-                    width: '100%', 
-                    maxWidth: '220px', 
-                    borderRadius: '8px', 
-                    marginBottom: '15px',
-                    border: '1px solid #a020f0' 
-                  }} 
-                />
-              )}
-              <p style={{ color: "#888", fontSize: "0.85rem", marginBottom: "15px" }}>
+              {selectedCharDetails.images &&
+                selectedCharDetails.images.length > 0 && (
+                  <img
+                    src={selectedCharDetails.images[0]}
+                    alt={selectedCharDetails.answers[0]}
+                    style={{
+                      width: "100%",
+                      maxWidth: "220px",
+                      borderRadius: "8px",
+                      marginBottom: "15px",
+                      border: "1px solid #a020f0",
+                    }}
+                  />
+                )}
+              <p
+                style={{
+                  color: "#888",
+                  fontSize: "0.85rem",
+                  marginBottom: "15px",
+                }}
+              >
                 {selectedCharDetails.desc}
               </p>
-              <div style={{ fontSize: '0.7rem', color: '#444' }}>
+              <div style={{ fontSize: "0.7rem", color: "#444" }}>
                 ID: {selectedCharDetails.id}
               </div>
               <ActionButton
                 onClick={() => setSelectedCharDetails(null)}
-                style={{ marginTop: "15px", width: '100%' }}
+                style={{ marginTop: "15px", width: "100%" }}
               >
                 Назад до архіву
               </ActionButton>

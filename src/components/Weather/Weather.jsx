@@ -14,7 +14,8 @@ const WeatherCard = styled.div`
   width: 100%;
   max-width: 320px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  border: ${(props) => (props.$isMain ? "2px solid #004cff" : "1px solid #444")};
+  border: ${(props) =>
+    props.$isMain ? "2px solid #004cff" : "1px solid #444"};
   transition: all 0.3s ease;
   @media (min-width: 768px) {
     max-width: 380px;
@@ -25,10 +26,21 @@ const WeatherCard = styled.div`
     padding: 40px;
     border-radius: 30px;
 
-    h1 { font-size: 4rem !important; }
-    h3 { font-size: 2.2rem !important; }
-    h4 { font-size: 1.8rem !important; margin-bottom: 20px !important; }
-    p, div, span { font-size: 20px !important; }
+    h1 {
+      font-size: 4rem !important;
+    }
+    h3 {
+      font-size: 2.2rem !important;
+    }
+    h4 {
+      font-size: 1.8rem !important;
+      margin-bottom: 20px !important;
+    }
+    p,
+    div,
+    span {
+      font-size: 20px !important;
+    }
   }
 `;
 //
@@ -57,7 +69,9 @@ const ActionButtons = styled.div`
     border-radius: 5px;
     cursor: pointer;
     font-size: 12px;
-    &:hover { background: #555; }
+    &:hover {
+      background: #555;
+    }
   }
 
   @media (min-width: 1920px) {
@@ -76,18 +90,18 @@ const OrderControls = styled.div`
   justify-content: center;
   gap: 12px;
   margin-bottom: 8px;
-  color: ${props => props.$isDarkMode ? "#fff" : "#333"};
-  
+  color: ${(props) => (props.$isDarkMode ? "#fff" : "#333")};
+
   button {
-    background: ${props => props.$isDarkMode ? "#333" : "#ddd"};
-    color: ${props => props.$isDarkMode ? "#fff" : "#000"};
+    background: ${(props) => (props.$isDarkMode ? "#333" : "#ddd")};
+    color: ${(props) => (props.$isDarkMode ? "#fff" : "#000")};
     border: 1px solid #737373;
     border-radius: 4px;
     padding: 2px 8px;
     cursor: pointer;
     font-weight: bold;
     transition: all 0.2s;
-    
+
     &:disabled {
       opacity: 0.3;
       cursor: not-allowed;
@@ -97,7 +111,7 @@ const OrderControls = styled.div`
       color: #000;
     }
   }
-  
+
   span {
     font-size: 14px;
     font-weight: 900;
@@ -115,7 +129,7 @@ const ImagePlaceholder = styled.div`
   border-radius: 10px;
   font-size: ${(props) => props.fontSize || "24px"};
   color: #fff;
-  
+
   @media (min-width: 1920px) {
     width: ${(props) => parseInt(props.size) * 1.5}px;
     height: ${(props) => parseInt(props.size) * 1.5}px;
@@ -128,18 +142,27 @@ const ChartScrollWrapper = styled.div`
   overflow-x: auto;
   margin-bottom: 20px;
   padding-bottom: 10px;
-  &::-webkit-scrollbar { height: 6px; }
-  &::-webkit-scrollbar-thumb { background: #555; border-radius: 10px; }
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 10px;
+  }
 `;
 
 const ChartInnerContainer = styled.div`
-  width: ${props => props.$width}px;
-  height: ${props => props.$height || "200px"};
+  width: ${(props) => props.$width}px;
+  height: ${(props) => props.$height || "200px"};
 `;
 const DailyDetailOverlay = styled.div`
   position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: ${(props) => (props.$isDarkMode ? "rgba(30, 30, 30, 0.98)" : "rgba(255, 255, 255, 0.98)")};
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: ${(props) =>
+    props.$isDarkMode ? "rgba(30, 30, 30, 0.98)" : "rgba(255, 255, 255, 0.98)"};
   color: ${(props) => (props.$isDarkMode ? "#fff" : "#333")};
   z-index: 100;
   border-radius: 15px;
@@ -150,9 +173,16 @@ const DailyDetailOverlay = styled.div`
   justify-content: center;
   text-align: center;
   animation: ${fadeIn} 0.2s ease-in;
-  
-  h3 { font-size: 1.2rem; margin-bottom: 10px; color: #ffb36c; }
-  p { font-size: 14px; margin: 5px 0; }
+
+  h3 {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    color: #ffb36c;
+  }
+  p {
+    font-size: 14px;
+    margin: 5px 0;
+  }
 
   button {
     margin-top: 20px;
@@ -163,13 +193,22 @@ const DailyDetailOverlay = styled.div`
     border-radius: 20px;
     font-weight: bold;
     cursor: pointer;
-    &:hover { background: #ff9800; }
+    &:hover {
+      background: #ff9800;
+    }
   }
 
   @media (min-width: 1920px) {
-    h3 { font-size: 2.2rem; }
-    p { font-size: 20px; }
-    button { font-size: 20px; padding: 12px 30px; }
+    h3 {
+      font-size: 2.2rem;
+    }
+    p {
+      font-size: 20px;
+    }
+    button {
+      font-size: 20px;
+      padding: 12px 30px;
+    }
   }
 `;
 
@@ -199,7 +238,7 @@ const WeatherCardComponent = ({
     canvas.width = size;
     canvas.height = size;
     const ctx = canvas.getContext("2d");
-    
+
     ctx.font = `${size - 8}px serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
@@ -247,14 +286,15 @@ const WeatherCardComponent = ({
         backgroundColor: "rgba(0, 190, 235, 0.1)",
         pointRadius: 8,
         pointStyle: "circle",
-        pointBackgroundColor: card.hourly?.map((h) => (h.windNum ?? 0) > 10 ? "#ff6a00" : "rgba(0, 190, 235, 1)") || [],
+        pointBackgroundColor:
+          card.hourly?.map((h) =>
+            (h.windNum ?? 0) > 10 ? "#ff6a00" : "rgba(0, 190, 235, 1)",
+          ) || [],
         tension: 0.4,
         yAxisID: "y1",
       },
     ],
   };
-
-
 
   const getWeatherDescription = (code) => {
     if (code === 0) return "Ясно";
@@ -274,30 +314,33 @@ const WeatherCardComponent = ({
     "06.01": "Богоявлення (Водохреще)",
     "07.01": "Різдво Христове (старий стиль)",
     "02.02": "Стрітення Господнє",
-    "14.02": "З Днем святого Валентина!",
+    14.02: "З Днем святого Валентина!",
     "08.03": "Жінки, всіх вас вітаю з вашим днем!",
-    "25.03": "Благовіщення",
+    25.03: "Благовіщення",
     "01.04": "Сьогодні день дурня, не святого лежня. Нікому не вірте!",
-    "12.04": "З Великоднем (Пасха). Бажаю всім всього найкращого.", // Орієнтовно для 2026
+    12.04: "З Великоднем (Пасха). Бажаю всім всього найкращого.", // Орієнтовно для 2026
     "01.05": "День праці",
-    "08.05": "День пам'яті та перемоги. В цей день ми(наші прадіди) перемогли фашизм",
-    "10.05": "День матері. Подякуйте їм, за те що вони підтримували вас у тяжкі дні. А радісні робили, ще кращими.",
-    "21.05": "Вознесіння Господнє",
-    "31.05": "Трійця (П'ятдесятниця). ",
-    "21.06": "День батька",
-    "28.06": "День Конституції України",
+    "08.05":
+      "День пам'яті та перемоги. В цей день ми(наші прадіди) перемогли фашизм",
+    10.05:
+      "День матері. Подякуйте їм, за те що вони підтримували вас у тяжкі дні. А радісні робили, ще кращими.",
+    21.05: "Вознесіння Господнє",
+    31.05: "Трійця (П'ятдесятниця). ",
+    21.06: "День батька",
+    28.06: "День Конституції України",
     "01.08": "День Малятко ТВ. Ще раз особиста подяка.",
     "06.08": "Преображення (Спас)",
-    "15.08": "Успіння Пресвятої Богородиці",
-    "24.08": "День Незалежності України",
-    "01.09": "День знань. Цей день усі ненавидять, бо термін відпустки закінчився.",
-    "11.09": "Випуск 1шої серії м/с Динофроз. Легенда.",
+    15.08: "Успіння Пресвятої Богородиці",
+    24.08: "День Незалежності України",
+    "01.09":
+      "День знань. Цей день усі ненавидять, бо термін відпустки закінчився.",
+    11.09: "Випуск 1шої серії м/с Динофроз. Легенда.",
     "01.10": "Покрова і день Козацтва (Новий стиль)",
     "14.10": "Покрова і день Козацтва (Старий стиль)",
     "27.10": "День писемності та мови",
-    "19.11": "Міжнародний чоловічий день. Наш день :)",
-    "21.11": "Введення в храм Пресвятої Богородиці",
-    "25.12": "Різдво Христове (новий стиль)"
+    19.11: "Міжнародний чоловічий день. Наш день :)",
+    21.11: "Введення в храм Пресвятої Богородиці",
+    25.12: "Різдво Христове (новий стиль)",
   };
 
   const isWeekend = (dayName) => {
@@ -310,12 +353,14 @@ const WeatherCardComponent = ({
     // user.birthDate: YYYY-MM-DD, dateStr: DD.MM
     const [, uMonth, uDay] = user.birthDate.split("-");
     const [dDay, dMonth] = dateStr.split(".");
-    return parseInt(uDay) === parseInt(dDay) && parseInt(uMonth) === parseInt(dMonth);
+    return (
+      parseInt(uDay) === parseInt(dDay) && parseInt(uMonth) === parseInt(dMonth)
+    );
   };
 
   const getDateType = (dateStr, dayName) => {
     // 1. Перевірка на власні дні (Синій пріоритет)
-    const customDay = customDays.find(d => d.date === dateStr);
+    const customDay = customDays.find((d) => d.date === dateStr);
     if (customDay) {
       return { type: "custom", color: "#004cff", label: customDay.reason };
     }
@@ -323,41 +368,42 @@ const WeatherCardComponent = ({
     const holidayName = HOLIDAYS_2026[dateStr];
     const isWknd = isWeekend(dayName);
     const isBday = isBirthday(dateStr);
-    
+
     // Пріоритет: Власний (Синій) > Свято (Кораловий) > День народження > Вихідний
     if (holidayName) {
-      return { 
-        type: "holiday", 
-        color: "#ff6666", 
-        label: holidayName + (isWknd ? " + вихідний" : "") 
+      return {
+        type: "holiday",
+        color: "#ff6666",
+        label: holidayName + (isWknd ? " + вихідний" : ""),
       };
     }
     if (isBday) {
-      return { 
-        type: "birthday", 
+      return {
+        type: "birthday",
         color: "#e066ff", // Використовуємо фіолетовий для "райдужного" ефекту в hex
         label: "З Днем Народження! 🎉",
-        isRainbow: true 
+        isRainbow: true,
       };
     }
     if (isWknd) {
-      return { 
-        type: "weekend", 
-        color: "#ff9966", 
-        label: "вихідний" 
+      return {
+        type: "weekend",
+        color: "#ff9966",
+        label: "вихідний",
       };
     }
     return { type: "regular", color: null, label: "" };
   };
 
   const getHolidayMessage = (dateStr, dayName) => {
-    const customDay = customDays.find(d => d.date === dateStr);
+    const customDay = customDays.find((d) => d.date === dateStr);
     if (customDay) return `💙 Ваша подія: ${customDay.reason}`;
-    if (isBirthday(dateStr)) return `🎂 Вітаємо, ${user?.firstName}! З Днем Народження! 🌈`;
+    if (isBirthday(dateStr))
+      return `🎂 Вітаємо, ${user?.firstName}! З Днем Народження! 🌈`;
     const holiday = HOLIDAYS_2026[dateStr];
     if (holiday) return `✨ Вітаємо з святом: ${holiday}!`;
     return null;
-  }; 
+  };
   const dailyChartData = {
     labels: card.daily16?.map((d) => `${d.date}\n${d.day}`) || [],
     datasets: [
@@ -367,7 +413,9 @@ const WeatherCardComponent = ({
         borderColor: "#ffb36c",
         backgroundColor: "rgba(255, 179, 108, 0.5)",
         pointRadius: 12,
-        pointStyle: card.daily16?.map((d) => createIconCanvas(d.iconPlaceholder, 24)),
+        pointStyle: card.daily16?.map((d) =>
+          createIconCanvas(d.iconPlaceholder, 24),
+        ),
         pointBorderColor: card.daily16?.map((d) => {
           const dateType = getDateType(d.date, d.day);
           return dateType.color || "#ffb36c";
@@ -386,7 +434,7 @@ const WeatherCardComponent = ({
         pointStyle: "circle",
         pointRadius: 4,
         tension: 0.3,
-      }
+      },
     ],
   };
 
@@ -394,7 +442,10 @@ const WeatherCardComponent = ({
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { display: true, labels: { color: isDarkMode ? "#fff" : "#333" } },
+      legend: {
+        display: true,
+        labels: { color: isDarkMode ? "#fff" : "#333" },
+      },
       tooltip: {
         mode: "index",
         intersect: false,
@@ -405,11 +456,11 @@ const WeatherCardComponent = ({
               // Температура
               const temp = context.parsed.y || 0;
               let label = `🌡️ Температура: ${temp}°C`;
-              
+
               let dangers = [];
               if (temp > 30) dangers.push("СПЕКА ☀️");
               if (temp < -30) dangers.push("МОРОЗ ❄️");
-              
+
               if (dangers.length > 0) {
                 label += ` ⚠️ ${dangers.join(", ")}`;
               }
@@ -430,7 +481,7 @@ const WeatherCardComponent = ({
               return `${hourlyData.iconPlaceholder} ${getWeatherDescription(parseInt(hourlyData.iconPlaceholder.charCodeAt(0)))}`;
             }
             return "";
-          }
+          },
         },
       },
     },
@@ -439,14 +490,22 @@ const WeatherCardComponent = ({
         beginAtZero: false,
         title: { display: true, text: "Температура (°C)", color: "#ffb36c" },
         ticks: { color: isDarkMode ? "#aaa" : "#888", font: { size: 10 } },
-        grid: { color: isDarkMode ? "rgba(255, 255, 255, 0.1)" : "rgba(128, 128, 128, 0.1)" },
+        grid: {
+          color: isDarkMode
+            ? "rgba(255, 255, 255, 0.1)"
+            : "rgba(128, 128, 128, 0.1)",
+        },
       },
       y1: {
-        type: 'linear',
+        type: "linear",
         display: true,
-        position: 'right',
+        position: "right",
         beginAtZero: true,
-        title: { display: true, text: "Вітер (м/с)", color: "rgba(0, 190, 235, 1)" },
+        title: {
+          display: true,
+          text: "Вітер (м/с)",
+          color: "rgba(0, 190, 235, 1)",
+        },
         ticks: { color: "rgba(0, 190, 235, 1)", font: { size: 10 } },
         grid: { drawOnChartArea: false },
       },
@@ -482,9 +541,9 @@ const WeatherCardComponent = ({
             const daily = card.daily16?.[context.dataIndex];
             if (!daily || context.datasetIndex !== 0) return "";
             return `\nОписання: ${daily.description || "—"}`;
-          }
-        }
-      }
+          },
+        },
+      },
     },
     scales: {
       ...chartOptions.scales,
@@ -503,126 +562,260 @@ const WeatherCardComponent = ({
           font: {
             ...chartOptions.scales.x.ticks.font,
             weight: (ctx) => {
-              if (!card.daily16 || ctx.index >= card.daily16.length) return "normal";
+              if (!card.daily16 || ctx.index >= card.daily16.length)
+                return "normal";
               const daily = card.daily16[ctx.index];
               const dateType = getDateType(daily.date, daily.day);
               return dateType.color ? "bold" : "normal";
-            }
-          }
-        }
-      }
+            },
+          },
+        },
+      },
     },
     onClick: (event, elements) => {
       if (elements.length > 0) {
         const index = elements[0].index;
         setSelectedDay(card.daily16[index]);
       }
-    }
+    },
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+    <div
+      style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
+    >
       <OrderControls $isDarkMode={isDarkMode}>
-        <button disabled={index === 0} onClick={() => moveWeatherCard(card.id, -1)} title="Перемістити вгору">↑</button>
+        <button
+          disabled={index === 0}
+          onClick={() => moveWeatherCard(card.id, -1)}
+          title="Перемістити вгору"
+        >
+          ↑
+        </button>
         <span>{index + 1}.</span>
-        <button disabled={index === totalCards - 1} onClick={() => moveWeatherCard(card.id, 1)} title="Перемістити вниз">↓</button>
+        <button
+          disabled={index === totalCards - 1}
+          onClick={() => moveWeatherCard(card.id, 1)}
+          title="Перемістити вниз"
+        >
+          ↓
+        </button>
       </OrderControls>
       <WeatherCard $isMain={card.isMain} $isDarkMode={isDarkMode}>
-      {selectedDay && (
-        <DailyDetailOverlay $isDarkMode={isDarkMode}>
-          <h3 style={{ margin: 0 }}>Детально: {selectedDay.date} ({selectedDay.day})</h3>
-          {getDateType(selectedDay.date, selectedDay.day).label && (
-            <p style={{ margin: "5px 0", fontSize: "12px", color: getDateType(selectedDay.date, selectedDay.day).color, fontWeight: "bold" }}>
-              {getDateType(selectedDay.date, selectedDay.day).label.toUpperCase()}
-            </p>
-          )}
-          {getHolidayMessage(selectedDay.date, selectedDay.day) && (
-            <p style={{ margin: "8px 0", fontSize: "16px", fontWeight: "bold", color: "#ffb36c" }}>
-              {getHolidayMessage(selectedDay.date, selectedDay.day)}
-            </p>
-          )}
-          <ImagePlaceholder size="60px" fontSize="30px" style={{ margin: "15px 0" }}>
-            {selectedDay.iconPlaceholder}
-          </ImagePlaceholder>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", width: "100%", maxWidth: "300px" }}>
-            <p style={{ margin: 0 }}>☀️ День: <b>{selectedDay.temp_day ?? "—"}</b></p>
-            <p style={{ margin: 0 }}>🌙 Ніч: <b>{selectedDay.temp_night ?? "—"}</b></p>
-            <p style={{ margin: 0 }}>🌬️ Вітер: <b>{selectedDay.wind_speed ?? "0 м/с"}</b></p>
-            <p style={{ margin: 0 }}>🧴 УФ: <b>{selectedDay.uv_index ?? 0}</b></p>
-          </div>
-          <button onClick={() => setSelectedDay(null)}>Закрити</button>
-        </DailyDetailOverlay>
-      )}
-      <CardHeader $isMain={card.isMain}>
-        <div>
-          {isEditing ? (
-            <div style={{ display: "flex", gap: "5px" }}>
-              <input
-                type="text"
-                value={newName}
-                onChange={(e) => setNewName(e.target.value)}
-                autoFocus
-                style={{ padding: "2px 5px", fontSize: "14px", borderRadius: "4px", border: "1px solid #ff6a00", background: isDarkMode ? "#333" : "#fff", color: isDarkMode ? "#fff" : "#000" }}
-              />
-              <button onClick={handleRenameSubmit} style={{ background: "green", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "12px", padding: "2px 8px" }}>✓</button>
-              <button onClick={() => setIsEditing(false)} style={{ background: "red", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "12px", padding: "2px 8px" }}>✕</button>
+        {selectedDay && (
+          <DailyDetailOverlay $isDarkMode={isDarkMode}>
+            <h3 style={{ margin: 0 }}>
+              Детально: {selectedDay.date} ({selectedDay.day})
+            </h3>
+            {getDateType(selectedDay.date, selectedDay.day).label && (
+              <p
+                style={{
+                  margin: "5px 0",
+                  fontSize: "12px",
+                  color: getDateType(selectedDay.date, selectedDay.day).color,
+                  fontWeight: "bold",
+                }}
+              >
+                {getDateType(
+                  selectedDay.date,
+                  selectedDay.day,
+                ).label.toUpperCase()}
+              </p>
+            )}
+            {getHolidayMessage(selectedDay.date, selectedDay.day) && (
+              <p
+                style={{
+                  margin: "8px 0",
+                  fontSize: "16px",
+                  fontWeight: "bold",
+                  color: "#ffb36c",
+                }}
+              >
+                {getHolidayMessage(selectedDay.date, selectedDay.day)}
+              </p>
+            )}
+            <ImagePlaceholder
+              size="60px"
+              fontSize="30px"
+              style={{ margin: "15px 0" }}
+            >
+              {selectedDay.iconPlaceholder}
+            </ImagePlaceholder>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "10px",
+                width: "100%",
+                maxWidth: "300px",
+              }}
+            >
+              <p style={{ margin: 0 }}>
+                ☀️ День: <b>{selectedDay.temp_day ?? "—"}</b>
+              </p>
+              <p style={{ margin: 0 }}>
+                🌙 Ніч: <b>{selectedDay.temp_night ?? "—"}</b>
+              </p>
+              <p style={{ margin: 0 }}>
+                🌬️ Вітер: <b>{selectedDay.wind_speed ?? "0 м/с"}</b>
+              </p>
+              <p style={{ margin: 0 }}>
+                🧴 УФ: <b>{selectedDay.uv_index ?? 0}</b>
+              </p>
             </div>
-          ) : (
-            <h3>{card.locationName} {card.isMain && "📍"}</h3>
-          )}
-
-        <p style={{ margin: "5px 0 0 0", fontSize: "11px", color: "#686868" }}>
-          Lat: {card.lat?.toFixed(2)}, Lon: {card.lon?.toFixed(2)}
-        </p>
-      </div>
-      <ActionButtons>
-        {!isEditing && <button onClick={() => setIsEditing(true)} title="Перейменувати">✎</button>}
-        {card.isMain && (
-          <button
-            onClick={() => setIsLocationEnabled((v) => !v)}
-            style={{ background: isLocationEnabled ? "#444" : "#ff4d4d" }}
-          >
-            {isLocationEnabled ? "GPS ON" : "GPS OFF"}
-          </button>
+            <button onClick={() => setSelectedDay(null)}>Закрити</button>
+          </DailyDetailOverlay>
         )}
-        <button onClick={() => handleRefreshCard(card)}>↺</button>
-        {!card.isMain && <button onClick={() => handleDeleteCard(card.id)}>🗑</button>}
-      </ActionButtons>
-    </CardHeader>
+        <CardHeader $isMain={card.isMain}>
+          <div>
+            {isEditing ? (
+              <div style={{ display: "flex", gap: "5px" }}>
+                <input
+                  type="text"
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  autoFocus
+                  style={{
+                    padding: "2px 5px",
+                    fontSize: "14px",
+                    borderRadius: "4px",
+                    border: "1px solid #ff6a00",
+                    background: isDarkMode ? "#333" : "#fff",
+                    color: isDarkMode ? "#fff" : "#000",
+                  }}
+                />
+                <button
+                  onClick={handleRenameSubmit}
+                  style={{
+                    background: "green",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                    fontSize: "12px",
+                    padding: "2px 8px",
+                  }}
+                >
+                  ✓
+                </button>
+                <button
+                  onClick={() => setIsEditing(false)}
+                  style={{
+                    background: "red",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                    fontSize: "12px",
+                    padding: "2px 8px",
+                  }}
+                >
+                  ✕
+                </button>
+              </div>
+            ) : (
+              <h3>
+                {card.locationName} {card.isMain && "📍"}
+              </h3>
+            )}
 
-    <div style={{ display: "flex", gap: "20px", marginBottom: "15px", alignItems: "center" }}>
-      <ImagePlaceholder size="80px">{card.current.iconPlaceholder}</ImagePlaceholder>
-      <div>
-        <h1 style={{ margin: "0", color: isExtremeTemp ? "#ff4d4d" : "inherit", fontSize: "2.5rem" }}>
-          {card.current.temp}
-        </h1>
-        <p style={{ margin: "0", fontSize: "14px", opacity: 0.8 }}>Відчувається: {card.current.feels_like}</p>
-      </div>
-    </div>
+            <p
+              style={{
+                margin: "5px 0 0 0",
+                fontSize: "11px",
+                color: "#686868",
+              }}
+            >
+              Lat: {card.lat?.toFixed(2)}, Lon: {card.lon?.toFixed(2)}
+            </p>
+          </div>
+          <ActionButtons>
+            {!isEditing && (
+              <button onClick={() => setIsEditing(true)} title="Перейменувати">
+                ✎
+              </button>
+            )}
+            {card.isMain && (
+              <button
+                onClick={() => setIsLocationEnabled((v) => !v)}
+                style={{ background: isLocationEnabled ? "#444" : "#ff4d4d" }}
+              >
+                {isLocationEnabled ? "GPS ON" : "GPS OFF"}
+              </button>
+            )}
+            <button onClick={() => handleRefreshCard(card)}>↺</button>
+            {!card.isMain && (
+              <button onClick={() => handleDeleteCard(card.id)}>🗑</button>
+            )}
+          </ActionButtons>
+        </CardHeader>
 
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", fontSize: "13px", marginBottom: "20px" }}>
-      <div>Вологість: <b>{card.current.humidity ?? "—"}</b></div>
-      <div style={{ color: isExtremeWind ? "#ff4d4d" : "inherit" }}>🌬️ Вітер: <b>{card.current.wind_speed ?? "0 м/с"}</b></div>
-      <div>Тиск: <b>{card.current.pressure ?? "—"}</b></div>
-      <div style={{ color: isExtremeUV ? "#ff4d4d" : "inherit" }}>🧴 УФ-індекс: <b>{card.current.uv_index ?? 0}</b></div>
-    </div>
+        <div
+          style={{
+            display: "flex",
+            gap: "20px",
+            marginBottom: "15px",
+            alignItems: "center",
+          }}
+        >
+          <ImagePlaceholder size="80px">
+            {card.current.iconPlaceholder}
+          </ImagePlaceholder>
+          <div>
+            <h1
+              style={{
+                margin: "0",
+                color: isExtremeTemp ? "#ff4d4d" : "inherit",
+                fontSize: "2.5rem",
+              }}
+            >
+              {card.current.temp}
+            </h1>
+            <p style={{ margin: "0", fontSize: "14px", opacity: 0.8 }}>
+              Відчувається: {card.current.feels_like}
+            </p>
+          </div>
+        </div>
 
-    <h4 style={{ margin: "0 0 10px 0" }}>Годинний прогноз:</h4>
-    {card.hourly && card.hourly.length > 0 && (
-      <ChartScrollWrapper>
-        <ChartInnerContainer $width={1200} $height="220px">
-          <Line options={chartOptions} data={hourlyChartData} />
-        </ChartInnerContainer>
-      </ChartScrollWrapper>
-    )}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "10px",
+            fontSize: "13px",
+            marginBottom: "20px",
+          }}
+        >
+          <div>
+            Вологість: <b>{card.current.humidity ?? "—"}</b>
+          </div>
+          <div style={{ color: isExtremeWind ? "#ff4d4d" : "inherit" }}>
+            🌬️ Вітер: <b>{card.current.wind_speed ?? "0 м/с"}</b>
+          </div>
+          <div>
+            Тиск: <b>{card.current.pressure ?? "—"}</b>
+          </div>
+          <div style={{ color: isExtremeUV ? "#ff4d4d" : "inherit" }}>
+            🧴 УФ-індекс: <b>{card.current.uv_index ?? 0}</b>
+          </div>
+        </div>
 
-    <h4 style={{ margin: "15px 0 10px 0" }}>Прогноз на 16 днів:</h4>
-    <ChartScrollWrapper>
-      <ChartInnerContainer $width={1000} $height="220px">
-        <Line options={dailyChartOptions} data={dailyChartData} />
-      </ChartInnerContainer>
-    </ChartScrollWrapper>
-  </WeatherCard>
+        <h4 style={{ margin: "0 0 10px 0" }}>Годинний прогноз:</h4>
+        {card.hourly && card.hourly.length > 0 && (
+          <ChartScrollWrapper>
+            <ChartInnerContainer $width={1200} $height="220px">
+              <Line options={chartOptions} data={hourlyChartData} />
+            </ChartInnerContainer>
+          </ChartScrollWrapper>
+        )}
+
+        <h4 style={{ margin: "15px 0 10px 0" }}>Прогноз на 16 днів:</h4>
+        <ChartScrollWrapper>
+          <ChartInnerContainer $width={1000} $height="220px">
+            <Line options={dailyChartOptions} data={dailyChartData} />
+          </ChartInnerContainer>
+        </ChartScrollWrapper>
+      </WeatherCard>
     </div>
   );
 };

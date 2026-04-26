@@ -474,7 +474,12 @@ const PuzzleFour = ({ onExit }) => {
       { x: 3, y: 5, locked: false },
       { x: 2, y: 6, locked: false },
     ]);
-    const initialSaws = [ { x: 7, y: 2 }, { x: 4, y: 3 }, { x: 6, y: 5 }, { x: 3, y: 7 }, ];
+    const initialSaws = [
+      { x: 7, y: 2 },
+      { x: 4, y: 3 },
+      { x: 6, y: 5 },
+      { x: 3, y: 7 },
+    ];
     setSaws(initialSaws.slice(0, config.sawsCount));
 
     setActiveTargetIdx(0);
@@ -489,8 +494,10 @@ const PuzzleFour = ({ onExit }) => {
     setBonusTime(0);
   }, [config]);
 
-  useEffect(() => { resetGame(); }, [resetGame]);
-  
+  useEffect(() => {
+    resetGame();
+  }, [resetGame]);
+
   const handleHit = useCallback(() => {
     if (bonusTime > 0) return;
     setIsHit(true);
@@ -519,7 +526,16 @@ const PuzzleFour = ({ onExit }) => {
 
     setSaws((prevSaws) => {
       const nextSaws = prevSaws.map((saw) => {
-        const dirs = [ { x: 0, y: -1 }, { x: 0, y: 1 }, { x: -1, y: 0 }, { x: 1, y: 0 }, { x: 1, y: 1 }, { x: -1, y: -1 }, { x: 1, y: -1 }, { x: -1, y: 1 }, ];
+        const dirs = [
+          { x: 0, y: -1 },
+          { x: 0, y: 1 },
+          { x: -1, y: 0 },
+          { x: 1, y: 0 },
+          { x: 1, y: 1 },
+          { x: -1, y: -1 },
+          { x: 1, y: -1 },
+          { x: -1, y: 1 },
+        ];
         const valid = dirs.filter((d) => {
           let nx = saw.x + d.x,
             ny = saw.y + d.y;
@@ -539,7 +555,11 @@ const PuzzleFour = ({ onExit }) => {
           if (fx === portalA.x && fy === portalA.y) return portalB;
           if (fx === portalB.x && fy === portalB.y) return portalA;
         } else {
-          if ((fx === portalA.x && fy === portalA.y) || (fx === portalB.x && fy === portalB.y)) return saw;
+          if (
+            (fx === portalA.x && fy === portalA.y) ||
+            (fx === portalB.x && fy === portalB.y)
+          )
+            return saw;
         }
 
         return { x: fx, y: fy };
@@ -735,13 +755,34 @@ const PuzzleFour = ({ onExit }) => {
     } else {
       const presets = {
         easy: {
-          label: "Легка", time: 300, maxMoves: 200, sawsCount: 3, lives: 8, portalCooldown: 3, sawMovement: "hv_pause", sawsUsePortals: false,
+          label: "Легка",
+          time: 300,
+          maxMoves: 200,
+          sawsCount: 3,
+          lives: 8,
+          portalCooldown: 3,
+          sawMovement: "hv_pause",
+          sawsUsePortals: false,
         },
         normal: {
-          label: "Середня", time: 300, maxMoves: 100, sawsCount: 4, lives: 4, portalCooldown: 6, sawMovement: "random", sawsUsePortals: true,
+          label: "Середня",
+          time: 300,
+          maxMoves: 100,
+          sawsCount: 4,
+          lives: 4,
+          portalCooldown: 6,
+          sawMovement: "random",
+          sawsUsePortals: true,
         },
         hard: {
-          label: "Важка", time: 300, maxMoves: 100, sawsCount: 4, lives: 6, portalCooldown: 10, sawMovement: "all_no_pause", sawsUsePortals: true,
+          label: "Важка",
+          time: 300,
+          maxMoves: 100,
+          sawsCount: 4,
+          lives: 6,
+          portalCooldown: 10,
+          sawMovement: "all_no_pause",
+          sawsUsePortals: true,
         },
       };
       newConfig = presets[type];
@@ -759,14 +800,16 @@ const PuzzleFour = ({ onExit }) => {
   }, [config]);
 
   return (
-    <GameWrapper $isHit={isHit}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onClick={() => setShowSettings(false)}
-          style={{
-            backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(${decor})`,
-          }}>
+    <GameWrapper
+      $isHit={isHit}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={() => setShowSettings(false)}
+      style={{
+        backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(${decor})`,
+      }}
+    >
       <h4 style={{ margin: 0, color: "#ffb36c" }}>
         {isEvacuating ? "ФАЗА РАДАРУ (x2 DAMAGE)" : "ЗБІР МОДУЛІВ"}
       </h4>
@@ -898,11 +941,13 @@ const PuzzleFour = ({ onExit }) => {
       </GameBoard>
       <BottomPanel>
         <StatsGrid>
-          <span>❤️ {lives}/{config.lives}</span>
           <span>
-            ⏳ {formatTime(timeLeft)}
+            ❤️ {lives}/{config.lives}
           </span>
-          <span>👣 {moves}/{config.maxMoves}</span>
+          <span>⏳ {formatTime(timeLeft)}</span>
+          <span>
+            👣 {moves}/{config.maxMoves}
+          </span>
           <span style={{ color: "#3f51b5" }}>
             🌀 {portalCooldown > 0 ? portalCooldown : "OK"}
           </span>
@@ -923,13 +968,19 @@ const PuzzleFour = ({ onExit }) => {
             />
           </VolumeControl>
           <GameButton onClick={() => setShowHelp(true)}>?</GameButton>
-          <GearContainer onClick={() => setShowSettings(true)} title="Налаштування">
+          <GearContainer
+            onClick={() => setShowSettings(true)}
+            title="Налаштування"
+          >
             <span className="g g1">⚙</span>
             <span className="g g2">⚙</span>
             <span className="g g3">⚙</span>
           </GearContainer>
           <GameButton onClick={resetGame}>⏭</GameButton>
-          <GameButton onClick={onExit} style={{ borderColor: "#f44336", color: "#f44336" }}>
+          <GameButton
+            onClick={onExit}
+            style={{ borderColor: "#f44336", color: "#f44336" }}
+          >
             ✖
           </GameButton>
         </div>
@@ -943,11 +994,15 @@ const PuzzleFour = ({ onExit }) => {
             onClick={() => setShowSettings(false)}
           >
             <Modal onClick={(e) => e.stopPropagation()}>
-              <h3 style={{ margin: "0", color: "#ffb36c", textAlign: "center" }}>
+              <h3
+                style={{ margin: "0", color: "#ffb36c", textAlign: "center" }}
+              >
                 Налаштування
               </h3>
 
-              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <div
+                style={{ display: "flex", flexDirection: "column", gap: "8px" }}
+              >
                 <DifficultyBtn onClick={() => setDifficulty("easy")}>
                   Легка (5хв, 200х, 3 пили, 8❤️)
                 </DifficultyBtn>
@@ -959,31 +1014,98 @@ const PuzzleFour = ({ onExit }) => {
                 </DifficultyBtn>
               </div>
 
-              <hr style={{ borderColor: "#ffb36c", width: "100%", margin: "5px 0" }} />
+              <hr
+                style={{
+                  borderColor: "#ffb36c",
+                  width: "100%",
+                  margin: "5px 0",
+                }}
+              />
 
-              <span style={{ fontSize: "14px", textAlign: "center", color: "#ffb36c" }}>
+              <span
+                style={{
+                  fontSize: "14px",
+                  textAlign: "center",
+                  color: "#ffb36c",
+                }}
+              >
                 Власні параметри:
               </span>
 
               <CustomRow>
                 <span>Ходи: {tempConfig.maxMoves}</span>
-                <input type="range" min="50" max="200" step="10" value={tempConfig.maxMoves} onChange={(e) => setTempConfig({ ...tempConfig, maxMoves: parseInt(e.target.value) })} />
+                <input
+                  type="range"
+                  min="50"
+                  max="200"
+                  step="10"
+                  value={tempConfig.maxMoves}
+                  onChange={(e) =>
+                    setTempConfig({
+                      ...tempConfig,
+                      maxMoves: parseInt(e.target.value),
+                    })
+                  }
+                />
               </CustomRow>
               <CustomRow>
                 <span>Пили: {tempConfig.sawsCount}</span>
-                <input type="range" min="2" max="4" value={tempConfig.sawsCount} onChange={(e) => setTempConfig({ ...tempConfig, sawsCount: parseInt(e.target.value) })} />
+                <input
+                  type="range"
+                  min="2"
+                  max="4"
+                  value={tempConfig.sawsCount}
+                  onChange={(e) =>
+                    setTempConfig({
+                      ...tempConfig,
+                      sawsCount: parseInt(e.target.value),
+                    })
+                  }
+                />
               </CustomRow>
               <CustomRow>
                 <span>Життя: {tempConfig.lives}</span>
-                <input type="range" min="1" max="8" value={tempConfig.lives} onChange={(e) => setTempConfig({ ...tempConfig, lives: parseInt(e.target.value) })} />
+                <input
+                  type="range"
+                  min="1"
+                  max="8"
+                  value={tempConfig.lives}
+                  onChange={(e) =>
+                    setTempConfig({
+                      ...tempConfig,
+                      lives: parseInt(e.target.value),
+                    })
+                  }
+                />
               </CustomRow>
               <CustomRow>
-                <span>Перезарядка порталу: {tempConfig.portalCooldown} ходів</span>
-                <input type="range" min="1" max="10" value={tempConfig.portalCooldown} onChange={(e) => setTempConfig({ ...tempConfig, portalCooldown: parseInt(e.target.value) })} />
+                <span>
+                  Перезарядка порталу: {tempConfig.portalCooldown} ходів
+                </span>
+                <input
+                  type="range"
+                  min="1"
+                  max="10"
+                  value={tempConfig.portalCooldown}
+                  onChange={(e) =>
+                    setTempConfig({
+                      ...tempConfig,
+                      portalCooldown: parseInt(e.target.value),
+                    })
+                  }
+                />
               </CustomRow>
               <CustomRow>
                 <span>Рух пил:</span>
-                <select value={tempConfig.sawMovement} onChange={(e) => setTempConfig({ ...tempConfig, sawMovement: e.target.value })}>
+                <select
+                  value={tempConfig.sawMovement}
+                  onChange={(e) =>
+                    setTempConfig({
+                      ...tempConfig,
+                      sawMovement: e.target.value,
+                    })
+                  }
+                >
                   <option value="hv_pause">Всі напрямки (з паузами)</option>
                   <option value="random">Випадковий (з паузами)</option>
                   <option value="all_no_pause">Всі напрямки (без пауз)</option>
@@ -991,17 +1113,31 @@ const PuzzleFour = ({ onExit }) => {
               </CustomRow>
               <CustomRow>
                 <span>Пили крізь портал:</span>
-                <select value={tempConfig.sawsUsePortals} onChange={(e) => setTempConfig({ ...tempConfig, sawsUsePortals: e.target.value === 'true' })}>
+                <select
+                  value={tempConfig.sawsUsePortals}
+                  onChange={(e) =>
+                    setTempConfig({
+                      ...tempConfig,
+                      sawsUsePortals: e.target.value === "true",
+                    })
+                  }
+                >
                   <option value="true">Так</option>
                   <option value="false">Ні</option>
                 </select>
               </CustomRow>
 
-              <DifficultyBtn onClick={() => setDifficulty("custom", tempConfig)} style={{ background: "#4e342e", marginTop: "10px" }}>
+              <DifficultyBtn
+                onClick={() => setDifficulty("custom", tempConfig)}
+                style={{ background: "#4e342e", marginTop: "10px" }}
+              >
                 Застосувати власні
               </DifficultyBtn>
 
-              <DifficultyBtn onClick={() => setShowSettings(false)} style={{ background: "#1b110f" }}>
+              <DifficultyBtn
+                onClick={() => setShowSettings(false)}
+                style={{ background: "#1b110f" }}
+              >
                 Закрити
               </DifficultyBtn>
             </Modal>

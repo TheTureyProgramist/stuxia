@@ -50,7 +50,9 @@ const NotificationCard = styled.div`
   max-width: 350px;
   cursor: pointer;
   filter: grayscale(1);
-  animation: ${fadeShowHide} 3s forwards, ${vibrate} 0.2s infinite;
+  animation:
+    ${fadeShowHide} 3s forwards,
+    ${vibrate} 0.2s infinite;
   @media (min-width: 1920px) {
     top: 140px;
     max-width: 600px;
@@ -65,7 +67,10 @@ const CardImg = styled.img`
   border-radius: 8px;
   object-fit: cover;
   border: 1px solid #2eb813;
-  @media (min-width: 1920px) { width: 100px; height: 70px; }
+  @media (min-width: 1920px) {
+    width: 100px;
+    height: 70px;
+  }
 `;
 
 const CardText = styled.div`
@@ -77,14 +82,18 @@ const CardName = styled.h3`
   margin: 0;
   font-size: 12px;
   color: #ffb36c;
-  @media (min-width: 1920px) { font-size: 24px; }
+  @media (min-width: 1920px) {
+    font-size: 24px;
+  }
 `;
 
 const CardGoal = styled.p`
   margin: 2px 0 0;
   font-size: 10px;
   color: #a2ff6c;
-  @media (min-width: 1920px) { font-size: 20px; }
+  @media (min-width: 1920px) {
+    font-size: 20px;
+  }
 `;
 
 const CardReward = styled.div`
@@ -100,7 +109,11 @@ const CardReward = styled.div`
   border: 1px dashed #ffb36c;
   color: #ffb36c;
   flex-shrink: 0;
-  @media (min-width: 1920px) { width: 80px; height: 45px; font-size: 18px; }
+  @media (min-width: 1920px) {
+    width: 80px;
+    height: 45px;
+    font-size: 18px;
+  }
 `;
 
 const HeaderDiv = styled.div`
@@ -350,14 +363,14 @@ const ShopIconInner = styled.div`
 const ButtonsGroup = styled.div`
   display: flex;
   align-items: center;
-  gap: -3px; 
+  gap: -3px;
 
   @media (min-width: 768px) {
-    gap: 12px; 
+    gap: 12px;
   }
 
   @media (min-width: 1920px) {
-    gap: 25px; 
+    gap: 25px;
   }
 `;
 
@@ -365,18 +378,19 @@ const VisualSettingsPanel = styled.div`
   position: absolute;
   top: 52px;
   right: 10px;
-  background: ${(props) => (props.$isDarkMode ? "rgba(18, 18, 18, 0.95)" : "rgba(255, 255, 255, 0.95)")};
+  background: ${(props) =>
+    props.$isDarkMode ? "rgba(18, 18, 18, 0.95)" : "rgba(255, 255, 255, 0.95)"};
   border: 1px solid ${(props) => (props.$isDarkMode ? "#444" : "#ddd")};
   backdrop-filter: blur(5px);
   padding: 15px;
   border-radius: 10px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   z-index: 2000;
   width: 220px;
   display: flex;
   flex-direction: column;
   gap: 15px;
-  
+
   @media (min-width: 768px) {
     top: 85px;
     width: 280px;
@@ -419,7 +433,8 @@ const FilterGrid = styled.div`
 
 const FilterButton = styled.button`
   background: ${(props) => (props.$active ? "#ffb36c" : "transparent")};
-  color: ${(props) => (props.$active ? "#3e2723" : props.$isDarkMode ? "#ffb36c" : "#333")};
+  color: ${(props) =>
+    props.$active ? "#3e2723" : props.$isDarkMode ? "#ffb36c" : "#333"};
   border: 1px solid #ffb36c;
   border-radius: 6px;
   padding: 6px;
@@ -535,7 +550,7 @@ const Header = ({
     e.stopPropagation();
     const printWindow = window.open("", "_blank");
     printWindow.document.write(
-      `<html><head><title>Print Logo</title></head><body style="margin:0; display:flex; align-items:center; justify-content:center; height:100vh; background:#1a1a1a;"><img src="${logo}" style="max-width:90%; max-height:90%; object-fit:contain;" onload="window.print();window.close();"/></body></html>`
+      `<html><head><title>Print Logo</title></head><body style="margin:0; display:flex; align-items:center; justify-content:center; height:100vh; background:#1a1a1a;"><img src="${logo}" style="max-width:90%; max-height:90%; object-fit:contain;" onload="window.print();window.close();"/></body></html>`,
     );
     printWindow.document.close();
   };
@@ -548,7 +563,6 @@ const Header = ({
     else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
     else if (elem.msRequestFullscreen) elem.msRequestFullscreen();
   };
-
 
   useEffect(() => {
     const status = localStorage.getItem("turkeyStudioStatus");
@@ -566,7 +580,10 @@ const Header = ({
       const saved = localStorage.getItem("visualConfig");
       const parsed = saved ? JSON.parse(saved) : null;
       if (parsed) {
-        if (parsed.darkIntensity !== undefined && parsed.filterType === undefined) {
+        if (
+          parsed.darkIntensity !== undefined &&
+          parsed.filterType === undefined
+        ) {
           return {
             darkIntensity: parsed.darkIntensity || 0,
             filterType: parsed.bwIntensity > 0 ? "grayscale" : "none",
@@ -583,15 +600,18 @@ const Header = ({
 
   useEffect(() => {
     localStorage.setItem("visualConfig", JSON.stringify(visualConfig));
-    const brightness = 100 - (visualConfig.darkIntensity * 0.6);
+    const brightness = 100 - visualConfig.darkIntensity * 0.6;
     let filters = `brightness(${brightness}%)`;
     const { filterType, filterIntensity } = visualConfig;
 
-    if (filterType === "grayscale") filters += ` grayscale(${filterIntensity}%)`;
+    if (filterType === "grayscale")
+      filters += ` grayscale(${filterIntensity}%)`;
     else if (filterType === "sepia") filters += ` sepia(${filterIntensity}%)`;
     else if (filterType === "invert") filters += ` invert(${filterIntensity}%)`;
-    else if (filterType === "matrix") filters += ` sepia(${filterIntensity}%) hue-rotate(${filterIntensity}deg)`;
-    else if (filterType === "uv") filters += ` hue-rotate(${filterIntensity * 2.4}deg)`;
+    else if (filterType === "matrix")
+      filters += ` sepia(${filterIntensity}%) hue-rotate(${filterIntensity}deg)`;
+    else if (filterType === "uv")
+      filters += ` hue-rotate(${filterIntensity * 2.4}deg)`;
 
     document.documentElement.style.filter = filters;
   }, [visualConfig]);
@@ -619,7 +639,7 @@ const Header = ({
     <>
       <HeaderDiv $isDarkMode={isDarkMode}>
         {showTurkeyNotify && (
-          <NotificationCard 
+          <NotificationCard
             onClick={() => {
               onOpenAchievements();
               setShowTurkeyNotify(false);
@@ -635,12 +655,36 @@ const Header = ({
         )}
         <HeaderFix>
           <LogoContainer>
-            <PrintBtn className="logo-action" onClick={handlePrintLogo} title="Друкувати">⎙</PrintBtn>
-            <DownloadBtn className="logo-action" onClick={handleDownloadLogo} title="Скачати">⇩</DownloadBtn>
-            <HeaderLogo ref={logoRef} src={logofix} alt="Logo" height="32px" width="32px"/>
-            <FullscreenBtn className="logo-action" onClick={handleFullscreenLogo} title="Повний екран">⛶</FullscreenBtn>
+            <PrintBtn
+              className="logo-action"
+              onClick={handlePrintLogo}
+              title="Друкувати"
+            >
+              ⎙
+            </PrintBtn>
+            <DownloadBtn
+              className="logo-action"
+              onClick={handleDownloadLogo}
+              title="Скачати"
+            >
+              ⇩
+            </DownloadBtn>
+            <HeaderLogo
+              ref={logoRef}
+              src={logofix}
+              alt="Logo"
+              height="32px"
+              width="32px"
+            />
+            <FullscreenBtn
+              className="logo-action"
+              onClick={handleFullscreenLogo}
+              title="Повний екран"
+            >
+              ⛶
+            </FullscreenBtn>
           </LogoContainer>
-          
+
           {user && (
             <VipTextWrapper onClick={onOpenVip}>
               <RainbowText $show={!showUltra}>Стихія+</RainbowText>
@@ -668,10 +712,7 @@ const Header = ({
                   <EmojiWrapper>👁️</EmojiWrapper>
                 </IconButton>
 
-                <IconButton
-                  onClick={onOpenHelp}
-                  $isDarkMode={isDarkMode}
-                >
+                <IconButton onClick={onOpenHelp} $isDarkMode={isDarkMode}>
                   <EmojiWrapper style={{ fontWeight: 900 }}>?</EmojiWrapper>
                 </IconButton>
 
@@ -713,18 +754,18 @@ const Header = ({
                 <EmojiWrapper>{isDarkMode ? "☀️" : "🌑"}</EmojiWrapper>
               </IconButton>
               <IconButton
-                  onClick={() => setShowVisualSettings(!showVisualSettings)}
-                  $isDarkMode={isDarkMode}
-                  title="Налаштування вигляду"
-                >
-                  <EmojiWrapper>👁️</EmojiWrapper>
+                onClick={() => setShowVisualSettings(!showVisualSettings)}
+                $isDarkMode={isDarkMode}
+                title="Налаштування вигляду"
+              >
+                <EmojiWrapper>👁️</EmojiWrapper>
               </IconButton>
               <IconButton
-                  onClick={onOpenHelp}
-                  $isDarkMode={isDarkMode}
-                  title="Навчання"
-                >
-                  <EmojiWrapper style={{ fontWeight: 900 }}>?</EmojiWrapper>
+                onClick={onOpenHelp}
+                $isDarkMode={isDarkMode}
+                title="Навчання"
+              >
+                <EmojiWrapper style={{ fontWeight: 900 }}>?</EmojiWrapper>
               </IconButton>
               <button
                 onClick={onOpenLogin}
@@ -766,7 +807,12 @@ const Header = ({
                 min="0"
                 max="100"
                 value={visualConfig.darkIntensity}
-                onChange={(e) => setVisualConfig(prev => ({ ...prev, darkIntensity: Number(e.target.value) }))}
+                onChange={(e) =>
+                  setVisualConfig((prev) => ({
+                    ...prev,
+                    darkIntensity: Number(e.target.value),
+                  }))
+                }
                 $isDarkMode={isDarkMode}
               />
             </div>
@@ -777,7 +823,9 @@ const Header = ({
                   key={f.id}
                   $active={visualConfig.filterType === f.id}
                   $isDarkMode={isDarkMode}
-                  onClick={() => setVisualConfig((prev) => ({ ...prev, filterType: f.id }))}
+                  onClick={() =>
+                    setVisualConfig((prev) => ({ ...prev, filterType: f.id }))
+                  }
                 >
                   {f.label}
                 </FilterButton>
@@ -794,7 +842,12 @@ const Header = ({
                   min="0"
                   max="100"
                   value={visualConfig.filterIntensity}
-                  onChange={(e) => setVisualConfig((prev) => ({ ...prev, filterIntensity: Number(e.target.value) }))}
+                  onChange={(e) =>
+                    setVisualConfig((prev) => ({
+                      ...prev,
+                      filterIntensity: Number(e.target.value),
+                    }))
+                  }
                   $isDarkMode={isDarkMode}
                 />
               </div>

@@ -552,7 +552,7 @@ const PuzzleOne = ({ onExit }) => {
         audio: harmonyAudio,
         category: "other",
       },
-            {
+      {
         image: asiumten,
         audio: harmonyAudio,
         category: "other",
@@ -562,7 +562,7 @@ const PuzzleOne = ({ onExit }) => {
         audio: harmonyAudio,
         category: "other",
       },
-            {
+      {
         image: harmony,
         audio: harmonyAudio,
         category: "other",
@@ -689,7 +689,7 @@ const PuzzleOne = ({ onExit }) => {
       },
       {
         image: theorytwo,
-        audio:  theorytwoAudio,
+        audio: theorytwoAudio,
         category: "other",
       },
       {
@@ -921,7 +921,15 @@ const PuzzleOne = ({ onExit }) => {
         setCurrentMediaIndex(newIdx);
       }
     }
-  }, [timeLeft, isChaosMode, isWon, isLoading, puzzleImages.length, config.maxTime, currentMediaIndex]);
+  }, [
+    timeLeft,
+    isChaosMode,
+    isWon,
+    isLoading,
+    puzzleImages.length,
+    config.maxTime,
+    currentMediaIndex,
+  ]);
 
   // Реф для відстеження часу без тригерування useEffect завантаження медіа
   const timeLeftRef = useRef(timeLeft);
@@ -952,16 +960,19 @@ const PuzzleOne = ({ onExit }) => {
       if (audioRef.current) {
         audioRef.current.src = currentItem.audio;
         audioRef.current.load();
-        
+
         // Якщо режим Хаосу, синхронізуємо час відтворення за формулою користувача
         if (isChaosMode) {
           const syncAudio = () => {
             const elapsed = config.maxTime - timeLeftRef.current;
             if (audioRef.current.duration) {
-              audioRef.current.currentTime = elapsed % audioRef.current.duration;
+              audioRef.current.currentTime =
+                elapsed % audioRef.current.duration;
             }
           };
-          audioRef.current.addEventListener('loadedmetadata', syncAudio, { once: true });
+          audioRef.current.addEventListener("loadedmetadata", syncAudio, {
+            once: true,
+          });
         }
       }
 
@@ -1248,7 +1259,9 @@ const PuzzleOne = ({ onExit }) => {
               style={{
                 color: isChaosMode
                   ? "#7afcff"
-                  : timeLeft < 30 ? "#ff5252" : "#ffb36c",
+                  : timeLeft < 30
+                    ? "#ff5252"
+                    : "#ffb36c",
               }}
             >
               {formatTime(timeLeft)}

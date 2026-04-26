@@ -19,7 +19,7 @@ const Overlay = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden; 
+  overflow: hidden;
 `;
 
 const UltraPlayerContainer = styled.div`
@@ -128,9 +128,7 @@ const SkipButton = styled.button`
   top: 10px;
   left: 10px;
   background: ${(props) =>
-    props.$isError 
-      ? "rgba(255, 108, 108, 0.6)" 
-      : "rgba(82, 249, 255, 0.2)"};
+    props.$isError ? "rgba(255, 108, 108, 0.6)" : "rgba(82, 249, 255, 0.2)"};
   backdrop-filter: blur(5px);
   color: #94fffa;
   border: 1px solid rgba(0, 255, 255, 0.33);
@@ -312,7 +310,11 @@ const ULTRA_CARDS_LIST = [
 
 const SEQUENCE = [
   { type: "thematic", duration: 3000, text: "" },
-  { type: "black", duration: 10000, text: "У нас надійна погода. Власний коментар: Я не хочу багато підписників чи користувачів, але я хочу людей, які з радістю використовуватимуть мій сайт, у різних цілях." },
+  {
+    type: "black",
+    duration: 10000,
+    text: "У нас надійна погода. Власний коментар: Я не хочу багато підписників чи користувачів, але я хочу людей, які з радістю використовуватимуть мій сайт, у різних цілях.",
+  },
   {
     type: "video",
     start: 10,
@@ -325,19 +327,25 @@ const SEQUENCE = [
     end: 27,
     text: "Секрети, головоломки, історії, власні рівні, різні рівні складності, тексти.",
   },
-    {
+  {
     type: "card",
     imgIdx: 0,
     duration: 10000,
     text: "Різноманітна та захоплива музика, яку можна додавати, шукати. Ми зробимо красиву оселю, з вашим принтером і нашими, пошуковими або власними фанартами.",
-  },  {
+  },
+  {
     type: "video",
     start: 27,
     end: 40,
     text: "Пишіть, підказуйте, що зробити для вас :)",
   },
   { type: "video", start: 40, end: 55, text: "Досягнення на будь-який смак. " },
-   { type: "card", imgIdx: 1, duration: 10000, text: "Налаштуйте сайт під себе. З нашою власною валютою. Скачуйте музику, зображення, відео." },
+  {
+    type: "card",
+    imgIdx: 1,
+    duration: 10000,
+    text: "Налаштуйте сайт під себе. З нашою власною валютою. Скачуйте музику, зображення, відео.",
+  },
   {
     type: "video",
     start: 55,
@@ -394,7 +402,7 @@ const KatSceneModal = ({ onClose }) => {
   });
   const [isAssetsLoaded, setIsAssetsLoaded] = useState(false);
   const stepStartTimeRef = useRef(null);
-  
+
   const videoRef = useRef(null);
   const audioRef = useRef(null);
   const containerRef = useRef(null); // Ref для контейнера Fullscreen
@@ -407,7 +415,7 @@ const KatSceneModal = ({ onClose }) => {
   // Таймер на випадок проблем зі зв'язком (15 секунд)
   useEffect(() => {
     if (isAssetsLoaded) return;
-    
+
     const timer = setTimeout(() => {
       if (!isAssetsLoaded) {
         setConnectionError(true);
@@ -423,8 +431,8 @@ const KatSceneModal = ({ onClose }) => {
     let remaining = timeLeft;
     for (let i = stepIndex + 1; i < SEQUENCE.length; i++) {
       const s = SEQUENCE[i];
-      if (s.type === "video") remaining += (s.end - s.start);
-      else remaining += (s.duration / 1000);
+      if (s.type === "video") remaining += s.end - s.start;
+      else remaining += s.duration / 1000;
     }
     setSkipBlockTimer(Math.ceil(remaining));
   }, [stepIndex, timeLeft, isWatched, isAssetsLoaded]);
@@ -434,10 +442,11 @@ const KatSceneModal = ({ onClose }) => {
     const elem = containerRef.current;
     if (!elem) return;
 
-    const isFullscreen = document.fullscreenElement || 
-                         document.webkitFullscreenElement || 
-                         document.mozFullScreenElement || 
-                         document.msFullscreenElement;
+    const isFullscreen =
+      document.fullscreenElement ||
+      document.webkitFullscreenElement ||
+      document.mozFullScreenElement ||
+      document.msFullscreenElement;
 
     if (!isFullscreen) {
       if (elem.requestFullscreen) {
@@ -459,7 +468,11 @@ const KatSceneModal = ({ onClose }) => {
 
   // Безпечне закриття з виходом з повноекранного режиму
   const handleClose = useCallback(() => {
-    const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
+    const isFullscreen =
+      document.fullscreenElement ||
+      document.webkitFullscreenElement ||
+      document.mozFullScreenElement ||
+      document.msFullscreenElement;
     if (isFullscreen) {
       if (document.exitFullscreen) document.exitFullscreen();
       else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
@@ -471,14 +484,19 @@ const KatSceneModal = ({ onClose }) => {
 
   const togglePause = (e) => {
     // Не ставимо на паузу, якщо натиснуто на кнопки або чекбокс
-    if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.closest('label')) return;
-    
-    setIsPaused(prev => !prev);
+    if (
+      e.target.tagName === "BUTTON" ||
+      e.target.tagName === "INPUT" ||
+      e.target.closest("label")
+    )
+      return;
+
+    setIsPaused((prev) => !prev);
   };
 
   const handleSkipClick = () => {
     const canSkip = isWatched || skipBlockTimer === 0 || connectionError;
-    
+
     if (canSkip) {
       handleClose();
     } else {
@@ -516,7 +534,7 @@ const KatSceneModal = ({ onClose }) => {
     e.stopPropagation();
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
-    
+
     let source = null;
     if (step.type === "video" || step.type === "black") {
       source = videoRef.current;
@@ -526,7 +544,7 @@ const KatSceneModal = ({ onClose }) => {
       canvas.width = source.videoWidth;
       canvas.height = source.videoHeight;
       ctx.drawImage(source, 0, 0, canvas.width, canvas.height);
-      
+
       const link = document.createElement("a");
       link.download = `stykhiya-screenshot-${Date.now()}.png`;
       link.href = canvas.toDataURL("image/png");
@@ -560,7 +578,7 @@ const KatSceneModal = ({ onClose }) => {
     // Логіка початкового завантаження (Preloading)
     const preloadAssets = async () => {
       const urlsToLoad = new Set();
-      
+
       // Додаємо основні ресурси
       urlsToLoad.add(ultra);
       urlsToLoad.add(dinofrozVideo);
@@ -580,20 +598,20 @@ const KatSceneModal = ({ onClose }) => {
         setLoadingProgress(progress);
       };
 
-      const promises = urlsArray.map((url) => 
+      const promises = urlsArray.map((url) =>
         fetch(url)
           .then((response) => {
             updateProgress();
-            return response.blob(); 
+            return response.blob();
           })
           .catch((err) => {
             console.error(`Failed to load ${url}`, err);
             updateProgress(); // Рахуємо як завершене навіть при помилці, щоб не зависло
-          })
+          }),
       );
 
       await Promise.all(promises);
-      
+
       // Невелика затримка для плавності UI
       setTimeout(() => {
         setIsAssetsLoaded(true);
@@ -607,7 +625,8 @@ const KatSceneModal = ({ onClose }) => {
     isPausedRef.current = isPaused;
     if (videoRef.current) {
       if (isPaused) videoRef.current.pause();
-      else if (step.type === "video" || step.type === "black") videoRef.current.play().catch(() => {});
+      else if (step.type === "video" || step.type === "black")
+        videoRef.current.play().catch(() => {});
     }
     if (audioRef.current) {
       if (isPaused) audioRef.current.pause();
@@ -622,7 +641,7 @@ const KatSceneModal = ({ onClose }) => {
     let textOutTimer;
     let textInTimer;
     let countdownInterval;
-    
+
     setShowText(false);
     textOutTimer = setTimeout(() => {
       setText(step.text);
@@ -658,7 +677,10 @@ const KatSceneModal = ({ onClose }) => {
     if (step.type === "thematic") {
       if (videoRef.current) videoRef.current.pause();
       if (audioRef.current) audioRef.current?.pause();
-      const currentDuration = stepStartTimeRef.current === stepIndex && timeLeft > 0 ? timeLeft * 1000 : step.duration;
+      const currentDuration =
+        stepStartTimeRef.current === stepIndex && timeLeft > 0
+          ? timeLeft * 1000
+          : step.duration;
       nextStepTimer = setTimeout(handleNextStep, currentDuration);
     } else if (step.type === "card") {
       if (videoRef.current) videoRef.current.pause();
@@ -667,7 +689,10 @@ const KatSceneModal = ({ onClose }) => {
         audioRef.current.src = ULTRA_CARDS_LIST[step.imgIdx].audio;
         if (!isPaused) audioRef.current.play().catch(() => {});
       }
-      const currentDuration = stepStartTimeRef.current === stepIndex && timeLeft > 0 ? timeLeft * 1000 : step.duration;
+      const currentDuration =
+        stepStartTimeRef.current === stepIndex && timeLeft > 0
+          ? timeLeft * 1000
+          : step.duration;
       nextStepTimer = setTimeout(handleNextStep, currentDuration);
     } else if (step.type === "video" || step.type === "black") {
       if (audioRef.current) audioRef.current.pause();
@@ -680,10 +705,14 @@ const KatSceneModal = ({ onClose }) => {
       }
 
       if (step.type === "video" && step.end !== "end") {
-        const segmentDuration = (step.end - (videoRef.current?.currentTime || step.start)) * 1000;
+        const segmentDuration =
+          (step.end - (videoRef.current?.currentTime || step.start)) * 1000;
         nextStepTimer = setTimeout(handleNextStep, segmentDuration);
       } else if (step.type === "black") {
-        const currentDuration = stepStartTimeRef.current === stepIndex && timeLeft > 0 ? timeLeft * 1000 : step.duration;
+        const currentDuration =
+          stepStartTimeRef.current === stepIndex && timeLeft > 0
+            ? timeLeft * 1000
+            : step.duration;
         nextStepTimer = setTimeout(handleNextStep, currentDuration);
       }
     }
@@ -705,7 +734,7 @@ const KatSceneModal = ({ onClose }) => {
     step.end,
     isAssetsLoaded,
     isPaused,
-    isLooping
+    isLooping,
   ]);
 
   useEffect(() => {
@@ -737,56 +766,69 @@ const KatSceneModal = ({ onClose }) => {
       <UltraPlayerContainer onClick={togglePause}>
         {!isPaused && (
           <>
-        <SkipButton
-          onClick={handleSkipClick}
-          $isBlocked={!isWatched && skipBlockTimer > 0 && !connectionError}
-          $isError={connectionError}
-        >
-          {isWatched || connectionError ? "Пропустити" : `Пропустити (${skipBlockTimer}с)`}
-        </SkipButton>
-        {showWarning && (
-          <SkipWarning>
-            Потрібно додивитися сцену до кінця для першого разу
-          </SkipWarning>
-        )}
-        <FullscreenButton onClick={toggleFullscreen}>⛶ Bесь екран</FullscreenButton>
-        <CacheButton onClick={handleCacheAll} disabled={isCaching}>
-          {isCaching ? "⏳" : "📥 Кеш"}
-        </CacheButton>
+            <SkipButton
+              onClick={handleSkipClick}
+              $isBlocked={!isWatched && skipBlockTimer > 0 && !connectionError}
+              $isError={connectionError}
+            >
+              {isWatched || connectionError
+                ? "Пропустити"
+                : `Пропустити (${skipBlockTimer}с)`}
+            </SkipButton>
+            {showWarning && (
+              <SkipWarning>
+                Потрібно додивитися сцену до кінця для першого разу
+              </SkipWarning>
+            )}
+            <FullscreenButton onClick={toggleFullscreen}>
+              ⛶ Bесь екран
+            </FullscreenButton>
+            <CacheButton onClick={handleCacheAll} disabled={isCaching}>
+              {isCaching ? "⏳" : "📥 Кеш"}
+            </CacheButton>
 
-        <VolumeControlContainer>
-          <span style={{ fontSize: "14px" }}>🔊</span>
-          <input
-            type="range"
-            min="0"
-            max="1"
-            step="0.05"
-            value={volume}
-            onChange={(e) => setVolume(parseFloat(e.target.value))}
-            style={{
-              width: "80px",
-              accentColor: "#710097",
-              cursor: "pointer",
-              height: "4px",
-            }}
-          />
-        </VolumeControlContainer>
+            <VolumeControlContainer>
+              <span style={{ fontSize: "14px" }}>🔊</span>
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.05"
+                value={volume}
+                onChange={(e) => setVolume(parseFloat(e.target.value))}
+                style={{
+                  width: "80px",
+                  accentColor: "#710097",
+                  cursor: "pointer",
+                  height: "4px",
+                }}
+              />
+            </VolumeControlContainer>
 
             <CheckboxContainer>
-          <input
-            type="checkbox"
-            checked={isLooping}
-            onChange={(e) => setIsLooping(e.target.checked)}
-            style={{ accentColor: "#710097", cursor: "pointer" }}
-          />
-          Автоповтор
+              <input
+                type="checkbox"
+                checked={isLooping}
+                onChange={(e) => setIsLooping(e.target.checked)}
+                style={{ accentColor: "#710097", cursor: "pointer" }}
+              />
+              Автоповтор
             </CheckboxContainer>
           </>
         )}
 
         {!isAssetsLoaded && (
           <LoadingContainer>
-            <div style={{ color: "#94fffa", fontSize: "14px", marginBottom: "5px" }}>Завантаження сцени... Вимкніть VPN, зайдіть через браузер, для швидшого заванантаження {loadingProgress}%</div>
+            <div
+              style={{
+                color: "#94fffa",
+                fontSize: "14px",
+                marginBottom: "5px",
+              }}
+            >
+              Завантаження сцени... Вимкніть VPN, зайдіть через браузер, для
+              швидшого заванантаження {loadingProgress}%
+            </div>
             <ProgressBar>
               <ProgressBarFill $progress={loadingProgress} />
             </ProgressBar>
@@ -803,36 +845,54 @@ const KatSceneModal = ({ onClose }) => {
             >
               <PauseIcon>Ⅱ</PauseIcon>
               <PausedButtonsRow>
-                <PausedButton onClick={handleScreenshot}>📸 Зробити скріншот</PausedButton>
+                <PausedButton onClick={handleScreenshot}>
+                  📸 Зробити скріншот
+                </PausedButton>
                 {isWatched && (
-                  <PausedButton onClick={(e) => { e.stopPropagation(); handleClose(); }}>Закрити</PausedButton>
+                  <PausedButton
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleClose();
+                    }}
+                  >
+                    Закрити
+                  </PausedButton>
                 )}
               </PausedButtonsRow>
             </PausedOverlay>
           )}
         </AnimatePresence>
 
-        <StyledImage src={ultra} $show={step.type === "thematic"} style={{ zIndex: 5 }} />
-        
+        <StyledImage
+          src={ultra}
+          $show={step.type === "thematic"}
+          style={{ zIndex: 5 }}
+        />
+
         <TimeIndicator>{timeLeft}</TimeIndicator>
-        
+
         <StyledVideo
           ref={videoRef}
           src={dinofrozVideo}
-          $show={step.type === "video"} 
+          $show={step.type === "video"}
           onEnded={handleVideoEnded}
           onTimeUpdate={handleTimeUpdate}
           playsInline
         />
-        
+
         {step.type === "card" && (
           <>
-            <StyledImage src={ULTRA_CARDS_LIST[step.imgIdx].image} $show={true} />
+            <StyledImage
+              src={ULTRA_CARDS_LIST[step.imgIdx].image}
+              $show={true}
+            />
             <audio ref={audioRef} />
           </>
         )}
-        
-        <OverlayText $show={showText} $isFullscreen={true}>{text}</OverlayText>
+
+        <OverlayText $show={showText} $isFullscreen={true}>
+          {text}
+        </OverlayText>
       </UltraPlayerContainer>
     </Overlay>
   );

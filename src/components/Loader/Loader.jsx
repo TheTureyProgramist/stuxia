@@ -22,7 +22,9 @@ const LoaderWrapper = styled.div`
   z-index: 1994;
   opacity: ${(props) => (props.$isFadingOut ? 0 : 1)};
   visibility: ${(props) => (props.$isFadingOut ? "hidden" : "visible")};
-  transition: opacity 0.8s ease-in-out, visibility 1.5s ease-in-out;
+  transition:
+    opacity 0.8s ease-in-out,
+    visibility 1.5s ease-in-out;
   overflow: hidden;
 `;
 
@@ -42,7 +44,7 @@ const ImageContainer = styled.div`
   width: 100%;
   height: 100%;
   z-index: 1;
-  overflow: hidden; 
+  overflow: hidden;
   animation: ${expandEntrance} 1.5s ease-out forwards;
 `;
 
@@ -50,10 +52,10 @@ const LoaderImage = styled.img`
   width: 100%;
   height: 100%;
   position: absolute;
-  top: 50%; 
+  top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%); 
-  object-fit: cover; 
+  transform: translate(-50%, -50%);
+  object-fit: cover;
   object-position: center;
   transition: opacity 1.5s ease-in-out;
   opacity: ${(props) => (props.$active ? 1 : 0)};
@@ -87,15 +89,19 @@ const ProgressBar = styled.div`
   width: 0%;
   animation: load 4s forwards cubic-bezier(0.42, 0, 0.58, 1);
   @keyframes load {
-    0% { width: 0%; }
-    100% { width: 100%; }
+    0% {
+      width: 0%;
+    }
+    100% {
+      width: 100%;
+    }
   }
 `;
 
 const InfoText = styled.div`
   margin-top: 14px;
   color: #fff;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
 `;
 
 const VersionText = styled.p`
@@ -112,7 +118,7 @@ const PhraseText = styled.p`
   line-height: 1.5;
   max-width: 500px;
   font-style: italic;
-  text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 `;
 
 export default function Loader({ isLoading, isFadingOut, randomPhrase }) {
@@ -131,15 +137,15 @@ export default function Loader({ isLoading, isFadingOut, randomPhrase }) {
     <LoaderWrapper $isFadingOut={isFadingOut}>
       <LoaderContent>
         <ImageContainer>
-          <LoaderImage 
-            src={loadimage} 
-            $active={!showSecondImage} 
-            alt="Loading..." 
+          <LoaderImage
+            src={loadimage}
+            $active={!showSecondImage}
+            alt="Loading..."
           />
-          <LoaderImage 
-            src={loadtwo} 
-            $active={showSecondImage} 
-            alt="Loading..." 
+          <LoaderImage
+            src={loadtwo}
+            $active={showSecondImage}
+            alt="Loading..."
           />
         </ImageContainer>
 
@@ -147,7 +153,7 @@ export default function Loader({ isLoading, isFadingOut, randomPhrase }) {
           <ProgressContainer>
             <ProgressBar />
           </ProgressContainer>
-          
+
           <InfoText>
             <VersionText>Версія 0.9.9. Конотоп-Україна</VersionText>
             <PhraseText>{randomPhrase}</PhraseText>

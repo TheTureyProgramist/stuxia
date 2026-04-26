@@ -58,7 +58,9 @@ import startImage from "./photos/hero-header/start-image.webp";
 import turkeysAudio from "./mp3/turkeys.mp3";
 import ultraImage from "./photos/vip-modal/realultra.webp";
 
-const LearningModal = lazy(() => import("./components/Modals/UserSearchModal.jsx"));
+const LearningModal = lazy(
+  () => import("./components/Modals/UserSearchModal.jsx"),
+);
 const TermsModal = lazy(() => import("./components/Modals/InfoModal.jsx"));
 
 const AVAILABLE_AVATARS = [
@@ -165,83 +167,88 @@ const LOADING_PHRASES = [
 ];
 const SECTION_ORDER_STORAGE_KEY = "siteSectionsOrder";
 
-const SectionContent = memo(({
-  section,
-  weatherCards,
-  isDarkMode,
-  isLocationEnabled,
-  handleRefreshCard,
-  handleDeleteCard,
-  handleRenameCard,
-  moveWeatherCard,
-  setIsLocationEnabled,
-  user,
-  handleOpenRegister,
-  setHeroBg,
-  customHeroBgs,
-  setCustomHeroBgs,
-  isAnyModalOpen
-}) => {
-  if (!section) return null;
+const SectionContent = memo(
+  ({
+    section,
+    weatherCards,
+    isDarkMode,
+    isLocationEnabled,
+    handleRefreshCard,
+    handleDeleteCard,
+    handleRenameCard,
+    moveWeatherCard,
+    setIsLocationEnabled,
+    user,
+    handleOpenRegister,
+    setHeroBg,
+    customHeroBgs,
+    setCustomHeroBgs,
+    isAnyModalOpen,
+  }) => {
+    if (!section) return null;
 
-  if (section.key === "weather") {
+    if (section.key === "weather") {
+      return (
+        <div id="weather">
+          <WeatherCardsContainer>
+            {weatherCards.map((card, index) => {
+              const isExtremeTemp =
+                card.current.tempNum > 30 || card.current.tempNum < -30;
+              const isExtremeWind = card.current.windNum > 10;
+              const isExtremeUV = card.current.uv_index > 7;
+
+              return (
+                <WeatherCardComponent
+                  key={card.id}
+                  user={user}
+                  card={card}
+                  isDarkMode={isDarkMode}
+                  isLocationEnabled={isLocationEnabled}
+                  isExtremeTemp={isExtremeTemp}
+                  isExtremeWind={isExtremeWind}
+                  isExtremeUV={isExtremeUV}
+                  index={index}
+                  totalCards={weatherCards.length}
+                  handleRefreshCard={handleRefreshCard}
+                  handleDeleteCard={handleDeleteCard}
+                  handleRenameCard={handleRenameCard}
+                  moveWeatherCard={moveWeatherCard}
+                  setIsLocationEnabled={setIsLocationEnabled}
+                />
+              );
+            })}
+          </WeatherCardsContainer>
+        </div>
+      );
+    }
     return (
-      <div id="weather">
-        <WeatherCardsContainer>
-          {weatherCards.map((card, index) => {
-            const isExtremeTemp = card.current.tempNum > 30 || card.current.tempNum < -30;
-            const isExtremeWind = card.current.windNum > 10;
-            const isExtremeUV = card.current.uv_index > 7;
-
-            return (
-              <WeatherCardComponent
-                key={card.id}
-                user={user}
-                card={card}
-                isDarkMode={isDarkMode}
-                isLocationEnabled={isLocationEnabled}
-                isExtremeTemp={isExtremeTemp}
-                isExtremeWind={isExtremeWind}
-                isExtremeUV={isExtremeUV}
-                index={index}
-                totalCards={weatherCards.length}
-                handleRefreshCard={handleRefreshCard}
-                handleDeleteCard={handleDeleteCard}
-                handleRenameCard={handleRenameCard}
-                moveWeatherCard={moveWeatherCard}
-                setIsLocationEnabled={setIsLocationEnabled}
-              />
-            );
-          })}
-        </WeatherCardsContainer>
+      <div id={section.key}>
+        {section.key === "map" && <ClimateMap />}
+        {section.key === "puzzles" && <Puzzles />}
+        {section.key === "aihelp" && <Aihelp isDarkMode={isDarkMode} />}
+        {section.key === "news" && <News />}
+        {section.key === "music" && (
+          <MusicPhoto
+            user={user}
+            onOpenRegister={handleOpenRegister}
+            isAnyModalOpen={isAnyModalOpen}
+          />
+        )}
+        {section.key === "fanart" && (
+          <FanArt
+            isDarkMode={isDarkMode}
+            user={user}
+            onOpenRegister={handleOpenRegister}
+            setHeroBg={setHeroBg}
+            customHeroBgs={customHeroBgs}
+            setCustomHeroBgs={setCustomHeroBgs}
+          />
+        )}
+        {section.key === "prison" && <Prison />}
       </div>
     );
-  }
-  return (
-    <div id={section.key}>
-      {section.key === "map" && <ClimateMap />}
-      {section.key === "puzzles" && <Puzzles />}
-      {section.key === "aihelp" && <Aihelp isDarkMode={isDarkMode} />}
-      {section.key === "news" && <News />}
-      {section.key === "music" && (
-        <MusicPhoto user={user} onOpenRegister={handleOpenRegister} isAnyModalOpen={isAnyModalOpen} />
-      )}
-      {section.key === "fanart" && (
-        <FanArt
-          isDarkMode={isDarkMode}
-          user={user}
-          onOpenRegister={handleOpenRegister}
-          setHeroBg={setHeroBg}
-          customHeroBgs={customHeroBgs}
-          setCustomHeroBgs={setCustomHeroBgs}
-        />
-      )}
-      {section.key === "prison" && (
-       <Prison/>
-      )}
-    </div>
-  );
-});
+  },
+);
 
 const App = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -252,7 +259,7 @@ const App = () => {
   const [now, setNow] = useState(new Date());
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [user, setUser] = useState(null);
-  
+
   const [heroBg, setHeroBg] = useState(null);
   const [customHeroBgs, setCustomHeroBgs] = useState([]);
   const [heroBg2, setHeroBg2] = useState(null);
@@ -267,6 +274,8 @@ const App = () => {
   const [heroBgRotation, setHeroBgRotation] = useState(0);
   const [heroBgFocal1, setHeroBgFocal1] = useState({ x: 50, y: 50 });
   const [heroBgFocal2, setHeroBgFocal2] = useState({ x: 50, y: 50 });
+  const [heroBgPanEnabled, setHeroBgPanEnabled] = useState(false);
+  const [heroBgPanSpeed, setHeroBgPanSpeed] = useState(6);
 
   const [currentAvatar, setCurrentAvatar] = useState(userDefault);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -303,7 +312,9 @@ const App = () => {
         const savedCards = await localforage.getItem("weather_cards");
         if (savedCards) setWeatherCards(savedCards);
 
-        const savedHideUntil = await localforage.getItem("hideDeleteModalUntil");
+        const savedHideUntil = await localforage.getItem(
+          "hideDeleteModalUntil",
+        );
         if (savedHideUntil) setHideDeleteModalUntil(parseInt(savedHideUntil));
 
         const savedOrder = await localforage.getItem(SECTION_ORDER_STORAGE_KEY);
@@ -311,21 +322,47 @@ const App = () => {
 
         const savedHeroBg = await localforage.getItem("hero_background");
         if (savedHeroBg) setHeroBg(savedHeroBg);
-        const savedCustomBgs = await localforage.getItem("custom_hero_backgrounds");
+        const savedHeroBg2 = await localforage.getItem("hero_background_2");
+        if (savedHeroBg2) setHeroBg2(savedHeroBg2);
+        const savedCustomBgs = await localforage.getItem(
+          "custom_hero_backgrounds",
+        );
         if (savedCustomBgs) setCustomHeroBgs(savedCustomBgs);
-        const savedHeroFilter = await localforage.getItem("hero_bg_filter_category");
+        const savedMode = await localforage.getItem("hero_bg_mode");
+        if (savedMode) setHeroBgMode(savedMode);
+        const savedInterval = await localforage.getItem("hero_slideshow_interval");
+        if (savedInterval !== null) setSlideshowInterval(savedInterval);
+        const savedTransition = await localforage.getItem("hero_slideshow_transition");
+        if (savedTransition !== null) setSlideshowTransition(savedTransition);
+        const savedHeroFilter = await localforage.getItem(
+          "hero_bg_filter_category",
+        );
         if (savedHeroFilter) setHeroBgFilterCategory(savedHeroFilter);
         const savedZoom = await localforage.getItem("hero_bg_zoom");
         if (savedZoom !== null) setHeroBgZoom(savedZoom);
         const savedRotation = await localforage.getItem("hero_bg_rotation");
         if (savedRotation !== null) setHeroBgRotation(savedRotation);
+        const savedBlur = await localforage.getItem("hero_bg_blur");
+        if (savedBlur !== null) setHeroBgBlur(savedBlur);
 
         const savedFocal1 = await localforage.getItem("hero_bg_focal1");
         if (savedFocal1) setHeroBgFocal1(savedFocal1);
         const savedFocal2 = await localforage.getItem("hero_bg_focal2");
         if (savedFocal2) setHeroBgFocal2(savedFocal2);
 
-        const lastSeenVersion = await localforage.getItem("last_deployed_version");
+        const savedPanEnabled = await localforage.getItem(
+          "hero_bg_pan_enabled",
+        );
+        if (savedPanEnabled !== null) setHeroBgPanEnabled(savedPanEnabled);
+        const savedPanSpeed = await localforage.getItem("hero_bg_pan_speed");
+        if (savedPanSpeed !== null) setHeroBgPanSpeed(savedPanSpeed);
+
+        const savedScreenshots = await localforage.getItem("dinofroz_screenshots");
+        if (savedScreenshots) setScreenshots(savedScreenshots);
+
+        const lastSeenVersion = await localforage.getItem(
+          "last_deployed_version",
+        );
         const deployId = process.env.REACT_APP_DEPLOY_ID;
         if (deployId && lastSeenVersion !== deployId) {
           setIsUpdatePending(true);
@@ -366,18 +403,36 @@ const App = () => {
   const [isRoutingMode, setIsRoutingMode] = useState(false);
 
   useEffect(() => {
-    if (isUpdatePending && timerFinished && hasInteracted && !isFirstTimeHelpOpen) {
+    if (
+      isUpdatePending &&
+      timerFinished &&
+      hasInteracted &&
+      !isFirstTimeHelpOpen
+    ) {
       setIsInfoOpen(true);
       setIsUpdatePending(false);
       setIsFirstTimeHelpOpen(true);
-      localforage.setItem("last_deployed_version", process.env.REACT_APP_DEPLOY_ID);
+      localforage.setItem(
+        "last_deployed_version",
+        process.env.REACT_APP_DEPLOY_ID,
+      );
     }
   }, [isUpdatePending, timerFinished, hasInteracted, isFirstTimeHelpOpen]);
 
   const [isLocationEnabled, setIsLocationEnabled] = useState(false);
   const [weatherCards, setWeatherCards] = useState([]);
+  const [screenshots, setScreenshots] = useState([]);
 
-  const isAnyModalOpen = isModalOpen || isLoginOpen || isSettingsModalOpen || isVipModalOpen || isShopOpen || isAchivmentsOpen || isUserSearchOpen || isInfoOpen || isFirstTimeHelpOpen;
+  const isAnyModalOpen =
+    isModalOpen ||
+    isLoginOpen ||
+    isSettingsModalOpen ||
+    isVipModalOpen ||
+    isShopOpen ||
+    isAchivmentsOpen ||
+    isUserSearchOpen ||
+    isInfoOpen ||
+    isFirstTimeHelpOpen;
 
   const [hideDeleteModalUntil, setHideDeleteModalUntil] = useState(0);
 
@@ -439,8 +494,28 @@ const App = () => {
       localforage.setItem("hero_bg_rotation", heroBgRotation);
       localforage.setItem("hero_bg_focal1", heroBgFocal1);
       localforage.setItem("hero_bg_focal2", heroBgFocal2);
+      localforage.setItem("hero_bg_pan_enabled", heroBgPanEnabled);
+      localforage.setItem("hero_bg_pan_speed", heroBgPanSpeed);
     }
-  }, [heroBg, heroBg2, customHeroBgs, bgRatings, heroBgMode, heroOverlayOpacity, slideshowInterval, slideshowTransition, heroBgFilterCategory, heroBgZoom, heroBgRotation, isHydrated, isDarkMode]);
+  }, [
+    heroBg,
+    heroBg2,
+    customHeroBgs,
+    bgRatings,
+    heroBgMode,
+    heroOverlayOpacity,
+    slideshowInterval,
+    slideshowTransition,
+    heroBgFilterCategory,
+    heroBgZoom,
+    heroBgRotation,
+    heroBgFocal1,
+    heroBgFocal2,
+    heroBgPanEnabled,
+    heroBgPanSpeed,
+    isHydrated,
+    isDarkMode,
+  ]);
 
   useEffect(() => {
     if (isHydrated) {
@@ -489,28 +564,35 @@ const App = () => {
         console.log("Fetching weather from URL:", url);
         const res = await axios.get(url);
         const d = res.data;
-        
+
         // СИРИЙ лог для перевірки що повертає API
         console.log("💾 RAW API RESPONSE for", displayName, d);
-        
+
         // Детальне логування для діагностики
         console.log("API Response raw data:", {
           hasResponse: !!d,
           currentData: d.current,
-          hourlyData: d.hourly ? { time: d.hourly.time?.slice(0, 2), wind: d.hourly.wind_speed_10m?.slice(0, 2) } : null,
-          dailyData: d.daily ? {
-            time: d.daily.time?.slice(0, 2),
-            uv_index_max: d.daily.uv_index_max?.slice(0, 2),
-            wind_speed_10m_max: d.daily.wind_speed_10m_max?.slice(0, 2)
-          } : null,
+          hourlyData: d.hourly
+            ? {
+                time: d.hourly.time?.slice(0, 2),
+                wind: d.hourly.wind_speed_10m?.slice(0, 2),
+              }
+            : null,
+          dailyData: d.daily
+            ? {
+                time: d.daily.time?.slice(0, 2),
+                uv_index_max: d.daily.uv_index_max?.slice(0, 2),
+                wind_speed_10m_max: d.daily.wind_speed_10m_max?.slice(0, 2),
+              }
+            : null,
         });
-        
+
         // Попередження за відсутність даних
         if (!d.current || d.current.wind_speed_10m === undefined) {
           console.error("❌ Wind speed data missing from current!", {
             hasCurrentData: !!d.current,
             currentKeys: d.current ? Object.keys(d.current) : [],
-            windSpeed: d.current?.wind_speed_10m
+            windSpeed: d.current?.wind_speed_10m,
           });
         }
         if (!d.daily?.uv_index_max || d.daily.uv_index_max.length === 0) {
@@ -518,80 +600,90 @@ const App = () => {
             hasDailyData: !!d.daily,
             dailyKeys: d.daily ? Object.keys(d.daily) : [],
             uvIndex: d.daily?.uv_index_max,
-            uvLength: d.daily?.uv_index_max?.length
+            uvLength: d.daily?.uv_index_max?.length,
           });
         }
         if (!d.hourly?.wind_speed_10m) {
           console.error("❌ Hourly wind data missing!", {
             hasHourlyData: !!d.hourly,
             hourlyKeys: d.hourly ? Object.keys(d.hourly) : [],
-            wind: d.hourly?.wind_speed_10m
+            wind: d.hourly?.wind_speed_10m,
           });
         }
 
         setWeatherCards((prev) => {
-          const id = isMain ? "main-card" : (cityData?.id || Date.now());
-          const existingCard = prev.find(c => c.id === id);
+          const id = isMain ? "main-card" : cityData?.id || Date.now();
+          const existingCard = prev.find((c) => c.id === id);
 
-        // Логування перед створенням карти
-        console.log(`Creating weather card for ${displayName}`, {
-          windSpeedCurrent: d.current?.wind_speed_10m,
-          windSpeedHourly: d.hourly?.wind_speed_10m?.slice(0, 3),
-          uvIndexDaily: d.daily?.uv_index_max?.slice(0, 3),
-        });
+          // Логування перед створенням карти
+          console.log(`Creating weather card for ${displayName}`, {
+            windSpeedCurrent: d.current?.wind_speed_10m,
+            windSpeedHourly: d.hourly?.wind_speed_10m?.slice(0, 3),
+            uvIndexDaily: d.daily?.uv_index_max?.slice(0, 3),
+          });
 
-        const newCardData = {
-          id: id,
-          isMain: isMain,
-          locationName: existingCard ? existingCard.locationName : displayName,
-          lat: targetLat,
-          lon: targetLon,
-          current: {
-            temp: `${Math.round(d.current.temperature_2m)}°C`,
-            tempNum: Math.round(d.current.temperature_2m),
-            feels_like: `${Math.round(d.current.apparent_temperature)}°C`,
-            humidity: `${d.current.relative_humidity_2m}%`,
-            pressure: `${Math.round(d.current.surface_pressure)} hPa`,
-            wind_speed: `${d.current.wind_speed_10m ?? 0} м/с`,
-            windNum: d.current.wind_speed_10m ?? 0,
-            uv_index: d.daily?.uv_index_max?.[0] ?? 0,
-            description: "За кодом: " + d.current.weather_code,
-            iconPlaceholder: getWeatherIcon(d.current.weather_code),
-          },
-          hourly: (d.hourly?.time || []).slice(0, 24).map((t, i) => ({
-            time: new Date(t).getHours() + ":00",
-            temp: `${Math.round(d.hourly?.temperature_2m?.[i] ?? 0)}°C`,
-            tempNum: Math.round(d.hourly?.temperature_2m?.[i] ?? 0),
-            windNum: d.hourly?.wind_speed_10m?.[i] ?? 0,
-            iconPlaceholder: getWeatherIcon(d.hourly?.weather_code?.[i] ?? 0),
-          })),
-          daily16: (d.daily?.time || []).map((t, i) => ({
-            date: new Date(t).toLocaleDateString("uk", {
-              day: "numeric",
-              month: "2-digit",
-            }),
-            day: new Date(t).toLocaleDateString("uk", { weekday: "short" }),
-            temp_day: `${Math.round(d.daily.temperature_2m_max[i] ?? 0)}°C`,
-            temp_night: `${Math.round(d.daily.temperature_2m_min[i] ?? 0)}°C`,
-            uv_index: d.daily.uv_index_max?.[i] ?? 0,
-            wind_speed: `${d.daily.wind_speed_10m_max?.[i] ?? 0} м/с`,
-            iconPlaceholder: getWeatherIcon(d.daily.weather_code[i] ?? 0),
-          })),
-        };
+          const newCardData = {
+            id: id,
+            isMain: isMain,
+            locationName: existingCard
+              ? existingCard.locationName
+              : displayName,
+            lat: targetLat,
+            lon: targetLon,
+            current: {
+              temp: `${Math.round(d.current.temperature_2m)}°C`,
+              tempNum: Math.round(d.current.temperature_2m),
+              feels_like: `${Math.round(d.current.apparent_temperature)}°C`,
+              humidity: `${d.current.relative_humidity_2m}%`,
+              pressure: `${Math.round(d.current.surface_pressure)} hPa`,
+              wind_speed: `${d.current.wind_speed_10m ?? 0} м/с`,
+              windNum: d.current.wind_speed_10m ?? 0,
+              uv_index: d.daily?.uv_index_max?.[0] ?? 0,
+              description: "За кодом: " + d.current.weather_code,
+              iconPlaceholder: getWeatherIcon(d.current.weather_code),
+            },
+            hourly: (d.hourly?.time || []).slice(0, 24).map((t, i) => ({
+              time: new Date(t).getHours() + ":00",
+              temp: `${Math.round(d.hourly?.temperature_2m?.[i] ?? 0)}°C`,
+              tempNum: Math.round(d.hourly?.temperature_2m?.[i] ?? 0),
+              windNum: d.hourly?.wind_speed_10m?.[i] ?? 0,
+              iconPlaceholder: getWeatherIcon(d.hourly?.weather_code?.[i] ?? 0),
+            })),
+            daily16: (d.daily?.time || []).map((t, i) => ({
+              date: new Date(t).toLocaleDateString("uk", {
+                day: "numeric",
+                month: "2-digit",
+              }),
+              day: new Date(t).toLocaleDateString("uk", { weekday: "short" }),
+              temp_day: `${Math.round(d.daily.temperature_2m_max[i] ?? 0)}°C`,
+              temp_night: `${Math.round(d.daily.temperature_2m_min[i] ?? 0)}°C`,
+              uv_index: d.daily.uv_index_max?.[i] ?? 0,
+              wind_speed: `${d.daily.wind_speed_10m_max?.[i] ?? 0} м/с`,
+              iconPlaceholder: getWeatherIcon(d.daily.weather_code[i] ?? 0),
+            })),
+          };
 
-        console.log(`Card data created for ${displayName}:`, {
-          windSpeedStored: newCardData.current.windNum,
-          uvIndexStored: newCardData.current.uv_index,
-          hourlyWindSample: newCardData.hourly?.slice(0, 2).map(h => h.windNum),
-          dailyWindSample: newCardData.daily16?.slice(0, 2).map(d => d.wind_speed),
-        });
+          console.log(`Card data created for ${displayName}:`, {
+            windSpeedStored: newCardData.current.windNum,
+            uvIndexStored: newCardData.current.uv_index,
+            hourlyWindSample: newCardData.hourly
+              ?.slice(0, 2)
+              .map((h) => h.windNum),
+            dailyWindSample: newCardData.daily16
+              ?.slice(0, 2)
+              .map((d) => d.wind_speed),
+          });
 
           if (isMain) {
-            const hasMain = prev.some(c => c.isMain);
-            if (hasMain) return prev.map(c => c.isMain ? newCardData : c);
+            const hasMain = prev.some((c) => c.isMain);
+            if (hasMain) return prev.map((c) => (c.isMain ? newCardData : c));
             return [newCardData, ...prev];
           } else {
-            return existingCard ? prev.map(c => c.id === id ? newCardData : c) : (prev.length >= 4 ? prev : [...prev, newCardData]);
+            return existingCard
+              ? prev.map((c) => (c.id === id ? newCardData : c))
+              : prev.length >= 4
+                ? prev
+                : [...prev, newCardData];
           }
         });
       } catch (error) {
@@ -604,35 +696,48 @@ const App = () => {
   const checkWeatherDanger = useCallback(async (lat, lon) => {
     try {
       const res = await axios.get(
-        `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,uv_index_max,wind_speed_10m_max&timezone=auto&forecast_days=3`
+        `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,uv_index_max,wind_speed_10m_max&timezone=auto&forecast_days=3`,
       );
       const { current, daily } = res.data || {};
       if (!current || !daily) {
-        console.warn("Weather danger check: Missing data", { hasCurrent: !!current, hasDaily: !!daily });
+        console.warn("Weather danger check: Missing data", {
+          hasCurrent: !!current,
+          hasDaily: !!daily,
+        });
         return null;
       }
 
       const windSpeed = current.wind_speed_10m ?? 0;
       const currentTemp = current.temperature_2m ?? 0;
       const uvIndex = daily?.uv_index_max?.[0] ?? 0;
-      
+
       // Логування для діагностики
-      console.log("Weather danger check data:", { windSpeed, currentTemp, uvIndex, hasUvData: !!daily.uv_index_max });
+      console.log("Weather danger check data:", {
+        windSpeed,
+        currentTemp,
+        uvIndex,
+        hasUvData: !!daily.uv_index_max,
+      });
 
       const isExtreme = (tMax, tMin, wind, uv) =>
-        (tMax > 30 || tMin < -30 || wind > 10 || uv > 7);
+        tMax > 30 || tMin < -30 || wind > 10 || uv > 7;
 
       // Пріоритет червоному: небезпечно прямо зараз
       const tMax = daily?.temperature_2m_max?.[0] ?? currentTemp;
       const tMin = daily?.temperature_2m_min?.[0] ?? currentTemp;
-      
+
       if (isExtreme(tMax, tMin, windSpeed, uvIndex)) {
         return "red";
       }
 
       // Оранжевий: небезпека протягом найближчих 3-х днів
       const futureDanger = daily?.time?.some((_, i) =>
-        isExtreme(daily.temperature_2m_max?.[i], daily.temperature_2m_min?.[i], daily.wind_speed_10m_max?.[i] || 0, daily.uv_index_max?.[i] || 0)
+        isExtreme(
+          daily.temperature_2m_max?.[i],
+          daily.temperature_2m_min?.[i],
+          daily.wind_speed_10m_max?.[i] || 0,
+          daily.uv_index_max?.[i] || 0,
+        ),
       );
 
       return futureDanger ? "orange" : null;
@@ -658,7 +763,13 @@ const App = () => {
             position.coords.longitude,
           );
         },
-        () => fetchWeather({ fullName: "Київ", id: "main-card" }, true, 50.45, 30.52),
+        () =>
+          fetchWeather(
+            { fullName: "Київ", id: "main-card" },
+            true,
+            50.45,
+            30.52,
+          ),
       );
     } else {
       fetchWeather({ fullName: "Київ", id: "main-card" }, true, 50.45, 30.52);
@@ -677,50 +788,61 @@ const App = () => {
     });
   }, [weatherCards, fetchWeather]);
 
-  const handleAddCityFromHero = useCallback((cityObj) => {
-    if (!user) {
-      alert("Створювати картки погоди можуть лише зареєстровані користувачі!");
-      return;
-    }
-    fetchWeather(cityObj, false);
-  }, [user, fetchWeather]);
-
-  const handleDeleteCard = useCallback((id) => {
-    const nowTimestamp = Date.now();
-    if (hideDeleteModalUntil > nowTimestamp) {
-      setWeatherCards((prev) => prev.filter((card) => card.id !== id));
-      return;
-    }
-
-    const ask = window.confirm(
-      "Ви дійсно хочете видалити картку погоди?\n\nВи можете приховати це підтвердження на певний час.",
-    );
-
-    if (ask) {
-      let input = window.prompt(
-        "Скільки годин не показувати це підтвердження? (1-72)",
-        "1",
-      );
-      if (input !== null) {
-        const num = Math.max(1, Math.min(72, parseInt(input)));
-        const hours = isNaN(num) ? 1 : num;
-        const until = nowTimestamp + hours * 3600 * 1000;
-        localforage.setItem("hideDeleteModalUntil", until.toString());
-        setHideDeleteModalUntil(until);
+  const handleAddCityFromHero = useCallback(
+    (cityObj) => {
+      if (!user) {
+        alert(
+          "Створювати картки погоди можуть лише зареєстровані користувачі!",
+        );
+        return;
       }
-      setWeatherCards((prev) => prev.filter((card) => card.id !== id));
-    }
-  }, [hideDeleteModalUntil]);
+      fetchWeather(cityObj, false);
+    },
+    [user, fetchWeather],
+  );
 
-  const handleRefreshCard = useCallback((card) => {
-    card.isMain ? getInitialLocation() : fetchWeather(card, false);
-  }, [getInitialLocation, fetchWeather]);
+  const handleDeleteCard = useCallback(
+    (id) => {
+      const nowTimestamp = Date.now();
+      if (hideDeleteModalUntil > nowTimestamp) {
+        setWeatherCards((prev) => prev.filter((card) => card.id !== id));
+        return;
+      }
+
+      const ask = window.confirm(
+        "Ви дійсно хочете видалити картку погоди?\n\nВи можете приховати це підтвердження на певний час.",
+      );
+
+      if (ask) {
+        let input = window.prompt(
+          "Скільки годин не показувати це підтвердження? (1-72)",
+          "1",
+        );
+        if (input !== null) {
+          const num = Math.max(1, Math.min(72, parseInt(input)));
+          const hours = isNaN(num) ? 1 : num;
+          const until = nowTimestamp + hours * 3600 * 1000;
+          localforage.setItem("hideDeleteModalUntil", until.toString());
+          setHideDeleteModalUntil(until);
+        }
+        setWeatherCards((prev) => prev.filter((card) => card.id !== id));
+      }
+    },
+    [hideDeleteModalUntil],
+  );
+
+  const handleRefreshCard = useCallback(
+    (card) => {
+      card.isMain ? getInitialLocation() : fetchWeather(card, false);
+    },
+    [getInitialLocation, fetchWeather],
+  );
 
   const handleRenameCard = useCallback((id, newName) => {
     setWeatherCards((prev) =>
       prev.map((card) =>
-        card.id === id ? { ...card, locationName: newName } : card
-      )
+        card.id === id ? { ...card, locationName: newName } : card,
+      ),
     );
   }, []);
 
@@ -827,6 +949,11 @@ const App = () => {
           setHeroBgFocal1={setHeroBgFocal1}
           heroBgFocal2={heroBgFocal2}
           setHeroBgFocal2={setHeroBgFocal2}
+          heroBgPanEnabled={heroBgPanEnabled}
+          setHeroBgPanEnabled={setHeroBgPanEnabled}
+          heroBgPanSpeed={heroBgPanSpeed}
+          setHeroBgPanSpeed={setHeroBgPanSpeed}
+          screenshots={screenshots}
         />
       </div>
       <SectionContent
@@ -886,30 +1013,36 @@ const App = () => {
           setHeroBgFocal1={setHeroBgFocal1}
           heroBgFocal2={heroBgFocal2}
           setHeroBgFocal2={setHeroBgFocal2}
+          heroBgPanEnabled={heroBgPanEnabled}
+          setHeroBgPanEnabled={setHeroBgPanEnabled}
+          heroBgPanSpeed={heroBgPanSpeed}
+          setHeroBgPanSpeed={setHeroBgPanSpeed}
+          screenshots={screenshots}
         />
       </div>
       <div className="container">
         {siteSections.map(
-          (section) => section.key !== "hero" && (
-            <SectionContent
-              key={section.key}
-              section={section}
-              weatherCards={weatherCards}
-              isDarkMode={isDarkMode}
-              isLocationEnabled={isLocationEnabled}
-              handleRefreshCard={handleRefreshCard}
-              handleDeleteCard={handleDeleteCard}
-              handleRenameCard={handleRenameCard}
-              moveWeatherCard={moveWeatherCard}
-              setIsLocationEnabled={setIsLocationEnabled}
-              user={user}
-              isAnyModalOpen={isAnyModalOpen}
-              setHeroBg={setHeroBg}
-              customHeroBgs={customHeroBgs}
-              setCustomHeroBgs={setCustomHeroBgs}
-              handleOpenRegister={handleOpenRegister}
-            />
-          ),
+          (section) =>
+            section.key !== "hero" && (
+              <SectionContent
+                key={section.key}
+                section={section}
+                weatherCards={weatherCards}
+                isDarkMode={isDarkMode}
+                isLocationEnabled={isLocationEnabled}
+                handleRefreshCard={handleRefreshCard}
+                handleDeleteCard={handleDeleteCard}
+                handleRenameCard={handleRenameCard}
+                moveWeatherCard={moveWeatherCard}
+                setIsLocationEnabled={setIsLocationEnabled}
+                user={user}
+                isAnyModalOpen={isAnyModalOpen}
+                setHeroBg={setHeroBg}
+                customHeroBgs={customHeroBgs}
+                setCustomHeroBgs={setCustomHeroBgs}
+                handleOpenRegister={handleOpenRegister}
+              />
+            ),
         )}
       </div>
     </>
@@ -954,83 +1087,88 @@ const App = () => {
             />
           </div>
           <main>
-          <Routes>
-            <Route path="/" element={LandingPage} />
-            {siteSections.map((section) => (
-              <Route
-                key={section.key}
-                path={`/${section.path}`}
-                element={
-                  section.key === "weather" ? (
-                    HeroAndWeather
-                  ) : (
-                    <div
-                      className="container"
-                      style={{ paddingTop: "40px", minHeight: "80vh" }}
-                    >
-                      {section.key === "hero" ? (
-                        <Hero
-                          heroDateString={heroDateString}
-                          onAddCity={handleAddCityFromHero}
-                          startAnimation={!isLoading}
-                          user={user}
-                          checkWeatherDanger={checkWeatherDanger}
-                          heroBg={heroBg}
-                          setHeroBg={setHeroBg}
-                          heroBg2={heroBg2}
-                          setHeroBg2={setHeroBg2}
-                          customHeroBgs={customHeroBgs}
-                          setCustomHeroBgs={setCustomHeroBgs}
-                          heroBgMode={heroBgMode}
-                          setHeroBgMode={setHeroBgMode}
-                          heroOverlayOpacity={heroOverlayOpacity}
-                          setHeroOverlayOpacity={setHeroOverlayOpacity}
-                          bgRatings={bgRatings}
-                          setBgRatings={setBgRatings}
-                          slideshowInterval={slideshowInterval}
-                          setSlideshowInterval={setSlideshowInterval}
-                          slideshowTransition={slideshowTransition}
-                          setSlideshowTransition={setSlideshowTransition}
-                          filterCategory={heroBgFilterCategory}
-                          setFilterCategory={setHeroBgFilterCategory}
-                          heroBgZoom={heroBgZoom}
-                          setHeroBgZoom={setHeroBgZoom}
-                          heroBgRotation={heroBgRotation}
-                          setHeroBgRotation={setHeroBgRotation}
-                          heroBgBlur={heroBgBlur}
-                          setHeroBgBlur={setHeroBgBlur}
-                          heroBgFocal1={heroBgFocal1}
-                          setHeroBgFocal1={setHeroBgFocal1}
-                          heroBgFocal2={heroBgFocal2}
-                          setHeroBgFocal2={setHeroBgFocal2}
-                        />
-                      ) : (
-                        <SectionContent
-                          section={section}
-                          weatherCards={weatherCards}
-                          isDarkMode={isDarkMode}
-                          isLocationEnabled={isLocationEnabled}
-                          handleRefreshCard={handleRefreshCard}
-                          handleDeleteCard={handleDeleteCard}
-                          handleRenameCard={handleRenameCard}
-                          moveWeatherCard={moveWeatherCard}
-                          setIsLocationEnabled={setIsLocationEnabled}
-                          user={user}
-                          isAnyModalOpen={isAnyModalOpen}
-                          setHeroBg={setHeroBg}
-                          customHeroBgs={customHeroBgs}
-                          setCustomHeroBgs={setCustomHeroBgs}
-                          handleOpenRegister={handleOpenRegister}
-                        />
-                      )}
-                    </div>
-                  )
-                }
-              />
-            ))}
-            {/* 404 Route */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+            <Routes>
+              <Route path="/" element={LandingPage} />
+              {siteSections.map((section) => (
+                <Route
+                  key={section.key}
+                  path={`/${section.path}`}
+                  element={
+                    section.key === "weather" ? (
+                      HeroAndWeather
+                    ) : (
+                      <div
+                        className="container"
+                        style={{ paddingTop: "40px", minHeight: "80vh" }}
+                      >
+                        {section.key === "hero" ? (
+                          <Hero
+                            heroDateString={heroDateString}
+                            onAddCity={handleAddCityFromHero}
+                            startAnimation={!isLoading}
+                            user={user}
+                            checkWeatherDanger={checkWeatherDanger}
+                            heroBg={heroBg}
+                            setHeroBg={setHeroBg}
+                            heroBg2={heroBg2}
+                            setHeroBg2={setHeroBg2}
+                            customHeroBgs={customHeroBgs}
+                            setCustomHeroBgs={setCustomHeroBgs}
+                            heroBgMode={heroBgMode}
+                            setHeroBgMode={setHeroBgMode}
+                            heroOverlayOpacity={heroOverlayOpacity}
+                            setHeroOverlayOpacity={setHeroOverlayOpacity}
+                            bgRatings={bgRatings}
+                            setBgRatings={setBgRatings}
+                            slideshowInterval={slideshowInterval}
+                            setSlideshowInterval={setSlideshowInterval}
+                            slideshowTransition={slideshowTransition}
+                            setSlideshowTransition={setSlideshowTransition}
+                            filterCategory={heroBgFilterCategory}
+                            setFilterCategory={setHeroBgFilterCategory}
+                            heroBgZoom={heroBgZoom}
+                            setHeroBgZoom={setHeroBgZoom}
+                            heroBgRotation={heroBgRotation}
+                            setHeroBgRotation={setHeroBgRotation}
+                            heroBgBlur={heroBgBlur}
+                            setHeroBgBlur={setHeroBgBlur}
+                            heroBgFocal1={heroBgFocal1}
+                            setHeroBgFocal1={setHeroBgFocal1}
+                            heroBgFocal2={heroBgFocal2}
+                            setHeroBgFocal2={setHeroBgFocal2}
+                            heroBgPanEnabled={heroBgPanEnabled}
+                            setHeroBgPanEnabled={setHeroBgPanEnabled}
+                            heroBgPanSpeed={heroBgPanSpeed}
+                            setHeroBgPanSpeed={setHeroBgPanSpeed}
+                            screenshots={screenshots}
+                          />
+                        ) : (
+                          <SectionContent
+                            section={section}
+                            weatherCards={weatherCards}
+                            isDarkMode={isDarkMode}
+                            isLocationEnabled={isLocationEnabled}
+                            handleRefreshCard={handleRefreshCard}
+                            handleDeleteCard={handleDeleteCard}
+                            handleRenameCard={handleRenameCard}
+                            moveWeatherCard={moveWeatherCard}
+                            setIsLocationEnabled={setIsLocationEnabled}
+                            user={user}
+                            isAnyModalOpen={isAnyModalOpen}
+                            setHeroBg={setHeroBg}
+                            customHeroBgs={customHeroBgs}
+                            setCustomHeroBgs={setCustomHeroBgs}
+                            handleOpenRegister={handleOpenRegister}
+                          />
+                        )}
+                      </div>
+                    )
+                  }
+                />
+              ))}
+              {/* 404 Route */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
           </main>
           {isModalOpen && (
             <Modal
@@ -1073,14 +1211,18 @@ const App = () => {
           )}
           <Suspense fallback={null}>
             {isUserSearchOpen && (
-              <LearningModal isOpen={isUserSearchOpen} onClose={() => setIsUserSearchOpen(false)} />
+              <LearningModal
+                isOpen={isUserSearchOpen}
+                onClose={() => setIsUserSearchOpen(false)}
+              />
             )}
             {isFirstTimeHelpOpen && (
-              <LearningModal isOpen={isFirstTimeHelpOpen} onClose={() => setIsFirstTimeHelpOpen(false)} />
+              <LearningModal
+                isOpen={isFirstTimeHelpOpen}
+                onClose={() => setIsFirstTimeHelpOpen(false)}
+              />
             )}
-            {isInfoOpen && (
-              <TermsModal onClose={() => setIsInfoOpen(false)} />
-            )}
+            {isInfoOpen && <TermsModal onClose={() => setIsInfoOpen(false)} />}
           </Suspense>
 
           <Menu

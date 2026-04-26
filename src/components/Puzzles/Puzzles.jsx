@@ -71,7 +71,9 @@ const SearchInput = styled.input`
   font-size: 16px;
   outline: none;
   transition: all 0.3s;
-  &::placeholder { color: rgba(255, 255, 255, 0.6); }
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+  }
   &:focus {
     box-shadow: 0 0 15px rgba(255, 179, 108, 0.3);
     border-color: #ffb36c;
@@ -99,8 +101,10 @@ const LoadMoreBtn = styled.button`
 
 const FullscreenOverlay = styled.div`
   position: fixed;
-  top: 0; left: 0;
-  width: 100vw; height: 100vh;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   background: rgba(0, 0, 0, 0.95);
   z-index: 2000;
   display: flex;
@@ -125,34 +129,46 @@ const Puzzles = () => {
   ];
 
   const filteredPuzzles = puzzleData.filter((p) =>
-    p.title.toLowerCase().includes(searchTerm.toLowerCase())
+    p.title.toLowerCase().includes(searchTerm.toLowerCase()),
   );
   const displayedPuzzles = filteredPuzzles.slice(0, visibleCount);
   const showLoadMore = filteredPuzzles.length > visibleCount;
   const handleLoadMore = () => {
-    setVisibleCount(prev => prev + 6);
+    setVisibleCount((prev) => prev + 6);
   };
 
   const renderGame = () => {
     if (!activeGame) return null;
     switch (activeGame.type) {
-      case "puzzle": return <PuzzleOne onExit={() => setActiveGame(null)} />;
-      case "memory": return <PuzzleTwo onExit={() => setActiveGame(null)} />;
-      case "code": return <PuzzleThree onExit={() => setActiveGame(null)} />;
-      case "move": return <PuzzleFour onExit={() => setActiveGame(null)} />;
-      case "rotate": return <PuzzleFive onExit={() => setActiveGame(null)} />;
-      case "lens": return <PuzzleSix onExit={() => setActiveGame(null)} />;
-      case "line": return <PuzzleSeven onExit={() => setActiveGame(null)} />;
-      case "hex": return <PuzzleEight onExit={() => setActiveGame(null)} />;
-      case "drag": return <PuzzleNine onExit={() => setActiveGame(null)} />;
-      default: return null;
+      case "puzzle":
+        return <PuzzleOne onExit={() => setActiveGame(null)} />;
+      case "memory":
+        return <PuzzleTwo onExit={() => setActiveGame(null)} />;
+      case "code":
+        return <PuzzleThree onExit={() => setActiveGame(null)} />;
+      case "move":
+        return <PuzzleFour onExit={() => setActiveGame(null)} />;
+      case "rotate":
+        return <PuzzleFive onExit={() => setActiveGame(null)} />;
+      case "lens":
+        return <PuzzleSix onExit={() => setActiveGame(null)} />;
+      case "line":
+        return <PuzzleSeven onExit={() => setActiveGame(null)} />;
+      case "hex":
+        return <PuzzleEight onExit={() => setActiveGame(null)} />;
+      case "drag":
+        return <PuzzleNine onExit={() => setActiveGame(null)} />;
+      default:
+        return null;
     }
   };
 
   return (
-    <div style={{ padding: "40px 20px", minHeight: "100vh", background: "#111" }}>
+    <div
+      style={{ padding: "40px 20px", minHeight: "100vh", background: "#111" }}
+    >
       <MainTitle>ОБЕРІТЬ ГОЛОВОЛОМКУ</MainTitle>
-      
+
       <SearchInput
         type="text"
         placeholder="Пошук головоломки..."
@@ -182,16 +198,10 @@ const Puzzles = () => {
       </PuzzlesGrid>
 
       {showLoadMore && (
-        <LoadMoreBtn onClick={handleLoadMore}>
-          ЗАВАНТАЖИТИ ЩЕ
-        </LoadMoreBtn>
+        <LoadMoreBtn onClick={handleLoadMore}>ЗАВАНТАЖИТИ ЩЕ</LoadMoreBtn>
       )}
 
-      {activeGame && (
-        <FullscreenOverlay>
-          {renderGame()}
-        </FullscreenOverlay>
-      )}
+      {activeGame && <FullscreenOverlay>{renderGame()}</FullscreenOverlay>}
     </div>
   );
 };

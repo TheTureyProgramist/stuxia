@@ -486,7 +486,10 @@ const Modal = ({ onClose, onRegister, availableAvatars = [] }) => {
         <KatSceneModal onClose={completeRegistration} />
       ) : (
         <ModalOverlay $isClosing={isClosing} onClick={handleClose}>
-          <ModalContent $isClosing={isClosing} onClick={(e) => e.stopPropagation()}>
+          <ModalContent
+            $isClosing={isClosing}
+            onClick={(e) => e.stopPropagation()}
+          >
             <CloseButton onClick={handleClose}>&times;</CloseButton>
             <Title>Реєстрація</Title>
 
@@ -609,10 +612,13 @@ const Modal = ({ onClose, onRegister, availableAvatars = [] }) => {
               </ColorContainer>
             </ColorSection>
 
-            <div style={{ fontSize: "11px", fontWeight: "bold", color: "grey" }}>
-              Аватар оберіть, 1-ий доступний з<AnimatedText>Стихія+</AnimatedText>,
-              наступні 2 за <GreenText>досягнення</GreenText>, та ще 3 за 🧧, та
-              сама логіка з вибором кольору імені, та рамки аватара.
+            <div
+              style={{ fontSize: "11px", fontWeight: "bold", color: "grey" }}
+            >
+              Аватар оберіть, 1-ий доступний з
+              <AnimatedText>Стихія+</AnimatedText>, наступні 2 за{" "}
+              <GreenText>досягнення</GreenText>, та ще 3 за 🧧, та сама логіка з
+              вибором кольору імені, та рамки аватара.
             </div>
 
             <ImageSelectionContainer>
@@ -621,7 +627,9 @@ const Modal = ({ onClose, onRegister, availableAvatars = [] }) => {
                   key={index}
                   $isSelected={formData.avatarIndex === index}
                   $borderColor={formData.borderColor}
-                  onClick={() => setFormData({ ...formData, avatarIndex: index })}
+                  onClick={() =>
+                    setFormData({ ...formData, avatarIndex: index })
+                  }
                 >
                   <img
                     src={
@@ -700,7 +708,9 @@ const Modal = ({ onClose, onRegister, availableAvatars = [] }) => {
             </CheckboxRow>
 
             {error && (
-              <div style={{ color: "red", fontSize: "12px", textAlign: "center" }}>
+              <div
+                style={{ color: "red", fontSize: "12px", textAlign: "center" }}
+              >
                 {error}
               </div>
             )}

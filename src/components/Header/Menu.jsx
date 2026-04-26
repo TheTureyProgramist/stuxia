@@ -29,13 +29,15 @@ const ModeToggle = styled.div`
   gap: 10px;
   padding: 10px 12px;
   margin-bottom: 8px;
-  background: ${(props) => (props.$isDarkMode ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.03)")};
+  background: ${(props) =>
+    props.$isDarkMode ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.03)"};
   border-radius: 10px;
   cursor: pointer;
   transition: background 0.2s ease;
 
   &:hover {
-    background: ${(props) => (props.$isDarkMode ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)")};
+    background: ${(props) =>
+      props.$isDarkMode ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)"};
   }
 
   @media (min-width: 1920px) {
@@ -260,7 +262,8 @@ const FilterGridInMenu = styled.div`
 
 const FilterButtonInMenu = styled.button`
   background: ${(props) => (props.$active ? "#ffb36c" : "transparent")};
-  color: ${(props) => (props.$active ? "#3e2723" : props.$isDarkMode ? "#ffb36c" : "#333")};
+  color: ${(props) =>
+    props.$active ? "#3e2723" : props.$isDarkMode ? "#ffb36c" : "#333"};
   border: 1px solid #ffb36c;
   border-radius: 6px;
   padding: 8px;
@@ -268,11 +271,11 @@ const FilterButtonInMenu = styled.button`
   font-weight: bold;
   cursor: pointer;
   transition: all 0.2s ease;
-  
+
   &:hover {
     background: rgba(255, 179, 108, 0.3);
   }
-  
+
   @media (min-width: 1920px) {
     padding: 12px;
     font-size: 16px;
@@ -311,7 +314,7 @@ const Menu = ({
   ];
 
   const applyFilterEffect = (config) => {
-    const brightness = 100 - (config.darkIntensity * 0.6);
+    const brightness = 100 - config.darkIntensity * 0.6;
     let filters = `brightness(${brightness}%)`;
     const { filterType, filterIntensity } = config;
 
@@ -450,13 +453,18 @@ const Menu = ({
             <MenuSectionTitle>Керування</MenuSectionTitle>
             <LegendList>
               <li>
-                <ModeToggle $isDarkMode={isDarkMode} onClick={() => setIsRoutingMode(!isRoutingMode)}>
+                <ModeToggle
+                  $isDarkMode={isDarkMode}
+                  onClick={() => setIsRoutingMode(!isRoutingMode)}
+                >
                   <span className="icon">{isRoutingMode ? "🚀" : "⚓"}</span>
                   <div style={{ flexGrow: 1 }}>
                     <div style={{ fontSize: "14px", fontWeight: "bold" }}>
                       {isRoutingMode ? "Маршрутизація" : "Навігація"}
                     </div>
-                    <div style={{ fontSize: "10px", opacity: 0.7 }}>{isRoutingMode ? "Зміна URL" : "Плавний скрол"}</div>
+                    <div style={{ fontSize: "10px", opacity: 0.7 }}>
+                      {isRoutingMode ? "Зміна URL" : "Плавний скрол"}
+                    </div>
                   </div>
                   <Switch $active={isRoutingMode} />
                 </ModeToggle>
@@ -468,21 +476,49 @@ const Menu = ({
               </li>
               <li>
                 <div style={{ marginTop: "15px", marginBottom: "15px" }}>
-                  <div style={{ fontSize: "14px", fontWeight: "bold", marginBottom: "10px", color: isDarkMode ? "#ffb36c" : "#ff005d" }}>☀️ Яскравість</div>
+                  <div
+                    style={{
+                      fontSize: "14px",
+                      fontWeight: "bold",
+                      marginBottom: "10px",
+                      color: isDarkMode ? "#ffb36c" : "#ff005d",
+                    }}
+                  >
+                    ☀️ Яскравість
+                  </div>
                   <input
                     type="range"
                     min="0"
                     max="100"
                     value={visualConfig.darkIntensity || 0}
-                    onChange={(e) => handleBrightnessChange(Number(e.target.value))}
+                    onChange={(e) =>
+                      handleBrightnessChange(Number(e.target.value))
+                    }
                     style={{ width: "100%", cursor: "pointer" }}
                   />
-                  <div style={{ fontSize: "12px", textAlign: "right", marginTop: "5px" }}>{visualConfig.darkIntensity || 0}%</div>
+                  <div
+                    style={{
+                      fontSize: "12px",
+                      textAlign: "right",
+                      marginTop: "5px",
+                    }}
+                  >
+                    {visualConfig.darkIntensity || 0}%
+                  </div>
                 </div>
               </li>
               <li>
                 <div style={{ marginTop: "15px", marginBottom: "15px" }}>
-                  <div style={{ fontSize: "14px", fontWeight: "bold", marginBottom: "10px", color: isDarkMode ? "#ffb36c" : "#ff005d" }}>🎨 Фільтри</div>
+                  <div
+                    style={{
+                      fontSize: "14px",
+                      fontWeight: "bold",
+                      marginBottom: "10px",
+                      color: isDarkMode ? "#ffb36c" : "#ff005d",
+                    }}
+                  >
+                    🎨 Фільтри
+                  </div>
                   <FilterGridInMenu $isDarkMode={isDarkMode}>
                     {FILTERS.map((f) => (
                       <FilterButtonInMenu
@@ -500,16 +536,35 @@ const Menu = ({
               {visualConfig.filterType !== "none" && (
                 <li>
                   <div style={{ marginTop: "15px", marginBottom: "15px" }}>
-                    <div style={{ fontSize: "14px", fontWeight: "bold", marginBottom: "10px", color: isDarkMode ? "#ffb36c" : "#ff005d" }}>⚡ Сила ефекту</div>
+                    <div
+                      style={{
+                        fontSize: "14px",
+                        fontWeight: "bold",
+                        marginBottom: "10px",
+                        color: isDarkMode ? "#ffb36c" : "#ff005d",
+                      }}
+                    >
+                      ⚡ Сила ефекту
+                    </div>
                     <input
                       type="range"
                       min="0"
                       max="100"
                       value={visualConfig.filterIntensity || 50}
-                      onChange={(e) => handleIntensityChange(Number(e.target.value))}
+                      onChange={(e) =>
+                        handleIntensityChange(Number(e.target.value))
+                      }
                       style={{ width: "100%", cursor: "pointer" }}
                     />
-                    <div style={{ fontSize: "12px", textAlign: "right", marginTop: "5px" }}>{visualConfig.filterIntensity || 50}%</div>
+                    <div
+                      style={{
+                        fontSize: "12px",
+                        textAlign: "right",
+                        marginTop: "5px",
+                      }}
+                    >
+                      {visualConfig.filterIntensity || 50}%
+                    </div>
                   </div>
                 </li>
               )}

@@ -43,13 +43,18 @@ const Cell = styled.div`
   width: 100%;
   height: 100%;
   background: ${(props) => (props.$isElectric ? "#002b36" : "#1a1a1a")};
-  border: ${(props) => (props.$isElectric ? "1px solid #00e5ff" : "1px solid #333")};
+  border: ${(props) =>
+    props.$isElectric ? "1px solid #00e5ff" : "1px solid #333"};
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
-  ${(props) => props.$isElectric && css`animation: ${pulseElectric} 2s infinite;`}
-  
+  ${(props) =>
+    props.$isElectric &&
+    css`
+      animation: ${pulseElectric} 2s infinite;
+    `}
+
   &::after {
     content: "${(props) => (props.$isElectric ? "⚡" : "")}";
     font-size: 12px;
@@ -79,15 +84,19 @@ const BlockPart = styled.div`
   height: 100%;
   background: linear-gradient(135deg, #90a4ae 0%, #37474f 100%);
   border: 1px solid #263238;
-  box-shadow: inset 0 0 8px rgba(0,0,0,0.6), 1px 1px 2px rgba(255,255,255,0.1);
+  box-shadow:
+    inset 0 0 8px rgba(0, 0, 0, 0.6),
+    1px 1px 2px rgba(255, 255, 255, 0.1);
   display: ${(props) => (props.$active ? "block" : "none")};
   position: relative;
 
   &::before {
     content: "";
     position: absolute;
-    top: 4px; left: 4px;
-    width: 4px; height: 4px;
+    top: 4px;
+    left: 4px;
+    width: 4px;
+    height: 4px;
     background: #cfd8dc;
     border-radius: 50%;
   }
@@ -110,7 +119,10 @@ const RotateButton = styled.div`
   ${(props) => (props.$side === "left" ? "left: -11px;" : "right: -11px;")}
   box-shadow: 0 2px 4px rgba(0,0,0,0.5);
   transition: all 0.2s;
-  &:hover { background: #fff; transform: scale(1.1); }
+  &:hover {
+    background: #fff;
+    transform: scale(1.1);
+  }
 `;
 
 const BottomPanel = styled.div`
@@ -139,7 +151,8 @@ const StatsGrid = styled.div`
 const VoltageDisplay = styled.div`
   font-size: 18px;
   color: ${(props) => (props.$isGoal ? "#00e676" : "#ffb36c")};
-  text-shadow: 0 0 10px ${(props) => (props.$isGoal ? "#00e676" : "transparent")};
+  text-shadow: 0 0 10px
+    ${(props) => (props.$isGoal ? "#00e676" : "transparent")};
   transition: color 0.3s;
 `;
 
@@ -171,33 +184,77 @@ const VolumeControl = styled.div`
   padding: 5px 10px;
   border-radius: 4px;
   border: 1px solid rgba(255, 179, 108, 0.3);
-  input { width: 60px; accent-color: #ffb36c; cursor: pointer; }
+  input {
+    width: 60px;
+    accent-color: #ffb36c;
+    cursor: pointer;
+  }
 `;
 
 // Фігури блоків: 1 - залізна частина, 0 - пустота
 const BLOCK_SHAPES = [
-  { id: 1, shape: [[1, 1], [1, 1]], w: 2, h: 2, startX: 0, startY: 0 }, // 2x2
-  { id: 2, shape: [[1, 1, 1], [0, 1, 0]], w: 3, h: 2, startX: 3, startY: 0 }, // T
-  { id: 3, shape: [[1, 1, 1, 1], [1, 0, 0, 0]], w: 4, h: 2, startX: 0, startY: 3 }, // L long
-  { id: 4, shape: [[1, 1, 1], [1, 1, 1]], w: 3, h: 2, startX: 5, startY: 3 }, // 3x2
+  {
+    id: 1,
+    shape: [
+      [1, 1],
+      [1, 1],
+    ],
+    w: 2,
+    h: 2,
+    startX: 0,
+    startY: 0,
+  }, // 2x2
+  {
+    id: 2,
+    shape: [
+      [1, 1, 1],
+      [0, 1, 0],
+    ],
+    w: 3,
+    h: 2,
+    startX: 3,
+    startY: 0,
+  }, // T
+  {
+    id: 3,
+    shape: [
+      [1, 1, 1, 1],
+      [1, 0, 0, 0],
+    ],
+    w: 4,
+    h: 2,
+    startX: 0,
+    startY: 3,
+  }, // L long
+  {
+    id: 4,
+    shape: [
+      [1, 1, 1],
+      [1, 1, 1],
+    ],
+    w: 3,
+    h: 2,
+    startX: 5,
+    startY: 3,
+  }, // 3x2
 ];
 
 const ELECTRIC_MATRIX = [
-  [0,0,0,0,0,0,0,0,0,0],
-  [0,1,1,0,0,1,1,0,0,0],
-  [0,1,1,0,0,1,1,0,0,0],
-  [0,0,0,0,0,0,0,0,0,0],
-  [0,0,1,1,1,1,0,0,0,0],
-  [0,0,1,1,1,1,0,0,0,0],
-  [0,0,0,0,0,0,0,0,0,0],
-  [0,1,1,1,0,0,1,1,1,0],
-  [0,1,1,1,0,0,1,1,1,0],
-  [0,0,0,0,0,0,0,0,0,0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 1, 1, 0, 0, 1, 1, 0, 0, 0],
+  [0, 1, 1, 0, 0, 1, 1, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 1, 1, 1, 1, 0, 0, 0, 0],
+  [0, 0, 1, 1, 1, 1, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 1, 1, 1, 0, 0, 1, 1, 1, 0],
+  [0, 1, 1, 1, 0, 0, 1, 1, 1, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 ];
 
 const PuzzleNine = ({ onExit }) => {
   const [blocks, setMetalBlocks] = useState(
-    BLOCK_SHAPES.map(b => ({ ...b, x: b.startX, y: b.startY }))
+    BLOCK_SHAPES.map((b) => ({ ...b, x: b.startX, y: b.startY })),
   );
   const [voltage, setVoltage] = useState(0);
   const [displayVoltage, setDisplayVoltage] = useState(0);
@@ -228,7 +285,7 @@ const PuzzleNine = ({ onExit }) => {
       const diff = voltage - displayVoltage;
       const step = diff > 0 ? 5 : -5;
       const timer = setTimeout(() => {
-        setDisplayVoltage(prev => prev + step);
+        setDisplayVoltage((prev) => prev + step);
       }, 30);
       return () => clearTimeout(timer);
     }
@@ -237,8 +294,8 @@ const PuzzleNine = ({ onExit }) => {
   // Розрахунок напруги та перевірка виграшу
   const calculateVoltage = useCallback((currentBlocks) => {
     let coveredTiles = new Set();
-    
-    currentBlocks.forEach(block => {
+
+    currentBlocks.forEach((block) => {
       block.shape.forEach((row, dy) => {
         row.forEach((active, dx) => {
           if (active) {
@@ -289,7 +346,7 @@ const PuzzleNine = ({ onExit }) => {
       const newW = newShape[0].length;
       const newH = newShape.length;
       const potential = prev.map((b) =>
-        b.id === id ? { ...b, shape: newShape, w: newW, h: newH } : b
+        b.id === id ? { ...b, shape: newShape, w: newW, h: newH } : b,
       );
       if (!checkCollision(id, block.x, block.y, potential)) {
         calculateVoltage(potential);
@@ -300,8 +357,8 @@ const PuzzleNine = ({ onExit }) => {
   };
 
   const checkCollision = (id, nx, ny, currentBlocks) => {
-    const movingBlock = currentBlocks.find(b => b.id === id);
-    const otherBlocks = currentBlocks.filter(b => b.id !== id);
+    const movingBlock = currentBlocks.find((b) => b.id === id);
+    const otherBlocks = currentBlocks.filter((b) => b.id !== id);
 
     // Отримуємо всі зайняті координати рухомого блоку в новій позиції
     const movingCoords = [];
@@ -312,7 +369,8 @@ const PuzzleNine = ({ onExit }) => {
     });
 
     // Перевірка межі арени
-    if (movingCoords.some(c => c.x < 0 || c.x >= 10 || c.y < 0 || c.y >= 10)) return true;
+    if (movingCoords.some((c) => c.x < 0 || c.x >= 10 || c.y < 0 || c.y >= 10))
+      return true;
 
     // Перевірка зіткнення з іншими блоками
     for (const other of otherBlocks) {
@@ -323,7 +381,11 @@ const PuzzleNine = ({ onExit }) => {
         });
       });
 
-      if (movingCoords.some(mc => otherCoords.some(oc => oc.x === mc.x && oc.y === mc.y))) {
+      if (
+        movingCoords.some((mc) =>
+          otherCoords.some((oc) => oc.x === mc.x && oc.y === mc.y),
+        )
+      ) {
         return true;
       }
     }
@@ -334,77 +396,95 @@ const PuzzleNine = ({ onExit }) => {
   const handleDragEnd = (id, event, info) => {
     const board = boardRef.current.getBoundingClientRect();
     const cellSize = board.width / 10;
-    
+
     // Розраховуємо клітинку на основі зсуву
-    const currentBlock = blocks.find(b => b.id === id);
-    const gridX = Math.round((currentBlock.x * cellSize + info.offset.x) / cellSize);
-    const gridY = Math.round((currentBlock.y * cellSize + info.offset.y) / cellSize);
+    const currentBlock = blocks.find((b) => b.id === id);
+    const gridX = Math.round(
+      (currentBlock.x * cellSize + info.offset.x) / cellSize,
+    );
+    const gridY = Math.round(
+      (currentBlock.y * cellSize + info.offset.y) / cellSize,
+    );
 
     if (checkCollision(id, gridX, gridY, blocks)) {
       // Повертаємо назад (відкидує блок)
-      setMetalBlocks([...blocks]); 
+      setMetalBlocks([...blocks]);
     } else {
-      const nextBlocks = blocks.map(b => b.id === id ? { ...b, x: gridX, y: gridY } : b);
+      const nextBlocks = blocks.map((b) =>
+        b.id === id ? { ...b, x: gridX, y: gridY } : b,
+      );
       setMetalBlocks(nextBlocks);
       calculateVoltage(nextBlocks);
     }
   };
   return (
-    <GameWrapper style={{ backgroundImage: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url(${decor})`, backgroundSize: 'cover' }}>
-      <h2 style={{ color: "#ffb36c", margin: 0, textTransform: 'uppercase', letterSpacing: '2px' }}>
+    <GameWrapper
+      style={{
+        backgroundImage: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url(${decor})`,
+        backgroundSize: "cover",
+      }}
+    >
+      <h2
+        style={{
+          color: "#ffb36c",
+          margin: 0,
+          textTransform: "uppercase",
+          letterSpacing: "2px",
+        }}
+      >
         {isWon ? "СИСТЕМА АКТИВОВАНА" : "ЕНЕРГОМЕРЕЖА"}
       </h2>
-      <div style={{ color: '#00e5ff', fontSize: '14px', marginBottom: '5px' }}>
+      <div style={{ color: "#00e5ff", fontSize: "14px", marginBottom: "5px" }}>
         Потрібно: {GOAL_VOLTAGE}V
       </div>
 
       <GameBoard ref={boardRef}>
-        {ELECTRIC_MATRIX.map((row, y) => 
+        {ELECTRIC_MATRIX.map((row, y) =>
           row.map((cell, x) => (
             <Cell key={`${x}-${y}`} $isElectric={cell === 1} />
-          ))
+          )),
         )}
 
         {blocks.map((block) => {
           const cellSize = boardRef.current?.clientWidth / 10 || 40;
           return (
-          <MetalBlock
-            key={block.id}
-            $width={block.w}
-            $height={block.h}
-            $blockWidth={cellSize * block.w}
-            $blockHeight={cellSize * block.h}
-            drag
-            dragMomentum={false}
-            dragElastic={0.1}
-            onDragEnd={(e, info) => handleDragEnd(block.id, e, info)}
-            animate={{ 
-              x: block.x * cellSize, 
-              y: block.y * cellSize 
-            }}
-            whileDrag={{ scale: 1.1, zIndex: 200 }}
-            transition={{ type: "spring", stiffness: 300, damping: 20 }}
-          >
-            <RotateButton
-              $side="left"
-              onPointerDown={(e) => e.stopPropagation()}
-              onClick={() => handleRotate(block.id, "ccw")}
+            <MetalBlock
+              key={block.id}
+              $width={block.w}
+              $height={block.h}
+              $blockWidth={cellSize * block.w}
+              $blockHeight={cellSize * block.h}
+              drag
+              dragMomentum={false}
+              dragElastic={0.1}
+              onDragEnd={(e, info) => handleDragEnd(block.id, e, info)}
+              animate={{
+                x: block.x * cellSize,
+                y: block.y * cellSize,
+              }}
+              whileDrag={{ scale: 1.1, zIndex: 200 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
             >
-              ↺
-            </RotateButton>
-            <RotateButton
-              $side="right"
-              onPointerDown={(e) => e.stopPropagation()}
-              onClick={() => handleRotate(block.id, "cw")}
-            >
-              ↻
-            </RotateButton>
-            {block.shape.map((row, dy) => 
-              row.map((active, dx) => (
-                <BlockPart key={`${dx}-${dy}`} $active={active === 1} />
-              ))
-            )}
-          </MetalBlock>
+              <RotateButton
+                $side="left"
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={() => handleRotate(block.id, "ccw")}
+              >
+                ↺
+              </RotateButton>
+              <RotateButton
+                $side="right"
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={() => handleRotate(block.id, "cw")}
+              >
+                ↻
+              </RotateButton>
+              {block.shape.map((row, dy) =>
+                row.map((active, dx) => (
+                  <BlockPart key={`${dx}-${dy}`} $active={active === 1} />
+                )),
+              )}
+            </MetalBlock>
           );
         })}
 
@@ -414,13 +494,26 @@ const PuzzleNine = ({ onExit }) => {
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: 1, scale: 1 }}
               style={{
-                position: 'absolute', inset: 0, background: 'rgba(0,230,118,0.2)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 300,
-                backdropFilter: 'blur(4px)', pointerEvents: 'none'
+                position: "absolute",
+                inset: 0,
+                background: "rgba(0,230,118,0.2)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                zIndex: 300,
+                backdropFilter: "blur(4px)",
+                pointerEvents: "none",
               }}
             >
-              <div style={{ background: '#1a1a1a', padding: '20px', border: '2px solid #00e676', borderRadius: '10px' }}>
-                <h3 style={{ color: '#00e676', margin: 0 }}>ПЕРЕМОГА! ⚡</h3>
+              <div
+                style={{
+                  background: "#1a1a1a",
+                  padding: "20px",
+                  border: "2px solid #00e676",
+                  borderRadius: "10px",
+                }}
+              >
+                <h3 style={{ color: "#00e676", margin: 0 }}>ПЕРЕМОГА! ⚡</h3>
               </div>
             </motion.div>
           )}
@@ -432,7 +525,7 @@ const PuzzleNine = ({ onExit }) => {
           <VoltageDisplay $isGoal={isWon}>
             Напруга: {displayVoltage}V
           </VoltageDisplay>
-          <span style={{ fontSize: '10px', opacity: 0.7 }}>
+          <span style={{ fontSize: "10px", opacity: 0.7 }}>
             Переміщуйте залізні модулі на ⚡ блоки
           </span>
         </StatsGrid>
@@ -441,12 +534,17 @@ const PuzzleNine = ({ onExit }) => {
           <VolumeControl>
             <input
               type="range"
-              min="0" max="1" step="0.01"
+              min="0"
+              max="1"
+              step="0.01"
               value={volume}
               onChange={(e) => setVolume(parseFloat(e.target.value))}
             />
           </VolumeControl>
-          <GameButton onClick={onExit} style={{ borderColor: "#f44336", color: "#f44336" }}>
+          <GameButton
+            onClick={onExit}
+            style={{ borderColor: "#f44336", color: "#f44336" }}
+          >
             ✖
           </GameButton>
         </div>

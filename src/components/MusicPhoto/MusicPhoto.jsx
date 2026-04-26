@@ -2,6 +2,7 @@ import styled, { keyframes, css } from "styled-components";
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import localforage from "localforage";
 import dinofrozVideo from "../../mp3/dinofroz.mp4";
+import humor from "../../mp3/humor.mp4";
 import soloveyko from "../../photos/vip-images/vip-soloveyko.webp";
 import harmony from "../../photos/vip-images/asium/asium.webp";
 import horse from "../../photos/vip-images/horse/horse.webp";
@@ -82,12 +83,12 @@ import monodyAudio from "../../mp3/thefatrat-monody.mp3";
 import windAudio from "../../mp3/kolada.mp3";
 import unityAudio from "../../mp3/unity.mp3";
 import horseAudio from "../../mp3/horse.mp3";
- import dragonoraAudio from "../../mp3/dragon.mp3";  
+import dragonoraAudio from "../../mp3/dragon.mp3";
 import soloveykoAudio from "../../mp3/soloveyko.mp3";
 import harmonyAudio from "../../mp3/harmonic-japan.mp3";
 import electrodynamixAudio from "../../mp3/electrodynamix.mp3";
 import clubstepAudio from "../../mp3/clubstep.mp3";
-import fingerdashAudio from "../../mp3/fingerdash.mp3";  
+import fingerdashAudio from "../../mp3/fingerdash.mp3";
 import theorytwoAudio from "../../mp3/theoty-of-everything-ll.mp3";
 import theoryAudio from "../../mp3/theory-of-everyting.mp3";
 import deadlockedAudio from "../../mp3/deadlocked.mp3";
@@ -228,7 +229,6 @@ const MusicPhotoText = styled.div`
     font-size: 30px;
   }
 `;
-//
 const ControlsContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -563,17 +563,26 @@ const FilterOverlay = styled.div`
       `background-color: rgba(139, 69, 19, ${props.$opacity});`}
       ${props.$type === "white" &&
       `background-color: rgba(255, 255, 255, ${props.$opacity});`}
+      ${props.$type === "negative" &&
+      `background-color: transparent;`}
       ${(props.$type === "flash" ||
         props.$type === "flicker" ||
         props.$flicker) &&
       css`
         background-color: rgba(255, 255, 255, ${props.$opacity});
       `}
-      ${props.$type === "vignette" && css`
-        background: radial-gradient(circle, transparent 40%, rgba(0,0,0, ${props.$opacity || 0.8}) 100%);
+      ${props.$type === "vignette" &&
+      css`
+        background: radial-gradient(
+          circle,
+          transparent 40%,
+          rgba(0, 0, 0, ${props.$opacity || 0.8}) 100%
+        );
       `}
-      ${props.$type === "cinemascope" && css`
-        &::before, &::after {
+      ${props.$type === "cinemascope" &&
+      css`
+        &::before,
+        &::after {
           content: "";
           position: absolute;
           left: 0;
@@ -590,9 +599,10 @@ const FilterOverlay = styled.div`
           animation: ${cinemascopeBottom} 1s ease forwards;
         }
       `}
-      ${props.$type === "vintage" && css`
+      ${props.$type === "vintage" &&
+      css`
         animation: ${oldFilmShake} 0.15s infinite;
-        
+
         /* Вертикальні лінії (шум) */
         &::before {
           content: "";
@@ -615,7 +625,8 @@ const FilterOverlay = styled.div`
           z-index: 5;
         }
       `}
-      ${props.$type === "chaos" && css`
+      ${props.$type === "chaos" &&
+      css`
         --chaos-opacity: ${props.$opacity || 0.4};
         animation: ${chaosAnimation} 1.5s linear infinite;
       `}
@@ -652,6 +663,7 @@ const FilterOverlay = styled.div`
           ${props.$blur || (props.$type === "blur" ? props.$opacity * 10 : 0)}px
         )
         ${props.$type === "contrast" ? `contrast(${props.$opacity * 2})` : ""}
+        ${props.$type === "negative" ? "invert(100%)" : ""}
         ${props.$type === "vintage" ? "sepia(0.8) contrast(1.2)" : ""};
     `}
 `;
@@ -664,9 +676,10 @@ const StyledSymbol = styled.span`
   will-change: transform, opacity;
   backface-visibility: hidden;
   transform: translateZ(0);
-  animation: 
+  animation:
     ${symbolAnimation} ${(props) => props.$duration}s ease-in-out infinite,
-    ${blinkAnimation} 3s ease-in-out ${(props) => Math.max(0, props.$duration - 3)}s infinite;
+    ${blinkAnimation} 3s ease-in-out
+      ${(props) => Math.max(0, props.$duration - 3)}s infinite;
 
   top: ${(props) => props.$top}%;
   left: ${(props) => props.$left}%;
@@ -717,7 +730,6 @@ const SymbolOverlay = ({
       };
     });
   }, [count, speed, blur]);
-//
   return (
     <div
       style={{
@@ -752,9 +764,6 @@ const SymbolOverlay = ({
     </div>
   );
 };
-
-// --- New/Updated FullScreen Player Components --- 230, 149, 0
-
 const SeekBar = styled.input`
   flex-grow: 1;
   height: 5px;
@@ -807,8 +816,9 @@ const StereoSeekBar = styled.div`
 
 const StereoChannel = styled.div`
   flex: 1;
-  height: ${props => Math.max(15, props.$height * 100)}%;
-  background: ${props => props.$active ? 'orange' : 'rgba(255, 255, 255, 0.25)'};
+  height: ${(props) => Math.max(15, props.$height * 100)}%;
+  background: ${(props) =>
+    props.$active ? "orange" : "rgba(255, 255, 255, 0.25)"};
   border-radius: 1px;
   transition: background 0.2s ease;
 `;
@@ -1010,7 +1020,7 @@ const MiniPlayerContainer = styled.div`
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
   min-width: 100px;
   min-height: 80px;
   touch-action: none;
@@ -1037,7 +1047,10 @@ const MiniControlBtn = styled.button`
   display: flex;
   align-items: center;
   opacity: 0.7;
-  &:hover { opacity: 1; color: orange; }
+  &:hover {
+    opacity: 1;
+    color: orange;
+  }
 `;
 
 const MiniResizeHandle = styled.div`
@@ -1051,12 +1064,20 @@ const MiniResizeHandle = styled.div`
   z-index: 3010;
 `;
 
-const MiniPlayer = ({ track, initialTime, isPlaying: initialPlaying, speed, volume, onClose, onRestore }) => {
+const MiniPlayer = ({
+  track,
+  initialTime,
+  isPlaying: initialPlaying,
+  speed,
+  volume,
+  onClose,
+  onRestore,
+}) => {
   const getDefaultPos = () => ({
     x: Math.max(0, window.innerWidth - 320),
-    y: Math.max(0, window.innerHeight - 220)
+    y: Math.max(0, window.innerHeight - 220),
   });
-  
+
   const [pos, setPos] = useState(getDefaultPos());
   const [size, setSize] = useState({ width: 300, height: 180 });
   const [isPlaying, setIsPlaying] = useState(initialPlaying);
@@ -1064,24 +1085,21 @@ const MiniPlayer = ({ track, initialTime, isPlaying: initialPlaying, speed, volu
   const mediaRef = useRef(null);
   const canvasRef = useRef(null);
   const pipVideoRef = useRef(null);
-
-  const isDinofroz = (track.category === "мультфільми" && track.video) || track.text?.toLowerCase().includes("динофроз");
-
-  // Скидати позицію при зміні треку
+  const isDinofroz =
+    (track.category === "мультфільми" && track.video) ||
+    track.text?.toLowerCase().includes("динофроз");
   useEffect(() => {
     setPos(getDefaultPos());
   }, [track.id]);
-
-  // Alt+Q - скидання позиції
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.altKey && (e.key === 'q' || e.key === 'Q')) {
+      if (e.altKey && (e.key === "q" || e.key === "Q")) {
         e.preventDefault();
         setPos(getDefaultPos());
       }
     };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
   useEffect(() => {
@@ -1090,55 +1108,42 @@ const MiniPlayer = ({ track, initialTime, isPlaying: initialPlaying, speed, volu
       mediaRef.current.volume = volume ?? 1;
     }
   }, [speed, volume]);
-
-  // Допоміжна функція для отримання індексу зображення за часом
-  // Підтримує два формати:
-  // 1. Простий (без таймінгу): [img1, img2, img3] - рівна тривалість для кожного
-  // 2. З таймінгом: [{image: img1, time: 0}, {image: img2, time: 30}] - конкретні часові позначки
   const getImageIndexByTime = (images, currentTime, duration) => {
     if (!images || images.length === 0) return 0;
-    
-    // Перевіряємо, чи це тимчасовий формат (об'єкти з 'image' та 'time')
-    const isTimedFormat = images[0] && typeof images[0] === 'object' && 'image' in images[0];
-    
+    const isTimedFormat =
+      images[0] && typeof images[0] === "object" && "image" in images[0];
     if (isTimedFormat) {
-      // Формат з таймінгом: знаходимо зображення, яке має час <= поточний час
       for (let i = images.length - 1; i >= 0; i--) {
         if (images[i].time <= currentTime) {
           return i;
         }
       }
-      return 0; // Якщо поточний час менше за перший таймінг, показуємо перше
+      return 0; 
     } else {
-      // Простий формат: ділимо тривалість порівну між усіма зображеннями
       const segment = (duration || 1) / images.length;
       return Math.min(Math.floor(currentTime / segment), images.length - 1);
     }
   };
-
   const currentImgIdx = useMemo(() => {
     return getImageIndexByTime(track.images, currentTime, track.duration);
   }, [track, currentTime]);
-
-  // Отримуємо URL зображення, враховуючи обидва формати (простий і з таймінгом)
-  const getCurrentImageSrc = useCallback((index) => {
-    if (!track.images || !track.images[index]) return track.image;
-    const imageItem = track.images[index];
-    // Якщо це об'єкт з 'image' властивістю (тимчасовий формат)
-    return imageItem.image ? imageItem.image : imageItem;
-  }, [track.images, track.image]);
-
-  // Малюємо вміст на canvas для PiP (якщо це не відео)
+  const getCurrentImageSrc = useCallback(
+    (index) => {
+      if (!track.images || !track.images[index]) return track.image;
+      const imageItem = track.images[index];
+      return imageItem.image ? imageItem.image : imageItem;
+    },
+    [track.images, track.image],
+  );
   useEffect(() => {
     if (isDinofroz || !canvasRef.current) return;
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.src = getCurrentImageSrc(currentImgIdx);
     img.onload = () => {
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      // Додаємо плашку з текстом
       ctx.fillStyle = "rgba(0,0,0,0.6)";
       ctx.fillRect(0, canvas.height - 50, canvas.width, 50);
       ctx.fillStyle = "white";
@@ -1149,10 +1154,14 @@ const MiniPlayer = ({ track, initialTime, isPlaying: initialPlaying, speed, volu
 
   const activeFilters = useMemo(() => {
     if (!track.filters) return [];
-    return track.filters.filter(f => currentTime >= f.start && currentTime <= f.end);
+    return track.filters.filter(
+      (f) => currentTime >= f.start && currentTime <= f.end,
+    );
   }, [track.filters, currentTime]);
 
-  const mainFilter = activeFilters.find(f => !["symbols", "flicker"].includes(f.type));
+  const mainFilter = activeFilters.find(
+    (f) => !["symbols", "flicker"].includes(f.type),
+  );
 
   useEffect(() => {
     if (mediaRef.current) mediaRef.current.currentTime = initialTime;
@@ -1161,32 +1170,25 @@ const MiniPlayer = ({ track, initialTime, isPlaying: initialPlaying, speed, volu
   const handleDrag = (e) => {
     const startX = e.clientX - pos.x;
     const startY = e.clientY - pos.y;
-    
+
     const move = (me) => {
       let newX = me.clientX - startX;
       let newY = me.clientY - startY;
-      
-      // Обмеження в межах вікна (залишити трохи видимості)
-      const minX = -size.width + 50; // Оставить 50px видимым
+      const minX = -size.width + 50;
       const maxX = window.innerWidth - 50;
       const minY = 0;
       const maxY = window.innerHeight - 30;
-      
       newX = Math.max(minX, Math.min(maxX, newX));
       newY = Math.max(minY, Math.min(maxY, newY));
-      
       setPos({ x: newX, y: newY });
     };
-    
     const up = () => {
-      window.removeEventListener('mousemove', move);
-      window.removeEventListener('mouseup', up);
+      window.removeEventListener("mousemove", move);
+      window.removeEventListener("mouseup", up);
     };
-    
-    window.addEventListener('mousemove', move);
-    window.addEventListener('mouseup', up);
+    window.addEventListener("mousemove", move);
+    window.addEventListener("mouseup", up);
   };
-
   const handleResize = (e) => {
     e.stopPropagation();
     const startW = size.width;
@@ -1194,92 +1196,181 @@ const MiniPlayer = ({ track, initialTime, isPlaying: initialPlaying, speed, volu
     const startX = e.clientX;
     const startY = e.clientY;
     const move = (me) => {
-      setSize({ width: Math.max(100, startW + (me.clientX - startX)), height: Math.max(80, startH + (me.clientY - startY)) });
-    };
-    const up = () => { window.removeEventListener('mousemove', move); window.removeEventListener('mouseup', up); };
-    window.addEventListener('mousemove', move);
-    window.addEventListener('mouseup', up);
-  };
-const handlePiP = async () => {
-  try {
-    let elementToPip;
-    if (isDinofroz && mediaRef.current) {
-      elementToPip = mediaRef.current;
-    } else if (canvasRef.current && pipVideoRef.current) {
-      const stream = canvasRef.current.captureStream(30);
-      pipVideoRef.current.srcObject = stream;
-      await new Promise((resolve) => {
-        if (pipVideoRef.current.readyState >= 2) {
-          resolve();
-        } else {
-          const handler = () => {
-            if (pipVideoRef.current.readyState >= 2) {
-              pipVideoRef.current.removeEventListener('canplay', handler);
-              resolve();
-            }
-          };
-          pipVideoRef.current.addEventListener('canplay', handler);
-          setTimeout(resolve, 500); 
-        }
+      setSize({
+        width: Math.max(100, startW + (me.clientX - startX)),
+        height: Math.max(80, startH + (me.clientY - startY)),
       });
+    };
+    const up = () => {
+      window.removeEventListener("mousemove", move);
+      window.removeEventListener("mouseup", up);
+    };
+    window.addEventListener("mousemove", move);
+    window.addEventListener("mouseup", up);
+  };
+  const handlePiP = async () => {
+    try {
+      let elementToPip;
+      if (isDinofroz && mediaRef.current) {
+        elementToPip = mediaRef.current;
+      } else if (canvasRef.current && pipVideoRef.current) {
+        const stream = canvasRef.current.captureStream(30);
+        pipVideoRef.current.srcObject = stream;
+        await new Promise((resolve) => {
+          if (pipVideoRef.current.readyState >= 2) {
+            resolve();
+          } else {
+            const handler = () => {
+              if (pipVideoRef.current.readyState >= 2) {
+                pipVideoRef.current.removeEventListener("canplay", handler);
+                resolve();
+              }
+            };
+            pipVideoRef.current.addEventListener("canplay", handler);
+            setTimeout(resolve, 500);
+          }
+        });
 
-      await pipVideoRef.current.play().catch(err => console.error("Play error:", err));
-      elementToPip = pipVideoRef.current;
-    }
-    if (!elementToPip) {
-      alert("⚠️ Помилка: не можу знайти джерело для PiP. Переконайтеся, що медіа завантажено.");
-      return;
-    }
-    if (document.pictureInPictureElement) {
-      await document.exitPictureInPicture();
-    } else if (elementToPip.requestPictureInPicture) {
-      try {
-        await elementToPip.requestPictureInPicture();
-        console.log("✅ PiP активований успішно!");
-      } catch (pipErr) {
-        console.error("Помилка PiP:", pipErr);
-        alert(`❌ Помилка PiP: ${pipErr.message || pipErr}`);
+        await pipVideoRef.current
+          .play()
+          .catch((err) => console.error("Play error:", err));
+        elementToPip = pipVideoRef.current;
       }
-    } else {
-      alert("⚠️ Ваш браузер не підтримує Picture-in-Picture режим. Спробуйте Chrome, Edge або Firefox.");
+      if (!elementToPip) {
+        alert(
+          "⚠️ Помилка: не можу знайти джерело для PiP. Переконайтеся, що медіа завантажено.",
+        );
+        return;
+      }
+      if (document.pictureInPictureElement) {
+        await document.exitPictureInPicture();
+      } else if (elementToPip.requestPictureInPicture) {
+        try {
+          await elementToPip.requestPictureInPicture();
+          console.log("✅ PiP активований успішно!");
+        } catch (pipErr) {
+          console.error("Помилка PiP:", pipErr);
+          alert(`❌ Помилка PiP: ${pipErr.message || pipErr}`);
+        }
+      } else {
+        alert(
+          "⚠️ Ваш браузер не підтримує Picture-in-Picture режим. Спробуйте Chrome, Edge або Firefox.",
+        );
+      }
+    } catch (err) {
+      console.error("Загальна помилка режиму PiP:", err);
+      alert(`❌ Помилка: ${err.message}`);
     }
-  } catch (err) {
-    console.error("Загальна помилка режиму PiP:", err);
-    alert(`❌ Помилка: ${err.message}`);
-  }
-};
+  };
   return (
-    <MiniPlayerContainer style={{ left: pos.x, top: pos.y, width: size.width, height: size.height }}>
+    <MiniPlayerContainer
+      style={{
+        left: pos.x,
+        top: pos.y,
+        width: size.width,
+        height: size.height,
+      }}
+    >
       <MiniPlayerHeader onMouseDown={handleDrag}>
-        <MiniControlBtn onClick={() => onRestore(currentTime, isPlaying)} title="Повернути у повний екран">🔙 Відновити</MiniControlBtn>
-        <MiniControlBtn onClick={handlePiP} title="Винести поверх усіх вікон (PiP)">🖼️ PiP</MiniControlBtn>
-        <MiniControlBtn onClick={onClose} title="Закрити">✕</MiniControlBtn>
+        <MiniControlBtn
+          onClick={() => onRestore(currentTime, isPlaying)}
+          title="Повернути у повний екран"
+        >
+          🔙 Відновити
+        </MiniControlBtn>
+        <MiniControlBtn
+          onClick={handlePiP}
+          title="Винести поверх усіх вікон (PiP)"
+        >
+          🖼️ PiP
+        </MiniControlBtn>
+        <MiniControlBtn onClick={onClose} title="Закрити">
+          ✕
+        </MiniControlBtn>
       </MiniPlayerHeader>
       {/* Приховані елементи для генерації PiP потоку */}
-      <canvas ref={canvasRef} width="400" height="250" style={{ display: 'none' }} />
-      <video 
-        ref={pipVideoRef} 
-        muted 
-        playsInline 
-        style={{ position: 'absolute', opacity: 0, pointerEvents: 'none', width: '1px', height: '1px' }} />
-        
-      <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }} onClick={() => {
-        setIsPlaying(!isPlaying);
-        isPlaying ? mediaRef.current?.pause() : mediaRef.current?.play();
-      }}>
-        <FilterOverlay $active={!!mainFilter} $type={mainFilter?.type} $opacity={mainFilter?.opacity} $blur={mainFilter?.blur} />
+      <canvas
+        ref={canvasRef}
+        width="400"
+        height="250"
+        style={{ display: "none" }}
+      />
+      <video
+        ref={pipVideoRef}
+        muted
+        playsInline
+        style={{
+          position: "absolute",
+          opacity: 0,
+          pointerEvents: "none",
+          width: "1px",
+          height: "1px",
+        }}
+      />
+
+      <div
+        style={{ flex: 1, position: "relative", overflow: "hidden" }}
+        onClick={() => {
+          setIsPlaying(!isPlaying);
+          isPlaying ? mediaRef.current?.pause() : mediaRef.current?.play();
+        }}
+      >
+        <FilterOverlay
+          $active={!!mainFilter}
+          $type={mainFilter?.type}
+          $opacity={mainFilter?.opacity}
+          $blur={mainFilter?.blur}
+        />
         {isDinofroz ? (
-          <video ref={mediaRef} src={track.video} autoPlay={isPlaying} muted loop style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-            onTimeUpdate={(e) => setCurrentTime(e.target.currentTime)} />
+          <video
+            ref={mediaRef}
+            src={track.video}
+            autoPlay={isPlaying}
+            muted
+            loop
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            onTimeUpdate={(e) => setCurrentTime(e.target.currentTime)}
+          />
         ) : (
           <>
-            <img src={track.images?.[Math.min(Math.floor(currentTime / (track.duration / (track.images?.length || 1))), (track.images?.length || 1) - 1)] || track.image} 
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="" />
-            <audio ref={mediaRef} src={track.audio} autoPlay={isPlaying} loop onTimeUpdate={(e) => setCurrentTime(e.target.currentTime)} />
+            <img
+              src={
+                track.images?.[
+                  Math.min(
+                    Math.floor(
+                      currentTime /
+                        (track.duration / (track.images?.length || 1)),
+                    ),
+                    (track.images?.length || 1) - 1,
+                  )
+                ] || track.image
+              }
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              alt=""
+            />
+            <audio
+              ref={mediaRef}
+              src={track.audio}
+              autoPlay={isPlaying}
+              loop
+              onTimeUpdate={(e) => setCurrentTime(e.target.currentTime)}
+            />
           </>
         )}
-        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', fontSize: 30, color: 'white', opacity: isPlaying ? 0 : 0.8 }}>▶</div>
-        {activeFilters.some(f => f.type === 'symbols') && (
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            fontSize: 30,
+            color: "white",
+            opacity: isPlaying ? 0 : 0.8,
+          }}
+        >
+          ▶
+        </div>
+        {activeFilters.some((f) => f.type === "symbols") && (
           <SymbolOverlay count={9} volume={0.5} speed={1.5} />
         )}
       </div>
@@ -1287,7 +1378,6 @@ const handlePiP = async () => {
     </MiniPlayerContainer>
   );
 };
-
 
 const FSHeader = styled.div`
   position: absolute;
@@ -1739,39 +1829,38 @@ const FullScreenPlayer = ({
   const [showScreenshotMenu, setShowScreenshotMenu] = useState(false);
   const [showPlaylist, setShowPlaylist] = useState(false);
   const [loop, setLoop] = useState(false);
-  const [progressMode, setProgressMode] = useState("linear"); // "linear" or "stereogram"
+  const [progressMode, setProgressMode] = useState("linear"); 
   const [currentImgIdx, setCurrentImgIdx] = useState(0);
   const [downloadRange, setDownloadRange] = useState({ start: 0, end: 0 });
   const [showControls, setShowControls] = useState(true);
   const [isCached, setIsCached] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
-  const [playMode, setPlayMode] = useState(isShuffle ? 1 : 0); // 0: Order, 1: Random, 2: Loop
+  const [playMode, setPlayMode] = useState(isShuffle ? 1 : 0);
   const [hoverTime, setHoverTime] = useState(null);
-  const [pendingScreenshotAction, setPendingScreenshotAction] = useState(null); // 'download' or 'print'
+  const [pendingScreenshotAction, setPendingScreenshotAction] = useState(null); 
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [isAssetsLoaded, setIsAssetsLoaded] = useState(false);
   const [activeFilterKey, setActiveFilterKey] = useState(null);
   const [dynamicOpacity, setDynamicOpacity] = useState(null);
   const [dynamicBlur, setDynamicBlur] = useState(null);
-  const [dynamicColor, setDynamicColor] = useState(null); // New state for random color
+  const [dynamicColor, setDynamicColor] = useState(null); 
   const [dynamicIntensity, setDynamicIntensity] = useState(null);
   const mediaRef = useRef(null);
   const [waveform, setWaveform] = useState([]);
   const [isGeneratingWave, setIsGeneratingWave] = useState(false);
-  const [playbackDirection, setPlaybackDirection] = useState("forward"); // "forward" or "backward"
+  const [playbackDirection, setPlaybackDirection] = useState("forward"); 
+  const [isAutoSlideshow, setIsAutoSlideshow] = useState(false);
+  const [autoSlideshowInterval, setAutoSlideshowInterval] = useState(3);
   const fsCanvasRef = useRef(null);
   const fsPipVideoRef = useRef(null);
-
   const lastActionRef = useRef(0);
   const ACTION_COOLDOWN = 300;
-
   const canPerformAction = useCallback(() => {
     const now = Date.now();
     if (now - lastActionRef.current < ACTION_COOLDOWN) return false;
     lastActionRef.current = now;
     return true;
   }, []);
-
   const togglePiP = async () => {
     try {
       if (document.pictureInPictureElement) {
@@ -1798,19 +1887,15 @@ const FullScreenPlayer = ({
       console.error("PiP failed", error);
     }
   };
-
-  // Logic for backward playback mechanic
   useEffect(() => {
     let interval;
     const media = mediaRef.current;
     if (!media) return;
-
     if (playbackDirection === "backward" && isPlaying) {
-      // Native audio doesn't support negative playbackRate, so we manually seek
       media.pause();
-      media.muted = true; // Вимикаємо звук під час руху назад, щоб уникнути артефактів
+      media.muted = true;
       interval = setInterval(() => {
-        const nextTime = media.currentTime - (0.1 * speed);
+        const nextTime = media.currentTime - 0.1 * speed;
         if (nextTime <= 0) {
           media.currentTime = 0;
           setIsPlaying(false);
@@ -1819,14 +1904,13 @@ const FullScreenPlayer = ({
         }
       }, 100);
     } else {
-      media.muted = false; // Повертаємо звук для звичайного режиму
+      media.muted = false; 
       if (isPlaying && playbackDirection === "forward") {
         media.play().catch(() => {});
       }
     }
     return () => clearInterval(interval);
   }, [playbackDirection, isPlaying, speed]);
-
   const previewVideoRef = useRef(null);
   const controlsTimeoutRef = useRef(null);
   const containerRef = useRef(null);
@@ -1839,8 +1923,6 @@ const FullScreenPlayer = ({
       (f) => progress >= f.start && progress <= f.end,
     );
   }, [track.filters, progress]);
-
-  // Відокремлюємо основний колірний фільтр від спецефектів
   const mainFilter = useMemo(
     () => activeFilters.find((f) => !["symbols", "flicker"].includes(f.type)),
     [activeFilters],
@@ -1874,8 +1956,6 @@ const FullScreenPlayer = ({
         } else {
           setDynamicBlur(null);
         }
-
-        // New logic for randomColor
         if (mainFilter.randomColor && mainFilter.colorOptions?.length > 0) {
           const randomIndex = Math.floor(
             Math.random() * mainFilter.colorOptions.length,
@@ -1889,32 +1969,29 @@ const FullScreenPlayer = ({
       setActiveFilterKey(null);
       setDynamicOpacity(null);
       setDynamicBlur(null);
-      setDynamicColor(null); // Reset dynamic color
+      setDynamicColor(null); 
     }
   }, [mainFilter, activeFilterKey]);
   const [dynamicBlurSymbols] = useState(0);
-
-  // Waveform Generation Logic
   useEffect(() => {
     if (progressMode !== "stereogram" || !isAssetsLoaded) return;
-
     let isCancelled = false;
     const generateWave = async () => {
       setIsGeneratingWave(true);
       try {
-        const url = isDinofroz ? (track.video || dinofrozVideo) : track.audio;
+        const url = isDinofroz ? track.video || dinofrozVideo : track.audio;
         const response = await fetch(url);
         const arrayBuffer = await response.arrayBuffer();
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const audioCtx = new (
+          window.AudioContext || window.webkitAudioContext
+        )();
         const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
-
         if (isCancelled) return;
-
         const rawData = audioBuffer.getChannelData(0);
-        const samples = 280; // Кількість стовпчиків
+        const samples = 280; 
         const blockSize = Math.floor(rawData.length / samples);
         const filteredData = [];
-        
+
         for (let i = 0; i < samples; i++) {
           let blockStart = blockSize * i;
           let sum = 0;
@@ -1925,7 +2002,7 @@ const FullScreenPlayer = ({
         }
 
         const multiplier = Math.pow(Math.max(...filteredData), -1);
-        setWaveform(filteredData.map(n => n * multiplier));
+        setWaveform(filteredData.map((n) => n * multiplier));
       } catch (err) {
         console.error("Waveform generation failed", err);
       } finally {
@@ -1934,8 +2011,17 @@ const FullScreenPlayer = ({
     };
 
     generateWave();
-    return () => { isCancelled = true; };
-  }, [track.id, track.audio, track.video, progressMode, isAssetsLoaded, isDinofroz]);
+    return () => {
+      isCancelled = true;
+    };
+  }, [
+    track.id,
+    track.audio,
+    track.video,
+    progressMode,
+    isAssetsLoaded,
+    isDinofroz,
+  ]);
 
   const lastSymbolFilter = useMemo(
     () => [...activeFilters].reverse().find((f) => f.type === "symbols"),
@@ -1982,7 +2068,7 @@ const FullScreenPlayer = ({
         setActiveSymbolKey(null);
         setDynamicIntensity(null);
         setDynamicSpeed(null);
-      }, 1000); // Час збігається з transition в SymbolOverlay
+      }, 1000); 
       return () => clearTimeout(timer);
     }
   }, [
@@ -1994,10 +2080,12 @@ const FullScreenPlayer = ({
 
   const sliderImages = useMemo(() => {
     if (track.images && track.images.length > 0) {
-      // Якщо це тимчасовий формат (об'єкти з 'image' властивістю), 
-      // витягуємо лише URL зображень для відображення
-      if (track.images[0] && typeof track.images[0] === 'object' && 'image' in track.images[0]) {
-        return track.images.map(item => item.image);
+      if (
+        track.images[0] &&
+        typeof track.images[0] === "object" &&
+        "image" in track.images[0]
+      ) {
+        return track.images.map((item) => item.image);
       }
       return track.images;
     }
@@ -2119,48 +2207,33 @@ const FullScreenPlayer = ({
     const delta = Math.sign(e.deltaY) * -1;
 
     if (e.shiftKey) {
-      // Speed (0.2 - 2.0)
       setSpeed((prev) =>
         Math.max(0.2, Math.min(2.0, +(prev + delta * 0.1).toFixed(1))),
       );
     } else if (e.ctrlKey || e.altKey) {
-      // Seek Amount (5 - 30)
       setSeekAmount((prev) => Math.max(5, Math.min(30, prev + delta * 5)));
     } else {
-      // Volume (0 - 1)
       setVolume((prev) =>
         Math.max(0, Math.min(1, +(prev + delta * 0.05).toFixed(2))),
       );
     }
   }, []);
-
-  // Playback mode logic
   const togglePlayMode = () => {
     const nextMode = (playMode + 1) % 3;
     setPlayMode(nextMode);
-
     if (nextMode === 0) {
-      // Order
       setLoop(false);
       if (onSetShuffle) onSetShuffle(false);
     } else if (nextMode === 1) {
-      // Random
       setLoop(false);
       if (onSetShuffle) onSetShuffle(true);
     } else if (nextMode === 2) {
-      // Loop
       setLoop(true);
-      // Shuffle state technically doesn't matter for single loop, but keeping previous shuffle state is fine or turn off.
-      // Usually single loop overrides playlist navigation.
     }
   };
-
   useEffect(() => {
-    // Sync initial shuffle state if needed, but local state takes precedence after mount
     if (playMode === 1 && !isShuffle && onSetShuffle) onSetShuffle(true);
   }, [playMode, isShuffle, onSetShuffle]);
-
-  // Disappearing controls
   const resetControlsTimeout = useCallback(() => {
     setShowControls(true);
     if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
@@ -2181,8 +2254,7 @@ const FullScreenPlayer = ({
       window.removeEventListener("touchstart", resetControlsTimeout);
       window.removeEventListener("touchmove", resetControlsTimeout);
     };
-  }, [resetControlsTimeout]); // Added dependency
-
+  }, [resetControlsTimeout]); 
   const currentLyric = useMemo(() => {
     if (!Array.isArray(track.lyrics)) return null;
     let active = null;
@@ -2200,9 +2272,9 @@ const FullScreenPlayer = ({
     const handleKeyDown = (e) => {
       resetControlsTimeout();
       if (e.code === "Escape") handleClose();
-      
+
       if (e.code === "Space") {
-        e.preventDefault(); // Запобігаємо скролу сторінки
+        e.preventDefault(); 
       }
 
       if (!mediaRef.current) return;
@@ -2238,6 +2310,48 @@ const FullScreenPlayer = ({
     if (idx !== currentImgIdx) setCurrentImgIdx(idx);
   }, [progress, duration, sliderImages.length, isDinofroz, currentImgIdx]);
 
+  // Завантаження та збереження режиму слайд-шоу в localStorage
+  useEffect(() => {
+    const loadSlideshowMode = async () => {
+      try {
+        const saved = await localforage.getItem(`slideshow_${track.id}`);
+        if (saved !== null) {
+          setIsAutoSlideshow(saved.isEnabled || false);
+          setAutoSlideshowInterval(saved.interval || 3);
+        }
+      } catch (e) {
+        console.error("Помилка завантаження режиму слайд-шоу:", e);
+      }
+    };
+    loadSlideshowMode();
+  }, [track.id]);
+
+  // Збереження режиму слайд-шоу в localStorage при зміні
+  useEffect(() => {
+    const saveSlideshowMode = async () => {
+      try {
+        await localforage.setItem(`slideshow_${track.id}`, {
+          isEnabled: isAutoSlideshow,
+          interval: autoSlideshowInterval,
+        });
+      } catch (e) {
+        console.error("Помилка збереження режиму слайд-шоу:", e);
+      }
+    };
+    saveSlideshowMode();
+  }, [isAutoSlideshow, autoSlideshowInterval, track.id]);
+
+  // Управління інтервалом для автоматичного переключення зображень
+  useEffect(() => {
+    if (!isAutoSlideshow || sliderImages.length === 0) return;
+
+    const slideshowInterval = setInterval(() => {
+      setCurrentImgIdx((prev) => (prev + 1) % sliderImages.length);
+    }, autoSlideshowInterval * 1000);
+
+    return () => clearInterval(slideshowInterval);
+  }, [isAutoSlideshow, autoSlideshowInterval, sliderImages.length]);
+
   const getCroppedDataUrl = (source) => {
     return new Promise((resolve) => {
       const canvas = document.createElement("canvas");
@@ -2256,12 +2370,17 @@ const FullScreenPlayer = ({
 
         if (mainFilter) {
           let filterStr = "";
-          if (mainFilter.type === "grayscale" || mainFilter.grayscale) filterStr += "grayscale(100%) ";
-          if (mainFilter.type === "blur") filterStr += `blur(${(dynamicBlur || mainFilter.opacity * 10)}px) `;
-          if (mainFilter.type === "contrast") filterStr += `contrast(${(dynamicOpacity || mainFilter.opacity) * 2}) `;
-          if (mainFilter.type === "vintage") filterStr += "sepia(0.8) contrast(1.2) ";
+          if (mainFilter.type === "grayscale" || mainFilter.grayscale)
+            filterStr += "grayscale(100%) ";
+          if (mainFilter.type === "blur")
+            filterStr += `blur(${dynamicBlur || mainFilter.opacity * 10}px) `;
+          if (mainFilter.type === "contrast")
+            filterStr += `contrast(${(dynamicOpacity || mainFilter.opacity) * 2}) `;
+          if (mainFilter.type === "vintage")
+            filterStr += "sepia(0.8) contrast(1.2) ";
           if (mainFilter.blur) filterStr += `blur(${mainFilter.blur}px) `;
-          
+          if (mainFilter.type === "negative") filterStr += "invert(100%) ";
+
           ctx.filter = filterStr.trim() || "none";
         }
 
@@ -2277,9 +2396,9 @@ const FullScreenPlayer = ({
             orange: [230, 149, 0],
             cyan: [0, 255, 255],
             brown: [139, 69, 19],
-            white: [255, 255, 255]
+            white: [255, 255, 255],
           };
-          
+
           const colorType = dynamicColor || mainFilter.type;
           if (colors[colorType]) {
             const [r, g, b] = colors[colorType];
@@ -2329,6 +2448,52 @@ const FullScreenPlayer = ({
     setShowScreenshotMenu(false);
   };
 
+  // Функція для збереження скріншоту в базу зображень
+  const saveScreenshotToGallery = async () => {
+    try {
+      const source =
+        isDinofroz && mediaRef.current
+          ? mediaRef.current
+          : sliderImages[currentImgIdx];
+      const dataUrl = await getCroppedDataUrl(source, false);
+
+      // Отримуємо поточну колекцію збережених скріншотів
+      let savedScreenshots =
+        (await localforage.getItem("dinofroz_screenshots")) || [];
+
+      // Додаємо новий скріншот
+      const newScreenshot = {
+        id: `screenshot-${Date.now()}`,
+        image: dataUrl,
+        trackName: track.text || "Unknown",
+        timestamp: new Date().toISOString(),
+      };
+
+      savedScreenshots.push(newScreenshot);
+
+      // Якщо перевищен ліміт 20 скріншотів, видаляємо найстаріший
+      const MAX_SCREENSHOTS = 20;
+      if (savedScreenshots.length > MAX_SCREENSHOTS) {
+        savedScreenshots = savedScreenshots.slice(-MAX_SCREENSHOTS);
+      }
+
+      // Зберігаємо обновлену колекцію в localforage
+      await localforage.setItem("dinofroz_screenshots", savedScreenshots);
+
+      alert(
+        "✅ Скріншот успішно збережено в галерею! (" +
+          savedScreenshots.length +
+          "/" +
+          MAX_SCREENSHOTS +
+          ")",
+      );
+      setShowScreenshotMenu(false);
+    } catch (error) {
+      console.error("Помилка збереження скріншоту:", error);
+      alert("❌ Помилка при збереженні скріншоту");
+    }
+  };
+
   const handleDownloadImage = async (imgSrc) => {
     const dataUrl = await getCroppedDataUrl(imgSrc);
     const a = document.createElement("a");
@@ -2356,8 +2521,6 @@ const FullScreenPlayer = ({
       previewVideoRef.current.currentTime = p * duration;
     }
   };
-
-  // Cache logic
   const checkCache = useCallback(async () => {
     if ("caches" in window) {
       const cache = await caches.open("audio-cache");
@@ -2368,7 +2531,7 @@ const FullScreenPlayer = ({
 
   useEffect(() => {
     checkCache();
-  }, [checkCache]); // Added dependency
+  }, [checkCache]); 
 
   const toggleCache = async () => {
     if (!("caches" in window)) return;
@@ -2427,18 +2590,15 @@ const FullScreenPlayer = ({
     const s = Math.floor(t % 60) || 0;
     return `${m}:${s < 10 ? "0" : ""}${s}`;
   };
-
-  // Canvas Drawing for FullScreen PiP (Audio tracks)
   useEffect(() => {
     if (isDinofroz || !fsCanvasRef.current) return;
     const canvas = fsCanvasRef.current;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.src = sliderImages[currentImgIdx];
     img.onload = () => {
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      // Draw Title Overlay
       ctx.fillStyle = "rgba(0,0,0,0.6)";
       ctx.fillRect(0, canvas.height - 40, canvas.width, 40);
       ctx.fillStyle = "white";
@@ -2459,16 +2619,47 @@ const FullScreenPlayer = ({
       onWheel={handleWheel}
     >
       {/* Hidden elements for PiP stream generation */}
-      <canvas ref={fsCanvasRef} width="640" height="360" style={{ display: 'none' }} />
-      <video ref={fsPipVideoRef} muted playsInline style={{ display: 'none' }} />
+      <canvas
+        ref={fsCanvasRef}
+        width="640"
+        height="360"
+        style={{ display: "none" }}
+      />
+      <video
+        ref={fsPipVideoRef}
+        muted
+        playsInline
+        style={{ display: "none" }}
+      />
 
       <FSHeader
         style={{ opacity: showControls ? 1 : 0, transition: "opacity 0.3s" }}
       >
         <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-          <FSCloseButton onClick={() => { if(canPerformAction()) handleClose(); }}>&times;</FSCloseButton>
-          <ActionButton onClick={() => { if(canPerformAction()) onMiniPlayer(progress, isPlaying, volume, speed); }} title="Згорнути в міні-плеєр">🗗</ActionButton>
-          <ActionButton onClick={() => { if(canPerformAction()) togglePiP(); }} title="Режим картинка в картинці">🖼️</ActionButton>
+          <FSCloseButton
+            onClick={() => {
+              if (canPerformAction()) handleClose();
+            }}
+          >
+            &times;
+          </FSCloseButton>
+          <ActionButton
+            onClick={() => {
+              if (canPerformAction())
+                onMiniPlayer(progress, isPlaying, volume, speed);
+            }}
+            title="Згорнути в міні-плеєр"
+          >
+            🗗
+          </ActionButton>
+          <ActionButton
+            onClick={() => {
+              if (canPerformAction()) togglePiP();
+            }}
+            title="Режим картинка в картинці"
+          >
+            🖼️
+          </ActionButton>
           <div style={{ display: "flex", flexDirection: "column" }}>
             <FSTitle>{track.author}</FSTitle>
             {track.category !== "мультфільми" && (
@@ -2482,13 +2673,19 @@ const FullScreenPlayer = ({
         </div>
         <div style={{ display: "flex", gap: "15px" }}>
           <ActionButton
-            onClick={() => { if(canPerformAction()) onRate(track.id); }}
+            onClick={() => {
+              if (canPerformAction()) onRate(track.id);
+            }}
             title={`Оцінка: ${rating} балів. (Макс 4 пісні з оцінками)`}
           >
             {rating === 2 ? "💛" : rating === 1 ? "❤️" : "🤍"}
           </ActionButton>
           <ActionButton
-            onClick={() => (mainFilter ? setPendingScreenshotAction('menu') : setShowScreenshotMenu(!showScreenshotMenu))}
+            onClick={() =>
+              mainFilter
+                ? setPendingScreenshotAction("menu")
+                : setShowScreenshotMenu(!showScreenshotMenu)
+            }
             title="Скріншот"
           >
             📸
@@ -2533,7 +2730,6 @@ const FullScreenPlayer = ({
       <FSContent
         ref={containerRef}
         onMouseDown={(e) => {
-          // Simple check for clicking sides vs center
           const width = containerRef.current.clientWidth;
           const x = e.clientX;
           if (x < width * 0.2) startHoldSeek("left");
@@ -2694,13 +2890,19 @@ const FullScreenPlayer = ({
                 max={duration || 0}
                 $buffered={isDinofroz ? buffered : 0}
                 value={progress}
-                onChange={(e) => (mediaRef.current.currentTime = e.target.value)}
+                onChange={(e) =>
+                  (mediaRef.current.currentTime = e.target.value)
+                }
               />
             </SeekBarWrapper>
           ) : (
             <StereoSeekBar onClick={handleStereoSeek}>
               {isGeneratingWave ? (
-                <span style={{ color: "white", fontSize: "10px", margin: "auto" }}>Обробка хвилі...</span>
+                <span
+                  style={{ color: "white", fontSize: "10px", margin: "auto" }}
+                >
+                  Обробка хвилі...
+                </span>
               ) : (
                 waveform.map((height, i) => (
                   <StereoChannel
@@ -2775,23 +2977,38 @@ const FullScreenPlayer = ({
           }}
         >
           <div style={{ display: "flex", gap: "10px" }}>
-          <ActionButton onClick={() => { if(canPerformAction()) onPrev(); }}>⏮</ActionButton>
+            <ActionButton
+              onClick={() => {
+                if (canPerformAction()) onPrev();
+              }}
+            >
+              ⏮
+            </ActionButton>
             <ActionButton onClick={togglePlay}>
               {isPlaying ? "⏸" : "▶"}
             </ActionButton>
-          <ActionButton onClick={() => { if(canPerformAction()) onNext(); }}>⏭</ActionButton>
+            <ActionButton
+              onClick={() => {
+                if (canPerformAction()) onNext();
+              }}
+            >
+              ⏭
+            </ActionButton>
           </div>
 
           <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-          <ActionButton
-            onClick={() => {
-              if (mediaRef.current && canPerformAction()) {
-                mediaRef.current.currentTime = Math.max(0, mediaRef.current.currentTime - seekAmount);
-              }
-            }}
-          >
-            -{seekAmount}s
-          </ActionButton>
+            <ActionButton
+              onClick={() => {
+                if (mediaRef.current && canPerformAction()) {
+                  mediaRef.current.currentTime = Math.max(
+                    0,
+                    mediaRef.current.currentTime - seekAmount,
+                  );
+                }
+              }}
+            >
+              -{seekAmount}s
+            </ActionButton>
             <div
               style={{
                 display: "flex",
@@ -2827,7 +3044,10 @@ const FullScreenPlayer = ({
             <ActionButton
               onClick={() => {
                 if (mediaRef.current && canPerformAction()) {
-                  mediaRef.current.currentTime = Math.min(duration, mediaRef.current.currentTime + seekAmount);
+                  mediaRef.current.currentTime = Math.min(
+                    duration,
+                    mediaRef.current.currentTime + seekAmount,
+                  );
                 }
               }}
             >
@@ -2838,11 +3058,75 @@ const FullScreenPlayer = ({
           <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
             <LoopButton
               $active={isCached}
-              onClick={() => { if(canPerformAction()) toggleCache(); }}
+              onClick={() => {
+                if (canPerformAction()) toggleCache();
+              }}
               title={isCached ? "Збережено" : "Кешувати"}
             >
               {isCached ? "✓" : "⇩"}
             </LoopButton>
+            
+            {/* Контроль режиму слайд-шоу */}
+            {!isDinofroz && sliderImages.length > 1 && (
+              <LoopButton
+                $active={isAutoSlideshow}
+                onClick={() => setIsAutoSlideshow(!isAutoSlideshow)}
+                title={
+                  isAutoSlideshow
+                    ? "Слайд-шоу ввімкнено"
+                    : "Слайд-шоу вимкнено"
+                }
+              >
+                📽️
+              </LoopButton>
+            )}
+            
+            {/* Вибір інтервалу слайд-шоу */}
+            {!isDinofroz && isAutoSlideshow && sliderImages.length > 1 && (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "5px",
+                  background: "rgba(255,179,108,0.2)",
+                  padding: "5px 10px",
+                  borderRadius: "20px",
+                  border: "1px solid rgba(255,179,108,0.5)",
+                }}
+              >
+                <span
+                  style={{ color: "#ffb36c", fontSize: "12px", width: "20px" }}
+                >
+                  ⏱️
+                </span>
+                <input
+                  type="range"
+                  min="1"
+                  max="10"
+                  step="1"
+                  value={autoSlideshowInterval}
+                  onChange={(e) =>
+                    setAutoSlideshowInterval(parseInt(e.target.value))
+                  }
+                  style={{
+                    width: "60px",
+                    cursor: "pointer",
+                    accentColor: "#ffb36c",
+                  }}
+                />
+                <span
+                  style={{
+                    color: "#ffb36c",
+                    fontSize: "10px",
+                    width: "25px",
+                    textAlign: "right",
+                  }}
+                >
+                  {autoSlideshowInterval}s
+                </span>
+              </div>
+            )}
+            
             <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
               <span style={{ color: "white", fontSize: "12px" }}>🔊</span>
               <VolumeSlider
@@ -2857,7 +3141,9 @@ const FullScreenPlayer = ({
             </div>
             <LoopButton
               $active={true}
-              onClick={() => { if(canPerformAction()) togglePlayMode(); }}
+              onClick={() => {
+                if (canPerformAction()) togglePlayMode();
+              }}
               title={
                 playMode === 0
                   ? "По порядку"
@@ -2931,7 +3217,9 @@ const FullScreenPlayer = ({
             <span style={{ color: "white" }}>Режим шкали</span>
             <button
               onClick={() =>
-                setProgressMode((prev) => (prev === "linear" ? "stereogram" : "linear"))
+                setProgressMode((prev) =>
+                  prev === "linear" ? "stereogram" : "linear",
+                )
               }
               style={{
                 background: progressMode === "linear" ? "#444" : "orange",
@@ -2950,7 +3238,9 @@ const FullScreenPlayer = ({
             <span style={{ color: "white" }}>Напрямок</span>
             <button
               onClick={() =>
-                setPlaybackDirection((prev) => (prev === "forward" ? "backward" : "forward"))
+                setPlaybackDirection((prev) =>
+                  prev === "forward" ? "backward" : "forward",
+                )
               }
               style={{
                 background: playbackDirection === "forward" ? "#444" : "red",
@@ -2991,6 +3281,77 @@ const FullScreenPlayer = ({
             Скачати всі зображення
           </button>
           <button
+            onClick={async () => {
+              try {
+                const screenshots =
+                  (await localforage.getItem("dinofroz_screenshots")) || [];
+                if (screenshots.length === 0) {
+                  alert("📸 Галерея скріншотів пуста");
+                  return;
+                }
+                // Показуємо список скріншотів
+                let html = `<div style="max-height:400px;overflow-y:auto;"><h3>Збережені скріншоти (${screenshots.length}/20)</h3>`;
+                screenshots.forEach((shot, idx) => {
+                  html += `<div style="margin:10px 0;padding:10px;border:1px solid #ccc;border-radius:5px;background:#f5f5f5;">
+                    <small style="color:#666;">${shot.trackName} - ${new Date(shot.timestamp).toLocaleString()}</small>
+                    <br/><img src="${shot.image}" style="max-width:150px;margin-top:5px;border-radius:3px;cursor:pointer;" onclick="this.style.maxWidth='100%'" />
+                    <br/><button onclick="this.parentElement.innerHTML='Видалення...'" style="margin-top:5px;padding:5px 10px;background:#ff6b6b;color:white;border:none;border-radius:3px;cursor:pointer;">🗑️ Видалити</button>
+                  </div>`;
+                });
+                html += "</div>";
+                const win = window.open("", "_blank", "width=400,height=600");
+                win.document.write(
+                  `<html><head><title>Галерея скріншотів</title><style>body{font-family:Arial;padding:10px;background:#fff;}</style></head><body>${html}</body></html>`,
+                );
+                win.document.close();
+              } catch (error) {
+                console.error("Помилка відкриття галереї:", error);
+                alert("❌ Помилка при відкритті галереї");
+              }
+            }}
+            style={{
+              marginTop: "10px",
+              width: "100%",
+              background: "#7afcff",
+              color: "#333",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+              fontWeight: "bold",
+            }}
+          >
+            📸 Переглянути галерею скріншотів
+          </button>
+          <button
+            onClick={async () => {
+              if (
+                window.confirm(
+                  "⚠️ Ви впевнені, що хочете очистити всі збережені скріншоти?",
+                )
+              ) {
+                try {
+                  await localforage.removeItem("dinofroz_screenshots");
+                  alert("✅ Галерея скріншотів очищена");
+                } catch (error) {
+                  console.error("Помилка очищення галереї:", error);
+                  alert("❌ Помилка при очищенні галереї");
+                }
+              }
+            }}
+            style={{
+              marginTop: "5px",
+              width: "100%",
+              background: "#ff6b6b",
+              color: "white",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+              fontSize: "12px",
+            }}
+          >
+            🗑️ Очистити галерею
+          </button>
+          <button
             onClick={() => setShowSettings(false)}
             style={{
               marginTop: "10px",
@@ -3010,7 +3371,11 @@ const FullScreenPlayer = ({
           style={{ bottom: "auto", top: "70px", right: "80px", width: "150px" }}
         >
           <button
-            onClick={() => mainFilter ? setPendingScreenshotAction('download') : downloadScreenshot(false)}
+            onClick={() =>
+              mainFilter
+                ? setPendingScreenshotAction("download")
+                : downloadScreenshot(false)
+            }
             style={{
               background: "transparent",
               border: "none",
@@ -3023,7 +3388,26 @@ const FullScreenPlayer = ({
             📥 Скачати
           </button>
           <button
-            onClick={() => mainFilter ? setPendingScreenshotAction('print') : printScreenshot(false)}
+            onClick={saveScreenshotToGallery}
+            style={{
+              background: "transparent",
+              border: "none",
+              color: "#ffb36c",
+              textAlign: "left",
+              cursor: "pointer",
+              padding: "5px",
+              fontWeight: "bold",
+            }}
+            title="Зберегти скріншот у локальній галереї"
+          >
+            💾 У галерею
+          </button>
+          <button
+            onClick={() =>
+              mainFilter
+                ? setPendingScreenshotAction("print")
+                : printScreenshot(false)
+            }
             style={{
               background: "transparent",
               border: "none",
@@ -3041,28 +3425,54 @@ const FullScreenPlayer = ({
       {pendingScreenshotAction && (
         <DownloadModal>
           <h3 style={{ color: "black" }}>Фільтр виявлено</h3>
-          <p style={{ color: "black", fontSize: "14px" }}>Бажаєте накласти активний візуальний ефект на скріншот?</p>
-          <div style={{ display: "flex", gap: "10px", justifyContent: "center", marginTop: "15px" }}>
-            <button 
+          <p style={{ color: "black", fontSize: "14px" }}>
+            Бажаєте накласти активний візуальний ефект на скріншот?
+          </p>
+          <div
+            style={{
+              display: "flex",
+              gap: "10px",
+              justifyContent: "center",
+              marginTop: "15px",
+            }}
+          >
+            <button
               onClick={() => {
                 const action = pendingScreenshotAction;
                 setPendingScreenshotAction(null);
-                if (action === 'menu') setShowScreenshotMenu(true);
-                else if (action === 'download') downloadScreenshot(true);
-                else if (action === 'print') printScreenshot(true);
+                if (action === "menu") setShowScreenshotMenu(true);
+                else if (action === "download") downloadScreenshot(true);
+                else if (action === "print") printScreenshot(true);
               }}
-              style={{ background: "orange", color: "white", border: "none", padding: "8px 15px", borderRadius: "5px", cursor: "pointer" }}
-            >Так</button>
-            <button 
+              style={{
+                background: "orange",
+                color: "white",
+                border: "none",
+                padding: "8px 15px",
+                borderRadius: "5px",
+                cursor: "pointer",
+              }}
+            >
+              Так
+            </button>
+            <button
               onClick={() => {
                 const action = pendingScreenshotAction;
                 setPendingScreenshotAction(null);
-                if (action === 'menu') setShowScreenshotMenu(true);
-                else if (action === 'download') downloadScreenshot(false);
-                else if (action === 'print') printScreenshot(false);
+                if (action === "menu") setShowScreenshotMenu(true);
+                else if (action === "download") downloadScreenshot(false);
+                else if (action === "print") printScreenshot(false);
               }}
-              style={{ background: "#ccc", border: "none", padding: "8px 15px", borderRadius: "5px", cursor: "pointer" }}
-            >Ні</button>
+              style={{
+                background: "#ccc",
+                border: "none",
+                padding: "8px 15px",
+                borderRadius: "5px",
+                cursor: "pointer",
+              }}
+            >
+              Ні
+            </button>
           </div>
         </DownloadModal>
       )}
@@ -3130,7 +3540,7 @@ const FullScreenPlayer = ({
                     textOverflow: "ellipsis",
                   }}
                 >
-                   {t.author}
+                  {t.author}
                 </div>
                 <span style={{ fontSize: "11px", color: "#ccc" }}>
                   {formatTime(t.duration)}
@@ -3262,13 +3672,11 @@ const MusicCard = ({ cardData, onOpenModal, rating, onOpenPlayer, onRate }) => {
 
   const handleDownloadTrack = (e) => {
     e.stopPropagation();
-    // Note: This assumes cardData.audio is accessible/downloadable
     const a = document.createElement("a");
     a.href = cardData.audio;
     a.download = `${text || "track"}.mp3`;
     a.click();
   };
-
   const handlePrintCover = (e) => {
     e.stopPropagation();
     const printWindow = window.open("", "_blank");
@@ -3277,7 +3685,6 @@ const MusicCard = ({ cardData, onOpenModal, rating, onOpenPlayer, onRate }) => {
     );
     printWindow.document.close();
   };
-
   return (
     <CardWrapper $isFavorite={rating > 0} $rating={rating}>
       <MusicImageContainer>
@@ -3338,76 +3745,7 @@ const MusicCard = ({ cardData, onOpenModal, rating, onOpenPlayer, onRate }) => {
     </CardWrapper>
   );
 };
-
-/*
-  ============================================================================
-  МУЗИЧНІ КАРТИ - ФОРМАТИ ЗОБРАЖЕНЬ
-  ============================================================================
-  
-  Підтримуються два формати для властивості 'images':
-  
-  1. ПРОСТИЙ ФОРМАТ (без таймінгу) - ЗВОРОТНО СУМІСНИЙ:
-  ─────────────────────────────────────────────────────
-  images: [img1, img2, img3, img4]
-  
-  Тривалість розподіляється рівномірно. Якщо трек 60 секунд і 4 зображення,
-  кожне показується 15 секунд.
-  
-  Приклад:
-    images: [turkeysone, turkeytwo, turkeythree, turkeys]
-  
-  
-  2. ФОРМАТ З ТАЙМІНГОМ (новий):
-  ──────────────────────────────
-  images: [
-    { image: img1, time: 0 },      // 0-5 сек
-    { image: img2, time: 5 },      // 5-15 сек
-    { image: img3, time: 15 },     // 15-35 сек
-    { image: img4, time: 35 }      // 35+ сек
-  ]
-  
-  Кожне зображення показується від його часової позначки до наступної.
-  
-  Приклад:
-    images: [
-      { image: dinofrozthree, time: 0 },
-      { image: dinofrozfour, time: 15 },
-      { image: dinofrozfive, time: 30 },
-      { image: dinofrozsix, time: 45 },
-      { image: dinofrozseven, time: 60 },
-      { image: dinofrozeight, time: 75 }
-    ]
-  
-  ============================================================================
-*/
-
 const musicCards = [
-/*
-  ПРИКЛАД З ТАЙМІНГОМ (для "Динофроз" багатозображена версія):
-  
-  {
-    id: 2,
-    ...
-    images: [
-      { image: dinofrozone, time: 0 },
-      { image: dinofrozthree, time: 20 },
-      { image: dinofrozfour, time: 40 },
-      { image: dinofrozfive, time: 60 },
-      { image: dinofrozsix, time: 80 },
-      { image: dinofrozseven, time: 100 }
-    ],
-    duration: 120,
-    ...
-  }
-  
-  У цьому випадку:
-  • 0-20 сек: dinofrozone
-  • 20-40 сек: dinofrozthree
-  • 40-60 сек: dinofrozfour
-  • 60-80 сек: dinofrozfive
-  • 80-100 сек: dinofrozsix
-  • 100+ сек: dinofrozseven
-*/
   // {
   //   id: 1,
   //   image: christmas,
@@ -3510,11 +3848,23 @@ const musicCards = [
     category: "природа",
     duration: 60,
     author: "Звуки індиків - Моя робота :)",
-     lyrics: [
-      { time: 1, text: "Самець, курликає. У відповідь на гавкіт собаки. Решта їдять травичку у полі." },
-      { time: 25, text: "Дякую всім слухачам! Давно хотів сказати, що робота над піснями, була примною і важкою." },
-      { time: 40, text: "Динофроз, режимом відео, забрав багато часу, та деякі пісні, у плані фільтрів. Тим не менш, індики, попри скромність, заслужили, бути на рівні з іншими." },
-      { time: 55, text: "Друзі, у кожного, своя улюблена тема(спільне, відмінне), і ненавидна. Я розміщую захопливе і заспокійливе, окрім моїх захоплень, тільки скажіть і ваше улюблене може з'явитись. Я це кажу, до того, що Стихію, ми розвиватимемо разом. " },
+    lyrics: [
+      {
+        time: 1,
+        text: "Самець, курликає. У відповідь на гавкіт собаки. Решта їдять травичку у полі.",
+      },
+      {
+        time: 25,
+        text: "Дякую всім слухачам! Давно хотів сказати, що робота над піснями, була примною і важкою.",
+      },
+      {
+        time: 40,
+        text: "Динофроз, режимом відео, забрав багато часу, та деякі пісні, у плані фільтрів. Тим не менш, індики, попри скромність, заслужили, бути на рівні з іншими.",
+      },
+      {
+        time: 55,
+        text: "Друзі, у кожного, своя улюблена тема(спільне, відмінне), і ненавидна. Я розміщую захопливе і заспокійливе, окрім моїх захоплень, тільки скажіть і ваше улюблене може з'явитись. Я це кажу, до того, що Стихію, ми розвиватимемо разом. ",
+      },
     ],
     images: [
       turkeysone,
@@ -3533,8 +3883,8 @@ const musicCards = [
     category: "хіти",
     filters: [
       {
-        start: 53,
-        end: 158,
+        start: 71,
+        end: 89,
         type: "symbols",
         intensity: 110,
         speed: 0.4,
@@ -3546,7 +3896,6 @@ const musicCards = [
       { start: 45, end: 52, type: "flicker", opacity: 0.4 },
       { start: 52, end: 53, type: "flash", opacity: 1 },
       { start: 53, end: 71, type: "chaos", opacity: 0.25 },
-      { start: 71, end: 89, type: "blue", opacity: 0.25 },
       { start: 89, end: 104, type: "chaos", opacity: 0.25 },
       { start: 104, end: 124, type: "orange", opacity: 0.25 },
       { start: 124, end: 143, type: "green", opacity: 0.25 },
@@ -3696,7 +4045,23 @@ const musicCards = [
     category: "ігри",
     duration: 160,
     images: [electrodynamix],
-      filters: [
+    filters: [
+     {
+        start: 127,
+        end: 134,
+        type: "symbols",
+        intensity: 105,
+        speed: 0.1,
+        blur: 1.7,
+      },
+      {
+        start: 148,
+        end: 154,
+        type: "symbols",
+        intensity: 115,
+        speed: 0/3,
+        blur: 1.7,
+      },
       { start: 1, end: 4, type: "flicker", opacity: 0.4 },
       { start: 19, end: 22.5, type: "flicker", opacity: 0.05 },
       { start: 4, end: 7, type: "black", opacity: 1 },
@@ -3704,20 +4069,22 @@ const musicCards = [
       { start: 19, end: 23, type: "black", opacity: 0.95 },
       { start: 23, end: 35, type: "chaos", opacity: 0.15 },
       { start: 35, end: 37, type: "flash", opacity: 1 },
-            { start: 37, end: 52, type: "chaos", opacity: 0.15 },
+      { start: 37, end: 52, type: "chaos", opacity: 0.15 },
       { start: 37, end: 52, type: "flicker", opacity: 0.2 },
       { start: 52, end: 60, type: "greyscale", opacity: 1 },
       { start: 60, end: 75, type: "red", opacity: 0.2 },
       { start: 75, end: 77, type: "greyscale", opacity: 1 },
-            { start: 77, end: 80, type: "red", opacity: 0.2 },
+      { start: 77, end: 80, type: "red", opacity: 0.2 },
       { start: 80, end: 91, type: "black", opacity: 1 },
-       { start: 91, end: 97, type: "black", opacity: 0.9 },
-        { start: 97, end: 112, type: "chaos", opacity: 0.2 },
-         { start: 91, end: 97, type: "black", opacity: 0.9 },
-          { start: 91, end: 97, type: "black", opacity: 0.9 },
-           { start: 91, end: 97, type: "black", opacity: 0.9 },
-            { start: 91, end: 97, type: "black", opacity: 0.9 },
-             { start: 91, end: 97, type: "black", opacity: 0.9 },
+      { start: 91, end: 97, type: "black", opacity: 0.9 },
+      { start: 97, end: 112, type: "chaos", opacity: 0.2 },
+      { start: 112, end: 127, type: "red", opacity: 0.2 },
+      { start: 134, end: 148, type: "cyan", opacity: 0.14 },
+      { start: 154, end: 170, type: "red", opacity: 0.2 },
+      { start: 170, end: 188, type: "green", opacity: 0.12 },
+      { start: 188, end: 199, type: "greyscale", opacity: 1 },
+      { start: 199, end: 201, type: "white", opacity: 1 },
+      { start: 201, end: 206, type: "black", opacity: 1 },
     ],
   },
   {
@@ -3728,7 +4095,7 @@ const musicCards = [
     author: "Clubstep - DJ-Nate(GeometryDash).",
     filters: [
       {
-        start: 22,
+        start: 37,
         end: 49,
         type: "symbols",
         isRandomIntensity: true,
@@ -3750,23 +4117,11 @@ const musicCards = [
         randomColor: true,
         colorOptions: ["red", "green"],
         isRandom: true,
-        minOpacity: 0.10,
+        minOpacity: 0.1,
         maxOpacity: 0.25,
         isRandomBlur: true,
         minBlur: 0,
         maxBlur: 3,
-      },
-      {
-        start: 37,
-        end: 49.7,
-        randomColor: true,
-        colorOptions: ["orange", "cyan"],
-        isRandom: true,
-        minOpacity: 0.1,
-        maxOpacity: 0.25,
-        isRandomBlur: true,
-        minBlur: 1,
-        maxBlur: 2,
       },
       { start: 49.7, end: 50, type: "flash", opacity: 1 },
       {
@@ -3874,7 +4229,7 @@ const musicCards = [
     images: [fingerdash],
     filters: [
       {
-        start: 35,
+        start: 44,
         end: 52,
         type: "symbols",
         intensity: 120,
@@ -3884,15 +4239,13 @@ const musicCards = [
       { start: 8, end: 9, type: "greyscale", opacity: 1 },
       { start: 17, end: 19, type: "grayscale", opacity: 1 },
       { start: 19, end: 19.4, type: "flash", opacity: 1 },
-      { start: 19.4, end: 32.5, type: "red", opacity: 0.2 },
       { start: 26, end: 32.5, type: "flicker", opacity: 0.15 },
       { start: 32.5, end: 34.2, type: "greyscale", opacity: 1 },
       { start: 34.2, end: 35, type: "flash", opacity: 1 },
       { start: 35, end: 43, type: "red", opacity: 0.2 },
       { start: 43, end: 44, type: "greyscale", opacity: 1 },
-      { start: 44, end: 52, type: "orange", opacity: 0.2 },
       { start: 52, end: 60, type: "greyscale", opacity: 1 },
-      { start: 60, end: 73, type: "red", opacity: 0.2 },
+      { start: 60, end: 73, type: "orange", opacity: 0.2 },
       { start: 73, end: 78, type: "greyscale", opacity: 1 },
       { start: 85, end: 89, type: "greyscale", opacity: 1 },
     ],
@@ -3918,7 +4271,7 @@ const musicCards = [
         blur: 1.3,
       },
       { start: 2, end: 3, type: "green", opacity: 0.1 },
-      { start: 5, end: 6, type: "orange", opacity: 0.2 },
+      { start: 5, end: 7, type: "orange", opacity: 0.2 },
       { start: 7, end: 10, type: "red", opacity: 0.3 },
       { start: 10, end: 18, type: "purple", opacity: 0.4 },
       { start: 18, end: 23, type: "blue", opacity: 0.3 },
@@ -4001,7 +4354,7 @@ const musicCards = [
     duration: 140,
     filters: [
       {
-        start: 21,
+        start: 65,
         end: 81,
         type: "symbols",
         intensity: 150,
@@ -4013,7 +4366,6 @@ const musicCards = [
       { start: 15, end: 15.5, type: "flash", opacity: 1 },
       { start: 21, end: 33, type: "green", opacity: 0.15 },
       { start: 55, end: 65, type: "orange", opacity: 0.15 },
-      { start: 65, end: 81, type: "red", opacity: 0.15 },
       { start: 81, end: 83, type: "greyscale", opacity: 1 },
       { start: 83, end: 88, type: "blue", opacity: 0.15 },
       { start: 88, end: 103, type: "chaos", opacity: 0.15 },
@@ -4051,8 +4403,8 @@ const musicCards = [
     filters: [
       { start: 170, end: 191, type: "flicker", opacity: 0.3 },
       {
-        start: 45,
-        end: 120,
+        start: 81,
+        end: 100,
         type: "symbols",
         intensity: 140,
         speed: 1.4,
@@ -4061,7 +4413,6 @@ const musicCards = [
       { start: 8, end: 27, type: "purple", opacity: 0.25 },
       { start: 27, end: 27.5, type: "flash", opacity: 1 },
       { start: 45, end: 63, type: "blue", opacity: 0.2 },
-      { start: 81, end: 100, type: "green", opacity: 0.2 },
       { start: 100, end: 116, type: "orange", opacity: 0.2 },
       { start: 116, end: 119.6, type: "greyscale", opacity: 0.2 },
       { start: 119.6, end: 120, type: "flash", opacity: 1 },
@@ -4081,7 +4432,7 @@ const musicCards = [
 const PLAYLISTS = {
   хіти: {
     title: "Хіти",
-    monody
+    monody,
   },
   мультфільми: {
     title: "Мультфільми",
@@ -4766,14 +5117,14 @@ const PlaylistModal = ({
   const handleSaveLevelEditor = async (updatedTrack) => {
     if (!customTracks) return;
     const updatedTracks = customTracks.map((t) =>
-      t.id === updatedTrack.id ? updatedTrack : t
+      t.id === updatedTrack.id ? updatedTrack : t,
     );
     const currentCP = (await localforage.getItem("custom_playlist")) || {};
-    
+
     const updatedPlaylist = { ...currentCP, tracks: updatedTracks };
-    await localforage.setItem('custom_playlist', updatedPlaylist);
+    await localforage.setItem("custom_playlist", updatedPlaylist);
     setLevelEditorTrack(null);
-    window.location.reload(); 
+    window.location.reload();
   };
   const [favorites, setFavorites] = useState([]);
   const [isHydrated, setIsHydrated] = useState(false);
@@ -4817,8 +5168,6 @@ const PlaylistModal = ({
     }
     const currentRating = getRating(id);
     const nextRating = (currentRating + 1) % 3;
-
-    // Check limit if trying to rate (score 1 or 2)
     const ratedCount = Array.isArray(favorites)
       ? favorites.length
       : Object.values(favorites).filter((v) => v > 0).length;
@@ -4827,18 +5176,9 @@ const PlaylistModal = ({
       return;
     }
     setFavorites((prev) => {
-      let currentRating = getRating(id); // 0, 1, or 2
-      let nextRating = (currentRating + 1) % 3; // 0->1->2->0
-
-      // Check limit for non-zero ratings
-      // const count = Array.isArray(prev) ? prev.length : Object.values(prev).filter(v => v > 0).length;
-      // if (nextRating > 0 && count >= 3 && currentRating === 0) {
-      //    alert("Ліміт 3 улюблених!");
-      //    return prev;
-      // }
-
+      let currentRating = getRating(id); 
+      let nextRating = (currentRating + 1) % 3;
       if (Array.isArray(prev)) {
-        // Convert to object
         const newObj = {};
         prev.forEach((p) => (newObj[p] = 1));
         newObj[id] = nextRating;
@@ -4923,20 +5263,17 @@ const PlaylistModal = ({
         const randomIndex = Math.floor(Math.random() * remaining.length);
         if (fullScreenTrack) setFullScreenTrack(remaining[randomIndex]);
       } else {
-        // Loop logic handled in player, if not looping, stop.
         if (fullScreenTrack) setFullScreenTrack(null);
       }
       return;
     }
     const currentIndex = processedCards.findIndex((c) => c.id === id);
     if (currentIndex !== -1 && currentIndex < processedCards.length - 1) {
-      // Also update fullscreen track if open
       if (fullScreenTrack) setFullScreenTrack(processedCards[currentIndex + 1]);
     } else {
       if (fullScreenTrack) setFullScreenTrack(null);
     }
   };
-
   const playNext = () => {
     if (!fullScreenTrack) return;
     handleTrackEnd(fullScreenTrack.id);
@@ -5029,7 +5366,10 @@ const PlaylistModal = ({
 
         <MusicPhotoFix>
           {processedCards.slice(0, visibleCount).map((card) => (
-            <div key={card.id} style={{ position: 'relative', marginBottom: 10 }}>
+            <div
+              key={card.id}
+              style={{ position: "relative", marginBottom: 10 }}
+            >
               <MusicCard
                 cardData={card}
                 user={user}
@@ -5040,20 +5380,20 @@ const PlaylistModal = ({
                 }
                 onRate={handleToggleFavorite}
               />
-              {playlistKey === 'custom' && (
+              {playlistKey === "custom" && (
                 <button
                   style={{
-                    position: 'absolute',
+                    position: "absolute",
                     top: 10,
                     right: 10,
                     zIndex: 2,
-                    background: '#7afcff',
-                    color: '#222',
-                    border: 'none',
+                    background: "#7afcff",
+                    color: "#222",
+                    border: "none",
                     borderRadius: 8,
-                    padding: '4px 10px',
+                    padding: "4px 10px",
                     fontSize: 12,
-                    cursor: 'pointer',
+                    cursor: "pointer",
                   }}
                   onClick={() => setLevelEditorTrack(card)}
                 >
@@ -5063,125 +5403,295 @@ const PlaylistModal = ({
             </div>
           ))}
         </MusicPhotoFix>
-{levelEditorTrack && (
-  <ModalOverlay onClick={handleCloseLevelEditor}>
-    <PlaylistModalContent onClick={e => e.stopPropagation()}>
-      <PlaylistCloseButton onClick={handleCloseLevelEditor}>&times;</PlaylistCloseButton>
-      <h3>Level Editor</h3>
-      <div style={{ marginBottom: 10 }}>
-        <label>Текст для lyrics:</label>
-        <input
-          type="text"
-          value={levelEditorTrack.lyrics?.[0]?.text || ''}
-          onChange={e => {
-            const val = e.target.value;
-            setLevelEditorTrack({
-              ...levelEditorTrack,
-              lyrics: [{ time: levelEditorTrack.lyrics?.[0]?.time || 0, text: val }],
-            });
-          }}
-          style={{ width: '100%' }}
-        />
-      </div>
-      <div style={{ marginBottom: 10 }}>
-        <label>Час появи тексту (сек):</label>
-        <input
-          type="number"
-          value={levelEditorTrack.lyrics?.[0]?.time || 0}
-          onChange={e => {
-            const val = parseFloat(e.target.value);
-            setLevelEditorTrack({
-              ...levelEditorTrack,
-              lyrics: [{ time: val, text: levelEditorTrack.lyrics?.[0]?.text || '' }],
-            });
-          }}
-          style={{ width: '100%' }}
-        />
-      </div>
-      <div style={{ marginBottom: 10 }}>
-        <label>Фільтри (JSON):</label>
-        <textarea
-          value={JSON.stringify(levelEditorTrack.filters || [], null, 2)}
-          onChange={e => {
-            let val = e.target.value;
-            try {
-              setLevelEditorTrack({
-                ...levelEditorTrack,
-                filters: JSON.parse(val),
-              });
-            } catch {}
-          }}
-          rows={8}
-          style={{ width: '100%', fontFamily: 'monospace' }}
-        />
-        <button
-          style={{ marginTop: 5, background: '#ffb36c', border: 'none', borderRadius: 5, padding: '4px 10px', cursor: 'pointer' }}
-          onClick={() => {
-            // Clubstep random filters
-            setLevelEditorTrack({
-              ...levelEditorTrack,
-              filters: [
-                { start: 22, end: 49, type: 'symbols', isRandomIntensity: true, minIntensity: 130, maxIntensity: 300, isRandomSpeed: true, minSpeed: 0.5, maxSpeed: 5, isRandomBlurSymbols: true, minBlurSymbols: 0, maxBlurSymbols: 2.5 },
-                { start: 0.1, end: 0.4, type: 'flash', opacity: 1 },
-                { start: 7, end: 20, type: 'black', opacity: 1 },
-                { start: 20, end: 23, type: 'grayscale', opacity: 1 },
-                { start: 21, end: 37, randomColor: true, colorOptions: ['red', 'green'], isRandom: true, minOpacity: 0.15, maxOpacity: 0.45, isRandomBlur: true, minBlur: 0, maxBlur: 3 },
-                { start: 37, end: 49.7, randomColor: true, colorOptions: ['orange', 'cyan'], isRandom: true, minOpacity: 0.2, maxOpacity: 0.4, isRandomBlur: true, minBlur: 1, maxBlur: 2 },
-                { start: 49.7, end: 50, type: 'flash', opacity: 1 },
-                { start: 50, end: 55, randomColor: true, colorOptions: ['black', 'grayscale'], isRandom: true, minOpacity: 0.4, maxOpacity: 0.8, isRandomBlur: true, minBlur: 1, maxBlur: 2 },
-                { start: 59, end: 64, randomColor: true, colorOptions: ['black', 'grayscale'], isRandom: true, minOpacity: 0.6, maxOpacity: 0.9, isRandomBlur: true, minBlur: 1, maxBlur: 2 },
-                { start: 68, end: 72, randomColor: true, colorOptions: ['black', 'grayscale'], isRandom: true, minOpacity: 0.7, maxOpacity: 0.8, isRandomBlur: true, minBlur: 1, maxBlur: 2 },
-                { start: 72, end: 87, randomColor: true, colorOptions: ['purple', 'blue'], isRandom: true, minOpacity: 0.2, maxOpacity: 0.4, isRandomBlur: true, minBlur: 1, maxBlur: 2 },
-                { start: 87, end: 100, randomColor: true, colorOptions: ['brown', 'orange'], isRandom: true, minOpacity: 0.2, maxOpacity: 0.4, isRandomBlur: true, minBlur: 1, maxBlur: 2 },
-                { start: 100, end: 103, type: 'grayscale', opacity: 1 },
-                { start: 103, end: 133, randomColor: true, colorOptions: ['cyan', 'chaos'], isRandom: true, minOpacity: 0.2, maxOpacity: 0.4, isRandomBlur: true, minBlur: 1, maxBlur: 2 },
-                { start: 133, end: 135, type: 'grayscale', opacity: 1 },
-                { start: 135, end: 166, type: 'red', minOpacity: 0.15, isRandom: true, maxOpacity: 0.45 },
-              ],
-            });
-          }}
-        >Додати рандомні фільтри з Clubstep</button>
-      </div>
-      <div style={{ marginBottom: 10 }}>
-        <label>Зображення (до 7):</label>
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          {(levelEditorTrack.images || []).map((img, idx) => (
-            <div key={idx} style={{ position: 'relative' }}>
-              <img src={img} alt='' style={{ width: 60, height: 40, objectFit: 'cover', borderRadius: 5 }} />
-              <button onClick={() => {
-                setLevelEditorTrack({
-                  ...levelEditorTrack,
-                  images: levelEditorTrack.images.filter((_, i) => i !== idx),
-                });
-              }} style={{ position: 'absolute', top: 0, right: 0, background: 'red', color: 'white', border: 'none', borderRadius: '50%', width: 18, height: 18, cursor: 'pointer' }}>×</button>
-            </div>
-          ))}
-          {levelEditorTrack.images && levelEditorTrack.images.length < 7 && (
-            <input
-              type='text'
-              placeholder='URL...'
-              style={{ width: 100 }}
-              onBlur={e => {
-                const val = e.target.value.trim();
-                if (val) {
-                  setLevelEditorTrack({
-                    ...levelEditorTrack,
-                    images: [...(levelEditorTrack.images || []), val],
-                  });
-                  e.target.value = '';
-                }
-              }}
-            />
-          )}
-        </div>
-      </div>
-      <button
-        style={{ background: '#7afcff', color: '#222', border: 'none', borderRadius: 8, padding: '8px 20px', fontWeight: 'bold', marginTop: 10 }}
-        onClick={() => handleSaveLevelEditor(levelEditorTrack)}
-      >Зберегти</button>
-    </PlaylistModalContent>
-  </ModalOverlay>
-)}
+        {levelEditorTrack && (
+          <ModalOverlay onClick={handleCloseLevelEditor}>
+            <PlaylistModalContent onClick={(e) => e.stopPropagation()}>
+              <PlaylistCloseButton onClick={handleCloseLevelEditor}>
+                &times;
+              </PlaylistCloseButton>
+              <h3>Level Editor</h3>
+              <div style={{ marginBottom: 10 }}>
+                <label>Текст для lyrics:</label>
+                <input
+                  type="text"
+                  value={levelEditorTrack.lyrics?.[0]?.text || ""}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setLevelEditorTrack({
+                      ...levelEditorTrack,
+                      lyrics: [
+                        {
+                          time: levelEditorTrack.lyrics?.[0]?.time || 0,
+                          text: val,
+                        },
+                      ],
+                    });
+                  }}
+                  style={{ width: "100%" }}
+                />
+              </div>
+              <div style={{ marginBottom: 10 }}>
+                <label>Час появи тексту (сек):</label>
+                <input
+                  type="number"
+                  value={levelEditorTrack.lyrics?.[0]?.time || 0}
+                  onChange={(e) => {
+                    const val = parseFloat(e.target.value);
+                    setLevelEditorTrack({
+                      ...levelEditorTrack,
+                      lyrics: [
+                        {
+                          time: val,
+                          text: levelEditorTrack.lyrics?.[0]?.text || "",
+                        },
+                      ],
+                    });
+                  }}
+                  style={{ width: "100%" }}
+                />
+              </div>
+              <div style={{ marginBottom: 10 }}>
+                <label>Фільтри (JSON):</label>
+                <textarea
+                  value={JSON.stringify(
+                    levelEditorTrack.filters || [],
+                    null,
+                    2,
+                  )}
+                  onChange={(e) => {
+                    let val = e.target.value;
+                    try {
+                      setLevelEditorTrack({
+                        ...levelEditorTrack,
+                        filters: JSON.parse(val),
+                      });
+                    } catch {}
+                  }}
+                  rows={8}
+                  style={{ width: "100%", fontFamily: "monospace" }}
+                />
+                <button
+                  style={{
+                    marginTop: 5,
+                    background: "#ffb36c",
+                    border: "none",
+                    borderRadius: 5,
+                    padding: "4px 10px",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => {
+                    setLevelEditorTrack({
+                      ...levelEditorTrack,
+                      filters: [
+                        {
+                          start: 22,
+                          end: 49,
+                          type: "symbols",
+                          isRandomIntensity: true,
+                          minIntensity: 130,
+                          maxIntensity: 300,
+                          isRandomSpeed: true,
+                          minSpeed: 0.5,
+                          maxSpeed: 5,
+                          isRandomBlurSymbols: true,
+                          minBlurSymbols: 0,
+                          maxBlurSymbols: 2.5,
+                        },
+                        { start: 0.1, end: 0.4, type: "flash", opacity: 1 },
+                        { start: 7, end: 20, type: "black", opacity: 1 },
+                        { start: 20, end: 23, type: "grayscale", opacity: 1 },
+                        {
+                          start: 21,
+                          end: 37,
+                          randomColor: true,
+                          colorOptions: ["red", "green"],
+                          isRandom: true,
+                          minOpacity: 0.15,
+                          maxOpacity: 0.45,
+                          isRandomBlur: true,
+                          minBlur: 0,
+                          maxBlur: 3,
+                        },
+                        {
+                          start: 37,
+                          end: 49.7,
+                          randomColor: true,
+                          colorOptions: ["orange", "cyan"],
+                          isRandom: true,
+                          minOpacity: 0.2,
+                          maxOpacity: 0.4,
+                          isRandomBlur: true,
+                          minBlur: 1,
+                          maxBlur: 2,
+                        },
+                        { start: 49.7, end: 50, type: "flash", opacity: 1 },
+                        {
+                          start: 50,
+                          end: 55,
+                          randomColor: true,
+                          colorOptions: ["black", "grayscale"],
+                          isRandom: true,
+                          minOpacity: 0.4,
+                          maxOpacity: 0.8,
+                          isRandomBlur: true,
+                          minBlur: 1,
+                          maxBlur: 2,
+                        },
+                        {
+                          start: 59,
+                          end: 64,
+                          randomColor: true,
+                          colorOptions: ["black", "grayscale"],
+                          isRandom: true,
+                          minOpacity: 0.6,
+                          maxOpacity: 0.9,
+                          isRandomBlur: true,
+                          minBlur: 1,
+                          maxBlur: 2,
+                        },
+                        {
+                          start: 68,
+                          end: 72,
+                          randomColor: true,
+                          colorOptions: ["black", "grayscale"],
+                          isRandom: true,
+                          minOpacity: 0.7,
+                          maxOpacity: 0.8,
+                          isRandomBlur: true,
+                          minBlur: 1,
+                          maxBlur: 2,
+                        },
+                        {
+                          start: 72,
+                          end: 87,
+                          randomColor: true,
+                          colorOptions: ["purple", "blue"],
+                          isRandom: true,
+                          minOpacity: 0.2,
+                          maxOpacity: 0.4,
+                          isRandomBlur: true,
+                          minBlur: 1,
+                          maxBlur: 2,
+                        },
+                        {
+                          start: 87,
+                          end: 100,
+                          randomColor: true,
+                          colorOptions: ["brown", "orange"],
+                          isRandom: true,
+                          minOpacity: 0.2,
+                          maxOpacity: 0.4,
+                          isRandomBlur: true,
+                          minBlur: 1,
+                          maxBlur: 2,
+                        },
+                        { start: 100, end: 103, type: "grayscale", opacity: 1 },
+                        {
+                          start: 103,
+                          end: 133,
+                          randomColor: true,
+                          colorOptions: ["cyan", "chaos"],
+                          isRandom: true,
+                          minOpacity: 0.2,
+                          maxOpacity: 0.4,
+                          isRandomBlur: true,
+                          minBlur: 1,
+                          maxBlur: 2,
+                        },
+                        { start: 133, end: 135, type: "grayscale", opacity: 1 },
+                        {
+                          start: 135,
+                          end: 166,
+                          type: "red",
+                          minOpacity: 0.15,
+                          isRandom: true,
+                          maxOpacity: 0.45,
+                        },
+                      ],
+                    });
+                  }}
+                >
+                  Додати рандомні фільтри з Clubstep
+                </button>
+              </div>
+              <div style={{ marginBottom: 10 }}>
+                <label>Зображення (до 7):</label>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  {(levelEditorTrack.images || []).map((img, idx) => (
+                    <div key={idx} style={{ position: "relative" }}>
+                      <img
+                        src={img}
+                        alt=""
+                        style={{
+                          width: 60,
+                          height: 40,
+                          objectFit: "cover",
+                          borderRadius: 5,
+                        }}
+                      />
+                      <button
+                        onClick={() => {
+                          setLevelEditorTrack({
+                            ...levelEditorTrack,
+                            images: levelEditorTrack.images.filter(
+                              (_, i) => i !== idx,
+                            ),
+                          });
+                        }}
+                        style={{
+                          position: "absolute",
+                          top: 0,
+                          right: 0,
+                          background: "red",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "50%",
+                          width: 18,
+                          height: 18,
+                          cursor: "pointer",
+                        }}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                  {levelEditorTrack.images &&
+                    levelEditorTrack.images.length < 7 && (
+                      <input
+                        type="text"
+                        placeholder="URL..."
+                        style={{ width: 100 }}
+                        onBlur={(e) => {
+                          const val = e.target.value.trim();
+                          if (val) {
+                            setLevelEditorTrack({
+                              ...levelEditorTrack,
+                              images: [...(levelEditorTrack.images || []), val],
+                            });
+                            e.target.value = "";
+                          }
+                        }}
+                      />
+                    )}
+                </div>
+              </div>
+              <button
+                style={{
+                  background: "#7afcff",
+                  color: "#222",
+                  border: "none",
+                  borderRadius: 8,
+                  padding: "8px 20px",
+                  fontWeight: "bold",
+                  marginTop: 10,
+                }}
+                onClick={() => handleSaveLevelEditor(levelEditorTrack)}
+              >
+                Зберегти
+              </button>
+            </PlaylistModalContent>
+          </ModalOverlay>
+        )}
 
         {visibleCount < processedCards.length && (
           <LoadMoreButton
@@ -5306,7 +5816,11 @@ const MusicPhoto = ({ user, onOpenRegister, isAnyModalOpen }) => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [miniPlayerTrack, setMiniPlayerTrack] = useState(null);
   const [miniPlayerTime, setMiniPlayerTime] = useState(0);
-  const [miniPlayerState, setMiniPlayerState] = useState({ isPlaying: false, volume: 1, speed: 1 });
+  const [miniPlayerState, setMiniPlayerState] = useState({
+    isPlaying: false,
+    volume: 1,
+    speed: 1,
+  });
   const [restoreTrack, setRestoreTrack] = useState(null);
 
   const [customPlaylist, setCustomPlaylist] = useState(null);
@@ -5410,7 +5924,11 @@ const MusicPhoto = ({ user, onOpenRegister, isAnyModalOpen }) => {
             }}
           >
             <div style={{ color: "#00bdb3", fontSize: "56px" }}>+</div>
-            <div style={{ color: "#00baad", fontWeight: 600, fontSize: "26px" }}>Створити плейлист</div>
+            <div
+              style={{ color: "#00baad", fontWeight: 600, fontSize: "26px" }}
+            >
+              Створити плейлист
+            </div>
           </PlaylistCard>
         )}
       </PlaylistGrid>
@@ -5453,9 +5971,9 @@ const MusicPhoto = ({ user, onOpenRegister, isAnyModalOpen }) => {
       )}
 
       {miniPlayerTrack && (
-        <MiniPlayer 
-          track={miniPlayerTrack} 
-          initialTime={miniPlayerTime} 
+        <MiniPlayer
+          track={miniPlayerTrack}
+          initialTime={miniPlayerTime}
           isPlaying={miniPlayerState.isPlaying}
           speed={miniPlayerState.speed}
           volume={miniPlayerState.volume}
@@ -5464,8 +5982,10 @@ const MusicPhoto = ({ user, onOpenRegister, isAnyModalOpen }) => {
             const track = miniPlayerTrack;
             setRestoreTrack(track);
             setMiniPlayerTrack(null);
-            setMiniPlayerState(prev => ({ ...prev, isPlaying }));
-            setCurrentPlaylist(track.category === "custom" ? "custom" : track.category);
+            setMiniPlayerState((prev) => ({ ...prev, isPlaying }));
+            setCurrentPlaylist(
+              track.category === "custom" ? "custom" : track.category,
+            );
           }}
         />
       )}

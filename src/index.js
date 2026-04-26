@@ -2,17 +2,17 @@ import "modern-normalize/modern-normalize.css";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { HashRouter } from "react-router-dom";
-import { Provider } from "react-redux"; 
-import { store } from "./app/store.js";  
+import { Provider } from "react-redux";
+import { store } from "./app/store.js";
 import "./index.css";
 import App from "./App.js";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <Provider store={store}>
-      <HashRouter> 
+      <HashRouter>
         <App />
       </HashRouter>
     </Provider>
-  </React.StrictMode>
+  </React.StrictMode>,
 );

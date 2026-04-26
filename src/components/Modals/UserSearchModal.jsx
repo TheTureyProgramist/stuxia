@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from "react";
 import styled, { keyframes, css } from "styled-components";
 
 const slideIn = keyframes`
@@ -20,7 +20,8 @@ const appearAndShrink = keyframes`
 const animatedStyle = css`
   opacity: 0;
   transform-origin: left center;
-  animation: ${appearAndShrink} 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  animation: ${appearAndShrink} 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)
+    forwards;
   ${({ $index }) => css`
     animation-delay: ${0.1 + ($index || 0) * 0.05}s;
   `}
@@ -28,14 +29,18 @@ const animatedStyle = css`
 
 const Overlay = styled.div`
   position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background: rgba(0, 0, 0, 0.8);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 3000;
-  transition: opacity 0.4s ease, pointer-events 0.4s ease;
+  transition:
+    opacity 0.4s ease,
+    pointer-events 0.4s ease;
   opacity: ${(props) => (props.$isClosing ? 0 : 1)};
   pointer-events: ${(props) => (props.$isClosing ? "none" : "auto")};
   backdrop-filter: blur(5px);
@@ -48,27 +53,42 @@ const Content = styled.div`
   max-width: 700px;
   width: 95%;
   position: relative;
-  font-family: "Inter", -apple-system, sans-serif;
+  font-family:
+    "Inter",
+    -apple-system,
+    sans-serif;
   max-height: 85vh;
   overflow-y: auto;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-  animation: ${(props) => (props.$isClosing ? slideOut : slideIn)} 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
-  
-  &::-webkit-scrollbar { width: 6px; }
-  &::-webkit-scrollbar-track { background: transparent; }
-  &::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
+  animation: ${(props) => (props.$isClosing ? slideOut : slideIn)} 0.4s
+    cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+  }
 `;
 
 const CloseBtn = styled.button`
   position: absolute;
-  top: 20px; right: 20px;
+  top: 20px;
+  right: 20px;
   background: transparent;
   border: none;
-  width: 40px; height: 40px;
+  width: 40px;
+  height: 40px;
   font-size: 34px;
   cursor: pointer;
   transition: all 0.2s;
-  &:hover { transform: rotate(90deg); }
+  &:hover {
+    transform: rotate(90deg);
+  }
 `;
 
 const AccordionWrapper = styled.div`
@@ -77,7 +97,7 @@ const AccordionWrapper = styled.div`
 
 const AccordionItem = styled.div`
   margin-bottom: 10px;
-  border-bottom: 1px solid rgba(0,0,0,0.05);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   ${animatedStyle}
 `;
 
@@ -90,11 +110,13 @@ const Question = styled.div`
   font-weight: 700;
   font-size: 16px;
   color: #111;
-  
-  &:hover { color: #8a2be2; }
+
+  &:hover {
+    color: #8a2be2;
+  }
 
   &::before {
-    content: '';
+    content: "";
     width: 4px;
     height: 20px;
     background: #8a2be2;
@@ -128,7 +150,9 @@ const LikeButton = styled.button`
   min-width: 50px;
   justify-content: flex-end;
 
-  &:hover { transform: scale(1.2); }
+  &:hover {
+    transform: scale(1.2);
+  }
 `;
 
 const ArrowContainer = styled.div`
@@ -144,7 +168,8 @@ const Arrow = styled.span`
 `;
 
 const Answer = styled.div`
-  max-height: ${(props) => (props.$isOpen ? "1000px" : "0")}; /* Збільшено для довгих списків */
+  max-height: ${(props) =>
+    props.$isOpen ? "1000px" : "0"}; /* Збільшено для довгих списків */
   overflow: hidden;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   padding-bottom: ${(props) => (props.$isOpen ? "15px" : "0")};
@@ -167,7 +192,9 @@ const AcceptBtn = styled.button`
   box-shadow: 0 4px 15px rgba(138, 43, 226, 0.3);
   transition: transform 0.2s;
   ${animatedStyle}
-  &:hover { transform: scale(1.05); }
+  &:hover {
+    transform: scale(1.05);
+  }
 `;
 
 const PointsCounter = styled.div`
@@ -199,7 +226,9 @@ const InfoModal = ({ onClose, isOpen }) => {
   }, [onClose]);
 
   useEffect(() => {
-    const handleEsc = (e) => { if (e.key === "Escape") handleClose(); };
+    const handleEsc = (e) => {
+      if (e.key === "Escape") handleClose();
+    };
     if (isOpen || isClosing) {
       window.addEventListener("keydown", handleEsc);
       return () => window.removeEventListener("keydown", handleEsc);
@@ -218,7 +247,9 @@ const InfoModal = ({ onClose, isOpen }) => {
       // Перевіримо, чи можемо додати нові бали
       const pointsNeeded = points - currentRating;
       if (totalPoints + pointsNeeded > MAX_POINTS) {
-        alert(`❌ Лімітовано! Ви можете додати максимум ${MAX_POINTS} балів. Залишилось: ${MAX_POINTS - totalPoints}`);
+        alert(
+          `❌ Лімітовано! Ви можете додати максимум ${MAX_POINTS} балів. Залишилось: ${MAX_POINTS - totalPoints}`,
+        );
         return;
       }
       newRating = points;
@@ -236,20 +267,53 @@ const InfoModal = ({ onClose, isOpen }) => {
   };
 
   const faqData = [
-    { q: "Останнє оновлення", a: "Тут текст про нову версію, виправлення помилок та покращення стабільності." },
-    { q: "Погода: навчання", a: "Ми маємо прогноз, що зараз, на 24години та на 16днів. За якої умови, прогнозна інформація червона. Якщо прямо зараз температура > 30°C або < -30°C, вітер > 10 м/с або УФ-індекс > 7. Умови попереджень, в наступних версіях, будуть корректніші, якщо ви дасте пораду в зміні лімітів. При вводі міста, дають мітку Червоний знак (!): з'являється, якщо прямо зараз, порушення умови. Оранжевий знак (!): з'являється, якщо такі умови очікуються хоча б в один із найближчих 3-х днів." },
-    { q: "Невідомі кнопки в меню", a: "Роз’яснення всіх функцій можна знайти, натиснувши на символ меню ☰. Кожна кнопка має свою підказку." },
-    { q: "Чому ШІ відмовив у запиті за конверти?", a: "API штучного інтелекту є платним для розробника. Після вичерпання безкоштовного ліміту система може просити оплату для підтримки сервісу." },
-    { q: "Співпраця та поради", a: "Так! Я можу підказати через email, як отримати доступ до API сайтів та плагінів, які я використовую." },
-    { q: "Я втратив акаунт. Чому?", a: "Ваші дані в безпеці, ми не зберігаємо їх постійно. Через очищення кешу браузера сесія може бути перервана." },
-    { q: "Про тематику та ностальгію", a: "Скоріше за все, мені нудно, тому спогади вставили: музику з Geometry Dash, бо мої друзі любили грати в цю гру. А я в My Litle Universe. Індики, бо вони роблять мене щасливими. А динофроз, бо я маю надію, що Malatko TV, повернеться і можливо покажуть, і я відкритий до ваших ідей!" },
-    { q: "Чому є реклама при переході на новину?", a: "Реклама допомагає отримувати прибуток, який е головною мотивацією розвивати проект далі для вас." },
-    { q: "Обмеження підписки на музику", a: "Ми поважаємо авторське право. Заробляти на чужих піснях — це неправильно." },
-    { q: "Навіщо реєстрація для погоди та арту?", a: "Це необхідно для ідентифікації підписників та впевненості, що контент використовується за призначенням." },
-    { q: "Чи буде після Стихії щось?", a: "Ви навіть не уявляєте мій задум! Час покаже, а ваша підтримка та мотивація збільшують шанси!" },
-    { 
-  q: "Повний конспект Paint: усі можливості та як їх отримати", 
-  a: `🎨 ПАНЕЛЬ ІНСТРУМЕНТІВ (Класика + ШІ):
+    {
+      q: "Останнє оновлення",
+      a: "Тут текст про нову версію, виправлення помилок та покращення стабільності.",
+    },
+    {
+      q: "Погода: навчання",
+      a: "Ми маємо прогноз, що зараз, на 24години та на 16днів. За якої умови, прогнозна інформація червона. Якщо прямо зараз температура > 30°C або < -30°C, вітер > 10 м/с або УФ-індекс > 7. Умови попереджень, в наступних версіях, будуть корректніші, якщо ви дасте пораду в зміні лімітів. При вводі міста, дають мітку Червоний знак (!): з'являється, якщо прямо зараз, порушення умови. Оранжевий знак (!): з'являється, якщо такі умови очікуються хоча б в один із найближчих 3-х днів.",
+    },
+    {
+      q: "Невідомі кнопки в меню",
+      a: "Роз’яснення всіх функцій можна знайти, натиснувши на символ меню ☰. Кожна кнопка має свою підказку.",
+    },
+    {
+      q: "Чому ШІ відмовив у запиті за конверти?",
+      a: "API штучного інтелекту є платним для розробника. Після вичерпання безкоштовного ліміту система може просити оплату для підтримки сервісу.",
+    },
+    {
+      q: "Співпраця та поради",
+      a: "Так! Я можу підказати через email, як отримати доступ до API сайтів та плагінів, які я використовую.",
+    },
+    {
+      q: "Я втратив акаунт. Чому?",
+      a: "Ваші дані в безпеці, ми не зберігаємо їх постійно. Через очищення кешу браузера сесія може бути перервана.",
+    },
+    {
+      q: "Про тематику та ностальгію",
+      a: "Скоріше за все, мені нудно, тому спогади вставили: музику з Geometry Dash, бо мої друзі любили грати в цю гру. А я в My Litle Universe. Індики, бо вони роблять мене щасливими. А динофроз, бо я маю надію, що Malatko TV, повернеться і можливо покажуть, і я відкритий до ваших ідей!",
+    },
+    {
+      q: "Чому є реклама при переході на новину?",
+      a: "Реклама допомагає отримувати прибуток, який е головною мотивацією розвивати проект далі для вас.",
+    },
+    {
+      q: "Обмеження підписки на музику",
+      a: "Ми поважаємо авторське право. Заробляти на чужих піснях — це неправильно.",
+    },
+    {
+      q: "Навіщо реєстрація для погоди та арту?",
+      a: "Це необхідно для ідентифікації підписників та впевненості, що контент використовується за призначенням.",
+    },
+    {
+      q: "Чи буде після Стихії щось?",
+      a: "Ви навіть не уявляєте мій задум! Час покаже, а ваша підтримка та мотивація збільшують шанси!",
+    },
+    {
+      q: "Повний конспект Paint: усі можливості та як їх отримати",
+      a: `🎨 ПАНЕЛЬ ІНСТРУМЕНТІВ (Класика + ШІ):
 • Виділення: прямокутне, довільне, «Виділити все» та інверсія вибору.
 • Видалення фону: (Win 11) автоматичне прибирання фону навколо об'єкта одним кліком.
 • Шари (Layers): створення малюнка на різних рівнях (Ctrl+Shift+L), щоб елементи не злипалися.
@@ -279,11 +343,11 @@ const InfoModal = ({ onClose, isOpen }) => {
 1. Базовий набір: вбудований у будь-яку Windows (Пуск -> Paint).
 2. Нові функції (Шари, ШІ, Прозорість): доступні лише в Windows 11.
 3. Оновлення: відкрийте Microsoft Store -> Бібліотека -> Отримати оновлення -> Оновити "Microsoft Paint".
-4. Paint 3D: окрема програма з Microsoft Store для роботи з об'ємними моделями.` 
-},
- { 
-  q: "Механіки плейлисту", 
-  a: `Свайп/Стрілки: Перемикання треків
+4. Paint 3D: окрема програма з Microsoft Store для роботи з об'ємними моделями.`,
+    },
+    {
+      q: "Механіки плейлисту",
+      a: `Свайп/Стрілки: Перемикання треків
 Пробіл: Пауза/Старт
 Клік зліва/справа (20% екрану): Промотка -2с/+2с
 Центр екрану: Пауза/Старт
@@ -295,25 +359,41 @@ const InfoModal = ({ onClose, isOpen }) => {
 Скрін: Знак камери, вибір: скачати, сфотографувати.
 Обрізка: Скріншоти та завантаження фото автоматично обрізають 10% площі (по 5% з країв).
 Clubstep: рандомні фільтри.
-` 
-}
+`,
+    },
   ];
 
   // Сортуємо питання за кількістю балів (вище вище)
-  const sortedFaqData = [...faqData].map((item, originalIndex) => ({
-    ...item,
-    originalIndex,
-    rating: ratings[originalIndex] || 0
-  })).sort((a, b) => b.rating - a.rating);
+  const sortedFaqData = [...faqData]
+    .map((item, originalIndex) => ({
+      ...item,
+      originalIndex,
+      rating: ratings[originalIndex] || 0,
+    }))
+    .sort((a, b) => b.rating - a.rating);
 
   return (
     <Overlay $isClosing={isClosing} onClick={handleClose}>
       <Content $isClosing={isClosing} onClick={(e) => e.stopPropagation()}>
         <CloseBtn onClick={handleClose}>&times;</CloseBtn>
-        <h1 style={{ textAlign: "center", fontSize: "26px", color: "#222", marginBottom: "5px" }}>
+        <h1
+          style={{
+            textAlign: "center",
+            fontSize: "26px",
+            color: "#222",
+            marginBottom: "5px",
+          }}
+        >
           Навчання
         </h1>
-        <p style={{ textAlign: "center", fontSize: "13px", color: "#666", marginBottom: "30px" }}>
+        <p
+          style={{
+            textAlign: "center",
+            fontSize: "13px",
+            color: "#666",
+            marginBottom: "30px",
+          }}
+        >
           Останнє оновлення: 8 квітня 2026 року
         </p>
 
@@ -325,30 +405,30 @@ Clubstep: рандомні фільтри.
           {sortedFaqData.map((item, displayIndex) => {
             const originalIndex = item.originalIndex;
             const rating = ratings[originalIndex] || 0;
-            
+
             return (
               <AccordionItem key={originalIndex} $index={displayIndex + 1}>
                 <Question onClick={() => toggleAccordion(originalIndex)}>
                   <QuestionContent>
                     <QuestionText>{item.q}</QuestionText>
                     <ArrowContainer>
-                      <LikeButton 
+                      <LikeButton
                         onClick={(e) => {
                           e.stopPropagation();
                           handleLike(originalIndex, RED_HEART);
                         }}
                         title="1 бал"
                       >
-                        {rating === RED_HEART ? '❤️' : '🤍'}
+                        {rating === RED_HEART ? "❤️" : "🤍"}
                       </LikeButton>
-                      <LikeButton 
+                      <LikeButton
                         onClick={(e) => {
                           e.stopPropagation();
                           handleLike(originalIndex, GOLD_HEART);
                         }}
                         title="2 бали"
                       >
-                        {rating === GOLD_HEART ? '💛' : '🤎'}
+                        {rating === GOLD_HEART ? "💛" : "🤎"}
                       </LikeButton>
                       <Arrow $isOpen={activeIndex === originalIndex}>▼</Arrow>
                     </ArrowContainer>
