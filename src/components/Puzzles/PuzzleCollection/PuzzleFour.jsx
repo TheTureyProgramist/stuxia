@@ -49,8 +49,8 @@ const GameWrapper = styled.div`
 
 const GameBoard = styled.div`
   display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  grid-template-rows: repeat(8, 1fr);
+  grid-template-columns: repeat(9, 1fr);
+  grid-template-rows: repeat(9, 1fr);
   gap: 1px;
   width: 80vw;
   max-width: 340px;
@@ -121,8 +121,8 @@ const MovingObject = styled.div.attrs((props) => ({
   position: absolute;
   top: 0;
   left: 0;
-  width: 12.5%;
-  height: 12.5%;
+  width: calc(100% / 9);
+  height: calc(100% / 9);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -160,21 +160,6 @@ const NavArrow = styled.div`
   ${(props) => props.$dir === "right" && "right: -135%;"}
 `;
 
-const HelpModal = styled.div`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 85%;
-  max-width: 320px;
-  background: #1a1a1a;
-  border: 2px solid #ffb36c;
-  padding: 20px;
-  color: #eee;
-  z-index: 200;
-  text-align: center;
-`;
-
 const BoxIcon = styled.div`
   width: 75%;
   height: 75%;
@@ -202,6 +187,21 @@ const SawIcon = styled.div`
     content: "⚙️";
     font-size: 12px;
   }
+`;
+
+const BloodIcon = styled.div`
+  width: 60%;
+  height: 60%;
+  border-radius: 50%;
+  background: #8b0000;
+  box-shadow: 
+    0 0 10px #ff0000,
+    inset 0 0 5px rgba(255, 0, 0, 0.5);
+  animation: ${keyframes`
+    /* pulse effect for blood */
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+  `} 0.6s ease-in-out infinite;
 `;
 
 const FloatingText = styled.div`
@@ -375,18 +375,19 @@ const CustomRow = styled.div`
 `;
 
 const PuzzleFour = ({ onExit }) => {
-  const portalA = useMemo(() => ({ x: 0, y: 7 }), []);
-  const portalB = useMemo(() => ({ x: 7, y: 0 }), []);
+  const portalA = useMemo(() => ({ x: 0, y: 6 }), []);
+  const portalB = useMemo(() => ({ x: 8, y: 2 }), []);
   const levelMap = useMemo(
     () => [
-      [0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 1, 0, 0, 1, 0, 0],
-      [0, 1, 1, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 1, 0],
-      [0, 1, 0, 0, 1, 0, 0, 0],
-      [0, 1, 0, 0, 0, 0, 0, 1],
-      [0, 0, 0, 0, 0, 0, 0, 1],
-      [0, 0, 0, 0, 0, 0, 1, 1],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 1, 0, 1, 0, 1, 0, 0],
+      [0, 1, 1, 0, 0, 0, 1, 1, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 1, 0, 0, 1, 0, 0, 1, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 1, 1, 0, 0, 0, 1, 1, 0],
+      [0, 0, 1, 0, 1, 0, 1, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0],
     ],
     [],
   );
@@ -394,9 +395,9 @@ const PuzzleFour = ({ onExit }) => {
   const targets = useMemo(
     () => [
       { x: 6, y: 0 },
-      { x: 5, y: 3 },
-      { x: 4, y: 6 },
-      { x: 5, y: 7 },
+      { x: 0, y: 2 },
+      { x: 2, y: 8 },
+      { x: 8, y: 6 },
     ],
     [],
   );
@@ -415,10 +416,10 @@ const PuzzleFour = ({ onExit }) => {
 
   const [player, setPlayer] = useState({ x: 0, y: 0 });
   const [boxes, setBoxes] = useState([
-    { x: 4, y: 1, locked: false },
-    { x: 1, y: 3, locked: false },
+    { x: 3, y: 3, locked: false },
+    { x: 5, y: 3, locked: false },
+    { x: 5, y: 5, locked: false },
     { x: 3, y: 5, locked: false },
-    { x: 2, y: 6, locked: false },
   ]);
   const [saws, setSaws] = useState([]);
   const [portalCooldown, setPortalCooldown] = useState(0);
@@ -433,8 +434,8 @@ const PuzzleFour = ({ onExit }) => {
   const [isEvacuating, setIsEvacuating] = useState(false);
   const [sawsVisibleFlash, setSawsVisibleFlash] = useState(false);
   const [finalWin, setFinalWin] = useState(false);
-  const [showHelp, setShowHelp] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
+  const [blood, setBlood] = useState([]);
 
   const audioRef = useRef(null);
   const [volume, setVolume] = useState(0.5);
@@ -469,16 +470,16 @@ const PuzzleFour = ({ onExit }) => {
     setPlayer({ x: 0, y: 0 });
     playerRef.current = { x: 0, y: 0 };
     setBoxes([
-      { x: 4, y: 1, locked: false },
-      { x: 1, y: 3, locked: false },
-      { x: 3, y: 5, locked: false },
-      { x: 2, y: 6, locked: false },
+      { x: 3, y: 4, locked: false },
+      { x: 5, y: 4, locked: false },
+      { x: 4, y: 5, locked: false },
+      { x: 4, y: 3, locked: false },
     ]);
     const initialSaws = [
-      { x: 7, y: 2 },
-      { x: 4, y: 3 },
-      { x: 6, y: 5 },
-      { x: 3, y: 7 },
+      { x: 5, y: 3 },
+      { x: 3, y: 3 },
+      { x: 5, y: 5 },
+      { x: 3, y: 5 },
     ];
     setSaws(initialSaws.slice(0, config.sawsCount));
 
@@ -540,7 +541,7 @@ const PuzzleFour = ({ onExit }) => {
           let nx = saw.x + d.x,
             ny = saw.y + d.y;
           if (nx <= 1 && ny <= 1) return false;
-          if (nx < 0 || nx > 7 || ny < 0 || ny > 7 || levelMap[ny][nx] === 1)
+          if (nx < 0 || nx > 8 || ny < 0 || ny > 8 || levelMap[ny][nx] === 1)
             return false;
           return !boxes.some((b) => b.x === nx && b.y === ny);
         });
@@ -550,6 +551,11 @@ const PuzzleFour = ({ onExit }) => {
 
         let fx = saw.x + move.x,
           fy = saw.y + move.y;
+
+        // Гіпноз: 10% шанс залишити кров
+        if (Math.random() < 0.1) {
+          setBlood((prev) => [...prev, { x: fx, y: fy, duration: 4 }]);
+        }
 
         if (config.sawsUsePortals) {
           if (fx === portalA.x && fy === portalA.y) return portalB;
@@ -575,6 +581,26 @@ const PuzzleFour = ({ onExit }) => {
     });
   }, [boxes, levelMap, handleHit, portalA, portalB, config]);
 
+  // State for hypnosis effect
+  const [hypnotized, setHypnotized] = useState(0);
+
+  // Memoized closest saw for hypnotized movement
+  const closestSaw = useMemo(() => {
+    if (saws.length === 0) return null;
+    let minDistance = Infinity;
+    let closest = null;
+    saws.forEach((saw) => {
+      const dist = Math.sqrt(
+        Math.pow(player.x - saw.x, 2) + Math.pow(player.y - saw.y, 2),
+      );
+      if (dist < minDistance) {
+        minDistance = dist;
+        closest = saw;
+      }
+    });
+    return closest;
+  }, [player, saws]);
+
   const completeStep = useCallback(
     (nx, ny, newBoxes) => {
       let finalX = nx,
@@ -595,6 +621,23 @@ const PuzzleFour = ({ onExit }) => {
       playerRef.current = { x: finalX, y: finalY };
       if (usedPortal) setPortalCooldown(config.portalCooldown);
       setPortalCooldown((prev) => Math.max(0, prev - 1));
+
+      // Blood decay: decrement duration for all blood spots
+      setBlood((prevBlood) =>
+        prevBlood
+          .map((b) => ({ ...b, duration: b.duration - 1 }))
+          .filter((b) => b.duration > 0),
+      );
+
+      // Check for blood at player's new position and apply hypnosis
+      const bloodAtPlayerPos = blood.find(
+        (b) => b.x === finalX && b.y === finalY,
+      );
+      if (bloodAtPlayerPos && hypnotized === 0) { // Only apply if not already hypnotized
+        setHypnotized(2); // Hypnotized for 2 turns
+        setBlood((prevBlood) => prevBlood.filter((b) => !(b.x === finalX && b.y === finalY))); // Remove blood spot
+        setStatusMsg("ГІПНОЗ!");
+      }
 
       if (isEvacuating) {
         const atEvac = evacPoints.findIndex(
@@ -630,14 +673,14 @@ const PuzzleFour = ({ onExit }) => {
           setBonusTime(8);
           setIsEvacuating(true);
           setEvacPoints([
-            { x: 1, y: 1, active: false, hidden: false },
-            { x: 6, y: 6, active: false, hidden: false },
-            { x: 6, y: 1, active: false, hidden: true },
-            { x: 1, y: 6, active: false, hidden: true },
-            { x: 3, y: 4, active: false, hidden: true },
-            { x: 4, y: 3, active: false, hidden: true },
-            { x: 0, y: 4, active: false, hidden: true },
-            { x: 7, y: 3, active: false, hidden: true },
+            { x: 3, y: 0, active: false, hidden: true },
+            { x: 5, y: 0, active: false, hidden: true },
+            { x: 8, y: 3, active: false, hidden: true },
+            { x: 8, y: 5, active: false, hidden: true },
+            { x: 3, y: 8, active: false, hidden: true },
+            { x: 5, y: 8, active: false, hidden: true },
+            { x: 0, y: 5, active: false, hidden: true },
+            { x: 0, y: 3, active: false, hidden: true },
           ]);
         } else {
           setActiveTargetIdx((prev) => (prev + 1) % targets.length);
@@ -663,6 +706,9 @@ const PuzzleFour = ({ onExit }) => {
       resetGame,
       portalA,
       portalB,
+      blood, // Add blood to dependencies
+      hypnotized, // Add hypnotized to dependencies
+      setHypnotized, // Add setHypnotized to dependencies
       config,
     ],
   );
@@ -673,7 +719,7 @@ const PuzzleFour = ({ onExit }) => {
       const dy = dir === "up" ? -1 : dir === "down" ? 1 : 0;
       const nx = player.x + dx,
         ny = player.y + dy;
-      if (nx < 0 || nx > 7 || ny < 0 || ny > 7 || levelMap[ny][nx] === 1)
+      if (nx < 0 || nx > 8 || ny < 0 || ny > 8 || levelMap[ny][nx] === 1)
         return false;
       const boxIdx = boxes.findIndex((b) => b.x === nx && b.y === ny);
       if (boxIdx !== -1) {
@@ -682,9 +728,9 @@ const PuzzleFour = ({ onExit }) => {
           bny = ny + dy;
         if (
           bnx < 0 ||
-          bnx > 7 ||
+          bnx > 8 ||
           bny < 0 ||
-          bny > 7 ||
+          bny > 8 ||
           levelMap[bny][bnx] === 1 ||
           boxes.some((b) => b.x === bnx && b.y === bny)
         )
@@ -697,7 +743,7 @@ const PuzzleFour = ({ onExit }) => {
 
   const moveAction = useCallback(
     (dir) => {
-      if (finalWin || showHelp) return;
+      if (finalWin) return; // Game is over
       if (!canMove(dir)) return;
       const dx = dir === "left" ? -1 : dir === "right" ? 1 : 0;
       const dy = dir === "up" ? -1 : dir === "down" ? 1 : 0;
@@ -716,24 +762,51 @@ const PuzzleFour = ({ onExit }) => {
         setBoxes(nextBoxes);
         completeStep(nx, ny, nextBoxes);
       } else completeStep(nx, ny, boxes);
-    },
-    [finalWin, showHelp, canMove, player, boxes, saws, handleHit, completeStep],
+    }, // Removed hypnotized from dependencies here, as it's handled by the useEffect for auto-move
+    [finalWin, canMove, player, boxes, saws, handleHit, completeStep],
   );
 
   useEffect(() => {
     const handleKey = (e) => {
+      if (hypnotized > 0) return; // Disable manual input when hypnotized
       if (e.key === "ArrowUp") moveAction("up");
       if (e.key === "ArrowDown") moveAction("down");
       if (e.key === "ArrowLeft") moveAction("left");
       if (e.key === "ArrowRight") moveAction("right");
     };
     window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [moveAction]);
+    return () => {
+      window.removeEventListener("keydown", handleKey);
+    };
+  }, [moveAction, hypnotized]); // Add hypnotized to dependencies
+
+  // Effect for hypnotized automatic movement
+  useEffect(() => {
+    if (hypnotized > 0 && closestSaw) {
+      const timer = setTimeout(() => {
+        let targetDir = null;
+        const dx = closestSaw.x - player.x;
+        const dy = closestSaw.y - player.y;
+
+        // Prioritize moving towards the saw
+        if (dx !== 0 && canMove(dx > 0 ? "right" : "left")) targetDir = dx > 0 ? "right" : "left";
+        else if (dy !== 0 && canMove(dy > 0 ? "down" : "up")) targetDir = dy > 0 ? "down" : "up";
+        else { // If direct path blocked, try any valid move towards it
+            const possibleMoves = [];
+            if (dx > 0) possibleMoves.push("right"); if (dx < 0) possibleMoves.push("left");
+            if (dy > 0) possibleMoves.push("down"); if (dy < 0) possibleMoves.push("up");
+            for (const move of possibleMoves) { if (canMove(move)) { targetDir = move; break; } }
+        }
+        if (targetDir) moveAction(targetDir); // Perform the move
+        setHypnotized((prev) => prev - 1); // Decrement hypnotized turns after attempting a move
+      }, 300); // Small delay for automatic move
+      return () => clearTimeout(timer);
+    }
+  }, [hypnotized, player, closestSaw, moveAction, canMove, setHypnotized]); // Added setHypnotized to dependencies
 
   useEffect(() => {
     const t = setInterval(() => {
-      if (!showHelp && !finalWin) {
+      if (!finalWin) {
         setTimeLeft((p) => {
           if (p <= 1 && !finalWin) {
             alert("ЧАС ВИЙШОВ");
@@ -746,7 +819,7 @@ const PuzzleFour = ({ onExit }) => {
       if (bonusTime > 0) setBonusTime((p) => p - 1);
     }, 1000);
     return () => clearInterval(t);
-  }, [resetGame, bonusTime, showHelp, finalWin, config.time]);
+  }, [resetGame, bonusTime, finalWin, config.time]);
 
   const setDifficulty = (type, customParams = null) => {
     let newConfig;
@@ -758,7 +831,7 @@ const PuzzleFour = ({ onExit }) => {
           label: "Легка",
           time: 300,
           maxMoves: 200,
-          sawsCount: 3,
+          sawsCount: 4,
           lives: 8,
           portalCooldown: 3,
           sawMovement: "hv_pause",
@@ -767,9 +840,9 @@ const PuzzleFour = ({ onExit }) => {
         normal: {
           label: "Середня",
           time: 300,
-          maxMoves: 100,
+          maxMoves: 150,
           sawsCount: 4,
-          lives: 4,
+          lives: 6,
           portalCooldown: 6,
           sawMovement: "random",
           sawsUsePortals: true,
@@ -779,7 +852,7 @@ const PuzzleFour = ({ onExit }) => {
           time: 300,
           maxMoves: 100,
           sawsCount: 4,
-          lives: 6,
+          lives: 4,
           portalCooldown: 10,
           sawMovement: "all_no_pause",
           sawsUsePortals: true,
@@ -843,7 +916,7 @@ const PuzzleFour = ({ onExit }) => {
         )}
         <MovingObject $x={player.x} $y={player.y} style={{ zIndex: 25 }}>
           <PlayerIcon>
-            {!finalWin && !showHelp && (
+            {!finalWin && (
               <>
                 {canMove("up") && (
                   <NavArrow $dir="up" onClick={() => moveAction("up")}>
@@ -885,6 +958,14 @@ const PuzzleFour = ({ onExit }) => {
           </MovingObject>
         ))}
 
+        {/* Render Blood */}
+        {blood.map((b, i) => (
+          <MovingObject key={`blood-${i}`} $x={b.x} $y={b.y} style={{ zIndex: 15 }}>
+            <BloodIcon />
+          </MovingObject>
+        ))}
+
+
         {saws.map((s, i) => {
           const isTransparent = bonusTime > 0;
           const isInvisible =
@@ -913,31 +994,6 @@ const PuzzleFour = ({ onExit }) => {
         {statusMsg && (
           <FloatingText key={statusMsg + moves}>{statusMsg}</FloatingText>
         )}
-        {showHelp && (
-          <HelpModal>
-            <h3>Рішення головоломки</h3>
-            <p style={{ fontSize: "11px", textAlign: "left" }}>
-              <b>Ціль</b>: Встановити 4 модулі на позиції ⚡.
-              <br />
-              <b>Пили</b>: Випадковий рух. У Фазі 1 забирають 1❤️.
-              <br />
-              <b>НЕВРАЗЛИВІСТЬ</b>: Після 4-го модуля — 8с безпеки (зелені
-              пили).
-              <br />
-              <b>ФАЗА ЕВАКУАЦІЇ</b>: Пили стають невидимими (радіус 1) і
-              наносять <b>x2 ШКОДИ (2❤️)</b>!
-              <br />
-              <b>Як вижити?</b> Активуйте 8 точок 📍. При кожній активації пили
-              стають видимими на 1с.
-            </p>
-            <GameButton
-              style={{ width: "auto", padding: "0 20px", marginTop: "10px" }}
-              onClick={() => setShowHelp(false)}
-            >
-              ПОЧАТИ
-            </GameButton>
-          </HelpModal>
-        )}
       </GameBoard>
       <BottomPanel>
         <StatsGrid>
@@ -955,6 +1011,14 @@ const PuzzleFour = ({ onExit }) => {
             <span style={{ color: "#4caf50" }}>🛡️ {bonusTime}s</span>
           )}
         </StatsGrid>
+        {/* Display hypnotized turns remaining */}
+        {hypnotized > 0 && (
+          <span
+            style={{ color: "#ff4444", fontWeight: "bold", fontSize: "14px" }}
+          >
+            😵 {hypnotized} ходів
+          </span>
+        )}
         <div style={{ display: "flex", gap: "5px" }}>
           <VolumeControl>
             <span>{volume === 0 ? "🔇" : "🎵"}</span>
@@ -967,9 +1031,11 @@ const PuzzleFour = ({ onExit }) => {
               onChange={(e) => setVolume(parseFloat(e.target.value))}
             />
           </VolumeControl>
-          <GameButton onClick={() => setShowHelp(true)}>?</GameButton>
           <GearContainer
-            onClick={() => setShowSettings(true)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowSettings(true);
+            }}
             title="Налаштування"
           >
             <span className="g g1">⚙</span>

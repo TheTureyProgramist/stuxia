@@ -6174,7 +6174,6 @@ const MusicPhoto = ({ user, onOpenRegister, isAnyModalOpen }) => {
   const [restoreTrack, setRestoreTrack] = useState(null);
 
   const [customPlaylist, setCustomPlaylist] = useState(null);
-  const [isPlaylistHydrated, setIsPlaylistHydrated] = useState(false);
 
   useEffect(() => {
     const loadPlaylist = async () => {
@@ -6183,8 +6182,6 @@ const MusicPhoto = ({ user, onOpenRegister, isAnyModalOpen }) => {
         if (saved) setCustomPlaylist(saved);
       } catch (e) {
         console.error("Помилка завантаження плейлиста:", e);
-      } finally {
-        setIsPlaylistHydrated(true);
       }
     };
     loadPlaylist();

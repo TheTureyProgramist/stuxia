@@ -269,6 +269,19 @@ const RainbowText = styled.h1`
   font-family: "Inter", sans-serif;
   font-size: 7px;
   font-weight: bold;
+  display: flex; align-items: center; justify-content: center;
+  padding: 1.3px 0px;
+  border: 2px solid;
+  border-image-source: linear-gradient(
+    45deg,
+    #ff0000,
+    #ff7f00,
+    #ffff00,
+    #00ff00,
+    #0000ff,
+    #8b00ff
+  );
+  border-image-slice: 1;
   margin: 0;
   background: linear-gradient(
     45deg,
@@ -296,6 +309,16 @@ const RainbowText = styled.h1`
 const UltraText = styled.h1`
   font-family: "Inter", sans-serif;
   font-size: 7px;
+    border: 2px solid;
+  border-image-source: linear-gradient(
+    270deg,
+    #ff7eb3,
+    #ff758c,
+    #7afcff,
+    #feffb7,
+    #58e2c2
+  );
+  border-image-slice: 1;
   font-weight: bold;
   margin: 0;
   background: linear-gradient(
@@ -306,11 +329,13 @@ const UltraText = styled.h1`
     #feffb7,
     #58e2c2
   );
+  padding: 1px 8px;
+  display: flex; align-items: center; justify-content: center;
   background-size: 400% 400%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: ${flow} 5s ease infinite;
+  animation: ${flow} 3s ease infinite;
   transition: opacity 0.5s ease-in-out;
   opacity: ${(props) => (props.$show ? 1 : 0)};
   grid-area: 1/1;
@@ -686,8 +711,8 @@ const Header = ({
 
           {user && (
             <VipTextWrapper onClick={onOpenVip}>
-              <RainbowText $show={!showUltra}>Стихія+</RainbowText>
-              <UltraText $show={showUltra}>Стихія+ Ultra</UltraText>
+              <RainbowText $show={!showUltra}>+</RainbowText>
+              <UltraText $show={showUltra}>♔</UltraText>
             </VipTextWrapper>
           )}
         </HeaderFix>
@@ -864,7 +889,12 @@ const Header = ({
         resetSiteSections={resetSiteSections}
         onToggleTheme={handleThemeToggle}
         onOpenShop={onOpenShop}
+        onDownloadLogo={handleDownloadLogo}
+        onPrintLogo={handlePrintLogo}
+        onFullscreenLogo={handleFullscreenLogo}
+        onOpenVip={onOpenVip}
         onOpenAchievements={onOpenAchievements}
+        showUltra={showUltra}
         onOpenSettings={onOpenSettings}
         onOpenHelp={onOpenHelp}
         onOpenInfo={onOpenInfo}

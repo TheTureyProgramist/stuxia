@@ -54,7 +54,7 @@ const ShopContainer = styled.div`
   width: 90%;
   max-width: 850px;
   max-height: 95vh;
-  padding: 15px;
+  padding: 9px;
   border-radius: 20px;
   position: relative;
   border: 2px solid #ff6c6c;
@@ -72,7 +72,7 @@ const ShopContainer = styled.div`
 
   @media (min-width: 1900px) {
     max-width: 1300px;
-    padding: 30px;
+    padding: 20px;
   }
 `;
 
@@ -174,7 +174,7 @@ const Badge = styled.div`
   right: -10px;
   background: linear-gradient(135deg, #ffb36c 0%, #ff6c6c 100%);
   color: #3a1a1a;
-  padding: 5px 10px;
+  padding: 3px 6px;
   border-radius: 8px;
   font-size: 10px;
   font-weight: 900;
@@ -188,10 +188,10 @@ const Badge = styled.div`
 `;
 const PackGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 15px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
   @media (max-width: 1024px) {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
   @media (max-width: 650px) {
     grid-template-columns: 1fr;
@@ -212,7 +212,7 @@ const PackCard = styled.div`
   flex-direction: column;
   justify-content: space-between;
   gap: 10px;
-  min-height: 220px;
+  min-height: 160px;
   animation: ${(props) => (props.$isSpecial ? pulse : "none")} 2s infinite;
   transition: 0.3s;
   z-index: 1;
@@ -302,7 +302,7 @@ const PackName = styled.div`
 
 const BuyButton = styled.button`
   width: 100%;
-  padding: 12px;
+  padding: 2px;
   background: #ff6c6c;
   border: none;
   border-radius: 10px;
@@ -334,7 +334,7 @@ const BuyButton = styled.button`
   }
 
   @media (min-width: 1900px) {
-    padding: 18px;
+    padding: 6px;
     span {
       font-size: 18px;
     }
@@ -345,15 +345,15 @@ const BuyButton = styled.button`
 `;
 
 const InfoSection = styled.div`
-  margin-top: 20px;
-  padding: 20px;
+  margin-top: 5px;
+  padding: 5px;
   background: rgba(0, 0, 0, 0.3);
   border-radius: 15px;
   border: 1px dashed #ff6c6c;
 
   @media (min-width: 1900px) {
-    margin-top: 40px;
-    padding: 30px;
+    margin-top: 10px;
+    padding: 10px;
   }
 `;
 
@@ -470,26 +470,39 @@ const ShopModal = ({ onClose }) => {
       buttonText: "4.99грн",
       badge: "2 рази/добу",
     },
-    {
-      name: "Бундючий",
-      count: 1500,
-      img: turkey,
-      oldPrice: "25.00грн",
-      buttonText: "9.99грн",
-      badge: "-15% Популярний, ∞ в лімітах",
+        {
+      name: "Фінансовий",
+      count: 250,
+      img: time,
+      buttonText: "4.99грн",
+      badge: "Раз/2 тижні",
+    },
+        {
+      name: "Лісовий",
+      count: 250,
+      img: time,
+      buttonText: "4.99грн",
+      badge: "Раз на акаунт",
     },
     {
-      name: "Драконячий",
+      name: "Загадковий",
+      count: 1000,
+      img: turkey,
+      buttonText: "29.99грн",
+      badge: "Популярний, ∞ в лімітах",
+    },
+    {
+      name: "Ніцероновий",
       count: 2000,
       img: dinofroz,
       special: true,
-      oldPrice: "50.00грн",
-      buttonText: "19.99грн",
-      badge: "-50%! Найвигідніший, Раз/добу",
+      oldPrice: "60.00грн",
+      buttonText: "34.99грн",
+      badge: "-40%! Найвигідніший, 2рази/3доби",
     },
     {
       name: "Підписка",
-      count: "Стихія+ та Стихія+ Ultra",
+      count: "Стихія+ та Стихія Ultra",
       img: null,
       special: true,
       buttonText: "Розблокувати",
@@ -634,11 +647,7 @@ const ShopModal = ({ onClose }) => {
             opacity: 0.9,
           }}
         >
-          * Для власників <RainbowSpan>Стихія+</RainbowSpan> ціна знижена на
-          5грн, а <RainbowSpan>Стихія+ Ultra</RainbowSpan> на 10грн. Знижка діє
-          і для обмежених подій. Початок нової доби о 0:00 за Київським часом.
-          Ліміт конвертів 2500, ті що перевищують ліміт, будуть
-          анульовані(збільште ліміт з підписками).
+         Усі примітки, розміщені в навчанні, кнопка ? вгорі, як і питання про внутрішньоігрові валюти.
         </div>
       </ShopContainer>
     </Overlay>

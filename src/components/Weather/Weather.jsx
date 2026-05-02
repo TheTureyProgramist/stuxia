@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import styled, { keyframes } from "styled-components";
 import { Line } from "react-chartjs-2";
+import { removeCustomDay, addCustomDay } from "../../features/counter/Counter.js";
 
 const fadeIn = keyframes`from { opacity: 0; } to { opacity: 1; }`;
 
@@ -227,8 +228,10 @@ const WeatherCardComponent = ({
   handleRenameCard,
   moveWeatherCard,
   setIsLocationEnabled,
+  customHolidayName,
 }) => {
   const customDays = useSelector((state) => state.calendar?.customDays || []);
+  const dispatch = useDispatch();
   const [isEditing, setIsEditing] = useState(false);
   const [newName, setNewName] = useState(card.locationName);
   const [selectedDay, setSelectedDay] = useState(null);
@@ -318,7 +321,7 @@ const WeatherCardComponent = ({
     "08.03": "Жінки, всіх вас вітаю з вашим днем!",
     25.03: "Благовіщення",
     "01.04": "Сьогодні день дурня, не святого лежня. Нікому не вірте!",
-    12.04: "З Великоднем (Пасха). Бажаю всім всього найкращого.", // Орієнтовно для 2026
+    12.04: "З Великоднем (Пасха). Бажаю всім всього найкращого.", 
     "01.05": "День праці",
     "08.05":
       "День пам'яті та перемоги. В цей день ми(наші прадіди) перемогли фашизм",
@@ -358,18 +361,13 @@ const WeatherCardComponent = ({
     );
   };
 
-  const getDateType = (dateStr, dayName) => {
-    // 1. Перевірка на власні дні (Синій пріоритет)
-    const customDay = customDays.find((d) => d.date === dateStr);
-    if (customDay) {
-      return { type: "custom", color: "#004cff", label: customDay.reason };
-    }
-
+  const getDateType = (dateStr, dayName, fullDate) => {
     const holidayName = HOLIDAYS_2026[dateStr];
     const isWknd = isWeekend(dayName);
     const isBday = isBirthday(dateStr);
+    const customDay = customDays.find((d) => d.date === fullDate);
 
-    // Пріоритет: Власний (Синій) > Свято (Кораловий) > День народження > Вихідний
+    // Пріоритет: Свято > День народження > Custom > Вихідний
     if (holidayName) {
       return {
         type: "holiday",
@@ -385,6 +383,9 @@ const WeatherCardComponent = ({
         isRainbow: true,
       };
     }
+    if (customDay) {
+      return { type: "custom", color: "#00bfff", label: customDay.reason };
+    }
     if (isWknd) {
       return {
         type: "weekend",
@@ -395,13 +396,31 @@ const WeatherCardComponent = ({
     return { type: "regular", color: null, label: "" };
   };
 
-  const getHolidayMessage = (dateStr, dayName) => {
-    const customDay = customDays.find((d) => d.date === dateStr);
-    if (customDay) return `💙 Ваша подія: ${customDay.reason}`;
+  const calculateCountdown = (fullDate) => {
+    const now = new Date();
+    const target = new Date(fullDate);
+    target.setHours(0, 0, 0, 0); // Початок дня події
+    
+    const diff = target.getTime() - now.getTime();
+    if (diff <= 0) return null;
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    
+    if (days > 0) return `⏳ Залишилось: ${days}д ${hours}г`;
+    return `⏳ Почнеться за ${hours}г`;
+  };
+
+  const getHolidayMessage = (dateStr, dayName, fullDate) => {
+    const customDay = customDays.find((d) => d.date === fullDate);
+    const countdown = calculateCountdown(fullDate);
+    const suffix = countdown ? ` (${countdown})` : "";
+
+    if (customDay) return `💙 Ваша подія: ${customDay.reason}${suffix}`;
     if (isBirthday(dateStr))
-      return `🎂 Вітаємо, ${user?.firstName}! З Днем Народження! 🌈`;
+      return `🎂 Вітаємо, ${user?.firstName}! З Днем Народження! 🌈${suffix}`;
     const holiday = HOLIDAYS_2026[dateStr];
-    if (holiday) return `✨ Вітаємо з святом: ${holiday}!`;
+    if (holiday) return `✨ Вітаємо з святом: ${holiday}!${suffix}`;
     return null;
   };
   const dailyChartData = {
@@ -417,11 +436,11 @@ const WeatherCardComponent = ({
           createIconCanvas(d.iconPlaceholder, 24),
         ),
         pointBorderColor: card.daily16?.map((d) => {
-          const dateType = getDateType(d.date, d.day);
+          const dateType = getDateType(d.date, d.day, d.fullDate);
           return dateType.color || "#ffb36c";
         }),
         pointBorderWidth: card.daily16?.map((d) => {
-          const dateType = getDateType(d.date, d.day);
+          const dateType = getDateType(d.date, d.day, d.fullDate);
           return dateType.color ? 3 : 2;
         }),
         tension: 0.3,
@@ -526,8 +545,8 @@ const WeatherCardComponent = ({
           title: (items) => {
             const daily = card.daily16?.[items[0].dataIndex];
             if (!daily) return items[0].label;
-            const dateType = getDateType(daily.date, daily.day);
-            const holidayMsg = getHolidayMessage(daily.date, daily.day);
+            const dateType = getDateType(daily.date, daily.day, daily.fullDate);
+            const holidayMsg = getHolidayMessage(daily.date, daily.day, daily.fullDate);
             const label = dateType.label ? ` [${dateType.label}]` : "";
             const titleText = items[0].label + label;
             // Повертаємо масив для коректного відображення кількох рядків
@@ -556,7 +575,7 @@ const WeatherCardComponent = ({
               return isDarkMode ? "#aaa" : "#888";
             }
             const daily = card.daily16[ctx.index];
-            const dateType = getDateType(daily.date, daily.day);
+            const dateType = getDateType(daily.date, daily.day, daily.fullDate);
             return dateType.color || (isDarkMode ? "#aaa" : "#888");
           },
           font: {
@@ -565,7 +584,7 @@ const WeatherCardComponent = ({
               if (!card.daily16 || ctx.index >= card.daily16.length)
                 return "normal";
               const daily = card.daily16[ctx.index];
-              const dateType = getDateType(daily.date, daily.day);
+              const dateType = getDateType(daily.date, daily.day, daily.fullDate);
               return dateType.color ? "bold" : "normal";
             },
           },
@@ -575,7 +594,26 @@ const WeatherCardComponent = ({
     onClick: (event, elements) => {
       if (elements.length > 0) {
         const index = elements[0].index;
-        setSelectedDay(card.daily16[index]);
+        const daily = card.daily16[index];
+        const dateType = getDateType(daily.date, daily.day, daily.fullDate);
+        if (dateType.type === 'holiday' || dateType.type === 'birthday') {
+          // Не змінювати свята і дні народження
+          setSelectedDay(daily);
+        } else if (dateType.type === 'custom') {
+          // Видалити custom day
+          dispatch(removeCustomDay(daily.fullDate));
+        } else {
+          // Додати custom day, якщо є назва
+          if (customHolidayName.trim()) {
+            if (customHolidayName.trim().length > 12) {
+              alert("Назва свята занадто довга (макс. 12 символів)!");
+              return;
+            }
+            dispatch(addCustomDay({ date: daily.fullDate, reason: customHolidayName.trim() }));
+          } else {
+            setSelectedDay(daily);
+          }
+        }
       }
     },
   };
@@ -607,22 +645,19 @@ const WeatherCardComponent = ({
             <h3 style={{ margin: 0 }}>
               Детально: {selectedDay.date} ({selectedDay.day})
             </h3>
-            {getDateType(selectedDay.date, selectedDay.day).label && (
+            {getDateType(selectedDay.date, selectedDay.day, selectedDay.fullDate).label && (
               <p
                 style={{
                   margin: "5px 0",
                   fontSize: "12px",
-                  color: getDateType(selectedDay.date, selectedDay.day).color,
+                  color: getDateType(selectedDay.date, selectedDay.day, selectedDay.fullDate).color,
                   fontWeight: "bold",
                 }}
               >
-                {getDateType(
-                  selectedDay.date,
-                  selectedDay.day,
-                ).label.toUpperCase()}
+                {getDateType(selectedDay.date, selectedDay.day, selectedDay.fullDate).label.toUpperCase()}
               </p>
             )}
-            {getHolidayMessage(selectedDay.date, selectedDay.day) && (
+            {getHolidayMessage(selectedDay.date, selectedDay.day, selectedDay.fullDate) && (
               <p
                 style={{
                   margin: "8px 0",
@@ -631,7 +666,7 @@ const WeatherCardComponent = ({
                   color: "#ffb36c",
                 }}
               >
-                {getHolidayMessage(selectedDay.date, selectedDay.day)}
+                {getHolidayMessage(selectedDay.date, selectedDay.day, selectedDay.fullDate)}
               </p>
             )}
             <ImagePlaceholder

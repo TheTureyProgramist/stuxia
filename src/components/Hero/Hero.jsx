@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import styled, { keyframes, css } from "styled-components";
+import { useSelector, useDispatch } from 'react-redux';
+import { addCustomDay, removeCustomDay } from '../../features/counter/Counter.js';
 import localforage from "localforage";
 import hills from "../../photos/hero-header/fog.webp";
 import herotext from "../../photos/hero-header/herotext.webp";
@@ -190,11 +192,7 @@ const HeroDiv = styled.div`
   @media (min-width: 768px) {
     gap: 25px;
     margin-bottom: 15px;
-  }
-  @media (min-width: 1200px) {
-    gap: 30px;
-    min-height: 643px;
-    margin-bottom: 20px;
+        min-height: 643px;
   }
   @media (min-width: 1920px) {
     min-height: 1080px;
@@ -220,16 +218,12 @@ const HeroDecors = styled.div`
         `
       : "none"};
   @media (min-width: 768px) {
-    width: 410px;
-    height: 180px;
-  }
-  @media (min-width: 1200px) {
-    width: 400px;
-    height: 179px;
+    width: 216px;
+    height: 100.5px;
   }
   @media (min-width: 1920px) {
-    width: 700px;
-    height: 280px;
+    width: 400px;
+    height: 180px;
   }
 `;
 const DelayedContent = styled.div`
@@ -529,6 +523,109 @@ const DownloadAppButton = styled.a`
     transform: translateY(-2px);
     border-color: #ffb36c;
   }
+`;
+
+const fireflyAnim = keyframes`
+  0%, 100% { opacity: 0; transform: scale(0.5) translate(0, 0); }
+  50% { opacity: 1; transform: scale(1.2) translate(var(--x), var(--y)); }
+`;
+
+const Firefly = styled.div`
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: ${props => props.$color || "#fff59d"};
+  box-shadow: 0 0 15px ${props => props.$color || "#fff176"}, 0 0 5px white;
+  pointer-events: none;
+  z-index: 5;
+  animation: ${fireflyAnim} var(--d) ease-in-out infinite;
+  top: var(--top);
+  left: var(--left);
+  opacity: 0;
+`;
+
+const FestiveOverlay = styled.div`
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.1) 0%, transparent 70%);
+  border: 4px solid rgba(255, 215, 0, 0.15);
+  box-shadow: inset 0 0 50px rgba(255, 215, 0, 0.2);
+  opacity: ${props => props.$active ? 1 : 0};
+  transition: opacity 2s ease;
+
+  &::after {
+    content: '${props => props.$label || 'СЬОГОДНІ СВЯТО! 🎉'}';
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    color: ${props => props.$color || "gold"};
+    font-size: 14px;
+    font-weight: 900;
+    text-shadow: 0 0 10px black;
+  }
+`;
+
+const CustomDaysWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  width: 100%;
+  margin-top: 10px;
+  z-index: 10;
+`;
+
+const DayInputsContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+`;
+
+const DayInputCard = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 10px;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 179, 108, 0.3);
+  width: 140px;
+  
+  button {
+    background: #ffb36c;
+    border: none;
+    border-radius: 4px;
+    padding: 4px;
+    font-size: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #1e1e1e;
+    &:hover { background: #ffa04d; }
+  }
+`;
+
+const StyledHeroInput = styled.input`
+  background: #d9d9d9;
+  border: 1px solid ${props => props.$isError ? '#ff4d4d' : '#ffb36c'};
+  border-radius: 6px;
+  padding: 3px 6px;
+  font-size: 10px;
+  color: #222;
+  outline: none;
+  width: 100%;
+  transition: border-color 0.2s;
+`;
+
+const HeroCharCount = styled.span`
+  font-size: 8px;
+  color: ${props => props.$isError ? '#ff4d4d' : '#fff'};
+  margin-top: -2px;
+  margin-bottom: 2px;
+  align-self: flex-end;
 `;
 
 const SearchWrapper = styled.div`
@@ -1260,6 +1357,9 @@ const Hero = ({
   selectedTimezone,
   setSelectedTimezone,
 }) => {
+  const dispatch = useDispatch();
+  const customDays = useSelector((state) => state.calendar?.customDays || []);
+  const [newDayInput, setNewDayInput] = useState({ date: '', reason: '' });
   const [inputValue, setInputValue] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [limit, setLimit] = useState(5);
@@ -1280,8 +1380,6 @@ const Hero = ({
   const [randomBgsList, setRandomBgsList] = useState([]);
   const [showCustomInput, setShowCustomInput] = useState(false); 
   const [customTimezoneInputValue, setCustomTimezoneInputValue] = useState(""); 
-  
-  // Определяем allBgs до использования в useEffect
   const isCustom = (src) => !DEFAULT_BGS.some((bg) => bg.src === src);
   const allBgs = useMemo(() => [
     ...DEFAULT_BGS,
@@ -1645,8 +1743,96 @@ const Hero = ({
     setCooldown(40);
   };
 
+  const handleAddDay = () => {
+    if (newDayInput.date && newDayInput.reason) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const selectedDate = new Date(newDayInput.date);
+
+      if (selectedDate < today) {
+        alert("Неможливо додати подію в минулому!");
+        return;
+      }
+
+      if (newDayInput.reason.length > 12) {
+        alert("Назва свята занадто довга (макс. 12 символів)!");
+        return;
+      }
+
+      dispatch(addCustomDay({ date: newDayInput.date, reason: newDayInput.reason }));
+      setNewDayInput({ date: '', reason: '' });
+    }
+  };
+
+  // Перевірка типу свята та кольору для ефектів
+  const todayHolidayInfo = useMemo(() => {
+    const now = new Date();
+    const todayStr = now.toISOString().split('T')[0];
+    
+    // 1. Пріоритет: День народження (Червоний)
+    if (user?.birthDate) {
+      const [, uMonth, uDay] = user.birthDate.split("-");
+      if (now.getDate() === parseInt(uDay) && (now.getMonth() + 1) === parseInt(uMonth)) {
+        return { active: true, color: '#ff5252', label: 'З ДНЕМ НАРОДЖЕННЯ! 🎂' };
+      }
+    }
+
+    // 2. Пріоритет: Важлива подія (Золотистий)
+    const customDay = customDays.find(day => day.date === todayStr);
+    if (customDay) {
+      return { active: true, color: '#fff59d', label: customDay.reason.toUpperCase() + '! 🎉' };
+    }
+
+    // 3. Пріоритет: Вихідний (Жовтий)
+    const dayOfWeek = now.getDay(); // 0 - Sun, 6 - Sat
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
+      return { active: true, color: '#ffff00', label: 'ВИХІДНИЙ! ☀️' };
+    }
+
+    return { active: false, color: '#fff59d', label: '' };
+  }, [customDays, user]);
+
+  const isTodayHoliday = todayHolidayInfo.active;
+
+  // Генерація позицій для світлячків
+  const fireflies = useMemo(() => {
+    if (!isTodayHoliday) return [];
+    return Array.from({ length: 25 }).map((_, i) => ({
+      id: i,
+      top: `${Math.random() * 100}%`,
+      left: `${Math.random() * 100}%`,
+      x: `${(Math.random() - 0.5) * 100}px`,
+      y: `${(Math.random() - 0.5) * 100}px`,
+      duration: `${3 + Math.random() * 4}s`,
+      delay: `${Math.random() * 5}s`
+    }));
+  }, [isTodayHoliday]);
+
   return (
     <HeroDiv>
+      {isTodayHoliday && (
+        <>
+          <FestiveOverlay 
+            $active={isTodayHoliday} 
+            $color={todayHolidayInfo.color} 
+            $label={todayHolidayInfo.label} 
+          />
+          {fireflies.map(f => (
+            <Firefly 
+              key={f.id} 
+              $color={todayHolidayInfo.color}
+              style={{ 
+                '--top': f.top, 
+                '--left': f.left, 
+                '--x': f.x, 
+                '--y': f.y, 
+                '--d': f.duration,
+                animationDelay: f.delay
+              }} 
+            />
+          ))}
+        </>
+      )}
       <BgLayer
         $image={heroBg}
         $active={heroBgMode === "static" || activeLayer === 1}
@@ -1705,6 +1891,44 @@ const Hero = ({
         🎨
       </ChangeBgButton>
       <HeroDecors $image={herotext} $start={startAnimation} />
+
+      <CustomDaysWrapper>
+        <DayInputsContainer>
+          <DayInputCard>
+            <StyledHeroInput 
+              type="date" 
+              value={newDayInput.date} 
+              onChange={e => setNewDayInput({ ...newDayInput, date: e.target.value })}
+            />
+            <StyledHeroInput 
+              type="text" 
+              placeholder="Що за свято?" 
+              $isError={newDayInput.reason.length > 12}
+              value={newDayInput.reason}
+              onChange={e => setNewDayInput({ ...newDayInput, reason: e.target.value })}
+            />
+            <HeroCharCount $isError={newDayInput.reason.length > 12}>
+              {newDayInput.reason.length}/12
+            </HeroCharCount>
+            <button onClick={handleAddDay}>Додати</button>
+          </DayInputCard>
+        </DayInputsContainer>
+
+        {customDays.length > 0 && (
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
+            {customDays.map(day => (
+              <button 
+                key={day.date}
+                onClick={() => dispatch(removeCustomDay(day.date))}
+                style={{ background: 'rgba(255,0,0,0.1)', border: '1px solid rgba(255,0,0,0.5)', color: '#ff8a80', borderRadius: '15px', padding: '3px 10px', fontSize: '10px', cursor: 'pointer' }}
+              >
+                {day.date}: {day.reason} ✕
+              </button>
+            ))}
+          </div>
+        )}
+      </CustomDaysWrapper>
+
       <DelayedContent $start={startAnimation}>
         <HeroDecor>
           <HeroFix>

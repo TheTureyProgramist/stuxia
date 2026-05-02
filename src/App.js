@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback, memo, Suspense } from "react";
 import styled from "styled-components";
 import localforage from "localforage";
 import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import { useSelector } from 'react-redux';
 import Loader from "./components/Loader/Loader.jsx";
 import WeatherCardComponent from "./components/Weather/Weather.jsx";
 import NotFound from "./components/NotFound.jsx";
@@ -118,6 +119,42 @@ const WeatherCardsContainer = styled.div`
   }
 `;
 
+const CustomDaysContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  justify-content: center;
+  margin: 20px 0;
+  padding: 20px;
+  background-color: ${props => props.$isDarkMode ? '#333' : '#f9f9f9'};
+  border-radius: 10px;
+  border: 1px solid ${props => props.$isDarkMode ? '#555' : '#ddd'};
+`;
+
+const CustomDayInput = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-items: center;
+`;
+
+const Input = styled.input`
+  padding: 8px;
+  border: 1px solid ${props => props.$isError ? '#ff4d4d' : (props.$isDarkMode ? '#555' : '#ccc')};
+  border-radius: 4px;
+  background-color: ${props => props.$isDarkMode ? '#444' : '#fff'};
+  color: ${props => props.$isDarkMode ? '#fff' : '#000'};
+  outline: none;
+  transition: border-color 0.2s;
+`;
+
+const CharCount = styled.span`
+  font-size: 10px;
+  color: ${props => props.$isError ? '#ff4d4d' : (props.$isDarkMode ? '#aaa' : '#888')};
+  margin-top: 2px;
+  align-self: flex-end;
+`;
+
 const LOADING_PHRASES = [
   "Підпішіться на мій фейсбук, щоб знати, що буде в наступній версії! Проект погода.",
   "Інструкція з використання і отримування 🧧, розміщена у магазині конвертів!",
@@ -179,12 +216,31 @@ const SectionContent = memo(
     customHeroBgs,
     setCustomHeroBgs,
     isAnyModalOpen,
+    customDays,
+    customHolidayName,
+    setCustomHolidayName,
   }) => {
     if (!section) return null;
 
     if (section.key === "weather") {
       return (
         <div id="weather">
+          <CustomDaysContainer $isDarkMode={isDarkMode}>
+            <h3>Що за свято?</h3>
+            <CustomDayInput>
+              <Input
+                $isDarkMode={isDarkMode}
+                $isError={(customHolidayName || '').length > 12}
+                type="text"
+                value={customHolidayName} // eslint-disable-line no-undef
+                onChange={(e) => setCustomHolidayName(e.target.value)} // eslint-disable-line no-undef
+                placeholder="Назва свята"
+              />
+              <CharCount $isDarkMode={isDarkMode} $isError={(customHolidayName || '').length > 12}>
+                {(customHolidayName || '').length}/12
+              </CharCount>
+            </CustomDayInput>
+          </CustomDaysContainer>
           <WeatherCardsContainer>
             {weatherCards.map((card, index) => {
               const isExtremeTemp =
@@ -209,6 +265,7 @@ const SectionContent = memo(
                   handleRenameCard={handleRenameCard}
                   moveWeatherCard={moveWeatherCard}
                   setIsLocationEnabled={setIsLocationEnabled}
+                  customHolidayName={customHolidayName} // eslint-disable-line no-undef
                 />
               );
             })}
@@ -246,6 +303,7 @@ const SectionContent = memo(
 );
 
 const App = () => {
+  const customDays = useSelector((state) => state.calendar?.customDays || []);
   const [isLoading, setIsLoading] = useState(true);
   const [isFadingOut, setIsFadingOut] = useState(false);
   const [randomPhrase] = useState(
@@ -275,6 +333,8 @@ const App = () => {
   const [heroBgFocal4, setHeroBgFocal4] = useState({ x: 50, y: 50 });
   const [heroBgPanEnabled, setHeroBgPanEnabled] = useState(false);
   const [heroBgPanSpeed, setHeroBgPanSpeed] = useState(6);
+
+  const [customHolidayName, setCustomHolidayName] = useState('');
 
   const [currentAvatar, setCurrentAvatar] = useState(userDefault);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -367,6 +427,9 @@ const App = () => {
         if (savedPanEnabled !== null) setHeroBgPanEnabled(savedPanEnabled);
         const savedPanSpeed = await localforage.getItem("hero_bg_pan_speed");
         if (savedPanSpeed !== null) setHeroBgPanSpeed(savedPanSpeed);
+
+        const savedCustomHolidayName = await localforage.getItem("custom_holiday_name");
+        if (savedCustomHolidayName) setCustomHolidayName(savedCustomHolidayName);
 
         const savedScreenshots = await localforage.getItem("dinofroz_screenshots");
         if (savedScreenshots) setScreenshots(savedScreenshots);
@@ -512,6 +575,7 @@ const App = () => {
       localforage.setItem("hero_bg_focal4", heroBgFocal4);
       localforage.setItem("hero_bg_pan_enabled", heroBgPanEnabled);
       localforage.setItem("hero_bg_pan_speed", heroBgPanSpeed);
+      localforage.setItem("custom_holiday_name", customHolidayName);
       localforage.setItem("selected_timezone", selectedTimezone);
     }
   }, [
@@ -537,6 +601,7 @@ const App = () => {
     heroBgPanSpeed,
     isHydrated,
     isDarkMode,
+    customHolidayName,
     selectedTimezone,
   ]);
 
@@ -677,6 +742,7 @@ const App = () => {
                 day: "numeric",
                 month: "2-digit",
               }),
+              fullDate: t,
               day: new Date(t).toLocaleDateString("uk", { weekday: "short" }),
               temp_day: `${Math.round(d.daily.temperature_2m_max[i] ?? 0)}°C`,
               temp_night: `${Math.round(d.daily.temperature_2m_min[i] ?? 0)}°C`,
@@ -1039,6 +1105,8 @@ const App = () => {
         customHeroBgs={customHeroBgs}
         setCustomHeroBgs={setCustomHeroBgs}
         handleOpenRegister={handleOpenRegister}
+        customHolidayName={customHolidayName}
+        setCustomHolidayName={setCustomHolidayName}
       />
     </>
   );
@@ -1118,6 +1186,9 @@ const App = () => {
                 customHeroBgs={customHeroBgs}
                 setCustomHeroBgs={setCustomHeroBgs}
                 handleOpenRegister={handleOpenRegister}
+                customHolidayName={customHolidayName}
+                setCustomHolidayName={setCustomHolidayName}
+                customDays={customDays}
               />
             ),
         )}
@@ -1246,6 +1317,9 @@ const App = () => {
                             customHeroBgs={customHeroBgs}
                             setCustomHeroBgs={setCustomHeroBgs}
                             handleOpenRegister={handleOpenRegister}
+                            customHolidayName={customHolidayName}
+                            setCustomHolidayName={setCustomHolidayName}
+                            customDays={customDays}
                           />
                         )}
                       </div>

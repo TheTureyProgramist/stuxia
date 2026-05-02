@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import styled, { keyframes } from "styled-components";
+import styled, { keyframes, css } from "styled-components";
 import { useNavigate } from "react-router-dom";
 export const DEFAULT_SITE_SECTIONS = [
   { key: "hero", label: "🏠 Головна", path: "hero" },
@@ -21,6 +21,122 @@ const slideDown = keyframes`
 const slideUp = keyframes`
   from { transform: translateY(0); }
   to { transform: translateY(-100%); }
+`;
+
+const flow = keyframes`
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+`;
+
+const LogoActionsRow = styled.div`
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+`;
+
+const MiniLogoButton = styled.button`
+  background: ${(props) => (props.$isDarkMode ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.03)")};
+  border: 1px solid ${(props) => (props.$isDarkMode ? "#444" : "#ccc")};
+  color: ${(props) => (props.$isDarkMode ? "#ffb36c" : "#1a1a1a")};
+  border-radius: 8px;
+  padding: 8px;
+  flex: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #ffb36c;
+    color: #1a1a1a;
+    border-color: #ffb36c;
+  }
+
+  @media (min-width: 1920px) {
+    font-size: 32px;
+    padding: 15px;
+    border-radius: 15px;
+  }
+`;
+
+const SubsMenuItem = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  width: 100%;
+  background: ${(props) => (props.$isUltra ? "rgba(113, 0, 151, 0.05)" : "rgba(255, 179, 108, 0.05)")};
+  border: 1.5px solid ${(props) => (props.$isUltra ? "#710097" : "#ffb36c")};
+  padding: 10px 12px;
+  margin-bottom: 15px;
+  cursor: pointer;
+  border-radius: 12px;
+  transition: all 0.5s ease;
+  text-align: left;
+
+  &:hover {
+    background: ${(props) => (props.$isUltra ? "rgba(113, 0, 151, 0.15)" : "rgba(255, 179, 108, 0.15)")};
+    transform: translateX(5px);
+    box-shadow: 0 4px 15px ${(props) => (props.$isUltra ? "rgba(113, 0, 151, 0.2)" : "rgba(255, 179, 108, 0.2)")};
+  }
+
+  @media (min-width: 1920px) {
+    padding: 15px 20px;
+    gap: 25px;
+    border-radius: 20px;
+  }
+`;
+
+const SubsIconBox = styled.div`
+  width: 32px;
+  height: 32px;
+  background: #1a1a1a;
+  border: 1px solid ${(props) => (props.$isUltra ? "#710097" : "#ffb36c")};
+  border-radius: 8px;
+  display: grid;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  @media (min-width: 1920px) {
+    width: 60px;
+    height: 60px;
+  }
+`;
+
+const SubsTextWrapper = styled.div`
+  display: grid;
+  align-items: center;
+  flex-grow: 1;
+`;
+
+const SubsAnimatedPart = styled.span`
+  grid-area: 1/1;
+  font-weight: 800;
+  transition: opacity 0.5s ease-in-out;
+  opacity: ${(props) => (props.$show ? 1 : 0)};
+  font-size: ${(props) => (props.$isSymbol ? "20px" : "16px")};
+
+  ${(props) => props.$variant === "rainbow" && css`
+    background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #8b00ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  `}
+
+  ${(props) => props.$variant === "ultra" && css`
+    background: linear-gradient(270deg, #ff7eb3, #ff758c, #7afcff, #feffb7, #58e2c2);
+    background-size: 400% 400%;
+    animation: ${flow} 3s ease infinite;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  `}
+
+  @media (min-width: 1920px) {
+    font-size: ${(props) => (props.$isSymbol ? "38px" : "32px")};
+  }
 `;
 
 const ModeToggle = styled.div`
@@ -292,8 +408,14 @@ const Menu = ({
   onToggleTheme,
   onOpenShop,
   onOpenAchievements,
+  onDownloadLogo,
+  onPrintLogo,
+  onFullscreenLogo,
+  onOpenVip,
   onOpenSettings,
   onOpenHelp,
+  showUltra,
+  onOpenInfo,
   onLogout,
   isRoutingMode,
   setIsRoutingMode,
@@ -452,6 +574,49 @@ const Menu = ({
           <div>
             <MenuSectionTitle>Керування</MenuSectionTitle>
             <LegendList>
+              <li>
+                <SubsMenuItem $isUltra={showUltra} onClick={() => { onOpenVip(); onClose(); }}>
+                  <SubsIconBox $isUltra={showUltra}>
+                    <SubsAnimatedPart $show={!showUltra} $variant="rainbow" $isSymbol>+</SubsAnimatedPart>
+                    <SubsAnimatedPart $show={showUltra} $variant="ultra" $isSymbol>♔</SubsAnimatedPart>
+                  </SubsIconBox>
+                  <SubsTextWrapper>
+                    <SubsAnimatedPart $show={!showUltra} $variant="rainbow">Стихія+</SubsAnimatedPart>
+                    <SubsAnimatedPart $show={showUltra} $variant="ultra">Стихія Ultra</SubsAnimatedPart>
+                  </SubsTextWrapper>
+                  <span style={{ fontSize: '12px', color: showUltra ? '#710097' : '#ffb36c', fontWeight: 'bold' }}>
+                    ➔
+                  </span>
+                </SubsMenuItem>
+              </li>
+              <li>
+                <div style={{ fontSize: "14px", fontWeight: "bold", marginBottom: "10px", color: isDarkMode ? "#ffb36c" : "#ff005d" }}>
+                  🖼️ Логотип сайту
+                </div>
+                <LogoActionsRow>
+                  <MiniLogoButton 
+                    $isDarkMode={isDarkMode} 
+                    onClick={(e) => { onDownloadLogo(e); }} 
+                    title="Скачати лого"
+                  >
+                    ⇩
+                  </MiniLogoButton>
+                  <MiniLogoButton 
+                    $isDarkMode={isDarkMode} 
+                    onClick={(e) => { onFullscreenLogo(e); }} 
+                    title="Повний екран"
+                  >
+                    ⛶
+                  </MiniLogoButton>
+                  <MiniLogoButton 
+                    $isDarkMode={isDarkMode} 
+                    onClick={(e) => { onPrintLogo(e); }} 
+                    title="Друкувати"
+                  >
+                    ⎙
+                  </MiniLogoButton>
+                </LogoActionsRow>
+              </li>
               <li>
                 <ModeToggle
                   $isDarkMode={isDarkMode}

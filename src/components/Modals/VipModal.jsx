@@ -103,7 +103,7 @@ const VipModalDiv = styled.div`
   width: 98%;
   max-width: 950px;
   max-height: 95vh;
-  padding: 15px;
+  padding: 10px;
   border-radius: 12px;
   position: relative;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
@@ -115,7 +115,7 @@ const VipModalDiv = styled.div`
     forwards;
 
   @media (max-width: 768px) {
-    padding-bottom: 90px; /* Простір для нижньої навігації */
+    padding-bottom: 90px; 
   }
 `;
 
@@ -123,10 +123,9 @@ const ToggleContainer = styled.div`
   display: flex;
   position: relative;
   background: rgba(0, 0, 0, 0.3);
-  border-radius: 10px;
+  border-radius: 3px;
   padding: 3px;
   width: 260px;
-  margin-bottom: 12px;
   border: 1px solid ${(props) => (props.$isUltra ? "#710097" : "#ffb36c")};
   cursor: pointer;
   user-select: none;
@@ -256,7 +255,7 @@ const AnimatedText = styled.h1`
   font-family: "Inter", sans-serif;
   font-size: 20px;
   font-weight: bold;
-  margin-bottom: 8px;
+  margin-bottom: 3px;
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -305,7 +304,6 @@ const SwitchBackText = styled.div`
   cursor: pointer;
   text-decoration: underline;
   margin-top: -5px;
-  margin-bottom: 10px;
   opacity: 0.8;
   &:hover {
     opacity: 1;
@@ -316,7 +314,7 @@ const VipBlock = styled.div`
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  gap: 15px;
+  gap: 5px;
   @media (max-width: 768px) {
     flex-direction: column;
     align-items: center;
@@ -346,13 +344,10 @@ const BenefitCard = styled.div`
   display: flex;
   align-items: center;
   gap: 10px;
-  background: rgba(255, 179, 108, 0.05);
-  border: 1px solid rgba(255, 179, 108, 0.15);
   border-radius: 8px;
-  padding: 6px;
   opacity: 0;
   animation: ${appearAndShrink} 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   transition: transform 1s;
   ${({ $index }) => css`
     animation-delay: ${0.1 + $index * 0.05}s;
@@ -391,7 +386,7 @@ const SectionTitle = styled.div`
   animation-delay: ${(props) => props.$delay || "0.2s"};
 `;
 const ViWarning = styled.p`
-  margin-top: 37px;
+  margin-top: 3px;
   @media (min-width: 768px) {
     display: none;
   }
@@ -403,7 +398,7 @@ const ImageContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 20px 0;
+  margin: 16px 0 1px 0;
   z-index: 5;
 
   @media (max-width: 768px) {
@@ -583,7 +578,7 @@ const YearlyWarningRed = styled.p`
   color: #ff4d4d;
   font-size: 10px;
   font-weight: bold;
-  margin-top: 6px;
+  margin-top: 2px;
   text-align: center;
 `;
 
@@ -591,7 +586,7 @@ const RedLine = styled.div`
   background: #ff8a80;
   width: 100%;
   height: 1px;
-  margin: 10px 0;
+  margin: 5px 0;
 `;
 
 const VipWarning = styled.p`
@@ -1327,13 +1322,13 @@ const VipModal = ({ onClose }) => {
       { src: music, text: "mp3 4грн/хв, не 6грн/хв." },
       {
         src: puzzle2,
-        text: "Пам'ять на 33дні, не на 21добу! Ліміт історії запитів 70, не 50. Ліміт паралельних чатів спілкування 5, не 3.",
+        text: "Пам'ять на 15днів, не на 7днів! Ліміт історії запитів 70, не 50. Ліміт паралельних чатів спілкування 5, не 3.",
       },
     ],
     music: [
       {
         src: asium,
-        text: "Можна взяти в обране 7 пісень та головоломок(окремо), а не 3! Стиль головоломок(до 30шт.). Поділ по 3бальній не 2бальній системі. Назавжди!",
+        text: "Ви отримуєте 250балів, не 100. Назавжди(вони необхідні, щоб музика, декор головного фону, питання у начанні та гри головоломок, підтягувалися вище інших)",
       },
       {
         src: dinofroz,
@@ -1341,17 +1336,13 @@ const VipModal = ({ onClose }) => {
       },
       {
         src: font,
-        text: "Станьте творцем! Розміщуйте індивідуальні плейлист, з лімітом у 4пісні(на ваш альбом, не 4), з обкладиками(в сумі не може бути більше 12мб(не 7мб).). Можете прив'язати відео з ютубу(до 3хв). Без монетизації(реклами), якщо ютуб. Назавжди!",
+        text: "Станьте творцем! Розміщуйте індивідуальні плейлист, з лімітом у 20пісень(на ваш альбом, не 10), з обкладиками. Можете прив'язати відео з ютубу. До 3хв, не 2. Назавжди!",
       },
     ],
     economics: [
       {
         src: dragons,
         text: "Знижка 5грн у магазині 🧧, 🏆 дають додатково до 20🧧, якщо їх к-сть у 🏆 < 40. У сумі вийде 40. Навіть, якщо ви вже виконали 🏆 вони будуть після оплати автоматично відправлені. Сплата тарифу переодоплатою(разово) та місячним тарифом дає 50🧧. Ліміт покупок наборів 🧧*2. Можна зберігати 5000🧧, замість 2500(Після кінця зайві не анулюються, але ви не зможете отримувати наступну партію, доти доки к-сть буде >= ліміту). Шанс 25%(не 20%) на джекпот(Ціна збільшена на 10🧧). Отримуйте 600🧧 при сплаті тарифу.",
-      },
-      {
-        src: puzzle4,
-        text: "Передавайте до 250🧧/добу, не 125. Втрата конвертів піля передачі 30%, не 50%.",
       },
       {
         src: puzzle5,
@@ -1365,11 +1356,11 @@ const VipModal = ({ onClose }) => {
     interface: [
       {
         src: vip,
-        text: "Оновлений стиль сайту (з перемикачем лого вгорі, в лівому кутку). Назавжди!",
+        text: "Доступ до безкоштовних функцій, які мали стати доступними у версії 1.1",
       },
       {
         src: stars,
-        text: "Реклама, при переході на інший сайт через наш(розділ новини, Deezer - безкоштовно без реклами) не кожний перехід, а через раз.",
+        text: "Реклама, при переході на інший сайт через наш(розділ новини, Deezer - і безкоштовно без реклами) не кожний перехід, а через раз.",
       },
       {
         src: buton,
@@ -1383,10 +1374,10 @@ const VipModal = ({ onClose }) => {
         src: documentImg,
         text: "Доступно 10 останніх новин, а не 5.",
       },
-      {
-        src: puzzle3,
-        text: "Прив'язуйте до акаунту 3пристрої, не 2. Назавжди!",
-      },
+      // {
+      //   src: puzzle3,
+      //   text: "Прив'язуйте до акаунту 3пристрої, не 2. Назавжди!",
+      // },
     ],
   };
 
@@ -1394,7 +1385,7 @@ const VipModal = ({ onClose }) => {
     ai: [
       {
         src: texts,
-        text: "За 🧧 7 спроб. Далі за 0,7грн + 🧧(лише за обширні відповіді). Ви маєте пріоритет у черзі при генерації. Лімітована акція!",
+        text: "За 🧧 7 спроб. Далі за 0,07грн + 🧧(лише за обширні відповіді). Ви маєте пріоритет у черзі при генерації. Лімітована акція!",
       },
       {
         src: lebid,
@@ -1404,13 +1395,13 @@ const VipModal = ({ onClose }) => {
       { src: music, text: "mp3 2грн/хв. Лімітована акція!" },
       {
         src: puzzle2,
-        text: "Пам'ять на 42доби! Пам'ять запитів 100. Ліміт паралельних чатів 7. Лімітована акція!",
+        text: "Пам'ять доки діє підписка(якщо на телефоні є місце)! Пам'ять запитів 100. Ліміт паралельних чатів 7. Лімітована акція!",
       },
     ],
     music: [
       {
         src: asium,
-        text: "Можна взяти в обране 10 пісень та головоломок. Стилі головоломок 60шт. Поділ від 1-5 по оцінці. Назавжди!",
+        text: "Отримайте500 балів. Назавжди!",
       },
       {
         src: dinofroz,
@@ -1422,10 +1413,6 @@ const VipModal = ({ onClose }) => {
       },
     ],
     economics: [
-      {
-        src: documentImg,
-        text: "Знижка на Стихію+ 5грн, після придбання Ultrа. Лімітована акція!",
-      },
       {
         src: dragons,
         text: "Знижка 15грн у магазині 🧧. Сплата тарифу переодоплатою(разово) та місячним тарифом дає 750🧧. Ліміт покупок наборів 🧧*3. Можна зберігати 10000🧧. Шанс 50% на джекпот(Ціна збільшена на 20🧧). Отримуйте 800🧧 при сплаті тарифу.",
@@ -1450,7 +1437,7 @@ const VipModal = ({ onClose }) => {
       },
       {
         src: vip,
-        text: "Оновлений стиль сайту (з перемикачем лого). Назавжди!",
+        text: "Доступ до функцій, якій стануть доступними лише у версії 1.3 Назавжди!",
       },
       {
         src: buton,
@@ -1583,7 +1570,7 @@ const VipModal = ({ onClose }) => {
               <ToggleOption $active={billingCycle === "yearly"}>
                 річна
                 <SavingsBadge>
-                  -{tier === "plus" ? "39.98" : "79.98"}грн
+                  -{tier === "plus" ? "59.98" : "99.98"}грн
                 </SavingsBadge>
               </ToggleOption>
             </ToggleContainer>
@@ -1591,11 +1578,11 @@ const VipModal = ({ onClose }) => {
             <VipButton>
               {tier === "plus"
                 ? billingCycle === "monthly"
-                  ? "19,99грн / 30 днів"
-                  : "199,90грн / 360днів"
+                  ? "29,99грн / 30 днів"
+                  : "299,99грн / 360днів"
                 : billingCycle === "monthly"
-                  ? "39,99грн / 30 днів"
-                  : "399,90грн / 360 днів"}
+                  ? "49,99грн / 30 днів"
+                  : "499,99грн / 360 днів"}
             </VipButton>
 
             {tier === "ultra" && (
@@ -1686,23 +1673,7 @@ const VipModal = ({ onClose }) => {
         </VipBlock>
         <RedLine />
         <VipWarning>
-          Примітка: 1.Mісячний/Річний тариф перемикається автоматично! При
-          активній Стихія+ ви можете миттєво перейти на Ultra. Скасування Ultra,
-          повертає Plus на решту терміну. Помилки оплати повертають гроші (або
-          🧧).
-        </VipWarning>
-        <VipWarning>
-          2.Коли підписка закінчиться привілегії(не всі) зникнуть. Бонус
-          лояльності: У тарифі Ultra діє лімітована акція, що активується після
-          другої оплати поспіль(річні миттєво!). Якщо підписка Ultra буде
-          перервана на термін понад 3 місяці, бонус анулюється(доступ лише при
-          дії Ultra, при Plus таймер заморожується.), і для його відновлення
-          знадобиться повторна серія оплат. Також доступна послуга «Швидкий
-          старт»(1ша безкоштовна) за 4,99 грн для миттєвої активації 1 акції.
-        </VipWarning>
-        <VipWarning>
-          3.Переваги Стихії+ оптимізовані в Стихія Ultrа, ті що не були вказані
-          в Стихія Ultra(присутні, але ті самі як в Стихія+.).
+         Усі примітки, розміщені в навчанні, кнопка ? вгорі.
         </VipWarning>
         <ViWarning>.</ViWarning>
       </VipModalDiv>

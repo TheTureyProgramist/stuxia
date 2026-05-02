@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { useSelector } from "react-redux";
 import styled, { keyframes, css } from "styled-components";
 import hills from "../../photos/hero-header/fog.webp";
+import rooster from "../../photos/vip-images/vip-rooster.webp";
 import logofix from "../../photos/hero-header/logo-fix.webp";
 const slideIn = keyframes`
   0% { transform: translateY(100%) scale(0.9); opacity: 0; }
@@ -188,6 +190,31 @@ const AnswerImage = styled.img`
   margin-bottom: 15px;
   object-fit: cover;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  &:hover {
+    transform: scale(1.02);
+  }
+`;
+
+const ImagePreviewOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.95);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  z-index: 9500;
+`;
+
+const PreviewImage = styled.img`
+  max-width: 95%;
+  max-height: 95%;
+  object-fit: contain;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  cursor: zoom-out;
 `;
 
 const AnswerContent = styled.div`
@@ -223,16 +250,42 @@ const PointsCounter = styled.div`
   border-radius: 10px;
 `;
 
+const SearchInput = styled.input`
+  width: 100%;
+  padding: 12px 20px;
+  border: 2px solid rgba(138, 43, 226, 0.3);
+  border-radius: 25px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #333;
+  font-size: 16px;
+  outline: none;
+  margin-bottom: 20px;
+  transition: border-color 0.3s ease;
+
+  &:focus {
+    border-color: #8a2be2;
+    background: #fff;
+  }
+
+  &::placeholder {
+    color: #999;
+  }
+`;
+
 const InfoModal = ({ onClose, isOpen }) => {
   const [isClosing, setIsClosing] = useState(false);
+  const customDays = useSelector((state) => state.calendar?.customDays || []);
   const [activeIndex, setActiveIndex] = useState(null);
   const [ratings, setRatings] = useState({});
   const [totalPoints, setTotalPoints] = useState(0);
+  const [previewImage, setPreviewImage] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const MAX_POINTS = 15;
   const RED_HEART = 1;
   const GOLD_HEART = 2;
 
   const handleClose = useCallback(() => {
+    setPreviewImage(null);
     setIsClosing(true);
     setTimeout(() => {
       setIsClosing(false);
@@ -270,7 +323,17 @@ const InfoModal = ({ onClose, isOpen }) => {
 
     setRatings({ ...ratings, [index]: newRating });
   };
+
+  const pastEvents = React.useMemo(() => {
+    const today = new Date().toISOString().split('T')[0];
+    return customDays
+      .filter(day => day.date < today)
+      .sort((a, b) => b.date.localeCompare(a.date)) // Свіжіші спочатку
+      .slice(0, 5);
+  }, [customDays]);
+
   if (!isOpen && !isClosing) return null;
+
   const toggleAccordion = (index) => {
     setActiveIndex(activeIndex === index ? null : index);
   };
@@ -334,6 +397,16 @@ const InfoModal = ({ onClose, isOpen }) => {
 `,
       image: null,
     },
+        {
+      q: "Примітки підписок і конвертів",
+          a: `1.Mісячний/Річний тариф перемикається автоматично! При активній Стихія+ ви можете миттєво перейти на Ultra. Скасування Ultra, повертає Plus на решту терміну. Помилки оплати повертають гроші (або 🧧)
+          2.Коли підписка закінчиться привілегії(не всі) зникнуть. Врахуйте: У тарифі Ultra діє лімітована акція, що активується після другої оплати поспіль(річні миттєво!). Якщо підписка Ultra буде перервана на термін понад 3 місяці, бонус зникне(доступ лише при
+          дії Ultra, при Plus таймер заморожується.), і для його відновлення треба повторна серія оплат. Також доступна послуга «Швидкий старт»(2 безкоштовні) за 3,19 грн для миттєвої активації 1 акції.
+          3.Переваги Plus оптимізовані в Стихія Ultrа, ті що не були вказані в Стихія Ultra(присутні, але ті самі як в Plus)
+          4.Для власників Plus ціна знижена на 5грн, а Ultra на 10грн. Знижка діє і для обмежених подій. Початок нової доби о 0:00 за Київським часом. Ліміт конвертів 2500, ті що перевищують ліміт, будуть анульовані(збільште ліміт з підписками).
+`,
+      image: null,
+    },
     {
       q: "Календар версій(Мінорні 1.0 - 1.5)",
       a: `1.1 - 11.09.2026
@@ -370,6 +443,19 @@ const InfoModal = ({ onClose, isOpen }) => {
       image: null,
     },
     {
+      q: "Рішення головоломок",
+      a: `1. Зберіть картину, міняючи місцями елементи. Але при вашому ході, інші елементи переставлявся(можуть розвернутись, розмитись(в чіткості) і навпаки)
+2. Повторіть послідовність натисками, яку показала гра.
+3. Розкрийте, сейф уводячи код!
+4. Ціль: Встановити 4 модулі на позиції ⚡.
+Пили: Випадковий рух. У Фазі 1 забирають 1❤️.
+НЕВРАЗЛИВІСТЬ: Після 4-го модуля — 8с безпеки (зелені пили).
+ФАЗА ЕВАКУАЦІЇ: Пили стають невидимими (радіус 1) і наносять x2 ШКОДИ (2❤️)!
+Як вижити? Активуйте 8 точок 📍. При кожній активації пили стають видимими на 1с.
+      `, 
+      image: null,
+    },
+    {
       q: "Я втратив акаунт. Чому?",
       a: "Ваші дані в безпеці, бо ми не зберігаємо їх постійно. Через очищення кешу браузера сесія може бути перервана.",
       image: null,
@@ -377,7 +463,7 @@ const InfoModal = ({ onClose, isOpen }) => {
     {
       q: "Про тематику та ностальгію",
       a: "Скоріше за все, мені нудно, тому спогади вставив: музику з Geometry Dash та Minecraft, бо мої друзі любили грати в ці ігри. А я в My Litle Universe. Індики, бо вони роблять мене щасливими. А Динофроз, бо я маю надію, що Malatko TV, повернеться і можливо покажуть, і я відкритий до ваших ідей!",
-      image: require("../../photos/vip-images/vip-rooster.webp"),
+      image: rooster,
     },
     {
       q: "Чому є реклама при переході на новину?",
@@ -400,41 +486,6 @@ const InfoModal = ({ onClose, isOpen }) => {
       image: null,
     },
     {
-      q: "Повний конспект Paint: усі можливості та як їх отримати",
-      a: `🎨 ПАНЕЛЬ ІНСТРУМЕНТІВ (Класика + ШІ):
-• Виділення: прямокутне, довільне, «Виділити все» та інверсія вибору.
-• Видалення фону: (Win 11) автоматичне прибирання фону навколо об'єкта одним кліком.
-• Шари (Layers): створення малюнка на різних рівнях (Ctrl+Shift+L), щоб елементи не злипалися.
-• Ластик: стирання (лівий клік — у колір фону; правий клік — стирання лише обраного кольору).
-• Заливка: зафарбовування замкнених областей (регулюється допуском у нових версіях).
-• Піпетка: копіювання точного кольору з полотна.
-• Лупа: масштабування (від 12.5% до 800%) для піксельної точності.
-• Олівець: малювання тонких ліній (1 піксель).
-• Пензлі: 9 текстур (пензель, каліграфічні пера, аерозоль, олія, пастель, маркер, олівець, акварель).
-• Текст: додавання написів із вибором шрифту, розміру та форматування (жирний, курсив тощо).
-• Фігури: 23 готові форми (лінії, криві, багатокутники, хмаринки, серця, блискавки).
-• Cocreator: (ШІ) генерація зображень за текстовим описом (залежить від регіону та NPU).
-
-🌈 РОБОТА З КОЛЬОРАМИ ТА ПОЛОТНОМ:
-• Палітра: вибір Кольору 1 (основний) та Кольору 2 (фон/правий клік).
-• Редактор кольорів: створення власних відтінків через палітру RGB, HEX-коди або повзунок яскравості.
-• Прозорість: підтримка прозорого фону (PNG) та «Прозоре виділення» для накладання об'єктів.
-• Зміна розміру: масштабування в пікселях або відсотках (Ctrl+W), збереження пропорцій.
-• Поворот/Віддзеркалення: поворот на 90/180 градусів, віддзеркалення по вертикалі/горизонталі.
-
-📐 ВИГЛЯД ТА ДОПОМІЖНІ ЗАСОБИ:
-• Лінійки та Сітка: для точного позиціювання об'єктів (Ctrl+R, Ctrl+G).
-• Рядок стану: відображення координат курсора та розміру виділеної області.
-• Повноекранний режим: перегляд малюнка без панелей інструментів (F11).
-
-⚙️ ЯК ОТРИМАТИ ВСІ ЦІ МОЖЛИВОСТІ:
-1. Базовий набір: вбудований у будь-яку Windows (Пуск -> Paint).
-2. Нові функції (Шари, ШІ, Прозорість): доступні лише в Windows 11.
-3. Оновлення: відкрийте Microsoft Store -> Бібліотека -> Отримати оновлення -> Оновити "Microsoft Paint".
-4. Paint 3D: окрема програма з Microsoft Store для роботи з об'ємними моделями.`,
-      image: null,
-    },
-    {
       q: "Механіки плейлисту",
       a: `Свайп/Стрілки: Перемикання треків
 Пробіл: Пауза/Старт
@@ -452,7 +503,25 @@ Clubstep: рандомні фільтри.
       image: null,
     },
   ];
+
+  if (pastEvents.length > 0) {
+    const pastText = pastEvents.map(e => `• ${e.date}: ${e.reason}`).join('\n');
+    faqData.unshift({
+      q: "📚 Архів минулих подій (ліміт 5)",
+      a: `Це події, які ви додавали, але їх час уже минув:\n\n${pastText}`,
+      image: null
+    });
+  }
+
   const sortedFaqData = [...faqData]
+    .filter((item) => {
+      if (!searchQuery) return true;
+      const query = searchQuery.toLowerCase();
+      return (
+        item.q.toLowerCase().includes(query) ||
+        item.a.toLowerCase().includes(query)
+      );
+    })
     .map((item, originalIndex) => ({
       ...item,
       originalIndex,
@@ -488,6 +557,13 @@ Clubstep: рандомні фільтри.
         <PointsCounter>
           💛 Використано балів: {totalPoints} / {MAX_POINTS}
         </PointsCounter>
+
+        <SearchInput
+          type="text"
+          placeholder="Пошук по питанням та відповідям..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
 
         <AccordionWrapper>
           {sortedFaqData.map((item, displayIndex) => {
@@ -525,7 +601,11 @@ Clubstep: рандомні фільтри.
                 <Answer $isOpen={activeIndex === originalIndex}>
                   <AnswerContent>
                     {item.image && (
-                      <AnswerImage src={item.image} alt={item.q} />
+                      <AnswerImage
+                        src={item.image}
+                        alt={item.q}
+                        onClick={() => setPreviewImage(item.image)}
+                      />
                     )}
                     {item.a}
                   </AnswerContent>
@@ -535,6 +615,15 @@ Clubstep: рандомні фільтри.
           })}
         </AccordionWrapper>
 
+        {previewImage && (
+          <ImagePreviewOverlay onClick={() => setPreviewImage(null)}>
+            <PreviewImage
+              src={previewImage}
+              alt="Прев'ю зображення"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </ImagePreviewOverlay>
+        )}
         <div style={{ textAlign: "center" }}>
           <AcceptBtn $index={faqData.length + 2} onClick={handleClose}>
             Дякую, зрозуміло!
@@ -544,5 +633,4 @@ Clubstep: рандомні фільтри.
     </Overlay>
   );
 };
-
 export default InfoModal;
