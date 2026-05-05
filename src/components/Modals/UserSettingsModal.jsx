@@ -395,6 +395,7 @@ const DEFAULT_SECTIONS = [
   "textColor",
   "borderColor",
   "avatar",
+  "voiceActing",
   "dateDisplay",
 ];
 
@@ -406,6 +407,7 @@ const SECTION_LABELS = {
   borderColor: "Колір рамки",
   avatar: "Аватар",
   customCalendar: "Мої важливі дні",
+  voiceActing: "Версія озвучки (Текст)",
   dateDisplay: "Відображення часу",
 };
 
@@ -432,6 +434,7 @@ const UserSettingsModal = ({ onClose, user, availableAvatars, onUpdate }) => {
     showSeconds: user?.showSeconds !== false,
     dateDisplayMode: user?.dateDisplayMode || "both",
     hour12: user?.hour12 === true,
+    voiceActingMode: user?.voiceActingMode || "malyatko",
   });
   const [showTerms, setShowTerms] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
@@ -490,6 +493,7 @@ const UserSettingsModal = ({ onClose, user, availableAvatars, onUpdate }) => {
       showSeconds: newFormData.showSeconds,
       dateDisplayMode: newFormData.dateDisplayMode,
       hour12: newFormData.hour12,
+      voiceActingMode: newFormData.voiceActingMode,
     });
   };
 
@@ -544,6 +548,7 @@ const UserSettingsModal = ({ onClose, user, availableAvatars, onUpdate }) => {
       showSeconds: formData.showSeconds,
       dateDisplayMode: formData.dateDisplayMode,
       hour12: formData.hour12,
+      voiceActingMode: formData.voiceActingMode,
       ...(formData.newPassword
         ? {
             oldPassword: formData.oldPassword,
@@ -965,6 +970,21 @@ const UserSettingsModal = ({ onClose, user, availableAvatars, onUpdate }) => {
                       </div>
                     ))}
                   </div>
+                </Section>
+              );
+            } else if (section === "voiceActing") {
+              content = (
+                <Section key="voiceActing">
+                  <label style={{ fontSize: "13px", fontWeight: "bold" }}>
+                    Версія озвучки (Текст пісень)
+                  </label>
+                  <Select
+                    value={formData.voiceActingMode}
+                    onChange={(e) => updateLivePreview({ voiceActingMode: e.target.value })}
+                  >
+                    <option value="malyatko">Малятко ТВ</option>
+                    <option value="bbkids">BBKidsUA</option>
+                  </Select>
                 </Section>
               );
             }

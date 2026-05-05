@@ -903,25 +903,25 @@ const SEQUENCE = [
     type: "card",
     imgIdx: 0,
     duration: 10000,
-    text: "Різноманітна та захоплива музика, яку можна додавати, шукати. Ми зробимо красиву оселю, з вашим принтером і нашими, пошуковими або власними фанартами.",
+    text: "Ми зробимо красиву оселю, з вашим принтером і нашими, пошуковими або власними фанартами. Як і наш сайт, фільтрами, та налаштуванням стилю і часу.",
+  },
+    {
+    type: "card",
+    imgIdx: 1,
+    duration: 10000,
+    text: "Налаштуйте сайт під себе. З нашими власними валютами. Безкоштовно: Скачуйте музику, зображення, відео. Фоновий режим + картинка в картинці.",
   },
   {
     type: "video",
     start: 10,
     end: 20,
-    text: "Спец режим відео (динофроз) або плавне перегортання зображень під час програвання деяких музичних файлів",
+    text: "Різноманітна та захоплива музика, яку можна додавати, шукати. Спец режим відео (динофроз), плавне перегортання зображень або фільтри під час програвання деяких музичних файлів",
   },
   {
     type: "video",
     start: 20,
     end: 30,
-    text: "Секрети, головоломки, історії, власні рівні, різні рівні складності, тексти.",
-  },
-  {
-    type: "card",
-    imgIdx: 1,
-    duration: 10000,
-    text: "Налаштуйте сайт під себе. З навшою власною валютою. Скачуйте музику, зображення, відео",
+    text: "Секрети, головоломки, історії, власні рівні, різні рівні складності.",
   },
   {
     type: "video",
@@ -929,12 +929,13 @@ const SEQUENCE = [
     end: 45,
     text: "Пишіть, підказуйте, що зробити для вас :)",
   },
-  { type: "video", start: 45, end: 65, text: "Досягнення різного смаку. " },
+  { type: "video", start: 45, end:50, text: "Досягнення різного смаку. " },
+   { type: "video", start: 50, end:65, text: "Присутне навчання." },
   {
     type: "video",
     start: 65,
     end: 83,
-    text: "Усе це добре, але все можна поліпшити, з Стихія Ультра та Стихія+",
+    text: "Усе це добре, але багато чого можна поліпшити, з Стихія Ультра та Стихія+",
   },
 ];
 
@@ -1140,6 +1141,33 @@ const UltraPlayer = ({ volume, setVolume, onPlayerClose }) => {
     if (videoRef.current) videoRef.current.volume = volume;
     if (audioRef.current) audioRef.current.volume = volume;
   }, [volume]);
+
+  useEffect(() => {
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.metadata = new window.MediaMetadata({
+        title: 'Стихія Ultra Player',
+        artist: 'TurkeyStudio',
+        artwork: [{ src: ultra, sizes: '512x512', type: 'image/webp' }]
+      });
+
+      navigator.mediaSession.setActionHandler('play', () => {
+        if (videoRef.current && (step.type === 'video' || step.type === 'black')) videoRef.current.play();
+        if (audioRef.current && step.type === 'card') audioRef.current.play();
+        setIsPaused(false);
+      });
+      navigator.mediaSession.setActionHandler('pause', () => {
+        videoRef.current?.pause();
+        audioRef.current?.pause();
+        setIsPaused(true);
+      });
+    }
+  }, [step.type]);
+
+  useEffect(() => {
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.playbackState = isPaused ? 'paused' : 'playing';
+    }
+  }, [isPaused]);
 
   useEffect(() => {
     const handleFsChange = () => {
@@ -1570,7 +1598,7 @@ const VipModal = ({ onClose }) => {
               <ToggleOption $active={billingCycle === "yearly"}>
                 річна
                 <SavingsBadge>
-                  -{tier === "plus" ? "59.98" : "99.98"}грн
+                  -{tier === "plus" ? "59.98" : "49.98"}грн
                 </SavingsBadge>
               </ToggleOption>
             </ToggleContainer>
@@ -1582,15 +1610,8 @@ const VipModal = ({ onClose }) => {
                   : "299,99грн / 360днів"
                 : billingCycle === "monthly"
                   ? "49,99грн / 30 днів"
-                  : "499,99грн / 360 днів"}
+                  : "549,99грн / 360 днів"}
             </VipButton>
-
-            {tier === "ultra" && (
-              <YearlyWarningRed>
-                річна доступна після 1 місячної
-              </YearlyWarningRed>
-            )}
-
             <NavContainer>
               <NavButton
                 onClick={() => scrollToSection(aiRef)}

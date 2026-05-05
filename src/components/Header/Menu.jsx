@@ -69,8 +69,8 @@ const SubsMenuItem = styled.button`
   width: 100%;
   background: ${(props) => (props.$isUltra ? "rgba(113, 0, 151, 0.05)" : "rgba(255, 179, 108, 0.05)")};
   border: 1.5px solid ${(props) => (props.$isUltra ? "#710097" : "#ffb36c")};
-  padding: 10px 12px;
-  margin-bottom: 15px;
+  padding: 5px 4px;
+  margin-bottom: 5px;
   cursor: pointer;
   border-radius: 12px;
   transition: all 0.5s ease;
@@ -245,7 +245,6 @@ const BurgerContentGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr;
   gap: 30px;
-  margin-top: 40px;
   @media (min-width: 1024px) {
     grid-template-columns: 1fr 1fr;
   }
@@ -276,7 +275,7 @@ const ActionButton = styled.button`
   width: 100%;
   background: transparent;
   border: none;
-  padding: 10px 12px;
+  padding: 5px 6px;
   margin-bottom: 8px;
   font-size: 16px;
   font-weight: 500;
@@ -310,7 +309,7 @@ const NavItem = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 12px;
+  padding: 8px 5px;
   margin-bottom: 8px;
   background: ${(props) =>
     props.$isDarkMode ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.03)"};
@@ -371,9 +370,9 @@ const OrderButton = styled.button`
 
 const FilterGridInMenu = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  margin-bottom: 10px;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 3px;
+  margin-bottom: 5px;
 `;
 
 const FilterButtonInMenu = styled.button`
@@ -382,7 +381,7 @@ const FilterButtonInMenu = styled.button`
     props.$active ? "#3e2723" : props.$isDarkMode ? "#ffb36c" : "#333"};
   border: 1px solid #ffb36c;
   border-radius: 6px;
-  padding: 8px;
+  padding: 3px;
   font-size: 12px;
   font-weight: bold;
   cursor: pointer;
@@ -556,11 +555,11 @@ const Menu = ({
             <button
               onClick={resetSiteSections}
               style={{
-                marginTop: "20px",
+                marginTop: "2px",
                 width: "100%",
                 cursor: "pointer",
-                padding: "12px",
-                borderRadius: "10px",
+                padding: "7px",
+                borderRadius: "7px",
                 border: "none",
                 fontWeight: "bold",
                 background: "#ff005d",
@@ -673,7 +672,7 @@ const Menu = ({
                 </div>
               </li>
               <li>
-                <div style={{ marginTop: "15px", marginBottom: "15px" }}>
+                <div style={{ marginTop: "5px", marginBottom: "5px" }}>
                   <div
                     style={{
                       fontSize: "14px",
@@ -705,7 +704,7 @@ const Menu = ({
                       style={{
                         fontSize: "14px",
                         fontWeight: "bold",
-                        marginBottom: "10px",
+                        marginBottom: "3px",
                         color: isDarkMode ? "#ffb36c" : "#ff005d",
                       }}
                     >

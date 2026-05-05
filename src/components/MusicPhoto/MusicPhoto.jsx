@@ -1107,6 +1107,35 @@ const MiniPlayer = ({
       mediaRef.current.volume = volume ?? 1;
     }
   }, [speed, volume]);
+
+  useEffect(() => {
+    if ('mediaSession' in navigator && track) {
+      navigator.mediaSession.metadata = new window.MediaMetadata({
+        title: track.text || track.author || 'Стихія',
+        artist: track.author || 'Stykhiya',
+        album: track.category || 'Music',
+        artwork: [
+          { src: track.image, sizes: '512x512', type: 'image/webp' }
+        ]
+      });
+
+      navigator.mediaSession.setActionHandler('play', () => {
+        mediaRef.current?.play();
+        setIsPlaying(true);
+      });
+      navigator.mediaSession.setActionHandler('pause', () => {
+        mediaRef.current?.pause();
+        setIsPlaying(false);
+      });
+    }
+  }, [track]);
+
+  useEffect(() => {
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
+    }
+  }, [isPlaying]);
+
   const getImageIndexByTime = (images, currentTime, duration) => {
     if (!images || images.length === 0) return 0;
     const isTimedFormat =
@@ -1325,7 +1354,7 @@ const MiniPlayer = ({
             ref={mediaRef}
             src={track.video}
             autoPlay={isPlaying}
-            muted
+            muted={volume === 0}
             loop
             style={{ width: "100%", height: "100%", objectFit: "cover" }}
             onTimeUpdate={(e) => setCurrentTime(e.target.currentTime)}
@@ -1808,6 +1837,7 @@ const FullScreenPlayer = ({
   isShuffle,
   onSetShuffle,
   onMiniPlayer,
+  user,
   playlist,
   onSelectTrack,
 }) => {
@@ -1850,6 +1880,7 @@ const FullScreenPlayer = ({
   const [playbackDirection, setPlaybackDirection] = useState("forward"); 
   const [isAutoSlideshow, setIsAutoSlideshow] = useState(false);
   const [autoSlideshowInterval, setAutoSlideshowInterval] = useState(3);
+//  const [selectedVoiceNarration, setSelectedVoiceNarration] = useState("off");
   const fsCanvasRef = useRef(null);
   const fsPipVideoRef = useRef(null);
   const lastActionRef = useRef(0);
@@ -2202,6 +2233,44 @@ const FullScreenPlayer = ({
     }
   }, [volume, speed]);
 
+  useEffect(() => {
+    if ('mediaSession' in navigator && track) {
+      navigator.mediaSession.metadata = new window.MediaMetadata({
+        title: track.text || track.author || 'Стихія',
+        artist: track.author || 'Stykhiya',
+        album: track.category || 'Music',
+        artwork: [
+          { src: track.image, sizes: '512x512', type: 'image/webp' }
+        ]
+      });
+
+      navigator.mediaSession.setActionHandler('play', togglePlay);
+      navigator.mediaSession.setActionHandler('pause', togglePlay);
+      navigator.mediaSession.setActionHandler('previoustrack', () => {
+        if (canPerformAction()) onPrev();
+      });
+      navigator.mediaSession.setActionHandler('nexttrack', () => {
+        if (canPerformAction()) onNext();
+      });
+      navigator.mediaSession.setActionHandler('seekbackward', () => {
+        if (mediaRef.current) {
+          mediaRef.current.currentTime = Math.max(0, mediaRef.current.currentTime - seekAmount);
+        }
+      });
+      navigator.mediaSession.setActionHandler('seekforward', () => {
+        if (mediaRef.current) {
+          mediaRef.current.currentTime = Math.min(mediaRef.current.duration, mediaRef.current.currentTime + seekAmount);
+        }
+      });
+    }
+  }, [track, onNext, onPrev, togglePlay, seekAmount, canPerformAction]);
+
+  useEffect(() => {
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
+    }
+  }, [isPlaying]);
+
   const handleWheel = useCallback((e) => {
     const delta = Math.sign(e.deltaY) * -1;
 
@@ -2428,7 +2497,7 @@ const FullScreenPlayer = ({
     const dataUrl = await getCroppedDataUrl(source, applyFilter);
     const a = document.createElement("a");
     a.href = dataUrl;
-    a.download = `screenshot-${Date.now()}.jpg`;
+    a.download = `screenshot-${track.text.replace(/\s+/g, '_')}-${Date.now()}.jpg`;
     a.click();
     setShowScreenshotMenu(false);
   };
@@ -3254,6 +3323,29 @@ const FullScreenPlayer = ({
               {playbackDirection === "forward" ? "Звичайний" : "Навпаки"}
             </button>
           </SliderRow>
+        {/* //  {track.lyrics && ( */}
+            {/* // <SliderRow>
+            //   <span style={{ color: "white" }}>Озвучка</span>
+            //   <select */}
+            {/* //     value={selectedVoiceNarration}
+            //     onChange={(e) => setSelectedVoiceNarration(e.target.value)}
+            //     style={{
+            //       background: "#444",
+            //       color: "white",
+            //       border: "1px solid #666",
+            //       borderRadius: "4px",
+            //       padding: "3px 6px",
+            //       cursor: "pointer",
+            //       fontSize: "11px",
+            //     }}
+            //   >
+            //     <option value="off">Без озвучки</option>
+            //     <option value="voice1">Голос 1</option>
+            //     <option value="voice2">Голос 2</option>
+            //     <option value="voice3">Голос 3</option>
+            //   </select>
+            // </SliderRow>
+        //  )} */}
           <button
             onClick={async () => {
               for (const img of sliderImages) {
@@ -3674,6 +3766,7 @@ const MusicCard = ({ cardData, onOpenModal, rating, onOpenPlayer, onRate }) => {
     const a = document.createElement("a");
     a.href = cardData.audio;
     a.download = `${text || "track"}.mp3`;
+    a.download = `${text || "track"}${cardData.author ? ` - ${cardData.author}` : ""}.mp3`;
     a.click();
   };
   const handlePrintCover = (e) => {
@@ -3781,59 +3874,24 @@ const musicCards = [
     video: dinofrozVideo,
     text: "Легендарний мультфільм на Малятко ТВ(нажаль закритий). Зображено Імператора дрaконів Ніцерона.",
     lyrics: [
-      { time: 8, text: "Динофроз...Динофроз!" },
-      { time: 15, text: "Світять яскраві зірки. Пригод крізь віки." },
-      { time: 21, text: "В доісторичний світ потрапили ми." },
-      { time: 26, text: "Тут динозаври б'ються в парі з людьми." },
-      { time: 33, text: "В битвах з ворогом твердий гартується дух!" },
-      { time: 38, text: "Страху немає, упевненим робиться рух!" },
+      { time: 8, text: "Динофроз...Динофроз!", voice: "voice1" },
+      { time: 15, text: "Світять яскраві зірки. Пригод крізь віки.", voice: "voice1" },
+      { time: 21, text: "В доісторичний світ потрапили ми.", voice: "voice1" },
+      { time: 26, text: "Тут динозаври б'ються в парі з людьми.", voice: "voice1" },
+      { time: 33, text: "В битвах з ворогом твердий гартується дух!", voice: "voice1" },
+      { time: 38, text: "Страху немає, упевненим робиться рух!", voice: "voice1" },
       {
         time: 44,
         text: "Бачимемо ціль і до бою рушаєм! Ми батьківшину свою захищаєм!",
+        voice: "voice1",
       },
-      { time: 50, text: "Динофроз! Воїни світла і воїни миру!" },
-      { time: 56, text: "Динофроз! Лиш в боротьбі здобувам довіру!" },
-      { time: 62, text: "Динофроз! Готуємось до бою завзято!" },
-      { time: 66, text: "Будь сміливим друже! Переможе дужий!" },
-      { time: 72, text: "Чистимо зброю! Готові до бою!" },
-      { time: 75, text: "В битві за волю! Пірна з головою!" },
-      { time: 77, text: "Пекло за дух. І мороз усе це динофроз!" },
-      { time: 800, text: "Динофроз...Динофроз!" },
-      {
-        time: 1500,
-        text: "Четверо друзів знайшли дивну гру. В доісторичну пішли давнину.",
-      },
-      { time: 2100, text: "Там динозаврами стали вони" },
-      { time: 2600, text: "Тут динозаври б'ються в парі з людьми." },
-      { time: 3300, text: "В цьому карти їм допомогли. " },
-      {
-        time: 3800,
-        text: "У давнині небезпечні дракони. Та з ними впорались наші герої.",
-      },
-      {
-        time: 4400,
-        text: "До бою готові всюди і завжди. І утілюють мрiї свої в боротьбі.",
-      },
-      { time: 5000, text: "Динофроз! Дружні, завзяті, зброя в руках. " },
-      { time: 5600, text: "Динофроз! Вони Ніцерону не по зубах." },
-      {
-        time: 6200,
-        text: "Динофроз! Дружні, завзяті, зброя в руках. Вони Ніцерону не по зубах.",
-      },
-      { time: 6600, text: "Друзі б'ються завзято. Дракони тікають!" },
-      { time: 7200, text: "Четверо друзів майбутнє спасають!" },
-      { time: 7500, text: "До бою завжди готові вони." },
-      { time: 7700, text: "Ховайтеся, вороги!" },
-      { time: 7700, text: "/" },
-      { time: 7700, text: "/" },
-      { time: 7700, text: "/" },
-      { time: 7700, text: "/" },
-      { time: 7700, text: "/" },
-      { time: 7700, text: "/" },
-      { time: 7700, text: "/" },
-      { time: 7700, text: "/" },
-      { time: 7700, text: "/" },
-      { time: 7700, text: "/" },
+      { time: 50, text: "Динофроз! Воїни світла і воїни миру!", voice: "voice1" },
+      { time: 56, text: "Динофроз! Лиш в боротьбі здобувам довіру!", voice: "voice1" },
+      { time: 62, text: "Динофроз! Готуємось до бою завзято!", voice: "voice1" },
+      { time: 66, text: "Будь сміливим друже! Переможе дужий!", voice: "voice1" },
+      { time: 72, text: "Чистимо зброю! Готові до бою!", voice: "voice1" },
+      { time: 75, text: "В битві за волю! Пірна з головою!", voice: "voice1" },
+      { time: 77, text: "Пекло за дух. І мороз усе це динофроз!", voice: "voice1" },
     ],
 
     duration: 120,
@@ -3875,6 +3933,16 @@ const musicCards = [
       turkeyseven,
       turkeys,
     ],
+    // Voice narrations can be added by creating mp3 files:
+    // src/mp3/turkeys-narration-voice1.mp3
+    // src/mp3/turkeys-narration-voice2.mp3
+    // src/mp3/turkeys-narration-voice3.mp3
+    // Then uncomment below:
+    // voiceNarrations: {
+    //   voice1: require("../../mp3/turkeys-narration-voice1.mp3"),
+    //   voice2: require("../../mp3/turkeys-narration-voice2.mp3"),
+    //   voice3: require("../../mp3/turkeys-narration-voice3.mp3"),
+    // },
   },
   {
     id: 4,
@@ -3929,6 +3997,16 @@ const musicCards = [
     ],
     duration: 240,
     images: [monody],
+    // Voice narrations can be added by creating mp3 files:
+    // src/mp3/monody-narration-voice1.mp3
+    // src/mp3/monody-narration-voice2.mp3
+    // src/mp3/monody-narration-voice3.mp3
+    // Then uncomment below:
+    // voiceNarrations: {
+    //   voice1: require("../../mp3/monody-narration-voice1.mp3"),
+    //   voice2: require("../../mp3/monody-narration-voice2.mp3"),
+    //   voice3: require("../../mp3/monody-narration-voice3.mp3"),
+    // },
   },
   {
     id: 5,
@@ -5453,6 +5531,8 @@ const PlaylistModal = ({
   const [fullScreenTrack, setFullScreenTrack] = useState(null);
   const [isLyricsClosing, setIsLyricsClosing] = useState(false);
 
+  const voiceActingMode = user?.voiceActingMode || 'malyatko';
+
   useEffect(() => {
     if (initialFullScreenTrack) {
       setFullScreenTrack(initialFullScreenTrack);
@@ -6092,6 +6172,7 @@ const PlaylistModal = ({
                 <LyricsViewer
                   lyrics={lyricsModalData.lyrics}
                   currentTime={lyricsCurrentTime}
+                  voiceActingMode={voiceActingMode}
                 />
               </LyricsContainer>
             </LyricsModalContent>
@@ -6105,6 +6186,7 @@ const PlaylistModal = ({
           onClose={() => setFullScreenTrack(null)}
           onNext={playNext}
           onPrev={playPrev}
+          user={user}
           rating={getRating(fullScreenTrack.id)}
           onRate={handleToggleFavorite}
           isShuffle={isShuffle}
