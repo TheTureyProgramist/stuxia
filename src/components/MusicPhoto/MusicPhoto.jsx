@@ -74,6 +74,7 @@ import dinofrozeight from "../../photos/vip-images/dinofroz/dinofrozeight.webp";
 import dinofroztwo from "../../photos/vip-images/dinofroz/vip-dragons.webp";
 import dinofroznine from "../../photos/vip-images/dinofroz/dinofroznine.webp";
 //Mia and me
+import hunger from "../../photos/hero-header/hunger.webp";
 import mia from "../../photos/vip-images/mia/miaandme.webp";
 //import christmasAudio from "../../mp3/kolada.mp3";
 import dinofrozAudio from "../../mp3/dinofroz.mp3";
@@ -82,6 +83,7 @@ import monodyAudio from "../../mp3/thefatrat-monody.mp3";
 import windAudio from "../../mp3/kolada.mp3";
 import unityAudio from "../../mp3/unity.mp3";
 import horseAudio from "../../mp3/horse.mp3";
+import hungerAudio from "../../mp3/thefatrat-hunger.mp3"
 import dragonoraAudio from "../../mp3/dragon.mp3";
 import soloveykoAudio from "../../mp3/soloveyko.mp3";
 import harmonyAudio from "../../mp3/harmonic-japan.mp3";
@@ -1352,7 +1354,7 @@ const MiniPlayer = ({
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            fontSize: 30,
+            fontSize: 17,
             color: "white",
             opacity: isPlaying ? 0 : 0.8,
           }}
@@ -1445,7 +1447,7 @@ const FSControls = styled.div`
   left: 0;
   width: 100%;
   background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
-  padding: 20px 20px 40px 20px;
+  padding: 15px 20px 15px 15px;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -1498,7 +1500,7 @@ const GearModal = styled.div`
   bottom: 80px;
   right: 20px;
   background: rgba(30, 30, 30, 0.95);
-  padding: 15px;
+  padding: 5px;
   border-radius: 12px;
   color: white;
   width: 250px;
@@ -1506,7 +1508,7 @@ const GearModal = styled.div`
   border: 1px solid #444;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 5px;
 `;
 
 const SubtitleOverlay = styled.div`
@@ -1519,14 +1521,14 @@ const SubtitleOverlay = styled.div`
   text-shadow:
     0 2px 4px rgba(0, 0, 0, 0.8),
     0 0 10px rgba(0, 0, 0, 0.5);
-  font-size: 16px;
+  font-size: 13.5px;
   font-weight: bold;
   text-align: center;
   width: 80%;
   z-index: 2005;
   pointer-events: none;
   background: rgba(0, 0, 0, 0.3);
-  padding: 10px 20px;
+  padding: 10px 10px;
   border-radius: 20px;
   opacity: ${(props) => (props.$show ? 1 : 0)};
   transition:
@@ -1830,6 +1832,7 @@ const FullScreenPlayer = ({
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [isAssetsLoaded, setIsAssetsLoaded] = useState(false);
   const [activeFilterKey, setActiveFilterKey] = useState(null);
+  const [filtersEnabled, setFiltersEnabled] = useState(true); // Режим вимкнення фільтрів
   const [dynamicOpacity, setDynamicOpacity] = useState(null);
   const [dynamicBlur, setDynamicBlur] = useState(null);
   const [dynamicColor, setDynamicColor] = useState(null); 
@@ -1837,7 +1840,6 @@ const FullScreenPlayer = ({
   const mediaRef = useRef(null);
   const [waveform, setWaveform] = useState([]);
   const [isGeneratingWave, setIsGeneratingWave] = useState(false);
-  const [playbackDirection, setPlaybackDirection] = useState("forward"); 
   const [isAutoSlideshow, setIsAutoSlideshow] = useState(false);
   const [autoSlideshowInterval, setAutoSlideshowInterval] = useState(3);
 //  const [selectedVoiceNarration, setSelectedVoiceNarration] = useState("off");
@@ -1877,30 +1879,6 @@ const FullScreenPlayer = ({
       console.error("PiP failed", error);
     }
   };
-  useEffect(() => {
-    let interval;
-    const media = mediaRef.current;
-    if (!media) return;
-    if (playbackDirection === "backward" && isPlaying) {
-      media.pause();
-      media.muted = true;
-      interval = setInterval(() => {
-        const nextTime = media.currentTime - 0.1 * speed;
-        if (nextTime <= 0) {
-          media.currentTime = 0;
-          setIsPlaying(false);
-        } else {
-          media.currentTime = nextTime;
-        }
-      }, 100);
-    } else {
-      media.muted = false; 
-      if (isPlaying && playbackDirection === "forward") {
-        media.play().catch(() => {});
-      }
-    }
-    return () => clearInterval(interval);
-  }, [playbackDirection, isPlaying, speed]);
   const previewVideoRef = useRef(null);
   const controlsTimeoutRef = useRef(null);
   const containerRef = useRef(null);
@@ -1925,9 +1903,8 @@ const FullScreenPlayer = ({
     () => activeFilters.some((f) => f.type === "symbols"),
     [activeFilters],
   );
-
-  useEffect(() => {
-    if (mainFilter) {
+useEffect(() => {
+    if (filtersEnabled && mainFilter) {
       const key = `${mainFilter.start}-${mainFilter.end}`;
       if (key !== activeFilterKey) {
         setActiveFilterKey(key);
@@ -1961,10 +1938,11 @@ const FullScreenPlayer = ({
       setDynamicBlur(null);
       setDynamicColor(null); 
     }
-  }, [mainFilter, activeFilterKey]);
+  }, [mainFilter, activeFilterKey, filtersEnabled]); 
   const [dynamicBlurSymbols] = useState(0);
   useEffect(() => {
-    if (progressMode !== "stereogram" || !isAssetsLoaded) return;
+    if (!filtersEnabled || progressMode !== "stereogram" || !isAssetsLoaded) return; // Added filtersEnabled
+    if (!filtersEnabled || progressMode !== "stereogram" || !isAssetsLoaded) return; // Added filtersEnabled to dependencies
     let isCancelled = false;
     const generateWave = async () => {
       setIsGeneratingWave(true);
@@ -2011,19 +1989,20 @@ const FullScreenPlayer = ({
     progressMode,
     isAssetsLoaded,
     isDinofroz,
+    filtersEnabled,
   ]);
 
   const lastSymbolFilter = useMemo(
-    () => [...activeFilters].reverse().find((f) => f.type === "symbols"),
-    [activeFilters],
+    () => filtersEnabled ? [...activeFilters].reverse().find((f) => f.type === "symbols") : null, // Added filtersEnabled
+    [activeFilters, filtersEnabled],
   );
   const [activeSymbols, setActiveSymbols] = useState(null);
   const [shouldRenderSymbols, setShouldRenderSymbols] = useState(false);
   const [isSymbolsExiting, setIsSymbolsExiting] = useState(false);
   const [activeSymbolKey, setActiveSymbolKey] = useState(0);
   const [dynamicSpeed, setDynamicSpeed] = useState(5);
-  useEffect(() => {
-    if (lastSymbolFilter) {
+  useEffect(() => { // This useEffect will be modified to respect filtersEnabled
+    if (filtersEnabled && lastSymbolFilter) {
       const key = `${lastSymbolFilter.start}-${lastSymbolFilter.end}`;
       if (key !== activeSymbolKey || isSymbolsExiting) {
         setActiveSymbolKey(key);
@@ -2060,15 +2039,16 @@ const FullScreenPlayer = ({
         setDynamicSpeed(null);
       }, 1000); 
       return () => clearTimeout(timer);
-    }
+    } // Removed the activeSymbolKey check, filtersEnabled is the main gate
   }, [
     lastSymbolFilter,
+    filtersEnabled,
     shouldRenderSymbols,
     isSymbolsExiting,
     activeSymbolKey,
   ]);
 
-  const sliderImages = useMemo(() => {
+  const sliderImages = useMemo(() => { // This useMemo will be modified to respect filtersEnabled
     if (track.images && track.images.length > 0) {
       if (
         track.images[0] &&
@@ -2080,7 +2060,7 @@ const FullScreenPlayer = ({
       return track.images;
     }
     return [track.image, track.image, track.image];
-  }, [track]);
+  }, [track]); // No direct change needed here, but its usage will be conditional
 
   const handleClose = useCallback(() => {
     setIsClosing(true);
@@ -2776,8 +2756,8 @@ const FullScreenPlayer = ({
       >
         <FSVisualWrapper style={{ position: "relative" }}>
           <FilterOverlay
-            $active={!!mainFilter}
-            $type={dynamicColor || mainFilter?.type}
+          $active={filtersEnabled && !!mainFilter}
+          $type={dynamicColor || mainFilter?.type} 
             $opacity={
               dynamicOpacity !== null
                 ? dynamicOpacity
@@ -2789,7 +2769,7 @@ const FullScreenPlayer = ({
           />
 
           <FilterOverlay
-            $active={!!flickerFilter}
+          $active={filtersEnabled && !!flickerFilter}
             $type="flicker"
             $opacity={flickerFilter?.opacity || 0.1}
             style={{ zIndex: 11 }}
@@ -2821,7 +2801,7 @@ const FullScreenPlayer = ({
             </>
           )}
           {shouldRenderSymbols && (
-            <SymbolOverlay
+            <SymbolOverlay 
               count={dynamicIntensity || activeSymbols?.intensity || 50}
               volume={volume}
               speed={dynamicSpeed || activeSymbols?.speed || 0}
@@ -2837,15 +2817,15 @@ const FullScreenPlayer = ({
               position: "absolute",
               top: "50%",
               left: "50%",
-              zIndex: 20 /* Кнопка паузи поверх фільтрів */,
+              zIndex: 20,
               transform: "translate(-50%, -50%)",
-              fontSize: "60px",
-              color: "rgba(255,255,255,0.8)",
+              fontSize: "45px",
+              color: "rgba(255,255,255,1)",
               pointerEvents: "none",
-              background: "rgba(0,0,0,0.4)",
+              background: "rgba(0,0,0,0.7)",
               borderRadius: "50%",
-              width: "100px",
-              height: "100px",
+              width: "60px",
+              height: "60px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -2855,16 +2835,11 @@ const FullScreenPlayer = ({
           </div>
         )}
       </FSContent>
-
-      {/* Lyrics Overlay with dynamic position */}
       <SubtitleOverlay $show={!!currentLyric} $controlsVisible={showControls}>
         {currentLyric}
       </SubtitleOverlay>
-      {/* Audio Element for non-video tracks (Dinofroz uses FSVideo which is a video tag) */}
       {!isDinofroz && <audio ref={mediaRef} src={track.audio} loop={loop} />}
-
       <FSControls $visible={showControls} onClick={(e) => e.stopPropagation()}>
-        {/* Seek Bar */}
         <div
           style={{
             display: "flex",
@@ -3190,30 +3165,6 @@ const FullScreenPlayer = ({
         <GearModal>
           <h4>Налаштування</h4>
           <SliderRow>
-            <span style={{ color: "white" }}>Гучність</span>
-            <VolumeSlider
-              type="range"
-              min="0"
-              max="1"
-              step="0.05"
-              $activeColor="#7afcff"
-              value={volume}
-              onChange={(e) => setVolume(parseFloat(e.target.value))}
-            />
-          </SliderRow>
-          <SliderRow>
-            <span style={{ color: "white" }}>Швидкість ({speed}x)</span>
-            <SpeedSlider
-              type="range"
-              min="0.2"
-              max="2.0"
-              step="0.1"
-              $activeColor="#7afcff"
-              value={speed}
-              onChange={(e) => setSpeed(parseFloat(e.target.value))}
-            />
-          </SliderRow>
-          <SliderRow>
             <span style={{ color: "white" }}>Промотка ({seekAmount}с)</span>
             <SeekAmountSlider
               type="range"
@@ -3225,6 +3176,25 @@ const FullScreenPlayer = ({
               onChange={(e) => setSeekAmount(parseInt(e.target.value, 10))}
             />
           </SliderRow>
+          {track.filters && track.filters.length > 0 && (
+            <SliderRow>
+              <span style={{ color: "white" }}>Ефекти</span>
+              <button
+                onClick={() => setFiltersEnabled(!filtersEnabled)}
+                style={{
+                  background: filtersEnabled ? "orange" : "#444",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "4px",
+                  padding: "3px 8px",
+                  cursor: "pointer",
+                  fontSize: "11px",
+                }}
+              >
+                {filtersEnabled ? "Увімкнено" : "Вимкнено"}
+              </button>
+            </SliderRow>
+          )}
           {hasSymbols && (
             <SliderRow>
               <span style={{ color: "white" }}>
@@ -3260,27 +3230,6 @@ const FullScreenPlayer = ({
               }}
             >
               {progressMode === "linear" ? "Ютуб" : "Стереограми"}
-            </button>
-          </SliderRow>
-          <SliderRow>
-            <span style={{ color: "white" }}>Напрямок</span>
-            <button
-              onClick={() =>
-                setPlaybackDirection((prev) =>
-                  prev === "forward" ? "backward" : "forward",
-                )
-              }
-              style={{
-                background: playbackDirection === "forward" ? "#444" : "red",
-                color: "white",
-                border: "none",
-                borderRadius: "4px",
-                padding: "3px 8px",
-                cursor: "pointer",
-                fontSize: "11px",
-              }}
-            >
-              {playbackDirection === "forward" ? "Звичайний" : "Навпаки"}
             </button>
           </SliderRow>
         {/* //  {track.lyrics && ( */}
@@ -4466,354 +4415,60 @@ const musicCards = [
   },
    {
     id: 20,
-    image: unity,
-    audio: unityAudio,
-    text: "Класний комп'ютерний хіт, не розумію чого його не поставили у фільм Матриця?",
-    author: "Unity-TheFatRat.",
+    image: hunger,
+    audio: hungerAudio,
+    author: "Hunger-TheFatRat.",
+     text: "",
     lyrics: [
-      { time: 119, text: "Текст хаотичний, лише для атмосфери" },
-      { time: 154, text: "" },
-      { time: 170, text: "Відлуння атмосферного вигуку" },
-      { time: 180, text: "" },
+      { time: 11, text: "Донечко, не лишай страх на згадку, я подбаю про те, щоб ти була у порядку" },
+       { time: 16, text: "Донечко, не хвилюйся за мене, все погане мине" },
+       { time: 22, text: "Віддам все, тобі моє" },
+       { time: 27, text: "Сподіваюся, ти не помітиш страх голоду, в моїх очах" },
+       { time: 34, text: "Все, про що ми мріяли" },
+       { time: 39, text: "Брехню за хмарами нам повіяли" },
+      { time: 44, text: "Зі страхами, з дощами, сльозами та болями" },
+      { time: 49, text: "Донечко, не бійся за неньку, я подбаю про твою безпеконьку" },
+       { time: 52, text: "Я продовжуватиму боротьбу, я продовжуватиму боротьбу" },
+      { time: 66, text: "Ховайся тут на ходу, поки я йду" },
+       { time: 69, text: "Ніхто не зашкодить, тобі хочу пообіцять" },
+        { time: 72, text: "Все буде добре, тут залишайся і мовчи, завдання тобі таке" },
+      { time: 75, text: "Не йди за мною, я повернуся завтра з тобою" },
+      { time: 78, text: "Віддам все, тобі моє" },
+       { time: 82, text: "Сподіваюся, ти не помітиш страх голоду, в моїх очах" },
+       { time: 89, text: "Все, про що ми мріяли" },
+       { time: 94, text: "Брехню за хмарами нам повіяли" },
+      { time: 100, text: "Зі страхами, зі дощами, сльозами та болями" },
+      { time: 104, text: "Донечко, не бійся за неньку, я подбаю про твою безпеконьку" },
+       { time: 110, text: "Я продовжуватиму боротьбу, я продовжуватиму боротьбу" },
+       { time: 133, text: "Не плач, моя айстра. Я повернуся завтра, коли прокинешся" },
+        { time: 145, text: "Не плач. Я буду сьогодні ввечері та триматиму монстрів подалі" },
+        { time: 155, text: "" },
+      { time: 165, text: "(Come closer, пошепки) Підійди ближче, підійди ближче." },
+      { time: 175, text: "Я продовжуватиму боротьбу, бо я їх здолаю" },
     ],
     filters: [
-      { start: 170, end: 191, type: "flicker", opacity: 0.3 },
       {
-        start: 81,
-        end: 100,
-        type: "symbols",
-        intensity: 140,
-        speed: 1.4,
-        blur: 0.5,
-      },
-      { start: 8, end: 27, type: "purple", opacity: 0.25 },
-      { start: 27, end: 27.5, type: "flash", opacity: 1 },
-      { start: 45, end: 63, type: "blue", opacity: 0.2 },
-      { start: 100, end: 116, type: "orange", opacity: 0.2 },
-      { start: 116, end: 119.6, type: "greyscale", opacity: 0.2 },
-      { start: 119.6, end: 120, type: "flash", opacity: 1 },
-      { start: 120, end: 136, type: "chaos", opacity: 0.2 },
-      { start: 136, end: 154, type: "cyan", opacity: 0.2 },
-      { start: 154, end: 170, type: "brown", opacity: 0.2 },
-      { start: 170, end: 191, type: "chaos", opacity: 0.2 },
-      { start: 191, end: 210, type: "red", opacity: 0.2 },
-      { start: 210, end: 240, type: "black", opacity: 0.8 },
+      start: 55,
+      end: 66,
+      type: "symbols",
+      intensity: 140,
+      speed: 1.4,
+       },
+      { start: 10, end: 22, type: "purple", opacity: 0.25 },
+      { start: 22, end: 33, type: "cyan", opacity: 0.2 },
+      { start: 33, end: 44, type: "green", opacity: 0.2 },
+      { start: 44, end: 55, type: "orange", opacity: 0.2 },
+      { start: 55, end: 66, type: "purple", opacity: 0.2 },
+      { start: 77, end: 88, type: "green", opacity: 0.2 },
+      { start: 88, end: 100, type: "cyan", opacity: 0.2 },
+      { start: 100, end: 111, type: "orange", opacity: 0.2 },
+      { start: 111, end: 133, type: "chaos", opacity: 0.2 },
+      { start: 155, end: 174, type: "brown", opacity: 0.2 },
+      { start: 174, end: 191, type: "chaos", opacity: 0.2 },
     ],
     category: "хіти",
     duration: 180,
-    images: [unity],
-  },
-   {
-    id: 21,
-    image: unity,
-    audio: unityAudio,
-    text: "Класний комп'ютерний хіт, не розумію чого його не поставили у фільм Матриця?",
-    author: "Unity-TheFatRat.",
-    lyrics: [
-      { time: 119, text: "Текст хаотичний, лише для атмосфери" },
-      { time: 154, text: "" },
-      { time: 170, text: "Відлуння атмосферного вигуку" },
-      { time: 180, text: "" },
-    ],
-    filters: [
-      { start: 170, end: 191, type: "flicker", opacity: 0.3 },
-      {
-        start: 81,
-        end: 100,
-        type: "symbols",
-        intensity: 140,
-        speed: 1.4,
-        blur: 0.5,
-      },
-      { start: 8, end: 27, type: "purple", opacity: 0.25 },
-      { start: 27, end: 27.5, type: "flash", opacity: 1 },
-      { start: 45, end: 63, type: "blue", opacity: 0.2 },
-      { start: 100, end: 116, type: "orange", opacity: 0.2 },
-      { start: 116, end: 119.6, type: "greyscale", opacity: 0.2 },
-      { start: 119.6, end: 120, type: "flash", opacity: 1 },
-      { start: 120, end: 136, type: "chaos", opacity: 0.2 },
-      { start: 136, end: 154, type: "cyan", opacity: 0.2 },
-      { start: 154, end: 170, type: "brown", opacity: 0.2 },
-      { start: 170, end: 191, type: "chaos", opacity: 0.2 },
-      { start: 191, end: 210, type: "red", opacity: 0.2 },
-      { start: 210, end: 240, type: "black", opacity: 0.8 },
-    ],
-    category: "хіти",
-    duration: 180,
-    images: [unity],
-  },
-   {
-    id: 22,
-    image: unity,
-    audio: unityAudio,
-    text: "Класний комп'ютерний хіт, не розумію чого його не поставили у фільм Матриця?",
-    author: "Unity-TheFatRat.",
-    lyrics: [
-      { time: 119, text: "Текст хаотичний, лише для атмосфери" },
-      { time: 154, text: "" },
-      { time: 170, text: "Відлуння атмосферного вигуку" },
-      { time: 180, text: "" },
-    ],
-    filters: [
-      { start: 170, end: 191, type: "flicker", opacity: 0.3 },
-      {
-        start: 81,
-        end: 100,
-        type: "symbols",
-        intensity: 140,
-        speed: 1.4,
-        blur: 0.5,
-      },
-      { start: 8, end: 27, type: "purple", opacity: 0.25 },
-      { start: 27, end: 27.5, type: "flash", opacity: 1 },
-      { start: 45, end: 63, type: "blue", opacity: 0.2 },
-      { start: 100, end: 116, type: "orange", opacity: 0.2 },
-      { start: 116, end: 119.6, type: "greyscale", opacity: 0.2 },
-      { start: 119.6, end: 120, type: "flash", opacity: 1 },
-      { start: 120, end: 136, type: "chaos", opacity: 0.2 },
-      { start: 136, end: 154, type: "cyan", opacity: 0.2 },
-      { start: 154, end: 170, type: "brown", opacity: 0.2 },
-      { start: 170, end: 191, type: "chaos", opacity: 0.2 },
-      { start: 191, end: 210, type: "red", opacity: 0.2 },
-      { start: 210, end: 240, type: "black", opacity: 0.8 },
-    ],
-    category: "хіти",
-    duration: 180,
-    images: [unity],
-  },
-   {
-    id: 23,
-    image: unity,
-    audio: unityAudio,
-    text: "Класний комп'ютерний хіт, не розумію чого його не поставили у фільм Матриця?",
-    author: "Unity-TheFatRat.",
-    lyrics: [
-      { time: 119, text: "Текст хаотичний, лише для атмосфери" },
-      { time: 154, text: "" },
-      { time: 170, text: "Відлуння атмосферного вигуку" },
-      { time: 180, text: "" },
-    ],
-    filters: [
-      { start: 170, end: 191, type: "flicker", opacity: 0.3 },
-      {
-        start: 81,
-        end: 100,
-        type: "symbols",
-        intensity: 140,
-        speed: 1.4,
-        blur: 0.5,
-      },
-      { start: 8, end: 27, type: "purple", opacity: 0.25 },
-      { start: 27, end: 27.5, type: "flash", opacity: 1 },
-      { start: 45, end: 63, type: "blue", opacity: 0.2 },
-      { start: 100, end: 116, type: "orange", opacity: 0.2 },
-      { start: 116, end: 119.6, type: "greyscale", opacity: 0.2 },
-      { start: 119.6, end: 120, type: "flash", opacity: 1 },
-      { start: 120, end: 136, type: "chaos", opacity: 0.2 },
-      { start: 136, end: 154, type: "cyan", opacity: 0.2 },
-      { start: 154, end: 170, type: "brown", opacity: 0.2 },
-      { start: 170, end: 191, type: "chaos", opacity: 0.2 },
-      { start: 191, end: 210, type: "red", opacity: 0.2 },
-      { start: 210, end: 240, type: "black", opacity: 0.8 },
-    ],
-    category: "хіти",
-    duration: 180,
-    images: [unity],
-  },
-   {
-    id: 24,
-    image: unity,
-    audio: unityAudio,
-    text: "Класний комп'ютерний хіт, не розумію чого його не поставили у фільм Матриця?",
-    author: "Unity-TheFatRat.",
-    lyrics: [
-      { time: 119, text: "Текст хаотичний, лише для атмосфери" },
-      { time: 154, text: "" },
-      { time: 170, text: "Відлуння атмосферного вигуку" },
-      { time: 180, text: "" },
-    ],
-    filters: [
-      { start: 170, end: 191, type: "flicker", opacity: 0.3 },
-      {
-        start: 81,
-        end: 100,
-        type: "symbols",
-        intensity: 140,
-        speed: 1.4,
-        blur: 0.5,
-      },
-      { start: 8, end: 27, type: "purple", opacity: 0.25 },
-      { start: 27, end: 27.5, type: "flash", opacity: 1 },
-      { start: 45, end: 63, type: "blue", opacity: 0.2 },
-      { start: 100, end: 116, type: "orange", opacity: 0.2 },
-      { start: 116, end: 119.6, type: "greyscale", opacity: 0.2 },
-      { start: 119.6, end: 120, type: "flash", opacity: 1 },
-      { start: 120, end: 136, type: "chaos", opacity: 0.2 },
-      { start: 136, end: 154, type: "cyan", opacity: 0.2 },
-      { start: 154, end: 170, type: "brown", opacity: 0.2 },
-      { start: 170, end: 191, type: "chaos", opacity: 0.2 },
-      { start: 191, end: 210, type: "red", opacity: 0.2 },
-      { start: 210, end: 240, type: "black", opacity: 0.8 },
-    ],
-    category: "хіти",
-    duration: 180,
-    images: [unity],
-  },
-   {
-    id: 25,
-    image: unity,
-    audio: unityAudio,
-    text: "Класний комп'ютерний хіт, не розумію чого його не поставили у фільм Матриця?",
-    author: "Unity-TheFatRat.",
-    lyrics: [
-      { time: 119, text: "Текст хаотичний, лише для атмосфери" },
-      { time: 154, text: "" },
-      { time: 170, text: "Відлуння атмосферного вигуку" },
-      { time: 180, text: "" },
-    ],
-    filters: [
-      { start: 170, end: 191, type: "flicker", opacity: 0.3 },
-      {
-        start: 81,
-        end: 100,
-        type: "symbols",
-        intensity: 140,
-        speed: 1.4,
-        blur: 0.5,
-      },
-      { start: 8, end: 27, type: "purple", opacity: 0.25 },
-      { start: 27, end: 27.5, type: "flash", opacity: 1 },
-      { start: 45, end: 63, type: "blue", opacity: 0.2 },
-      { start: 100, end: 116, type: "orange", opacity: 0.2 },
-      { start: 116, end: 119.6, type: "greyscale", opacity: 0.2 },
-      { start: 119.6, end: 120, type: "flash", opacity: 1 },
-      { start: 120, end: 136, type: "chaos", opacity: 0.2 },
-      { start: 136, end: 154, type: "cyan", opacity: 0.2 },
-      { start: 154, end: 170, type: "brown", opacity: 0.2 },
-      { start: 170, end: 191, type: "chaos", opacity: 0.2 },
-      { start: 191, end: 210, type: "red", opacity: 0.2 },
-      { start: 210, end: 240, type: "black", opacity: 0.8 },
-    ],
-    category: "хіти",
-    duration: 180,
-    images: [unity],
-  },
-   {
-    id: 26,
-    image: unity,
-    audio: unityAudio,
-    text: "Класний комп'ютерний хіт, не розумію чого його не поставили у фільм Матриця?",
-    author: "Unity-TheFatRat.",
-    lyrics: [
-      { time: 119, text: "Текст хаотичний, лише для атмосфери" },
-      { time: 154, text: "" },
-      { time: 170, text: "Відлуння атмосферного вигуку" },
-      { time: 180, text: "" },
-    ],
-    filters: [
-      { start: 170, end: 191, type: "flicker", opacity: 0.3 },
-      {
-        start: 81,
-        end: 100,
-        type: "symbols",
-        intensity: 140,
-        speed: 1.4,
-        blur: 0.5,
-      },
-      { start: 8, end: 27, type: "purple", opacity: 0.25 },
-      { start: 27, end: 27.5, type: "flash", opacity: 1 },
-      { start: 45, end: 63, type: "blue", opacity: 0.2 },
-      { start: 100, end: 116, type: "orange", opacity: 0.2 },
-      { start: 116, end: 119.6, type: "greyscale", opacity: 0.2 },
-      { start: 119.6, end: 120, type: "flash", opacity: 1 },
-      { start: 120, end: 136, type: "chaos", opacity: 0.2 },
-      { start: 136, end: 154, type: "cyan", opacity: 0.2 },
-      { start: 154, end: 170, type: "brown", opacity: 0.2 },
-      { start: 170, end: 191, type: "chaos", opacity: 0.2 },
-      { start: 191, end: 210, type: "red", opacity: 0.2 },
-      { start: 210, end: 240, type: "black", opacity: 0.8 },
-    ],
-    category: "хіти",
-    duration: 180,
-    images: [unity],
-  },
-   {
-    id: 27,
-    image: unity,
-    audio: unityAudio,
-    text: "Класний комп'ютерний хіт, не розумію чого його не поставили у фільм Матриця?",
-    author: "Unity-TheFatRat.",
-    lyrics: [
-      { time: 119, text: "Текст хаотичний, лише для атмосфери" },
-      { time: 154, text: "" },
-      { time: 170, text: "Відлуння атмосферного вигуку" },
-      { time: 180, text: "" },
-    ],
-    filters: [
-      { start: 170, end: 191, type: "flicker", opacity: 0.3 },
-      {
-        start: 81,
-        end: 100,
-        type: "symbols",
-        intensity: 140,
-        speed: 1.4,
-        blur: 0.5,
-      },
-      { start: 8, end: 27, type: "purple", opacity: 0.25 },
-      { start: 27, end: 27.5, type: "flash", opacity: 1 },
-      { start: 45, end: 63, type: "blue", opacity: 0.2 },
-      { start: 100, end: 116, type: "orange", opacity: 0.2 },
-      { start: 116, end: 119.6, type: "greyscale", opacity: 0.2 },
-      { start: 119.6, end: 120, type: "flash", opacity: 1 },
-      { start: 120, end: 136, type: "chaos", opacity: 0.2 },
-      { start: 136, end: 154, type: "cyan", opacity: 0.2 },
-      { start: 154, end: 170, type: "brown", opacity: 0.2 },
-      { start: 170, end: 191, type: "chaos", opacity: 0.2 },
-      { start: 191, end: 210, type: "red", opacity: 0.2 },
-      { start: 210, end: 240, type: "black", opacity: 0.8 },
-    ],
-    category: "хіти",
-    duration: 180,
-    images: [unity],
-  },
-   {
-    id: 28,
-    image: unity,
-    audio: unityAudio,
-    text: "Класний комп'ютерний хіт, не розумію чого його не поставили у фільм Матриця?",
-    author: "Unity-TheFatRat.",
-    lyrics: [
-      { time: 119, text: "Текст хаотичний, лише для атмосфери" },
-      { time: 154, text: "" },
-      { time: 170, text: "Відлуння атмосферного вигуку" },
-      { time: 180, text: "" },
-    ],
-    filters: [
-      { start: 170, end: 191, type: "flicker", opacity: 0.3 },
-      {
-        start: 81,
-        end: 100,
-        type: "symbols",
-        intensity: 140,
-        speed: 1.4,
-        blur: 0.5,
-      },
-      { start: 8, end: 27, type: "purple", opacity: 0.25 },
-      { start: 27, end: 27.5, type: "flash", opacity: 1 },
-      { start: 45, end: 63, type: "blue", opacity: 0.2 },
-      { start: 100, end: 116, type: "orange", opacity: 0.2 },
-      { start: 116, end: 119.6, type: "greyscale", opacity: 0.2 },
-      { start: 119.6, end: 120, type: "flash", opacity: 1 },
-      { start: 120, end: 136, type: "chaos", opacity: 0.2 },
-      { start: 136, end: 154, type: "cyan", opacity: 0.2 },
-      { start: 154, end: 170, type: "brown", opacity: 0.2 },
-      { start: 170, end: 191, type: "chaos", opacity: 0.2 },
-      { start: 191, end: 210, type: "red", opacity: 0.2 },
-      { start: 210, end: 240, type: "black", opacity: 0.8 },
-    ],
-    category: "хіти",
-    duration: 180,
-    images: [unity],
+    images: [hunger],
   },
 ];
 
@@ -6117,7 +5772,6 @@ const PlaylistModal = ({
           </ModalOverlay>
         )}
       </PlaylistModalContent>
-
       {fullScreenTrack && (
         <FullScreenPlayer
           track={fullScreenTrack}

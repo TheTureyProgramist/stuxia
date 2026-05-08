@@ -5,6 +5,7 @@ import dinofroz from "../../photos/vip-images/dinofroz/vip-dinofroz.webp";
 import turkeys from "../../photos/vip-images/collectors-edition.webp";
 import ultra from "../../photos/vip-modal/realultra.webp";
 import turkey from "../../photos/vip-images/turkeys/ultra-vip-turkeys.webp";
+import shop from "../../photos/hero-header/shop.webp";
 import VipModal from "./VipModal";
 const slideIn = keyframes`
   0% { transform: translateY(100%) scale(0.5); opacity: 0; }
@@ -207,7 +208,7 @@ const PackCard = styled.div`
   background: #2a121215;
   border: 1px solid #ff6c6c;
   border-radius: 15px;
-  padding: 10px;
+  padding: ${(props) => (props.$isCharacter ? "10px 10px 90px" : "10px")};
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -226,7 +227,7 @@ const PackCard = styled.div`
     background-image: url(${(props) => props.$bgImage});
     background-size: cover;
     background-position: center;
-    opacity: 0.25;
+    opacity: ${(props) => (props.$isCharacter ? 1 : 0.25)};
     z-index: -1;
     transition: opacity 0.3s ease;
   }
@@ -393,7 +394,7 @@ const InfoList = styled.ul`
 
 const InfoItem = styled.li`
   font-size: 13px;
-  margin-bottom: 15px;
+  margin-bottom: 5px;
   color: #e0e0e0;
   display: flex;
   justify-content: space-between;
@@ -440,6 +441,65 @@ const RainbowSpan = styled.span`
   animation: ${rainbowText} 3s linear infinite;
 `;
 
+const CharacterFrame = styled.div`
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 3px;
+  background: rgba(0, 0, 0, 0.45);
+  color: #f8f1c6;
+  font-size: 10px;
+  line-height: 1.4;
+  text-align: center;
+  backdrop-filter: blur(6px);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 3;
+`;
+
+const LateMessage = styled.div`
+  margin-top: 7px;
+  padding: 5px 10px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 108, 108, 0.3);
+  background: rgba(255, 108, 108, 0.08);
+  color: #ffe7e7;
+  font-size: 13px;
+  text-align: center;
+  max-width: 680px;
+  margin-left: auto;
+  margin-right: auto;
+  box-shadow: 0 0 0 1px rgba(255, 108, 108, 0.08);
+`;
+
+const CHARACTER_PHRASES = [
+  "Мене звати Доміно, мої світлячки прекрасні",
+  "Чероний конверт хочеш :)",
+  "Білий конвертик, доволі цінний!",
+  "Ці сердечка зігріють навіть найхолодніші миті. Мило, чи не так?",
+  "Фарби? О, вони додають життю правильних відтінків...",
+  "Лиш по секрету, тут з'явиться обмежений пропуск",
+];
+
+const THIRD_OPEN_PHRASES = [
+  "Знову ти? Слухай, з твоїм темпом тобі просто необхідна Підписка.",
+  "Кейт швидко бігає, але вона моя по долі.",
+  "Баффі, цікава річ, хочеш активувати?",
+  "Туди-сюди, Ніцерона тут нема(за винятком набору), чому ж ти бігаєш.",
+];
+
+const LATE_WARNING_PHRASE =
+  "Доміно: Предмети тут мають звичку зникати та змінюватись... Тобі краще поспішити.";
+const getRandomItem = (items) =>
+  items[Math.floor(Math.random() * items.length)];
+
+const getRandomPhrases = (items, count) =>
+  Array.from({ length: count }, () => getRandomItem(items));
+
 const AnimatedContent = styled.div`
   animation: ${fadeIn} 0.4s ease-out;
 `;
@@ -449,12 +509,28 @@ const ShopModal = ({ onClose }) => {
   const [activeSubImg, setActiveSubImg] = useState("turkeys");
   const [showVipModal, setShowVipModal] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
+  const [characterPhrases, setCharacterPhrases] = useState([]);
+  const [showLateMessage, setShowLateMessage] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveSubImg((prev) => (prev === "turkeys" ? "ultra" : "turkeys"));
     }, 6000);
     return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const currentCount = (window.__shopModalOpenCount || 0) + 1;
+    window.__shopModalOpenCount = currentCount;
+
+    if (currentCount >= 3) {
+      setCharacterPhrases(getRandomPhrases(THIRD_OPEN_PHRASES, 1));
+    } else {
+      setCharacterPhrases([getRandomItem(CHARACTER_PHRASES)]);
+    }
+
+    const lateTimer = setTimeout(() => setShowLateMessage(true), 20000);
+    return () => clearTimeout(lateTimer);
   }, []);
 
   const handleClose = () => {
@@ -464,41 +540,17 @@ const ShopModal = ({ onClose }) => {
 
   const packs = [
     {
-      name: "Механічний",
-      count: 250,
-      img: time,
-      buttonText: "4.99грн",
-      badge: "2 рази/добу",
-    },
-        {
-      name: "Фінансовий",
-      count: 250,
-      img: time,
-      buttonText: "4.99грн",
-      badge: "Раз/2 тижні",
-    },
-        {
-      name: "Лісовий",
-      count: 250,
-      img: time,
-      buttonText: "4.99грн",
-      badge: "Раз на акаунт",
+      name: "Доміно",
+      count: "Власник магазину",
+      img: shop,
+      isCharacter: true,
     },
     {
-      name: "Загадковий",
-      count: 1000,
-      img: turkey,
-      buttonText: "29.99грн",
-      badge: "Популярний, ∞ в лімітах",
-    },
-    {
-      name: "Ніцероновий",
-      count: 2000,
-      img: dinofroz,
-      special: true,
-      oldPrice: "60.00грн",
-      buttonText: "34.99грн",
-      badge: "-40%! Найвигідніший, 2рази/3доби",
+      name: "Баффі конвертів",
+      img: time,
+      count: "1.5х",
+      buttonText: "2хв",
+      badge: "Раз/Добу",
     },
     {
       name: "Підписка",
@@ -508,6 +560,29 @@ const ShopModal = ({ onClose }) => {
       buttonText: "Розблокувати",
       badge: "Преміум",
       isSub: true,
+    },
+    {
+      name: "Сезонний: Сонцестояння",
+      count: 500,
+      img: time,
+      buttonText: "24.99грн",
+      badge: "Раз/сезон",
+    },
+    {
+      name: "Бундючий",
+      count: 1000,
+      img: turkey,
+      buttonText: "14.99грн",
+      badge: "∞ в лімітах",
+    },
+    {
+      name: "Ніцероновий",
+      count: 2000,
+      img: dinofroz,
+      special: true,
+      oldPrice: "30.00грн",
+      buttonText: "19.99грн",
+      badge: "-30%! Найвигідніший, Раз/3доби",
     },
   ];
 
@@ -530,7 +605,7 @@ const ShopModal = ({ onClose }) => {
               : "Джерела отримання та витрат"}
           </span>
         </ToggleButton>
-        <ShopTitle>Магазин 🧧</ShopTitle>
+        <ShopTitle>Магазин Доміно</ShopTitle>
         {!showInfo ? (
           <AnimatedContent key="packs">
             <PackGrid>
@@ -540,6 +615,7 @@ const ShopModal = ({ onClose }) => {
                   $isSpecial={pack.special}
                   $bgImage={pack.img}
                   $isSub={pack.isSub}
+                  $isCharacter={pack.isCharacter}
                   $activeImg={activeSubImg}
                 >
                   {pack.badge && <Badge>{pack.badge}</Badge>}
@@ -551,6 +627,13 @@ const ShopModal = ({ onClose }) => {
                       </PackName>
                     </PackContent>
                   </PackInfo>
+                  {pack.isCharacter && characterPhrases.length > 0 && (
+                    <CharacterFrame>
+                      {characterPhrases.map((text, index) => (
+                        <span key={index}>{text}</span>
+                      ))}
+                    </CharacterFrame>
+                  )}
                   <BuyButton
                     onClick={() => pack.isSub && setShowVipModal(true)}
                   >
@@ -562,6 +645,9 @@ const ShopModal = ({ onClose }) => {
                 </PackCard>
               ))}
             </PackGrid>
+            {showLateMessage && (
+              <LateMessage>{LATE_WARNING_PHRASE}</LateMessage>
+            )}
           </AnimatedContent>
         ) : (
           <AnimatedContent key="info">
@@ -601,15 +687,14 @@ const ShopModal = ({ onClose }) => {
                   <InfoList>
                     <InfoItem>
                       <span>
-                        Щоденний безкоштовнй бонус за вхід, проходження 1
-                        головоломки. Поліпшіть{" "}
+                        Щоденний безкоштовнй бонус за вхід(10), проходження головоломки(залежить від важкості, і типу головоломки). Поліпшіть{" "}
                         <RainbowSpan>Підписками</RainbowSpan>.
                       </span>
-                      <span className="price">+10 🧧</span>
+                      <span className="price">1-10 🧧</span>
                     </InfoItem>
                     <InfoItem>
                       <span>
-                        🏆 Поліпшіть з <RainbowSpan>Підписками</RainbowSpan>.
+                        🏆 Поліпшіть з<RainbowSpan>Підписками</RainbowSpan>.
                       </span>
                       <span className="price">20-40 🧧</span>
                     </InfoItem>
@@ -622,13 +707,6 @@ const ShopModal = ({ onClose }) => {
                         <RainbowSpan>Підписками</RainbowSpan>.
                       </span>
                       <span className="price">+40 🧧</span>
-                    </InfoItem>
-                    <InfoItem>
-                      <span>
-                        Оплата <RainbowSpan>Підписками</RainbowSpan>{" "}
-                        передоплатою(разово) та місячним тарифом.
-                      </span>
-                      <span className="price">+600, 800 🧧</span>
                     </InfoItem>
                   </InfoList>
                 </div>

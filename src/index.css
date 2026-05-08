@@ -132,3 +132,20 @@ JS-код чистий і зрозумілий, використовується
       { time: 7200, text: "Четверо друзів майбутнє спасають!" },
       { time: 7500, text: "До бою завжди готові вони." },
       { time: 7700, text: "Ховайтеся, вороги!" }, */
+       /* // Import the functions you need from the SDKs you need */
+/* import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyCeoo6qt8hLP23X648LVOnqP46WzDscqvk",
+  authDomain: "stuxia-5b535.firebaseapp.com",
+  projectId: "stuxia-5b535",
+  storageBucket: "stuxia-5b535.firebasestorage.app",
+  messagingSenderId: "801101038904",
+  appId: "1:801101038904:web:70d01ab63f631b74acadcd"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig); */
