@@ -5,7 +5,7 @@ import { addCustomDay, removeCustomDay } from '../../features/counter/Counter.js
 import localforage from "localforage";
 import hills from "../../photos/hero-header/fog.webp";
 import herotext from "../../photos/hero-header/herotext.webp";
-
+import dinofrozVideo from "../../mp3/dinofroz.mp4"
 import soloveyko from "../../photos/vip-images/vip-soloveyko.webp";
 import harmony from "../../photos/vip-images/asium/asium.webp";
 import horse from "../../photos/vip-images/horse/horse.webp";
@@ -84,6 +84,7 @@ const DEFAULT_BGS = [
   { src: hills, name: "Туманний ліс", category: "Стихія" },
   { src: volcano, name: "Вулкан", category: "Стихія" },
   // Світ Динофроз та Дракони
+  { src: dinofrozVideo, name: "Динофроз (Відео-шпалери)", category: "Динофроз" },
   { src: dinofrozone, name: "Імператор Ніцерон", category: "Динофроз" },
   { src: dinofroztwo, name: "Генерал Влад (2 сезон)", category: "Динофроз" },
   { src: dinofrozthree, name: "Прев'ю мультфільму", category: "Динофроз" },
@@ -255,16 +256,18 @@ const panAnimation = keyframes`
   50% { background-position-x: 100%; }
   100% { background-position-x: 0%; }
 `;
-const BgLayer = styled.div`
+
+const isVideoSource = (src) => {
+  if (typeof src !== "string") return false;
+  return src.includes(".mp4") || src.startsWith("data:video/");
+};
+
+const BgLayerStyled = styled.div`
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-size: cover;
-  background-position: ${(props) => props.$focalX}% ${(props) => props.$focalY}%;
-  background-repeat: no-repeat;
-  background-image: url(${(props) => props.$image || hills});
   opacity: ${(props) => (props.$active ? 1 : 0)};
   transition: opacity ${(props) => props.$transition}s ease-in-out;
   transform: scale(
@@ -281,6 +284,57 @@ const BgLayer = styled.div`
         `
       : "none"};
 `;
+
+const BgLayer = (props) => {
+  const { $image, $active, $focalX, $focalY } = props;
+  const isVideo = isVideoSource($image);
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      if ($active) {
+        videoRef.current.play().catch(() => {});
+      } else {
+        videoRef.current.pause();
+      }
+    }
+  }, [$active]);
+
+  return (
+    <BgLayerStyled {...props}>
+      {isVideo ? (
+        <video
+          ref={videoRef}
+          src={$image}
+          muted
+          loop
+          playsInline
+          onTimeUpdate={(e) => {
+            if (e.target.currentTime >= 8) {
+              e.target.currentTime = 0;
+            }
+          }}
+          style={{ 
+            width: "100%", 
+            height: "100%", 
+            objectFit: "cover",
+            objectPosition: `${$focalX}% ${$focalY}%`
+          }}
+        />
+      ) : (
+        <div style={{
+          width: "100%",
+          height: "100%",
+          backgroundImage: `url(${$image || hills})`,
+          backgroundSize: "cover",
+          backgroundPosition: `${$focalX}% ${$focalY}%`,
+          backgroundRepeat: "no-repeat"
+        }} />
+      )}
+    </BgLayerStyled>
+  );
+};
+
 const Overlay = styled.div`
   position: absolute;
   top: 0;
@@ -1538,7 +1592,29 @@ const Hero = ({
   const fileInputRef = useRef(null);
 
   const handleFileUpload = (file) => {
-    if (!file || !file.type.startsWith("image/")) return;
+    if (!file) return;
+    const isImage = file.type.startsWith("image/");
+    const isVideo = file.type.startsWith("video/");
+    if (!isImage && !isVideo) return;
+
+    if (isVideo) {
+      if (file.size > 20 * 1024 * 1024) {
+        alert("Відео занадто велике! Максимум 20мб для стабільності.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setCustomHeroBgs((prev) => [
+          { src: e.target.result, name: file.name, category: "Ваші відео" },
+          ...prev,
+        ]);
+        setHeroBg(e.target.result);
+      };
+      reader.readAsDataURL(file);
+      startCooldown();
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = (e) => {
       // "Штука" для зменшення якості (Canvas resize)
@@ -1585,6 +1661,13 @@ const Hero = ({
     }
     return 0;
   });
+
+  const startCooldown = () => {
+    const until = Date.now() + 40000;
+    localStorage.setItem("hero_cooldown_until", until.toString());
+    setCooldown(40);
+  };
+
   const searchRef = useRef(null);
   const API_KEY = "5104647d3e574f4a3f23c0aa092eb2b9";
 
@@ -1720,9 +1803,7 @@ const Hero = ({
     setLongitude("");
     setShowCoordinateSuggestions(false);
     setCoordinateSuggestions([]);
-    const until = Date.now() + 40000;
-    localStorage.setItem("hero_cooldown_until", until.toString());
-    setCooldown(40);
+    startCooldown();
   };
 
   const handleSelect = (city) => {
@@ -1738,9 +1819,7 @@ const Hero = ({
     setInputValue("");
     setSuggestions([]);
     setShowList(false);
-    const until = Date.now() + 40000;
-    localStorage.setItem("hero_cooldown_until", until.toString());
-    setCooldown(40);
+    startCooldown();
   };
 
   const handleAddDay = () => {
@@ -2815,12 +2894,23 @@ const Hero = ({
                 <NameOverlay $hasSlots={heroBgMode === "slideshow-2" || heroBgMode === "slideshow-3" || heroBgMode === "slideshow-4"}>
                       {bg.name}
                     </NameOverlay>
-                    <BgSquare
-                      src={bg.src}
-                      loading="lazy"
-                      onClick={() => setHeroBg(bg.src)}
-                      title={bg.name}
-                    />
+                    {isVideoSource(bg.src) ? (
+                      <video
+                        src={bg.src}
+                        muted
+                        style={{ width: '100%', aspectRatio: '3/2', objectFit: 'cover', cursor: 'pointer' }}
+                        onMouseEnter={(e) => e.target.play()}
+                        onMouseLeave={(e) => { e.target.pause(); e.target.currentTime = 0; }}
+                        onClick={() => setHeroBg(bg.src)}
+                      />
+                    ) : (
+                      <BgSquare
+                        src={bg.src}
+                        loading="lazy"
+                        onClick={() => setHeroBg(bg.src)}
+                        title={bg.name}
+                      />
+                    )}
                     {heroBgMode === "slideshow-2" && (
                       <SlotButtons>
                         <SlotBtn
@@ -2911,7 +3001,7 @@ const Hero = ({
                 type="file"
                 ref={fileInputRef}
                 hidden
-                accept="image/*"
+                accept="image/*,video/*"
                 onChange={(e) => handleFileUpload(e.target.files[0])}
               />
             </DropZone>
