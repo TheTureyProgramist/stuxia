@@ -79,12 +79,13 @@ import nicerone from "../../photos/vip-images/dinofroz/nicerone.webp";
 //Mia and me
 import mia from "../../photos/vip-images/mia/miaandme.webp";
 import volcano from "../../photos/vip-images/fire.webp";
+import clubstepVideo from "../../mp4/clubstep.mp4";
 const DEFAULT_BGS = [
   // Основні / Головні
   { src: hills, name: "Туманний ліс", category: "Стихія" },
   { src: volcano, name: "Вулкан", category: "Стихія" },
   // Світ Динофроз та Дракони
-  { src: dinofrozVideo, name: "Динофроз (Відео-шпалери)", category: "Динофроз" },
+  // { src: dinofrozVideo, name: "Динофроз (Відео-шпалери)", category: "Динофроз" },
   { src: dinofrozone, name: "Імператор Ніцерон", category: "Динофроз" },
   { src: dinofroztwo, name: "Генерал Влад (2 сезон)", category: "Динофроз" },
   { src: dinofrozthree, name: "Прев'ю мультфільму", category: "Динофроз" },
@@ -148,6 +149,7 @@ const DEFAULT_BGS = [
   { src: theorytwo, name: "Чорна діра", category: "Аркада" },
   { src: electrodynamix, name: "Гроза", category: "Аркада" },
   { src: mecha, name: "Шестерні", category: "Аркада" },
+  {src: clubstepVideo, name: "Невідоме місце(Відео)", category: "Аркада"},
   { src: clubstep, name: "Невідоме місце", category: "Аркада" },
   { src: theory, name: "Вогнище", category: "Аркада" },
   { src: chess, name: "Шахи", category: "Аркада" },

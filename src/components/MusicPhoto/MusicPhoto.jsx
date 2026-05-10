@@ -178,6 +178,46 @@ const symbolAnimation = keyframes`
   100% { transform: translate(-50%, -50%) scale(1.2); opacity: 0; }
 `;
 
+const seekAnimation = keyframes`
+  0% { opacity: 0; background-color: rgba(255, 255, 255, 0); }
+  30% { opacity: 1; background-color: rgba(255, 255, 255, 0.1); }
+  100% { opacity: 0; background-color: rgba(255, 255, 255, 0); }
+`;
+
+const SeekIndicator = styled.div`
+  position: absolute;
+  top: 0;
+  ${props => props.$side === 'left' ? 'left: 0;' : 'right: 0;'}
+  width: 40%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 2015;
+  pointer-events: none;
+  animation: ${seekAnimation} 0.8s ease-out forwards;
+  color: white;
+  .icon { font-size: 36px; margin-bottom: 5px; }
+  .text { font-size: 18px; font-weight: bold; }
+`;
+
+const LongPressBadge = styled.div`
+  position: absolute;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: bold;
+  z-index: 2020;
+  pointer-events: none;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+`;
+
 const blinkAnimation = keyframes`
   0% { opacity: var(--initial-opacity); }
   10% { opacity: 0.05; }
@@ -1050,7 +1090,9 @@ const MiniPlayer = ({
   const pipVideoRef = useRef(null);
   const isDinofroz =
     (track.category === "мультфільми" && track.video) ||
-    track.text?.toLowerCase().includes("динофроз");
+    // Check if track.text is defined before calling toLowerCase()
+    (track.text && track.text.toLowerCase().includes("динофроз"));
+
   useEffect(() => {
     setPos(getDefaultPos());
   }, [track.id]);
@@ -1254,6 +1296,14 @@ const MiniPlayer = ({
       alert(`❌ Помилка: ${err.message}`);
     }
   };
+
+  const handleError = useCallback(() => {
+    alert("Помилка завантаження медіа в міні-плеєрі. Спробуйте ще раз.");
+    // Optionally, you might want to pause playback or skip to the next track
+    setIsPlaying(false);
+    mediaRef.current?.pause();
+  }, []);
+
   return (
     <MiniPlayerContainer
       style={{
@@ -1318,6 +1368,7 @@ const MiniPlayer = ({
             src={track.video}
             autoPlay={isPlaying}
             muted={volume === 0}
+            onError={handleError}
             loop
             style={{ width: "100%", height: "100%", objectFit: "cover" }}
             onTimeUpdate={(e) => setCurrentTime(e.target.currentTime)}
@@ -1344,6 +1395,7 @@ const MiniPlayer = ({
               src={track.audio}
               autoPlay={isPlaying}
               loop
+              onError={handleError}
               onTimeUpdate={(e) => setCurrentTime(e.target.currentTime)}
             />
           </>
@@ -1804,8 +1856,8 @@ const FullScreenPlayer = ({
   onSelectTrack,
 }) => {
   const isDinofroz =
-    (track.category === "мультфільми" && track.video) ||
-    (track.text.toLowerCase().includes("динофроз") &&
+    (track.category === "мультфільми" && track.video) || // Existing check
+    (track.text && track.text.toLowerCase().includes("динофроз") && // Check if track.text is defined
       track.category === "мультфільми");
 
   const [isPlaying, setIsPlaying] = useState(false);
@@ -1814,7 +1866,41 @@ const FullScreenPlayer = ({
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
   const [speed, setSpeed] = useState(1);
-  const [seekAmount, setSeekAmount] = useState(10);
+  const [seekForwardAmount, setSeekForwardAmount] = useState(10);
+  const [seekBackwardAmount, setSeekBackwardAmount] = useState(10);
+  const [activeSeekIndicator, setActiveSeekIndicator] = useState(null);
+  const [isSeekLoaded, setIsSeekLoaded] = useState(false);
+  
+  const [longPressSpeedIndicator, setLongPressSpeedIndicator] = useState(null); // Changed from dynamicSpeed to longPressSpeedIndicator
+  const longPressTimerRef = useRef(null);
+  const originalSpeedRef = useRef(null);
+  const lastClickRef = useRef({ time: 0, side: null });
+
+  useEffect(() => {
+    const loadSeekSettings = async () => {
+      try {
+        const fwd = await localforage.getItem("seekForwardAmount");
+        const bwd = await localforage.getItem("seekBackwardAmount");
+        if (fwd !== null) setSeekForwardAmount(fwd);
+        if (bwd !== null) setSeekBackwardAmount(bwd);
+        setIsSeekLoaded(true);
+      } catch (e) { console.error(e); setIsSeekLoaded(true); }
+    };
+    loadSeekSettings();
+  }, []);
+
+  useEffect(() => {
+    if (isSeekLoaded) {
+      localforage.setItem("seekForwardAmount", seekForwardAmount);
+      localforage.setItem("seekBackwardAmount", seekBackwardAmount);
+    }
+  }, [seekForwardAmount, seekBackwardAmount, isSeekLoaded]);
+
+  const triggerIndicator = useCallback((side, amount) => {
+    setActiveSeekIndicator({ side, amount, key: Date.now() });
+    setTimeout(() => setActiveSeekIndicator(null), 800);
+  }, []);
+
   const [showSettings, setShowSettings] = useState(false);
   const [showDownload, setShowDownload] = useState(false);
   const [showScreenshotMenu, setShowScreenshotMenu] = useState(false);
@@ -1836,7 +1922,7 @@ const FullScreenPlayer = ({
   const [dynamicOpacity, setDynamicOpacity] = useState(null);
   const [dynamicBlur, setDynamicBlur] = useState(null);
   const [dynamicColor, setDynamicColor] = useState(null); 
-  const [dynamicIntensity, setDynamicIntensity] = useState(null);
+  const [dynamicIntensity, setDynamicIntensity] = useState(null); // Changed from dynamicIntensity to dynamicSymbolIntensity
   const mediaRef = useRef(null);
   const [waveform, setWaveform] = useState([]);
   const [isGeneratingWave, setIsGeneratingWave] = useState(false);
@@ -1853,7 +1939,7 @@ const FullScreenPlayer = ({
     lastActionRef.current = now;
     return true;
   }, []);
-  const togglePiP = async () => {
+  const togglePiP = useCallback(async () => {
     try {
       if (document.pictureInPictureElement) {
         await document.exitPictureInPicture();
@@ -1878,11 +1964,10 @@ const FullScreenPlayer = ({
     } catch (error) {
       console.error("PiP failed", error);
     }
-  };
+  }, [isDinofroz]);
   const previewVideoRef = useRef(null);
   const controlsTimeoutRef = useRef(null);
   const containerRef = useRef(null);
-  const holdIntervalRef = useRef(null);
   const overlayRef = useRef(null);
 
   const activeFilters = useMemo(() => {
@@ -1898,7 +1983,7 @@ const FullScreenPlayer = ({
   const flickerFilter = useMemo(
     () => activeFilters.find((f) => f.type === "flicker"),
     [activeFilters],
-  );
+  ); // Added filtersEnabled to dependencies
   const hasSymbols = useMemo(
     () => activeFilters.some((f) => f.type === "symbols"),
     [activeFilters],
@@ -2000,7 +2085,7 @@ useEffect(() => {
   const [shouldRenderSymbols, setShouldRenderSymbols] = useState(false);
   const [isSymbolsExiting, setIsSymbolsExiting] = useState(false);
   const [activeSymbolKey, setActiveSymbolKey] = useState(0);
-  const [dynamicSpeed, setDynamicSpeed] = useState(5);
+  const [dynamicSpeed, setDynamicSpeed] = useState(5); // Changed from dynamicSpeed to dynamicSymbolSpeed
   useEffect(() => { // This useEffect will be modified to respect filtersEnabled
     if (filtersEnabled && lastSymbolFilter) {
       const key = `${lastSymbolFilter.start}-${lastSymbolFilter.end}`;
@@ -2009,7 +2094,7 @@ useEffect(() => {
         setActiveSymbols(lastSymbolFilter);
         setShouldRenderSymbols(true);
         setIsSymbolsExiting(false);
-
+  
         if (lastSymbolFilter.isRandomIntensity) {
           const min = lastSymbolFilter.minIntensity || 50;
           const max = lastSymbolFilter.maxIntensity || 200;
@@ -2018,7 +2103,7 @@ useEffect(() => {
           );
         } else {
           setDynamicIntensity(null);
-        }
+        } // Changed from dynamicIntensity to dynamicSymbolIntensity
 
         if (lastSymbolFilter.isRandomSpeed) {
           const min = lastSymbolFilter.minSpeed || 1;
@@ -2026,7 +2111,7 @@ useEffect(() => {
           setDynamicSpeed(Math.random() * (max - min) + min);
         } else {
           setDynamicSpeed(null);
-        }
+        } // Changed from dynamicSpeed to dynamicSymbolSpeed
       }
     } else if (shouldRenderSymbols && !isSymbolsExiting) {
       setIsSymbolsExiting(true);
@@ -2035,7 +2120,7 @@ useEffect(() => {
         setIsSymbolsExiting(false);
         setActiveSymbols(null);
         setActiveSymbolKey(null);
-        setDynamicIntensity(null);
+        setDynamicIntensity(null); // Changed from dynamicIntensity to dynamicSymbolIntensity
         setDynamicSpeed(null);
       }, 1000); 
       return () => clearTimeout(timer);
@@ -2046,7 +2131,7 @@ useEffect(() => {
     shouldRenderSymbols,
     isSymbolsExiting,
     activeSymbolKey,
-  ]);
+  ]); // Added filtersEnabled to dependencies
 
   const sliderImages = useMemo(() => { // This useMemo will be modified to respect filtersEnabled
     if (track.images && track.images.length > 0) {
@@ -2068,6 +2153,13 @@ useEffect(() => {
       onClose();
     }, 300);
   }, [onClose]);
+
+  const handleError = useCallback(() => {
+    alert("Помилка завантаження медіа. Спробуйте ще раз.");
+    // Optionally, you might want to pause playback or skip to the next track
+    setIsPlaying(false);
+    mediaRef.current?.pause();
+  }, []);
 
   const togglePlay = useCallback(() => {
     if (!mediaRef.current) return;
@@ -2152,19 +2244,23 @@ useEffect(() => {
     const handleEnded = () => {
       if (!loop) setIsPlaying(false);
     };
+    const handleErrorEvent = () => handleError();
 
     media.addEventListener("timeupdate", updateTime);
     media.addEventListener("progress", updateProgress);
     media.addEventListener("loadedmetadata", updateDur);
     media.addEventListener("ended", handleEnded);
+    media.addEventListener("error", handleErrorEvent);
 
     return () => {
       media.removeEventListener("timeupdate", updateTime);
+      media.removeEventListener("progress", updateProgress);
       media.removeEventListener("loadedmetadata", updateDur);
       media.removeEventListener("ended", handleEnded);
-      media.removeEventListener("progress", updateProgress);
+      media.removeEventListener("error", handleErrorEvent);
+
     };
-  }, [track, loop]);
+  }, [track, loop, handleError]);
 
   useEffect(() => {
     if (mediaRef.current) {
@@ -2194,16 +2290,16 @@ useEffect(() => {
       });
       navigator.mediaSession.setActionHandler('seekbackward', () => {
         if (mediaRef.current) {
-          mediaRef.current.currentTime = Math.max(0, mediaRef.current.currentTime - seekAmount);
+          mediaRef.current.currentTime = Math.max(0, mediaRef.current.currentTime - seekBackwardAmount);
         }
       });
       navigator.mediaSession.setActionHandler('seekforward', () => {
         if (mediaRef.current) {
-          mediaRef.current.currentTime = Math.min(mediaRef.current.duration, mediaRef.current.currentTime + seekAmount);
+          mediaRef.current.currentTime = Math.min(mediaRef.current.duration, mediaRef.current.currentTime + seekForwardAmount);
         }
       });
     }
-  }, [track, onNext, onPrev, togglePlay, seekAmount, canPerformAction]);
+  }, [track, onNext, onPrev, togglePlay, seekForwardAmount, seekBackwardAmount, canPerformAction]);
 
   useEffect(() => {
     if ('mediaSession' in navigator) {
@@ -2219,7 +2315,8 @@ useEffect(() => {
         Math.max(0.2, Math.min(2.0, +(prev + delta * 0.1).toFixed(1))),
       );
     } else if (e.ctrlKey || e.altKey) {
-      setSeekAmount((prev) => Math.max(5, Math.min(30, prev + delta * 5)));
+      setSeekForwardAmount((prev) => Math.max(5, Math.min(30, prev + delta * 5)));
+      setSeekBackwardAmount((prev) => Math.max(5, Math.min(30, prev + delta * 5)));
     } else {
       setVolume((prev) =>
         Math.max(0, Math.min(1, +(prev + delta * 0.05).toFixed(2))),
@@ -2289,21 +2386,26 @@ useEffect(() => {
       if (e.code === "Space" && canPerformAction()) {
         togglePlay();
       } else if (e.code === "ArrowRight") {
+        const amount = seekForwardAmount;
         mediaRef.current.currentTime = Math.min(
           mediaRef.current.duration,
-          mediaRef.current.currentTime + 5,
+          mediaRef.current.currentTime + amount,
         );
+        triggerIndicator('right', amount);
       } else if (e.code === "ArrowLeft") {
+        const amount = seekBackwardAmount;
         mediaRef.current.currentTime = Math.max(
           0,
-          mediaRef.current.currentTime - 5,
+          mediaRef.current.currentTime - amount,
         );
+        triggerIndicator('left', amount);
       }
+
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleClose, togglePlay, resetControlsTimeout, canPerformAction]);
+  }, [handleClose, togglePlay, resetControlsTimeout, canPerformAction, seekForwardAmount, seekBackwardAmount, triggerIndicator]);
 
   useEffect(() => {
     if (isDinofroz || !duration || sliderImages.length === 0) return;
@@ -2356,6 +2458,7 @@ useEffect(() => {
     const slideshowInterval = setInterval(() => {
       setCurrentImgIdx((prev) => (prev + 1) % sliderImages.length);
     }, autoSlideshowInterval * 1000);
+
 
     return () => clearInterval(slideshowInterval);
   }, [isAutoSlideshow, autoSlideshowInterval, sliderImages.length]);
@@ -2572,25 +2675,65 @@ useEffect(() => {
     }
   };
 
-  const startHoldSeek = (direction) => {
-    if (holdIntervalRef.current) clearInterval(holdIntervalRef.current);
-    holdIntervalRef.current = setInterval(() => {
+  const handleInteractionStart = useCallback((x, width) => {
+    const side = x < width * 0.2 ? 'left' : x > width * 0.8 ? 'right' : 'center';
+    const now = Date.now();
+
+    // 1. Логіка подвійного кліку для перемотування
+    if (side !== 'center' && side === lastClickRef.current.side && (now - lastClickRef.current.time) < 350) {
       if (mediaRef.current) {
-        const delta = direction === "left" ? -2 : 2;
-        mediaRef.current.currentTime = Math.max(
-          0,
-          Math.min(
-            mediaRef.current.duration,
-            mediaRef.current.currentTime + delta,
-          ),
-        );
-        setProgress(mediaRef.current.currentTime);
+        const amount = side === 'left' ? seekBackwardAmount : seekForwardAmount;
+        if (side === 'left') {
+          mediaRef.current.currentTime = Math.max(0, mediaRef.current.currentTime - amount);
+        } else {
+          mediaRef.current.currentTime = Math.min(mediaRef.current.duration, mediaRef.current.currentTime + amount);
+        }
+        triggerIndicator(side, amount);
       }
-    }, 100);
-  };
-  const stopHoldSeek = () => {
-    if (holdIntervalRef.current) clearInterval(holdIntervalRef.current);
-  };
+      // Очищуємо таймер затиснення, щоб подвійний клік не активував швидкість
+      if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
+      lastClickRef.current = { time: 0, side: null };
+      return;
+    }
+
+    lastClickRef.current = { time: now, side };
+
+    // 2. Логіка тривалого затиснення для зміни швидкості
+    if (side !== 'center') {
+      if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = setTimeout(() => {
+        if (!originalSpeedRef.current) {
+          originalSpeedRef.current = speed;
+        }
+        const newSpeed = side === 'right' ? 2 : 0.5;
+        setSpeed(newSpeed);
+        setLongPressSpeedIndicator(side === 'right' ? '2x >>' : '<< 0.5x');
+      }, 2000);
+    }
+  }, [speed, seekBackwardAmount, seekForwardAmount, triggerIndicator]);
+
+  const handleInteractionEnd = useCallback((side) => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+
+    // Повертаємо оригінальну швидкість
+    if (longPressSpeedIndicator) {
+      if (originalSpeedRef.current !== null) {
+        setSpeed(originalSpeedRef.current);
+        originalSpeedRef.current = null;
+      }
+      setLongPressSpeedIndicator(null);
+    } else if (side === 'center' && !longPressSpeedIndicator) {
+      // Якщо це був просто короткий клік по центру - toggle play
+      togglePlay();
+    }
+  }, [longPressSpeedIndicator, togglePlay]);
+
+  useEffect(() => {
+    return () => { if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current); };
+  }, []);
 
   const formatTime = (t) => {
     if (isNaN(t)) return "0:00";
@@ -2737,24 +2880,31 @@ useEffect(() => {
 
       <FSContent
         ref={containerRef}
-        onMouseDown={(e) => {
-          const width = containerRef.current.clientWidth;
-          const x = e.clientX;
-          if (x < width * 0.2) startHoldSeek("left");
-          else if (x > width * 0.8) startHoldSeek("right");
-          else togglePlay();
-        }}
-        onMouseUp={stopHoldSeek}
-        onMouseLeave={stopHoldSeek}
+        onMouseDown={(e) => handleInteractionStart(e.clientX, containerRef.current.clientWidth)}
+        onMouseUp={() => handleInteractionEnd()}
+        onMouseLeave={() => handleInteractionEnd()}
         onTouchStart={(e) => {
-          const width = containerRef.current.clientWidth;
-          const x = e.touches[0].clientX;
-          if (x < width * 0.2) startHoldSeek("left");
-          else if (x > width * 0.8) startHoldSeek("right");
+          resetControlsTimeout();
+          handleInteractionStart(e.touches[0].clientX, containerRef.current.clientWidth);
         }}
-        onTouchEnd={stopHoldSeek}
+        onTouchEnd={() => handleInteractionEnd()}
       >
         <FSVisualWrapper style={{ position: "relative" }}>
+          {longPressSpeedIndicator && (
+            <LongPressBadge>
+              Швидкість {longPressSpeedIndicator}
+            </LongPressBadge>
+          )}
+          {activeSeekIndicator && (
+            <SeekIndicator $side={activeSeekIndicator.side} key={activeSeekIndicator.key}>
+              <div className="icon">
+                {activeSeekIndicator.side === 'left' ? '◀◀◀' : '▶▶▶'}
+              </div>
+              <div className="text">
+                {activeSeekIndicator.side === 'left' ? '-' : '+'}{activeSeekIndicator.amount}с
+              </div>
+            </SeekIndicator>
+          )}
           <FilterOverlay
           $active={filtersEnabled && !!mainFilter}
           $type={dynamicColor || mainFilter?.type} 
@@ -2781,6 +2931,7 @@ useEffect(() => {
                 src={track.video || dinofrozVideo}
                 playsInline
                 loop={loop}
+                onError={handleError}
                 style={{ opacity: progress === 0 && !isPlaying ? 0 : 1 }}
               />
               {progress === 0 && !isPlaying && (
@@ -2797,6 +2948,7 @@ useEffect(() => {
                 src={sliderImages[currentImgIdx]}
                 alt="Slide"
                 $animate={true}
+                onError={handleError}
               />
             </>
           )}
@@ -2804,7 +2956,7 @@ useEffect(() => {
             <SymbolOverlay 
               count={dynamicIntensity || activeSymbols?.intensity || 50}
               volume={volume}
-              speed={dynamicSpeed || activeSymbols?.speed || 0}
+              speed={dynamicSpeed || activeSymbols?.speed || 0} // Changed from dynamicSpeed to dynamicSymbolSpeed
               blur={dynamicBlurSymbols || activeSymbols?.blur || 0}
               isExiting={isSymbolsExiting}
             />
@@ -2839,7 +2991,12 @@ useEffect(() => {
         {currentLyric}
       </SubtitleOverlay>
       {!isDinofroz && <audio ref={mediaRef} src={track.audio} loop={loop} />}
-      <FSControls $visible={showControls} onClick={(e) => e.stopPropagation()}>
+      <FSControls
+        $visible={showControls}
+        onClick={(e) => e.stopPropagation()}
+        onMouseEnter={() => setShowControls(true)}
+        onMouseLeave={() => setShowControls(false)}
+      >
         <div
           style={{
             display: "flex",
@@ -3003,14 +3160,16 @@ useEffect(() => {
             <ActionButton
               onClick={() => {
                 if (mediaRef.current && canPerformAction()) {
+                  const amount = seekBackwardAmount;
                   mediaRef.current.currentTime = Math.max(
                     0,
-                    mediaRef.current.currentTime - seekAmount,
+                    mediaRef.current.currentTime - amount,
                   );
+                  triggerIndicator('left', amount);
                 }
               }}
             >
-              -{seekAmount}s
+              -{seekBackwardAmount}s
             </ActionButton>
             <div
               style={{
@@ -3047,14 +3206,16 @@ useEffect(() => {
             <ActionButton
               onClick={() => {
                 if (mediaRef.current && canPerformAction()) {
+                  const amount = seekForwardAmount;
                   mediaRef.current.currentTime = Math.min(
                     duration,
-                    mediaRef.current.currentTime + seekAmount,
+                    mediaRef.current.currentTime + amount,
                   );
+                  triggerIndicator('right', amount);
                 }
               }}
             >
-              +{seekAmount}s
+              +{seekForwardAmount}s
             </ActionButton>
           </div>
 
@@ -3165,15 +3326,27 @@ useEffect(() => {
         <GearModal>
           <h4>Налаштування</h4>
           <SliderRow>
-            <span style={{ color: "white" }}>Промотка ({seekAmount}с)</span>
+            <span style={{ color: "white" }}>Промотка назад ({seekBackwardAmount}с)</span>
             <SeekAmountSlider
               type="range"
               min="5"
               max="20"
               step="5"
               $activeColor="#7afcff"
-              value={seekAmount}
-              onChange={(e) => setSeekAmount(parseInt(e.target.value, 10))}
+              value={seekBackwardAmount}
+              onChange={(e) => setSeekBackwardAmount(parseInt(e.target.value, 10))}
+            />
+          </SliderRow>
+          <SliderRow>
+            <span style={{ color: "white" }}>Промотка вперед ({seekForwardAmount}с)</span>
+            <SeekAmountSlider
+              type="range"
+              min="5"
+              max="20"
+              step="5"
+              $activeColor="#7afcff"
+              value={seekForwardAmount}
+              onChange={(e) => setSeekForwardAmount(parseInt(e.target.value, 10))}
             />
           </SliderRow>
           {track.filters && track.filters.length > 0 && (
@@ -3753,20 +3926,6 @@ const musicCards = [
   //   audio: christmasAudio,
   //   text: "",
   //   lyrics: [
-  //     // { time: 17, text: "Літо в пагорбах." },
-  //     // { time: 172, text: "Ті туманні дні у мене в спогадах." },
-  //     // { time: 175, text: "Ми все ще бігали." },
-  //     // { time: 179, text: "Весь світ був біля наших ніг." },
-  //     // { time: 182, text: "Бачачи зміни сезону." },
-  //     // { time: 182, text: "Наші дороги були вкриті пригодами." },
-  //     // { time: 185, text: "Гори на шляху." },
-  //     // { time: 189, text: "Від моря не могли втримати нас." },
-  //     // { time: 195, text: "Ось ми стоїмо з розпростертими обіймами." },
-  //     // { time: 199, text: "Це наш дім." },
-  //     // { time: 202, text: "Завжди сильні у світі, який ми створили." },
-  //     // { time: 209, text: "Я все ще чую тебе у вітрі." },
-  //     // { time: 212, text: "Бачу твої тіні на деревах." },
-  //     // { time: 216, text: "Тримаючись, спогади ніколи не змінюються." },
   //     { time: 226, text: "" },
   //   ],
   //   category: "хіти",
@@ -4299,6 +4458,37 @@ const musicCards = [
     id: 17,
     image: deadlocked,
     audio: deadlockedAudio,
+lyrics: [
+  { time: 1, text: "Діма: Кейт, де це ми?" },
+  { time: 6, text: "Кейт: Ми на якомусь болоті. Тут лежить книга, можливо, вона нам допоможе." },
+  { time: 13, text: "Книга: Колись це прекрасне озеро було прихистком для людей і тварин. Але болотний дракон знищив нормальне життя, і всі втекли. Це місце стало останнім притулком для багатьох подорожніх, як і для мене. Існує легенда про скарб, що здолає дракона і поверне все назад." },
+  { time: 24, text: "Кейт: Тут якась свічка, погляньмо в неї." },
+  { time: 27, text: "Діма: Шестерні... вони прояснюються у полум'ї. Може, це і є скарб?" },
+  { time: 30, text: "Кейт: Точно! Це підказка сценотвору. Але є погана новина: це місце прискорює старіння шкіри. Треба поквапитись, бо тутешнє життя минає як одна доба." },
+  { time: 33, text: "Діма: Давай оглянемось. Підемо вправо." },
+  { time: 37, text: "Діма: Давай через міст, бо тут гігантський павук!" },
+  { time: 40, text: "Кейт: По-перше, це павучиха, а по-друге — тут шестерня!" },
+  { time: 43, text: "Діма: Слухай, я сам вирушу у наступну пригоду, але благаю: йдемо по мосту." },
+  { time: 50, text: "Кейт: Діма, я згодна." },
+  { time: 61, text: "Діма: Кейт, тут немає шестерні, але ці кристали ніби дивляться на нас." },
+  { time: 64, text: "Володар кристалів: Охороно, знищити їх!" },
+  { time: 73, text: "Кейт: Стрибай у ліфт!" },
+  { time: 75, text: "Кейт: Молодець, схопив шестерню під час підйому!" },
+  { time: 83, text: "Кейт: Кидай у дракона!" },
+  { time: 96, text: "Шестерня знищила дракона. І Болото Мук знову стало Озером Волі." },
+  { time: 100, text: "Діма: Переживаю за Влада." },
+  { time: 103, text: "Кейт: Я теж. Під час переміщення у цей світ він залишився в реальності. Сказав, що зараз біля покинутого будинку, а навкруги — крижана пустеля." },
+{ time: 109, text: "Влад: Зараза, Кейт розвела руками... ну нічо, я сейчас осмотрю тут все." },
+ { time: 113, text: "Влад: О, цуцик! А де твій хазяїн? Чо ти на мене бросаєшся? Зараз геймер ФНАФу дасть тобі!" },
+ { time: 116, text: "Класична помилка любителя фільмів жахів, спідранера по ФНАФу і Поппі Плейтайм. До того ж Влад згадав жарт Діми, в якому той порівняв його з драконом-генералом Владом з мультфільму «Динофроз». Замість спокійних і повільних кроків він зарядив ногою в бійцівську собаку. Вона з нелюдською силою переламала йому стопу. Влад ледь за допомогою рук доповз до дверей і скинув собаку з ноги." },
+ { time: 123, text: "Влад: Чого це у фільмі «Пила» сработало, а тут ні? А, пофіг. О, Фредді, дарова! Спати — так? А де твій друг Хагі? Бо на полу написано «час грати». Блін, Андрій Дебрін, чо сюда не їде з «Реальною містикою»? (Влад впав на підлогу)." },
+ { time: 135, text: "Клоун: Зіграймо! Ти ховаєшся, а я шукаю. Ти ж так пишався, що в реальності нам вріжеш. Метра зробив нас реальними, так покажи, на що ти здатний. Чи твій друг тебе не вихваляв, а просто посміявся? До речі, Фредді сказав, що з ним у тебе нуль шансів, тому я тут. Ха-ха-ха! Я поки нагуляю апетит." },
+ { time: 155, text: "Клоун: Здавайся, я можу з'явитись будь-де." },
+ { time: 170, text: "Влад: О, в маяку портал! Він у ньому не може з'явитись, але може залізти, розбивши вікно. Давай, працюй, працюй!" },
+ { time: 175, text: "Клоун: Час вийшов!" },
+ { time: 177, text: "Влад: Де я? Кругом темрява..." },
+ { time: 187, text: "Далі буде..." }
+],
     text: "Моторошна, але епічна пісня. Друг фанат цього рівня :).",
     author: "Deadlocked - F77(GeometryDash).",
     category: "ігри",
@@ -4603,6 +4793,7 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
     }
     return () => clearInterval(interval);
   }, [searchCooldown]);
+
 
   useEffect(() => {
     let interval;
