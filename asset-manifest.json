@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/react-weather-music-project/static/css/main.364d78cf.css",
-    "main.js": "/react-weather-music-project/static/js/main.246eef1d.js",
+    "main.js": "/react-weather-music-project/static/js/main.9295e8b5.js",
     "static/media/dinofroz.mp4": "/react-weather-music-project/static/media/dinofroz.2dbd53ecdac17dd14e9e.mp4",
     "static/media/unity.mp3": "/react-weather-music-project/static/media/unity.03a5211e31db9290e954.mp3",
     "static/media/theoty-of-everything-ll.mp3": "/react-weather-music-project/static/media/theoty-of-everything-ll.b04c0e12940feebb76e2.mp3",
@@ -22,6 +22,7 @@
     "static/media/dinofroz.mp3": "/react-weather-music-project/static/media/dinofroz.ce47b1e3caf0d75949d7.mp3",
     "static/media/fingerdash.mp3": "/react-weather-music-project/static/media/fingerdash.e4fae751c6aa35f3fdae.mp3",
     "static/media/horse.mp3": "/react-weather-music-project/static/media/horse.cf201415f1443a5bbab2.mp3",
+    "static/media/clubstep.mp4": "/react-weather-music-project/static/media/clubstep.5ed1791fc79d97fc70fd.mp4",
     "static/media/wind.mp3": "/react-weather-music-project/static/media/wind.b1b5f8028768e8a5b78d.mp3",
     "static/media/puzzle-2.webp": "/react-weather-music-project/static/media/puzzle-2.c1eaa80769d78a4cd7f5.webp",
     "static/media/puzzle-5.webp": "/react-weather-music-project/static/media/puzzle-5.0c43d163f543414b616d.webp",
@@ -167,10 +168,10 @@
     "static/media/candyman.webp": "/react-weather-music-project/static/media/candyman.a6618edddc503deb962f.webp",
     "static/media/document.webp": "/react-weather-music-project/static/media/document.5b6c056b22794272794d.webp",
     "main.364d78cf.css.map": "/react-weather-music-project/static/css/main.364d78cf.css.map",
-    "main.246eef1d.js.map": "/react-weather-music-project/static/js/main.246eef1d.js.map"
+    "main.9295e8b5.js.map": "/react-weather-music-project/static/js/main.9295e8b5.js.map"
   },
   "entrypoints": [
     "static/css/main.364d78cf.css",
-    "static/js/main.246eef1d.js"
+    "static/js/main.9295e8b5.js"
   ]
 }
