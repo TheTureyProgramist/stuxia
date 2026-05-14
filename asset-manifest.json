@@ -1,16 +1,18 @@
 {
   "files": {
     "main.css": "/react-weather-music-project/static/css/main.364d78cf.css",
-    "main.js": "/react-weather-music-project/static/js/main.9295e8b5.js",
+    "main.js": "/react-weather-music-project/static/js/main.d9f59007.js",
     "static/media/dinofroz.mp4": "/react-weather-music-project/static/media/dinofroz.2dbd53ecdac17dd14e9e.mp4",
+    "static/media/thefatrat-monody.mp3": "/react-weather-music-project/static/media/thefatrat-monody.5463db141e5520c89d6d.mp3",
+    "static/media/mdk-fingerbang-full.mp3": "/react-weather-music-project/static/media/mdk-fingerbang-full.b2ef9cab2cb7179295cd.mp3",
     "static/media/unity.mp3": "/react-weather-music-project/static/media/unity.03a5211e31db9290e954.mp3",
     "static/media/theoty-of-everything-ll.mp3": "/react-weather-music-project/static/media/theoty-of-everything-ll.b04c0e12940feebb76e2.mp3",
     "static/media/deadlocked.mp3": "/react-weather-music-project/static/media/deadlocked.944d6f90fb2fcafe5fab.mp3",
     "static/media/electrodynamix.mp3": "/react-weather-music-project/static/media/electrodynamix.1982409975590dc5d153.mp3",
     "static/media/theory-of-everyting.mp3": "/react-weather-music-project/static/media/theory-of-everyting.0b1a648ba75f81e57455.mp3",
     "static/media/clubstep.mp3": "/react-weather-music-project/static/media/clubstep.b459ae4e2dc05812ec9b.mp3",
+    "static/media/dominos-shop.mp3": "/react-weather-music-project/static/media/dominos-shop.b5bcf6ebac2d27fcc4a4.mp3",
     "static/media/kolada.mp3": "/react-weather-music-project/static/media/kolada.c30c2bfb2e7bb6342ba7.mp3",
-    "static/media/thefatrat-monody.mp3": "/react-weather-music-project/static/media/thefatrat-monody.c51de64d7aa6397fbf66.mp3",
     "static/media/zootopia.mp3": "/react-weather-music-project/static/media/zootopia.1beb80c39c98fcb000a5.mp3",
     "static/media/soloveyko.mp3": "/react-weather-music-project/static/media/soloveyko.ec2a80a44af8d03c0de2.mp3",
     "static/media/dragon.mp3": "/react-weather-music-project/static/media/dragon.01a7f1b7fb4b0accd9e1.mp3",
@@ -18,9 +20,9 @@
     "static/media/thefatrat-hunger.mp3": "/react-weather-music-project/static/media/thefatrat-hunger.f241720027a6e226ae45.mp3",
     "static/media/mechanik-kindom.mp3": "/react-weather-music-project/static/media/mechanik-kindom.63de6bff6b9786908a1b.mp3",
     "static/media/harmonic-japan.mp3": "/react-weather-music-project/static/media/harmonic-japan.355707488ca2dd74b35d.mp3",
-    "static/media/turkeys.mp3": "/react-weather-music-project/static/media/turkeys.5ee500cbac0f4bc3213f.mp3",
     "static/media/dinofroz.mp3": "/react-weather-music-project/static/media/dinofroz.ce47b1e3caf0d75949d7.mp3",
     "static/media/fingerdash.mp3": "/react-weather-music-project/static/media/fingerdash.e4fae751c6aa35f3fdae.mp3",
+    "static/media/turkeys.mp3": "/react-weather-music-project/static/media/turkeys.93b5f532d79307147fea.mp3",
     "static/media/horse.mp3": "/react-weather-music-project/static/media/horse.cf201415f1443a5bbab2.mp3",
     "static/media/clubstep.mp4": "/react-weather-music-project/static/media/clubstep.5ed1791fc79d97fc70fd.mp4",
     "static/media/wind.mp3": "/react-weather-music-project/static/media/wind.b1b5f8028768e8a5b78d.mp3",
@@ -168,10 +170,10 @@
     "static/media/candyman.webp": "/react-weather-music-project/static/media/candyman.a6618edddc503deb962f.webp",
     "static/media/document.webp": "/react-weather-music-project/static/media/document.5b6c056b22794272794d.webp",
     "main.364d78cf.css.map": "/react-weather-music-project/static/css/main.364d78cf.css.map",
-    "main.9295e8b5.js.map": "/react-weather-music-project/static/js/main.9295e8b5.js.map"
+    "main.d9f59007.js.map": "/react-weather-music-project/static/js/main.d9f59007.js.map"
   },
   "entrypoints": [
     "static/css/main.364d78cf.css",
-    "static/js/main.9295e8b5.js"
+    "static/js/main.d9f59007.js"
   ]
 }
