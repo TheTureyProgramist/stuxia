@@ -567,9 +567,8 @@ const FilterOverlay = styled.div`
   background-image: none;
   opacity: 1;
   /* Для плавності переходу структура функцій у backdrop-filter має бути незмінною */
-  backdrop-filter: grayscale(0%) blur(0px) contrast(1) invert(0%) sepia(0);
-  -webkit-backdrop-filter: grayscale(0%) blur(0px) contrast(1) invert(0%)
-    sepia(0);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 
   ${(props) =>
     props.$active &&
@@ -688,32 +687,6 @@ const FilterOverlay = styled.div`
         animation: ${flickerAnimation} 0.1s infinite alternate;
       `}
 
-      /* Комбіновані фільтри (Розмиття + Посіріння) */
-      backdrop-filter: 
-        grayscale(${props.$type === "grayscale" ||
-      props.$type === "greyscale" ||
-      props.$type === "black" ||
-      props.$grayscale
-        ? 100
-        : 0}%) 
-        blur(${props.$blur ||
-      (props.$type === "blur" ? props.$opacity * 10 : 0)}px)
-        ${props.$type === "contrast" ? `contrast(${props.$opacity * 2})` : ""};
-
-      -webkit-backdrop-filter: grayscale(
-          ${props.$type === "grayscale" ||
-          props.$type === "greyscale" ||
-          props.$type === "black" ||
-          props.$grayscale
-            ? 100
-            : 0}%
-        )
-        blur(
-          ${props.$blur || (props.$type === "blur" ? props.$opacity * 10 : 0)}px
-        )
-        ${props.$type === "contrast" ? `contrast(${props.$opacity * 2})` : ""}
-        ${props.$type === "negative" ? "invert(100%)" : ""}
-        ${props.$type === "vintage" ? "sepia(0.8) contrast(1.2)" : ""};
     `}
 `;
 
@@ -956,35 +929,50 @@ const SeekAmountSlider = styled.input`
 const LoopButton = styled.button`
   background: transparent;
   border: none;
-  color: ${(props) => (props.$active ? "orange" : "white")};
+  color: ${(props) => (props.$active ? "skyblue" : "orange")};
   font-size: 20px;
-  padding: 10px;
   cursor: pointer;
   margin-bottom: 5px;
+  width: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 const ActionButtonsContainer = styled.div`
   display: flex;
-  gap: 3px;
   flex-wrap: wrap;
   justify-content: center;
   margin-top: auto;
   padding: 0 8px;
 `;
-
+// const LoopButton = styled.button`
+//   background: transparent;
+//   border: none;
+//   color: ${(props) => (props.$active ? "skyblue" : "orange")};
+//   font-size: 20px;
+//   cursor: pointer;
+//   margin-bottom: 5px;
+//   width: 40px;
+//   display: inline-flex;
+//   align-items: center;
+//   justify-content: center;
+// `;
 const ActionButton = styled.button`
-  background: #f0f0f0;
-  border: 1px solid #ddd;
+  background: transparent;
+ border: none;
   border-radius: 5px;
+  transition: color 0.6s;
+   color: skyblue;
   width: 34px;
   padding: 3px 9px;
-  font-size: 12px;
+  font-size: 19px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   &:hover {
-    background: #e0e0e0;
+    color: #ff4000;
   }
   svg {
     width: 20px;
@@ -1191,7 +1179,53 @@ const AudioBar = ({ track, initialTime, isPlaying: startPlaying, volume: startVo
   const [mode, setMode] = useState("linear"); // "linear" або "stereo"
   const [waveform, setWaveform] = useState([]);
   const [isGeneratingWave, setIsGeneratingWave] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [pipWindow, setPipWindow] = useState(null);
   const mediaRef = useRef(null);
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    setIsMobile(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent));
+  }, []);
+
+  const toggleDocumentPiP = async () => {
+    if (pipWindow) {
+      pipWindow.close();
+      return;
+    }
+
+    if ("documentPictureInPicture" in window) {
+      try {
+        const pip = await window.documentPictureInPicture.requestWindow({
+          width: 800,
+          height: 100,
+        });
+
+        // Копіюємо стилі з основного вікна
+        [...document.styleSheets].forEach((styleSheet) => {
+          try {
+            const cssRules = [...styleSheet.cssRules].map((rule) => rule.cssText).join("");
+            const style = document.createElement("style");
+            style.textContent = cssRules;
+            pip.document.head.appendChild(style);
+          } catch (e) {}
+        });
+
+        // Переносимо контент (React Portal або переміщення вузла)
+        pip.document.body.appendChild(containerRef.current);
+        setPipWindow(pip);
+        
+        pip.addEventListener("pagehide", () => {
+          setPipWindow(null);
+          document.body.appendChild(containerRef.current);
+        });
+      } catch (err) {
+        console.error("PiP failed", err);
+      }
+    } else {
+      alert("Ваш браузер не підтримує винесення інтерфейсу на робочий стіл.");
+    }
+  };
 
   const isVideo = !!track.video;
 
@@ -1253,6 +1287,7 @@ const AudioBar = ({ track, initialTime, isPlaying: startPlaying, volume: startVo
 
   return (
     <AudioBarContainer
+      ref={containerRef}
       initial={{ y: "100%" }}
       animate={{ y: 0 }}
       exit={{ y: "100%" }}
@@ -1264,12 +1299,28 @@ const AudioBar = ({ track, initialTime, isPlaying: startPlaying, volume: startVo
       </div>
 
       <div style={{ display: "flex", gap: "10px" }}>
+        <AudioBarBtn 
+          onClick={() => { 
+            if (mediaRef.current) mediaRef.current.currentTime = 0; 
+          }} 
+          title="На початок"
+        >
+          ⇤
+        </AudioBarBtn>
         <AudioBarBtn onClick={() => mediaRef.current.currentTime -= 10} title="Назад 10с">⏪</AudioBarBtn>
         <AudioBarBtn onClick={() => {
           if (isPlaying) { mediaRef.current.pause(); setIsPlaying(false); }
           else { mediaRef.current.play(); setIsPlaying(true); }
         }}>{isPlaying ? "⏸" : "▶"}</AudioBarBtn>
         <AudioBarBtn onClick={() => mediaRef.current.currentTime += 10} title="Вперед 10с">⏩</AudioBarBtn>
+        <AudioBarBtn 
+          onClick={() => { 
+            if (mediaRef.current) mediaRef.current.currentTime = duration - 1; 
+          }} 
+          title="В самий кінець"
+        >
+          ⇥
+        </AudioBarBtn>
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: "5px", background: "rgba(255,255,255,0.1)", padding: "2px 8px", borderRadius: "10px" }}>
@@ -1308,6 +1359,9 @@ const AudioBar = ({ track, initialTime, isPlaying: startPlaying, volume: startVo
 
       <div style={{ display: "flex", gap: "10px" }}>
         <AudioBarBtn onClick={() => onRestore(currentTime, isPlaying, volume, speed)} title="Розгорнути">🔼</AudioBarBtn>
+        {!isMobile && "documentPictureInPicture" in window && (
+          <AudioBarBtn onClick={toggleDocumentPiP} title="Винести на робочий стіл">🖼️</AudioBarBtn>
+        )}
         <AudioBarBtn onClick={onClose} title="Закрити">✕</AudioBarBtn>
       </div>
 
@@ -1725,19 +1779,6 @@ const FSHeader = styled.div`
   background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7), transparent);
 `;
 
-const FSCloseButton = styled.button`
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
-  color: white;
-  font-size: 16px;
-  padding: 5px 7px;
-  border-radius: 50%;
-  cursor: pointer;
-  &:hover {
-    background: rgba(255, 255, 255, 0.4);
-  }
-`;
-
 const FSContent = styled.div`
   flex: 1;
   display: flex;
@@ -1762,7 +1803,7 @@ const FSVideo = styled.video`
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transform: scale(1.1);
+  transform: none;
 `;
 
 const FSImage = styled.img`
@@ -1958,6 +1999,30 @@ const SliderItemWrapper = styled.div`
   }
 `;
 
+const CheckpointBadge = styled.div`
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #ffb36c;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: bold;
+  z-index: 10;
+  border: 1px solid #ffb36c;
+`;
+
+const CheckpointMarker = styled.div`
+  position: absolute;
+  bottom: 100%;
+  left: ${props => props.$left}%;
+  transform: translateX(-50%);
+  font-size: 14px;
+  z-index: 10;
+  pointer-events: none;
+`;
+
 const SliderOverlay = styled.div`
   position: absolute;
   top: 0;
@@ -2144,6 +2209,13 @@ const FullScreenPlayer = ({
   user,
   playlist,
   onSelectTrack,
+  checkpoint,
+  onSaveCheckpoint,
+  onClearCheckpoint,
+  checkpointsEnabled,
+  onToggleCheckpoints,
+  backgroundMode,
+  onToggleBackgroundMode,
   onUpdateUser,
 }) => {
   const isDinofroz = !!track.video;
@@ -2260,7 +2332,7 @@ const FullScreenPlayer = ({
   const [showControls, setShowControls] = useState(true);
   const [isCached, setIsCached] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
-  const [playMode, setPlayMode] = useState(isShuffle ? 1 : 0);
+  const [playMode, setPlayMode] = useState(0); // 0: Linear, 1: Shuffle, 2: Loop, 3: None
   const [hoverTime, setHoverTime] = useState(null);
   const [pendingScreenshotAction, setPendingScreenshotAction] = useState(null);
   const [loadingProgress, setLoadingProgress] = useState(0);
@@ -2426,6 +2498,27 @@ const FullScreenPlayer = ({
     filtersEnabled,
   ]);
 
+  // Обчислення фільтра (перенесено нижче оголошення mainFilter для уникнення ReferenceError)
+  const mediaFilter = useMemo(() => {
+    if (!filtersEnabled || !mainFilter) return "none";
+    let filters = [];
+    
+    if (mainFilter.type === "grayscale" || mainFilter.grayscale) filters.push("grayscale(100%)");
+    
+    const blurVal = dynamicBlur !== null ? dynamicBlur : (mainFilter.type === "blur" ? mainFilter.opacity * 10 : (mainFilter.blur || 0));
+    if (blurVal > 0) filters.push(`blur(${blurVal}px)`);
+    
+    if (mainFilter.type === "contrast") {
+      const contrastVal = (dynamicOpacity !== null ? dynamicOpacity : mainFilter.opacity) * 2;
+      filters.push(`contrast(${contrastVal})`);
+    }
+    
+    if (mainFilter.type === "negative") filters.push("invert(100%)");
+    if (mainFilter.type === "vintage") filters.push("sepia(0.8) contrast(1.2)");
+    
+    return filters.join(" ") || "none";
+  }, [mainFilter, filtersEnabled, dynamicBlur, dynamicOpacity]);
+
   const lastSymbolFilter = useMemo(
     () =>
       filtersEnabled
@@ -2502,11 +2595,20 @@ const FullScreenPlayer = ({
   }, [track]); // No direct change needed here, but its usage will be conditional
 
   const handleClose = useCallback(() => {
+    if (onSaveCheckpoint && progress > 5 && progress < duration - 5) {
+      onSaveCheckpoint(track.id, progress);
+    }
     setIsClosing(true);
     setTimeout(() => {
       onClose();
     }, 300);
-  }, [onClose]);
+  }, [onClose, onSaveCheckpoint, track.id, progress, duration]);
+
+  useEffect(() => {
+    if (checkpointsEnabled && checkpoint && progress >= checkpoint) {
+      onClearCheckpoint(track.id);
+    }
+  }, [progress, checkpoint, track.id, checkpointsEnabled, onClearCheckpoint]);
 
   const togglePlay = useCallback(() => {
     if (!mediaRef.current) return;
@@ -2584,7 +2686,14 @@ const FullScreenPlayer = ({
     };
 
     const handleEnded = () => {
-      if (!loop) setIsPlaying(false);
+      if (playMode === 2) return; // Браузер сам зациклить через атрибут loop
+      if (playMode === 0 || playMode === 1) {
+        if (canPerformAction()) onNext();
+      } else {
+        // Режим 3: "Без режиму" - зупиняємось
+        setIsPlaying(false);
+        if (mediaRef.current) mediaRef.current.currentTime = 0;
+      }
     };
     const handleErrorEvent = () => handleError();
 
@@ -2601,7 +2710,7 @@ const FullScreenPlayer = ({
       media.removeEventListener("ended", handleEnded);
       media.removeEventListener("error", handleErrorEvent);
     };
-  }, [track, loop, handleError, updateProgress]);
+  }, [track, loop, handleError, updateProgress, playMode, onNext, canPerformAction]);
 
   useEffect(() => {
     if (mediaRef.current) {
@@ -2681,7 +2790,7 @@ const FullScreenPlayer = ({
     }
   }, []);
   const togglePlayMode = () => {
-    const nextMode = (playMode + 1) % 3;
+    const nextMode = (playMode + 1) % 4;
     setPlayMode(nextMode);
     if (nextMode === 0) {
       setLoop(false);
@@ -2691,6 +2800,9 @@ const FullScreenPlayer = ({
       if (onSetShuffle) onSetShuffle(true);
     } else if (nextMode === 2) {
       setLoop(true);
+    } else if (nextMode === 3) {
+      setLoop(false);
+      if (onSetShuffle) onSetShuffle(false);
     }
   };
   useEffect(() => {
@@ -3173,14 +3285,14 @@ const FullScreenPlayer = ({
       <FSHeader
         style={{ opacity: showControls ? 1 : 0, transition: "opacity 0.3s" }}
       >
-        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-          <FSCloseButton
+        <div style={{ display: "flex", gap: "2px", alignItems: "center" }}>
+          <ActionButton style={{ fontSize: "26px" }}
             onClick={() => {
               if (canPerformAction()) handleClose();
             }}
           >
             &times;
-          </FSCloseButton>
+          </ActionButton>
           <ActionButton
             onClick={() => {
               if (canPerformAction())
@@ -3224,7 +3336,7 @@ const FullScreenPlayer = ({
             )}
           </div>
         </div>
-        <div style={{ display: "flex", gap: "15px" }}>
+        <div style={{ display: "flex", gap: "8px" }}>
           <ActionButton
             onClick={() => {
               if (canPerformAction()) onRate(track.id);
@@ -3342,7 +3454,10 @@ const FullScreenPlayer = ({
                 playsInline
                 loop={loop}
                 onError={handleError}
-                style={{ opacity: progress === 0 && !isPlaying ? 0 : 1 }}
+                style={{ 
+                  opacity: progress === 0 && !isPlaying ? 0 : 1,
+                  filter: mediaFilter
+                }}
               />
               {progress === 0 && !isPlaying && (
                 <FSImage
@@ -3359,6 +3474,7 @@ const FullScreenPlayer = ({
                 alt="Slide"
                 $animate={true}
                 onError={handleError}
+                style={{ filter: mediaFilter }}
               />
             </>
           )}
@@ -3423,6 +3539,14 @@ const FullScreenPlayer = ({
               onMouseMove={handleSeekHover}
               onMouseLeave={() => setHoverTime(null)}
             >
+            {checkpointsEnabled && checkpoint > 0 && duration > 0 && (
+              <CheckpointMarker 
+                $left={(checkpoint / duration) * 100}
+                title="Минулого разу ви зупинилися тут"
+              >
+                🚩
+              </CheckpointMarker>
+            )}
               {hoverTime !== null && duration > 0 && (
                 <SeekTooltip
                   $left={(hoverTime / duration) * 100}
@@ -3468,6 +3592,15 @@ const FullScreenPlayer = ({
             </SeekBarWrapper>
           ) : (
             <StereoSeekBar onClick={handleStereoSeek}>
+              {checkpointsEnabled && checkpoint > 0 && duration > 0 && (
+                <CheckpointMarker 
+                  $left={(checkpoint / duration) * 100} 
+                  style={{ bottom: 'auto', top: '-15px' }}
+                  title="Минулого разу ви зупинилися тут"
+                >
+                  🚩
+                </CheckpointMarker>
+              )}
               {isGeneratingWave ? (
                 <span
                   style={{ color: "white", fontSize: "10px", margin: "auto" }}
@@ -3548,6 +3681,28 @@ const FullScreenPlayer = ({
           }}
         >
           <div style={{ display: "flex", gap: "10px" }}>
+            {checkpointsEnabled && checkpoint > 0 && (
+              <ActionButton
+                onClick={() => {
+                  if (mediaRef.current && canPerformAction()) {
+                    mediaRef.current.currentTime = checkpoint;
+                  }
+                }}
+                title="Повернутись до чекпоінту"
+              >
+                🚩
+              </ActionButton>
+            )}
+            <ActionButton
+              onClick={() => {
+                if (mediaRef.current && canPerformAction()) {
+                  mediaRef.current.currentTime = 0;
+                }
+              }}
+              title="На початок"
+            >
+              ⇤
+            </ActionButton>
             <ActionButton
               onClick={() => {
                 if (canPerformAction()) onPrev();
@@ -3562,9 +3717,20 @@ const FullScreenPlayer = ({
               onClick={() => {
                 if (canPerformAction()) onNext();
               }}
+            title="Наступна пісня"
             >
               ⏭
             </ActionButton>
+          <ActionButton
+            onClick={() => {
+              if (mediaRef.current && canPerformAction()) {
+                mediaRef.current.currentTime = duration - 1.5;
+              }
+            }}
+            title="В самий кінець (для перевірки зупинки)"
+          >
+            ⇥
+          </ActionButton>
           </div>
 
           <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
@@ -3722,10 +3888,12 @@ const FullScreenPlayer = ({
                   ? "По порядку"
                   : playMode === 1
                     ? "Випадково"
-                    : "Автоповтор"
+                    : playMode === 2
+                      ? "Автоповтор"
+                      : "Без режиму"
               }
             >
-              {playMode === 0 ? "➡" : playMode === 1 ? "🔀" : "🔁"}
+              {playMode === 0 ? "⏭" : playMode === 1 ? "⚄" : playMode === 2 ? "↩" : "⏵❘"}
             </LoopButton>
           </div>
         </div>
@@ -3847,6 +4015,40 @@ const FullScreenPlayer = ({
               />
             </SliderRow>
           )}
+          <SliderRow>
+            <span style={{ color: "white" }}>Чекпоінти</span>
+            <button
+              onClick={onToggleCheckpoints}
+              style={{
+                background: checkpointsEnabled ? "orange" : "#444",
+                color: "white",
+                border: "none",
+                borderRadius: "4px",
+                padding: "3px 8px",
+                cursor: "pointer",
+                fontSize: "11px",
+              }}
+            >
+              {checkpointsEnabled ? "Увімкнено" : "Вимкнено"}
+            </button>
+          </SliderRow>
+          <SliderRow>
+            <span style={{ color: "white" }}>Фоновий режим</span>
+            <button
+              onClick={onToggleBackgroundMode}
+              style={{
+                background: backgroundMode ? "#4caf50" : "#444",
+                color: "white",
+                border: "none",
+                borderRadius: "4px",
+                padding: "3px 8px",
+                cursor: "pointer",
+                fontSize: "11px",
+              }}
+            >
+              {backgroundMode ? "Увімкнено" : "Вимкнено"}
+            </button>
+          </SliderRow>
           <SliderRow>
             <span style={{ color: "white" }}>Режим шкали</span>
             <button
@@ -4280,7 +4482,7 @@ const FullScreenPlayer = ({
   );
 };
 
-const MusicCard = ({ cardData, onOpenModal, rating, onOpenPlayer, onRate }) => {
+const MusicCard = ({ cardData, onOpenModal, rating, onOpenPlayer, onRate, checkpoint }) => {
   const { id, image, text, deezerLink } = cardData;
 
   const handleDownloadTrack = (e) => {
@@ -4302,6 +4504,9 @@ const MusicCard = ({ cardData, onOpenModal, rating, onOpenPlayer, onRate }) => {
   return (
     <CardWrapper $isFavorite={rating > 0} $rating={rating}>
       <MusicImageContainer>
+        {checkpoint > 0 && (
+          <CheckpointBadge>🚩 {Math.floor(checkpoint / 60)}:{(Math.floor(checkpoint % 60)).toString().padStart(2, '0')}</CheckpointBadge>
+        )}
         <HeartButton
           $rating={rating}
           title={
@@ -5939,8 +6144,56 @@ const PlaylistModal = ({
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOption, setSortOption] = useState("favorites");
   const [isShuffle, setIsShuffle] = useState(false);
+  const [playHistory, setPlayHistory] = useState([]); // Історія на 10 треків
   const [fullScreenTrack, setFullScreenTrack] = useState(null);
   const [isLyricsClosing, setIsLyricsClosing] = useState(false);
+  const [checkpoints, setCheckpoints] = useState({});
+  const [checkpointsEnabled, setCheckpointsEnabled] = useState(true);
+  const [backgroundMode, setBackgroundMode] = useState(true);
+
+  useEffect(() => {
+    const loadCheckpoints = async () => {
+      try {
+        const saved = await localforage.getItem("music_checkpoints");
+        if (saved) setCheckpoints(saved);
+        const enabled = await localforage.getItem("checkpoints_enabled");
+        if (enabled !== null) setCheckpointsEnabled(enabled);
+        const bgMode = await localforage.getItem("background_mode_enabled");
+        if (bgMode !== null) setBackgroundMode(bgMode);
+      } catch (e) { console.error(e); }
+    };
+    loadCheckpoints();
+  }, []);
+
+  const handleSaveCheckpoint = useCallback(async (id, time) => {
+    if (!checkpointsEnabled) return;
+    setCheckpoints(prev => {
+      const next = { ...prev, [id]: time };
+      localforage.setItem("music_checkpoints", next);
+      return next;
+    });
+  }, [checkpointsEnabled]);
+
+  const handleClearCheckpoint = useCallback(async (id) => {
+    setCheckpoints(prev => {
+      const next = { ...prev };
+      delete next[id];
+      localforage.setItem("music_checkpoints", next);
+      return next;
+    });
+  }, []);
+
+  const handleToggleBackgroundMode = useCallback(async () => {
+    const val = !backgroundMode;
+    setBackgroundMode(val);
+    await localforage.setItem("background_mode_enabled", val);
+  }, [backgroundMode]);
+
+  const handleToggleCheckpoints = useCallback(async () => {
+    const val = !checkpointsEnabled;
+    setCheckpointsEnabled(val);
+    await localforage.setItem("checkpoints_enabled", val);
+  }, [checkpointsEnabled]);
 
   const voiceActingMode = user?.voiceActingMode || "malyatko";
 
@@ -6097,12 +6350,23 @@ const PlaylistModal = ({
     return filtered;
   }, [playlistKey, searchQuery, sortOption, customTracks, getRating]);
 
+  // Зміна треку з додаванням у чергу історії
+  const handleSetFullScreenTrack = useCallback((newTrack) => {
+    if (fullScreenTrack && newTrack && fullScreenTrack.id !== newTrack.id) {
+      setPlayHistory(prev => {
+        const next = [...prev, fullScreenTrack];
+        return next.slice(-10); // Лишаємо тільки 10 останніх
+      });
+    }
+    setFullScreenTrack(newTrack);
+  }, [fullScreenTrack]);
+
   const handleTrackEnd = (id) => {
     if (isShuffle) {
       const remaining = processedCards.filter((c) => c.id !== id);
       if (remaining.length > 0) {
         const randomIndex = Math.floor(Math.random() * remaining.length);
-        if (fullScreenTrack) setFullScreenTrack(remaining[randomIndex]);
+        if (fullScreenTrack) handleSetFullScreenTrack(remaining[randomIndex]);
       } else {
         if (fullScreenTrack) setFullScreenTrack(null);
       }
@@ -6110,7 +6374,7 @@ const PlaylistModal = ({
     }
     const currentIndex = processedCards.findIndex((c) => c.id === id);
     if (currentIndex !== -1 && currentIndex < processedCards.length - 1) {
-      if (fullScreenTrack) setFullScreenTrack(processedCards[currentIndex + 1]);
+      if (fullScreenTrack) handleSetFullScreenTrack(processedCards[currentIndex + 1]);
     } else {
       if (fullScreenTrack) setFullScreenTrack(null);
     }
@@ -6120,10 +6384,15 @@ const PlaylistModal = ({
     handleTrackEnd(fullScreenTrack.id);
   };
   const playPrev = () => {
-    if (!fullScreenTrack) return;
+    if (playHistory.length > 0) {
+      const prevTrack = playHistory[playHistory.length - 1];
+      setPlayHistory(prev => prev.slice(0, -1));
+      setFullScreenTrack(prevTrack); // Назад без handleSet, щоб не зациклити історію
+      return;
+    }
     const idx = processedCards.findIndex((c) => c.id === fullScreenTrack.id);
     if (idx > 0) {
-      setFullScreenTrack(processedCards[idx - 1]);
+      handleSetFullScreenTrack(processedCards[idx - 1]);
     }
   };
   const handleClose = () => {
@@ -6205,6 +6474,7 @@ const PlaylistModal = ({
                   setFullScreenTrack(processedCards.find((c) => c.id === id))
                 }
                 onRate={handleToggleFavorite}
+                checkpoint={checkpointsEnabled ? checkpoints[card.id] : null}
               />
               {playlistKey === "custom" && (
                 <button
@@ -6598,6 +6868,13 @@ const PlaylistModal = ({
           playlist={processedCards}
           onSelectTrack={setFullScreenTrack}
           onUpdateUser={onUpdateUser}
+          checkpoint={checkpoints[fullScreenTrack.id]}
+          onSaveCheckpoint={handleSaveCheckpoint}
+          onClearCheckpoint={handleClearCheckpoint}
+          checkpointsEnabled={checkpointsEnabled}
+          onToggleCheckpoints={handleToggleCheckpoints}
+          backgroundMode={backgroundMode}
+          onToggleBackgroundMode={handleToggleBackgroundMode}
         />
       )}
     </ModalOverlay>
@@ -6874,4 +7151,5 @@ const MusicPhoto = ({ user, onOpenRegister, isAnyModalOpen, onUpdateUser }) => {
     </MusicPhotoDiv>
   );
 };
+
 export default MusicPhoto;
