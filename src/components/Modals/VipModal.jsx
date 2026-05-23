@@ -8,13 +8,9 @@ import dinofroz from "../../photos/vip-images/dinofroz/vip-dinofroz.webp";
 import dinofrozVideo from "../../mp3/dinofroz.mp4";
 import dragons from "../../photos/vip-images/dinofroz/vip-dragons.webp";
 import vip from "../../photos/hero-header/vip.webp";
-import music from "../../photos/vip-modal/music.webp";
 import ultra from "../../photos/vip-modal/realultra.webp";
-import clip from "../../photos/vip-images/clip.webp";
 import stars from "../../photos/vip-images/stars.webp";
-import lebid from "../../photos/vip-images/vip-lebid.webp";
 import buton from "../../photos/vip-modal/buton.webp";
-import texts from "../../photos/vip-modal/texts.webp";
 import asium from "../../photos/vip-images/asium/asium.webp";
 import rainbow from "../../photos/fan-art/rainbow.webp";
 import documentImg from "../../photos/fan-art/document.webp";
@@ -1372,13 +1368,6 @@ const VipModal = ({ onClose }) => {
         src: puzzle2,
         text: "Пам'ять на 15днів, не на 7днів! Ліміт історії запитів 70, не 50. Ліміт паралельних чатів спілкування 5, не 3.",
       },
-      {
-        src: texts,
-        text: "За 🧧 5 спроб, замість за 🧧 3. Після вичерпування ліміту ціна повідомлення 0,12грн, не 0,21грн + 🧧. Ліміт 🧧 спроб може змінюватися залежно від навантаження на систему.",
-      },
-      { src: lebid, text: "2 (не 1) зображення/міс по 4,99грн, далі 6,99грн." },
-      { src: clip, text: "Відео 65грн/с (замість 75грн/с)." },
-      { src: music, text: "mp3 4грн/хв, не 6грн/хв." },
     ],
     music: [
       {
@@ -1442,16 +1431,6 @@ const VipModal = ({ onClose }) => {
         src: puzzle2,
         text: "Пам'ять доки діє підписка(якщо на телефоні є місце)! Пам'ять запитів 100. Ліміт паралельних чатів 7. Лімітована акція!",
       },
-      {
-        src: texts,
-        text: "За 🧧 7 спроб. Далі за 0,07грн + 🧧(лише за обширні відповіді). Ви маєте пріоритет у черзі при генерації. Лімітована акція!",
-      },
-      {
-        src: lebid,
-        text: "3 зображення/міс по 3,99грн, далі 5,99грн. Лімітована акція!",
-      },
-      { src: clip, text: "Відео 45грн/с. Лімітована акція!" },
-      { src: music, text: "mp3 2грн/хв. Лімітована акція!" },
     ],
     music: [
       {
