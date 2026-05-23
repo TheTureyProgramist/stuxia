@@ -1,15 +1,20 @@
 import styled, { keyframes, css } from "styled-components";
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import localforage from "localforage";
-import { motion, AnimatePresence} from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion";
+import { pipeline } from "@huggingface/transformers";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import faded from "../../photos/fan-art/faded.webp";
+import songAiKnowledge from "./songAiKnowledge.json";
+import fadedAudio from "../../mp3/alan-walker-faded.mp3";
 import dinofrozVideo from "../../mp3/dinofroz.mp4";
 import soloveyko from "../../photos/vip-images/vip-soloveyko.webp";
 import harmony from "../../photos/vip-images/asium/asium.webp";
 import horse from "../../photos/vip-images/horse/horse.webp";
 import theorytwo from "../../photos/fan-art/theorytwo.webp";
 import fingerdash from "../../photos/vip-images/dinofroz/fingerdash.webp";
-import humorVideo from "../../mp3/humor.mp4"
-import humorAudio from "../../mp3/humor.mp3"
+import humorVideo from "../../mp3/humor.mp4";
+import humorAudio from "../../mp3/humor.mp3";
 import electrodynamix from "../../photos/vip-images/electrodynamix.webp";
 //Desert
 import desert from "../../photos/vip-images/desert/vip-desert.webp";
@@ -77,7 +82,7 @@ import dinofrozeight from "../../photos/vip-images/dinofroz/dinofrozeight.webp";
 import dinofroztwo from "../../photos/vip-images/dinofroz/vip-dragons.webp";
 import dinofroznine from "../../photos/vip-images/dinofroz/dinofroznine.webp";
 //Mia and me
-import domino from "../../mp3/dominos-shop.mp3"
+import domino from "../../mp3/dominos-shop.mp3";
 import hunger from "../../photos/hero-header/hunger.webp";
 import mia from "../../photos/vip-images/mia/miaandme.webp";
 //import christmasAudio from "../../mp3/kolada.mp3";
@@ -98,6 +103,35 @@ import theorytwoAudio from "../../mp3/theoty-of-everything-ll.mp3";
 import theoryAudio from "../../mp3/theory-of-everyting.mp3";
 import deadlockedAudio from "../../mp3/deadlocked.mp3";
 import mechaAudio from "../../mp3/mechanik-kindom.mp3";
+import miaAudio from "../../mp3/mia-and-me.mp3";
+// ... решта стилів ... (без змін)
+
+const assetMap = {
+  faded, fadedAudio, dinofrozVideo, soloveyko, harmony, horse, theorytwo, fingerdash, humorVideo,
+  humorAudio, electrodynamix, desert, deserttwo, desertthree, desertfour, desertone, unity,
+  mecha, monody, clubstep, turkeys, horsethree, horsetwo, chess, turkeytwo, turkeythree,
+  turkeyfour, turkeyfive, turkeysix, turkeysone, turkeyseven, asiumnine, asiumone, asiumtwo,
+  asiumthree, asiumfour, asiumfive, asiumsix, asiumten, asiumeleven, asiumseven, swamptwo,
+  swampthree, swampfour, swampfive, swampsix, swampseven, swampeight, swampnine, theory,
+  deadlocked, horrortwo, horrorthree, horrorfour, horrorfive, horror, horrorsix, horrorseven,
+  horroreight, dinofrozone, dinofrozthree, dinofrozfour, dinofrozfive, dinofrozsix, dinofrozseven,
+  dinofrozeight, dinofroztwo, dinofroznine, domino, hunger, mia, dinofrozAudio, turkeyAudio,
+  monodyAudio, windAudio, unityAudio, horseAudio, hungerAudio, dragonoraAudio, soloveykoAudio,
+  harmonyAudio, electrodynamixAudio, clubstepAudio, fingerbang, theorytwoAudio, theoryAudio,
+  deadlockedAudio, mechaAudio, miaAudio
+};
+const musicCards = songAiKnowledge.map(card => ({
+  ...card,
+  image: assetMap[card.image] || card.image,
+  audio: assetMap[card.audio] || card.audio,
+  video: assetMap[card.video] || card.video,
+  images: Array.isArray(card.images) ? card.images.map(img => assetMap[img] || img) : card.images,
+  filters: Array.isArray(card.filters) ? card.filters.map(f => ({
+    ...f,
+    imageUrl: assetMap[f.imageUrl] || f.imageUrl
+  })) : card.filters
+}));
+
 const slideIn = keyframes`
   0% { 
     transform: translateY(100%) scale(0.5);
@@ -382,6 +416,7 @@ const CardWrapper = styled.div`
   padding-bottom: 15px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   transition: transform 0.2s;
+  opacity: ${(props) => (props.$rating === -1 ? 0.6 : 1)};
   border: ${(props) =>
     props.$rating === 2
       ? "2px solid #ff0000"
@@ -456,8 +491,12 @@ const HeartButton = styled.button`
   z-index: 10;
   padding: 0;
   font-size: 20px;
-  color: ${(props) =>
-    props.$rating === 2 ? "gold" : props.$rating === 1 ? "red" : "#ccc"};
+  color: ${(props) => {
+    if (props.$rating === 2) return "gold";
+    if (props.$rating === 1) return "red";
+    if (props.$rating === -1) return "#555";
+    return "#ccc";
+  }};
   transition: all 0.2s;
   &:hover {
     transform: scale(1.1);
@@ -686,7 +725,6 @@ const FilterOverlay = styled.div`
       css`
         animation: ${flickerAnimation} 0.1s infinite alternate;
       `}
-
     `}
 `;
 
@@ -733,9 +771,12 @@ const SymbolOverlay = ({
   blur = 0,
   isExiting = false,
   variation = "default",
+  customSymbols,
 }) => {
   const [isMounted, setIsMounted] = useState(false);
-  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
+  const [windowWidth, setWindowWidth] = useState(
+    typeof window !== "undefined" ? window.innerWidth : 1200,
+  );
 
   useEffect(() => {
     setIsMounted(true);
@@ -748,11 +789,17 @@ const SymbolOverlay = ({
     const isFirework = variation === "firework";
     let multiplier = 1;
     if (windowWidth < 480) {
-      multiplier = 0.3; 
+      multiplier = 0.3;
     } else if (windowWidth < 1024) {
-      multiplier = 0.6; 
+      multiplier = 0.6;
     }
-    const realCount = isFirework ? 6 : Math.max(1, Math.floor(count * multiplier));
+    const realCount = isFirework
+      ? 6
+      : Math.max(1, Math.floor(count * multiplier));
+    const list =
+      Array.isArray(customSymbols) && customSymbols.length > 0
+        ? customSymbols
+        : musicSymbols;
     return Array.from({ length: realCount }).map((_, i) => {
       const r1 = Math.random();
       const r2 = Math.random();
@@ -773,7 +820,7 @@ const SymbolOverlay = ({
 
       return {
         key: i,
-        char: musicSymbols[Math.floor(Math.random() * musicSymbols.length)],
+        char: list[Math.floor(Math.random() * list.length)],
         top,
         left,
         size: isFirework ? 40 : 30 + Math.random() * 30,
@@ -784,7 +831,7 @@ const SymbolOverlay = ({
         blur: blur > 0 ? Math.random() * blur : 0,
       };
     });
-  }, [count, speed, blur, variation, windowWidth]);
+  }, [count, speed, blur, variation, windowWidth, customSymbols]);
   return (
     <div
       style={{
@@ -948,10 +995,10 @@ const ActionButtonsContainer = styled.div`
 `;
 const ActionButton = styled.button`
   background: transparent;
- border: none;
+  border: none;
   border-radius: 5px;
   transition: color 0.6s;
-   color: skyblue;
+  color: skyblue;
   width: 34px;
   padding: 3px 9px;
   font-size: 19px;
@@ -1155,10 +1202,26 @@ const AudioBarBtn = styled.button`
   align-items: center;
   opacity: 0.8;
   transition: all 0.2s;
-  &:hover { opacity: 1; color: orange; }
+  &:hover {
+    opacity: 1;
+    color: orange;
+  }
 `;
 
-const AudioBar = ({ track, initialTime, isPlaying: startPlaying, volume: startVolume, speed: startSpeed, onClose, onRestore, checkpoint, checkpointsEnabled, onSaveCheckpoint, onClearCheckpoint }) => {
+const AudioBar = ({
+  track,
+  initialTime,
+  isPlaying: startPlaying,
+  volume: startVolume,
+  speed: startSpeed,
+  onClose,
+  onRestore,
+  onOpenAi = () => {},
+  checkpoint,
+  checkpointsEnabled,
+  onSaveCheckpoint,
+  onClearCheckpoint,
+}) => {
   const [isPlaying, setIsPlaying] = useState(startPlaying);
   const [currentTime, setCurrentTime] = useState(initialTime);
   const [duration, setDuration] = useState(0);
@@ -1174,12 +1237,20 @@ const AudioBar = ({ track, initialTime, isPlaying: startPlaying, volume: startVo
 
   const progRef = useRef(currentTime);
   const durRef = useRef(duration);
-  useEffect(() => { progRef.current = currentTime; }, [currentTime]);
-  useEffect(() => { durRef.current = duration; }, [duration]);
+  useEffect(() => {
+    progRef.current = currentTime;
+  }, [currentTime]);
+  useEffect(() => {
+    durRef.current = duration;
+  }, [duration]);
 
   useEffect(() => {
     const handleSave = () => {
-      if (onSaveCheckpoint && progRef.current > 5 && progRef.current < durRef.current - 5) {
+      if (
+        onSaveCheckpoint &&
+        progRef.current > 5 &&
+        progRef.current < durRef.current - 5
+      ) {
         onSaveCheckpoint(track.id, progRef.current);
       }
     };
@@ -1192,10 +1263,20 @@ const AudioBar = ({ track, initialTime, isPlaying: startPlaying, volume: startVo
   }, [track.id, onSaveCheckpoint]);
 
   useEffect(() => {
-    if (checkpointsEnabled && checkpoint && Math.abs(currentTime - checkpoint) < 1.5) {
+    if (
+      checkpointsEnabled &&
+      checkpoint &&
+      Math.abs(currentTime - checkpoint) < 1.5
+    ) {
       onClearCheckpoint(track.id);
     }
-  }, [currentTime, checkpoint, track.id, checkpointsEnabled, onClearCheckpoint]);
+  }, [
+    currentTime,
+    checkpoint,
+    track.id,
+    checkpointsEnabled,
+    onClearCheckpoint,
+  ]);
 
   useEffect(() => {
     setIsMobile(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent));
@@ -1217,7 +1298,9 @@ const AudioBar = ({ track, initialTime, isPlaying: startPlaying, volume: startVo
         // Копіюємо стилі з основного вікна
         [...document.styleSheets].forEach((styleSheet) => {
           try {
-            const cssRules = [...styleSheet.cssRules].map((rule) => rule.cssText).join("");
+            const cssRules = [...styleSheet.cssRules]
+              .map((rule) => rule.cssText)
+              .join("");
             const style = document.createElement("style");
             style.textContent = cssRules;
             pip.document.head.appendChild(style);
@@ -1227,7 +1310,7 @@ const AudioBar = ({ track, initialTime, isPlaying: startPlaying, volume: startVo
         // Переносимо контент (React Portal або переміщення вузла)
         pip.document.body.appendChild(containerRef.current);
         setPipWindow(pip);
-        
+
         pip.addEventListener("pagehide", () => {
           setPipWindow(null);
           document.body.appendChild(containerRef.current);
@@ -1259,7 +1342,9 @@ const AudioBar = ({ track, initialTime, isPlaying: startPlaying, volume: startVo
         const url = isVideo ? track.video : track.audio;
         const response = await fetch(url);
         const arrayBuffer = await response.arrayBuffer();
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const audioCtx = new (
+          window.AudioContext || window.webkitAudioContext
+        )();
         const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
         if (isCancelled) return;
         const rawData = audioBuffer.getChannelData(0);
@@ -1275,12 +1360,17 @@ const AudioBar = ({ track, initialTime, isPlaying: startPlaying, volume: startVo
           filteredData.push(sum / blockSize);
         }
         const multiplier = Math.pow(Math.max(...filteredData), -1);
-        setWaveform(filteredData.map(n => n * multiplier));
-      } catch (e) { console.error("Waveform error:", e); }
-      finally { setIsGeneratingWave(false); }
+        setWaveform(filteredData.map((n) => n * multiplier));
+      } catch (e) {
+        console.error("Waveform error:", e);
+      } finally {
+        setIsGeneratingWave(false);
+      }
     };
     generateWave();
-    return () => { isCancelled = true; };
+    return () => {
+      isCancelled = true;
+    };
   }, [mode, track.audio, track.video, isVideo]);
 
   const formatTime = (t) => {
@@ -1307,119 +1397,230 @@ const AudioBar = ({ track, initialTime, isPlaying: startPlaying, volume: startVo
       transition={{ type: "spring", damping: 25, stiffness: 200 }}
     >
       <div style={{ display: "flex", flexDirection: "column", width: "150px" }}>
-        <span style={{ fontSize: "9.5px", fontWeight: "bold", color: "orange", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{track.author}</span>
-        <span style={{ fontSize: "8px", color: "#888" }}>{track.text?.slice(0, 190)}.</span>
+        <span
+          style={{
+            fontSize: "9.5px",
+            fontWeight: "bold",
+            color: "orange",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}
+        >
+          {track.author}
+        </span>
+        <span style={{ fontSize: "8px", color: "#888" }}>
+          {track.text?.slice(0, 190)}.
+        </span>
       </div>
 
       <div style={{ display: "flex", gap: "10px" }}>
-        <AudioBarBtn 
-          onClick={() => { 
-            if (mediaRef.current) mediaRef.current.currentTime = 0; 
-          }} 
+        <AudioBarBtn
+          onClick={() => {
+            if (mediaRef.current) mediaRef.current.currentTime = 0;
+          }}
           title="На початок"
         >
           ⇤
         </AudioBarBtn>
-        <AudioBarBtn onClick={() => mediaRef.current.currentTime -= 10} title="Назад 10с" style={{ fontSize: "8px" }}>◀◀</AudioBarBtn>
-        <AudioBarBtn onClick={() => {
-          if (isPlaying) { mediaRef.current.pause(); setIsPlaying(false); }
-          else { mediaRef.current.play(); setIsPlaying(true); }
-        }}>{isPlaying ? "⏸" : "▶"}</AudioBarBtn>
-        <AudioBarBtn onClick={() => mediaRef.current.currentTime += 10} title="Вперед 10с" style={{ fontSize: "8px" }}>▶▶</AudioBarBtn>
-        <AudioBarBtn 
-          onClick={() => { 
-            if (mediaRef.current) mediaRef.current.currentTime = duration - 1; 
-          }} 
+        <AudioBarBtn
+          onClick={() => (mediaRef.current.currentTime -= 10)}
+          title="Назад 10с"
+          style={{ fontSize: "8px" }}
+        >
+          ◀◀
+        </AudioBarBtn>
+        <AudioBarBtn
+          onClick={() => {
+            if (isPlaying) {
+              mediaRef.current.pause();
+              setIsPlaying(false);
+            } else {
+              mediaRef.current.play();
+              setIsPlaying(true);
+            }
+          }}
+        >
+          {isPlaying ? (
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+            </svg>
+          ) : (
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          )}
+        </AudioBarBtn>
+        <AudioBarBtn
+          onClick={() => (mediaRef.current.currentTime += 10)}
+          title="Вперед 10с"
+          style={{ fontSize: "8px" }}
+        >
+          ▶▶
+        </AudioBarBtn>
+        <AudioBarBtn
+          onClick={() => {
+            if (mediaRef.current) mediaRef.current.currentTime = duration - 1;
+          }}
           title="В самий кінець"
         >
           ⇥
         </AudioBarBtn>
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", gap: "5px", background: "rgba(255,255,255,0.1)", padding: "2px 8px", borderRadius: "10px" }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "5px",
+          background: "rgba(255,255,255,0.1)",
+          padding: "2px 8px",
+          borderRadius: "10px",
+        }}
+      >
         <span style={{ fontSize: "10px" }}>⚡</span>
-        <SpeedSlider type="range" min="0.5" max="2" step="0.1" value={speed} onChange={(e) => setSpeed(parseFloat(e.target.value))} style={{ width: "40px" }} />
+        <SpeedSlider
+          type="range"
+          min="0.5"
+          max="2"
+          step="0.1"
+          value={speed}
+          onChange={(e) => setSpeed(parseFloat(e.target.value))}
+          style={{ width: "40px" }}
+        />
         <span style={{ fontSize: "10px", width: "22px" }}>{speed}x</span>
       </div>
 
-      <div style={{ flex: 1, display: "flex", alignItems: "center", gap: "10px" }}>
-        <div style={{ display: 'flex', gap: '5px' }}>
+      <div
+        style={{ flex: 1, display: "flex", alignItems: "center", gap: "10px" }}
+      >
+        <div style={{ display: "flex", gap: "5px" }}>
           {checkpointsEnabled && checkpoint > 0 && (
-            <AudioBarBtn onClick={() => mediaRef.current.currentTime = checkpoint} title="До чекпоінту">🚩</AudioBarBtn>
+            <AudioBarBtn
+              onClick={() => (mediaRef.current.currentTime = checkpoint)}
+              title="До чекпоінту"
+            >
+              🚩
+            </AudioBarBtn>
           )}
         </div>
-        <span style={{ fontSize: "11px", minWidth: "35px" }}>{formatTime(currentTime)}</span>
+        <span style={{ fontSize: "11px", minWidth: "35px" }}>
+          {formatTime(currentTime)}
+        </span>
         {mode === "linear" ? (
           <SeekBarWrapper style={{ flex: 1 }}>
-             {checkpointsEnabled && checkpoint > 0 && duration > 0 && (
-                <CheckpointMarker 
-                  $left={(checkpoint / duration) * 100}
-                  title="Ви тут зупинилися"
-                  style={{ fontSize: '10px' }}
-                >
-                  🚩
-                </CheckpointMarker>
-              )}
-            <SeekBar 
-              type="range" min="0" max={duration || 0} value={currentTime} 
-              onChange={(e) => mediaRef.current.currentTime = e.target.value} 
-              style={{ width: '100%' }}
+            {checkpointsEnabled && checkpoint > 0 && duration > 0 && (
+              <CheckpointMarker
+                $left={(checkpoint / duration) * 100}
+                title="Ви тут зупинилися"
+                style={{ fontSize: "10px" }}
+              >
+                🚩
+              </CheckpointMarker>
+            )}
+            <SeekBar
+              type="range"
+              min="0"
+              max={duration || 0}
+              value={currentTime}
+              onChange={(e) => (mediaRef.current.currentTime = e.target.value)}
+              style={{ width: "100%" }}
             />
           </SeekBarWrapper>
         ) : (
           <StereoSeekBar onClick={handleStereoSeek} style={{ height: "30px" }}>
             {checkpointsEnabled && checkpoint > 0 && duration > 0 && (
-              <CheckpointMarker 
-                $left={(checkpoint / duration) * 100} 
-                style={{ bottom: 'auto', top: '-10px', fontSize: '10px' }}
+              <CheckpointMarker
+                $left={(checkpoint / duration) * 100}
+              style={{ bottom: "auto", top: "0px", fontSize: "10px" }}
                 title="Ви тут зупинилися"
               >
                 🚩
               </CheckpointMarker>
             )}
             {isGeneratingWave ? (
-              <span style={{ color: "white", fontSize: "10px", margin: "auto" }}>Обробка...</span>
+              <span
+                style={{ color: "white", fontSize: "10px", margin: "auto" }}
+              >
+                Обробка...
+              </span>
             ) : (
               waveform.map((height, i) => (
-                <StereoChannel key={i} $height={height} $active={(currentTime / duration) * 100 > (i / waveform.length) * 100} />
+                <StereoChannel
+                  key={i}
+                  $height={height}
+                  $active={
+                    (currentTime / duration) * 100 > (i / waveform.length) * 100
+                  }
+                />
               ))
             )}
           </StereoSeekBar>
         )}
-        <span style={{ fontSize: "11px", minWidth: "35px" }}>{formatTime(duration)}</span>
-        <AudioBarBtn title="Перемикач на стереограму" onClick={() => setMode(mode === "linear" ? "stereo" : "linear")}>📊</AudioBarBtn>
+        <span style={{ fontSize: "11px", minWidth: "35px" }}>
+          {formatTime(duration)}
+        </span>
+        <AudioBarBtn
+          title="Перемикач на стереограму"
+          onClick={() => setMode(mode === "linear" ? "stereo" : "linear")}
+        >
+          📊
+        </AudioBarBtn>
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
         <span style={{ fontSize: "12px" }}>🔊</span>
-        <VolumeSlider type="range" min="0" max="1" step="0.05" value={volume} onChange={(e) => setVolume(parseFloat(e.target.value))} style={{ width: "60px" }} />
+        <VolumeSlider
+          type="range"
+          min="0"
+          max="1"
+          step="0.05"
+          value={volume}
+          onChange={(e) => setVolume(parseFloat(e.target.value))}
+          style={{ width: "60px" }}
+        />
       </div>
 
       <div style={{ display: "flex", gap: "10px" }}>
-        <AudioBarBtn onClick={() => onRestore(currentTime, isPlaying, volume, speed)} title="Розгорнути">⏶</AudioBarBtn>
+        <AudioBarBtn
+          onClick={() => onRestore(currentTime, isPlaying, volume, speed)}
+          title="Розгорнути"
+        >
+          ⏶
+        </AudioBarBtn>
+        <AudioBarBtn onClick={() => onOpenAi(track)} title="ШІ Помічник">
+          ✨
+        </AudioBarBtn>
         {!isMobile && "documentPictureInPicture" in window && (
-          <AudioBarBtn onClick={toggleDocumentPiP} title="Винести на робочий стіл">🖼️</AudioBarBtn>
+          <AudioBarBtn
+            onClick={toggleDocumentPiP}
+            title="Винести на робочий стіл"
+          >
+            🖼️
+          </AudioBarBtn>
         )}
-        <AudioBarBtn onClick={onClose} title="Закрити">✕</AudioBarBtn>
+        <AudioBarBtn onClick={onClose} title="Закрити">
+          ✕
+        </AudioBarBtn>
       </div>
 
       {track.video ? (
-        <video 
-          ref={mediaRef} 
-          src={track.video} 
-          autoPlay={isPlaying} 
-          hidden 
-          onTimeUpdate={(e) => setCurrentTime(e.target.currentTime)} 
-          onLoadedMetadata={(e) => setDuration(e.target.duration)} 
+        <video
+          ref={mediaRef}
+          src={track.video}
+          autoPlay={isPlaying}
+          hidden
+          onTimeUpdate={(e) => setCurrentTime(e.target.currentTime)}
+          onLoadedMetadata={(e) => setDuration(e.target.duration)}
           onEnded={() => setIsPlaying(false)}
         />
       ) : (
-        <audio 
-          ref={mediaRef} 
-          src={track.audio} 
-          autoPlay={isPlaying} 
-          onTimeUpdate={(e) => setCurrentTime(e.target.currentTime)} 
-          onLoadedMetadata={(e) => setDuration(e.target.duration)} 
+        <audio
+          ref={mediaRef}
+          src={track.audio}
+          autoPlay={isPlaying}
+          onTimeUpdate={(e) => setCurrentTime(e.target.currentTime)}
+          onLoadedMetadata={(e) => setDuration(e.target.duration)}
           onEnded={() => setIsPlaying(false)}
         />
       )}
@@ -1456,12 +1657,20 @@ const MiniPlayer = ({
 
   const progRef = useRef(currentTime);
   const durRef = useRef(duration);
-  useEffect(() => { progRef.current = currentTime; }, [currentTime]);
-  useEffect(() => { durRef.current = duration; }, [duration]);
+  useEffect(() => {
+    progRef.current = currentTime;
+  }, [currentTime]);
+  useEffect(() => {
+    durRef.current = duration;
+  }, [duration]);
 
   useEffect(() => {
     const handleSave = () => {
-      if (onSaveCheckpoint && progRef.current > 5 && progRef.current < durRef.current - 5) {
+      if (
+        onSaveCheckpoint &&
+        progRef.current > 5 &&
+        progRef.current < durRef.current - 5
+      ) {
         onSaveCheckpoint(track.id, progRef.current);
       }
     };
@@ -1473,10 +1682,20 @@ const MiniPlayer = ({
   }, [track.id, onSaveCheckpoint]);
 
   useEffect(() => {
-    if (checkpointsEnabled && checkpoint && Math.abs(currentTime - checkpoint) < 1.5) {
+    if (
+      checkpointsEnabled &&
+      checkpoint &&
+      Math.abs(currentTime - checkpoint) < 1.5
+    ) {
       onClearCheckpoint(track.id);
     }
-  }, [currentTime, checkpoint, track.id, checkpointsEnabled, onClearCheckpoint]);
+  }, [
+    currentTime,
+    checkpoint,
+    track.id,
+    checkpointsEnabled,
+    onClearCheckpoint,
+  ]);
 
   const handleError = useCallback(() => {
     alert("Помилка завантаження медіа в міні-плеєрі. Спробуйте ще раз.");
@@ -1511,11 +1730,12 @@ const MiniPlayer = ({
   }, [initialTime, isPlaying, speed, volume, track.id]);
   useEffect(() => {
     if ("mediaSession" in navigator && track) {
+      const artwork = track.image ? [{ src: track.image, sizes: "512x512", type: "image/webp" }] : [];
       navigator.mediaSession.metadata = new window.MediaMetadata({
         title: track.text || track.author || "Стихія",
         artist: track.author || "Stykhiya",
         album: track.category || "Music",
-        artwork: [{ src: track.image, sizes: "512x512", type: "image/webp" }],
+        artwork: artwork,
       });
 
       navigator.mediaSession.setActionHandler("play", () => {
@@ -1552,10 +1772,7 @@ const MiniPlayer = ({
   const currentImgIdx = useMemo(() => {
     if (!sliderImages || sliderImages.length === 0) return 0;
     const segment = (duration || 1) / sliderImages.length;
-    return Math.min(
-      Math.floor(currentTime / segment),
-      sliderImages.length - 1,
-    );
+    return Math.min(Math.floor(currentTime / segment), sliderImages.length - 1);
   }, [sliderImages, currentTime, duration]);
 
   const getCurrentImageSrc = useCallback(
@@ -1585,7 +1802,7 @@ const MiniPlayer = ({
       ctx.fillStyle = "white";
       ctx.font = "bold 20px Inter, sans-serif";
       ctx.fillText(track.author || "Стихія", 15, canvas.height - 20);
-    }; 
+    };
   }, [track, currentImgIdx, isDinofroz, getCurrentImageSrc, sliderImages]);
   useEffect(() => {
     const media = mediaRef.current;
@@ -1615,8 +1832,8 @@ const MiniPlayer = ({
     );
   }, [track.filters, currentTime]);
   const mainFilter = activeFilters.find(
-    (f) => !["symbols", "flicker"].includes(f.type)
-  ); 
+    (f) => !["symbols", "flicker"].includes(f.type),
+  );
   const handleDrag = (e) => {
     const startX = e.clientX - pos.x;
     const startY = e.clientY - pos.y;
@@ -1682,7 +1899,7 @@ const MiniPlayer = ({
         await pipVideoRef.current
           .play()
           .catch((err) => console.error("Play error:", err));
-        elementToPip = pipVideoRef.current; 
+        elementToPip = pipVideoRef.current;
       }
       if (!elementToPip) {
         alert(
@@ -1780,14 +1997,14 @@ const MiniPlayer = ({
             src={track.video}
             autoPlay={isPlaying}
             muted={volume === 0}
-            onError={handleError} 
+            onError={handleError}
             loop
             style={{ width: "100%", height: "100%", objectFit: "cover" }}
             onTimeUpdate={(e) => setCurrentTime(e.target.currentTime)}
           />
         ) : (
           <>
-            <img 
+            <img
               src={getCurrentImageSrc(currentImgIdx)}
               style={{ width: "100%", height: "100%", objectFit: "cover" }}
               alt=""
@@ -1822,6 +2039,10 @@ const MiniPlayer = ({
             speed={1.5}
             variation={
               activeFilters.find((f) => f.type === "symbols")?.variation
+            }
+            customSymbols={
+              activeFilters.find((f) => f.type === "symbols")?.symbols ||
+              track.symbols
             }
           />
         )}
@@ -1961,7 +2182,7 @@ const GearModal = styled.div`
 const SubtitleOverlay = styled.div`
   position: absolute;
   bottom: ${(props) =>
-    props.$show ? (props.$controlsVisible ? "25%" : "1%") : "25%"};
+    props.$show ? (props.$controlsVisible ? "22%" : "0.5%") : "22%"};
   left: 50%;
   transform: translateX(-50%);
   color: #fff;
@@ -2054,6 +2275,32 @@ const InputGroup = styled.div`
   }
 `;
 
+const StorageIndicatorContainer = styled.div`
+  margin: 10px 0 20px 0;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+  font-size: 11px;
+  color: #555;
+  text-align: left;
+`;
+
+const StorageBar = styled.div`
+  width: 100%;
+  height: 6px;
+  background: #ddd;
+  border-radius: 3px;
+  margin-top: 5px;
+  overflow: hidden;
+`;
+
+const StorageBarFill = styled.div`
+  height: 100%;
+  background: ${(props) => (props.$percent > 80 ? "#ff4d4d" : "#00bdb3")};
+  width: ${(props) => props.$percent}%;
+  transition: width 0.5s ease;
+`;
+
 const SliderItemWrapper = styled.div`
   position: relative;
   flex-shrink: 0;
@@ -2121,11 +2368,16 @@ const CheckpointBadge = styled.div`
 const CheckpointMarker = styled.div`
   position: absolute;
   bottom: 100%;
-  left: ${props => props.$left}%;
+  left: ${(props) => props.$left}%;
   transform: translateX(-50%);
   font-size: 14px;
   z-index: 10;
   pointer-events: none;
+  /* Styles for better visibility in stereogram */
+  background: rgba(255, 255, 255, 0.7); /* Semi-transparent white background */
+  border-radius: 3px;
+  padding: 2px 4px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
 `;
 
 const SliderOverlay = styled.div`
@@ -2276,6 +2528,572 @@ const ProgressBarFill = styled.div`
   box-shadow: 0 0 10px #94fffa;
 `;
 
+const AiChatContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 400px;
+  width: 100%;
+  color: ${props => props.$isDarkMode ? 'white' : '#333'};
+  background: ${props => props.$isDarkMode ? '#1e1e1e' : '#fff'};
+`;
+
+const MessageList = styled.div`
+  flex: 1;
+  overflow-y: auto;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: ${props => props.$isDarkMode ? '#121212' : '#f7f7f7'};
+`;
+
+const Message = styled.div`
+  max-width: 80%;
+  padding: 8px 14px;
+  border-radius: 15px;
+  font-size: 13.5px;
+  background: ${(props) => (props.$isUser ? "orange" : (props.$isDarkMode ? "#333" : "#e0e0e0"))};
+  color: ${(props) => (props.$isUser ? "white" : (props.$isDarkMode ? "#ddd" : "#222"))};
+  align-self: ${(props) => (props.$isUser ? "flex-end" : "flex-start")};
+`;
+
+const ChatInputRow = styled.div`
+  display: flex;
+  padding: 10px;
+  border-top: 1px solid ${props => props.$isDarkMode ? '#333' : '#eee'};
+  gap: 8px;
+  input {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 20px;
+    border: 1px solid ${props => props.$isDarkMode ? '#444' : '#ccc'};
+    background: ${props => props.$isDarkMode ? '#2c2c2c' : '#fff'};
+    color: ${props => props.$isDarkMode ? '#fff' : '#000'};
+    outline: none;
+  }
+  button {
+    background: orange;
+    border: none;
+    border-radius: 20px;
+    padding: 0 15px;
+    color: white;
+    cursor: pointer;
+  }
+`;
+
+const SongAiModal = ({ track, onClose, isDarkMode }) => {
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState("");
+  const [isAiLoading, setIsAiLoading] = useState(false); // Keep this to disable input during processing
+  const [selectedModel, setSelectedModel] = useState("gemini-personal");
+  const [status, setStatus] = useState("");
+  const [personalApiKey, setPersonalApiKey] = useState("");
+  const [openaiApiKey, setOpenaiApiKey] = useState("");
+  const [groqApiKey, setGroqApiKey] = useState("");
+  const [groqKeyStatus, setGroqKeyStatus] = useState("idle"); // idle, loading, valid, invalid
+  const [geminiModel, setGeminiModel] = useState("gemini-2.5-flash");
+  const [showKeyInput, setShowKeyInput] = useState(false);
+  const [streamingText, setStreamingText] = useState("");
+  const generator = useRef(null);
+  const currentModelRef = useRef(null);
+  const scrollRef = useRef(null);
+  const abortRef = useRef(false);
+
+  useEffect(() => {
+    const loadHistory = async () => {
+      const history = await localforage.getItem(`song_ai_history_${track.id}`);
+      const savedModel = await localforage.getItem(`song_ai_hf_model`);
+      const savedKey = await localforage.getItem("gemini_api_key");
+      const savedOaiKey = await localforage.getItem("openai_api_key");
+      const savedGroqKey = await localforage.getItem("groq_api_key");
+      const savedGeminiModel = await localforage.getItem("gemini_model");
+      
+      if (savedModel && !savedModel.includes("meta-llama")) setSelectedModel(savedModel);
+      if (savedKey) setPersonalApiKey(savedKey);
+      if (savedOaiKey) setOpenaiApiKey(savedOaiKey);
+      if (savedGroqKey) {
+        setGroqApiKey(savedGroqKey);
+        verifyGroqKey(savedGroqKey);
+      }
+      if (savedGeminiModel) setGeminiModel(savedGeminiModel);
+      if (history) setMessages(history);
+      else
+        setMessages((prev) => prev.length > 0 ? prev : [
+          { text: `Привіт, мене звати Домініц(робот Доміно). Я можу відповісти на деякі ваші запитання "${track.author}"?`, isBot: true },
+        ]);
+    };
+    loadHistory();
+  }, [track.id, track.author]);
+
+  // Scroll to bottom when messages or streaming text updates
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]); // streamingText is removed
+
+  const saveHistory = async (newMessages) => {
+    await localforage.setItem(
+      `song_ai_history_${track.id}`,
+      newMessages.slice(-10),
+    );
+  };
+
+  const changeModel = async (model) => {
+    setSelectedModel(model);
+    await localforage.setItem(`song_ai_hf_model`, model);
+  };
+
+  const verifyGroqKey = async (key) => {
+    if (!key || key.length < 10) { setGroqKeyStatus("idle"); return; }
+    setGroqKeyStatus("loading");
+    try {
+      const res = await fetch("https://api.groq.com/openai/v1/models", {
+        headers: { "Authorization": `Bearer ${key}` }
+      });
+      setGroqKeyStatus(res.ok ? "valid" : "invalid");
+    } catch {
+      setGroqKeyStatus("invalid");
+    }
+  };
+
+  const saveGeminiModel = async (val) => {
+    setGeminiModel(val);
+    await localforage.setItem("gemini_model", val);
+  };
+
+  const saveKeys = async (type, key) => {
+    if (type === "gemini") { setPersonalApiKey(key); await localforage.setItem("gemini_api_key", key); }
+    if (type === "openai") { setOpenaiApiKey(key); await localforage.setItem("openai_api_key", key); }
+    if (type === "groq") { 
+      setGroqApiKey(key); 
+      await localforage.setItem("groq_api_key", key);
+      verifyGroqKey(key);
+    }
+  };
+
+  const handleSend = async () => {
+    if (!input.trim() || isAiLoading) return;
+    abortRef.current = false;
+
+    const query = input.trim();
+    setInput("");
+    const newMessages = [...messages, { text: query, isBot: false }];
+    setMessages(newMessages);
+    await saveHistory(newMessages);
+
+    // 1. Блокуючий фільтр
+    const blocked = ["пароль", "хак", "адмін", "казино"];
+    if (blocked.some((word) => query.toLowerCase().includes(word))) {
+      const final = [
+        ...newMessages,
+        { text: "Запит заблоковано з міркувань безпеки.", isBot: true },
+      ];
+      setMessages(final);
+      await saveHistory(final);
+      setIsAiLoading(false); // Reset loading state here too
+      setStatus(""); // Clear status here too
+      return;
+    }
+
+    setIsAiLoading(true);
+    // 2. Пошук у JSON базі знань (Пошук по всьому файлу)
+    let answer = null;
+    const lowerQuery = query.toLowerCase();
+
+    // Спеціальна обробка запиту про список пісень
+    if (lowerQuery.includes("які пісні") || lowerQuery.includes("список пісень") || lowerQuery.includes("що тут є") || lowerQuery.includes("які є пісні")) {
+      answer = "У проекті 'Стихія' зараз розміщені такі пісні: " + songAiKnowledge.map(s => s.author).join(", ") + ".";
+    } else if (lowerQuery.includes("скільки пісень") || lowerQuery.includes("яка кількість") || lowerQuery.includes("кількість пісень")) {
+      answer = `Зараз у моїй локальній базі знань (файл songAiKnowledge.json) є інформація про ${songAiKnowledge.length} пісень.`;
+    }
+
+    if (!answer) {
+      // Шукаємо відповідь по ключах у всіх записах бази знань
+      for (const entry of songAiKnowledge) {
+        const matchKey = Object.keys(entry).find((k) =>
+          lowerQuery.includes(k.toLowerCase()) && 
+          typeof entry[k] === 'string' && 
+          entry[k].length > 0
+        );
+        if (matchKey) {
+          answer = `(Інформація про ${entry.author}): ${entry[matchKey]}`;
+          if (entry.YouTube) answer += `\n\nВи можете переглянути це на YouTube: ${entry.YouTube}`;
+          break;
+        }
+
+        // Пошук у текстах пісень (lyrics)
+        if (entry.lyrics && Array.isArray(entry.lyrics)) {
+          const foundLine = entry.lyrics.find(line => 
+            line.text && (line.text.toLowerCase().includes(lowerQuery) || lowerQuery.includes(line.text.toLowerCase()))
+          );
+          if (foundLine) {
+            answer = `У пісні "${entry.author}" є такі рядки: "${foundLine.text}"`;
+            break;
+          }
+        }
+
+        // Пошук у фільтрах
+        if (entry.filters && Array.isArray(entry.filters)) {
+          const foundFilter = entry.filters.find(f => 
+            lowerQuery.includes(f.type.toLowerCase()) && (lowerQuery.includes("коли") || lowerQuery.includes("фільтр") || lowerQuery.includes("ефект"))
+          );
+          if (foundFilter) {
+            answer = `У пісні "${entry.author}" ефект "${foundFilter.type}" активується на проміжку від ${foundFilter.start} до ${foundFilter.end} секунди.`;
+            break;
+          }
+        }
+      }
+    }
+
+    if (answer) {
+      const final = [...newMessages, { text: answer, isBot: true }];
+      setMessages(final);
+      await saveHistory(final);
+      setIsAiLoading(false);
+    } else if (selectedModel === "gemini-personal") {
+      if (!personalApiKey) {
+        const errFinal = [...newMessages, { text: "Будь ласка, введіть ваш API-ключ Gemini у налаштуваннях чату (кнопка 🔑).", isBot: true }];
+        setMessages(errFinal);
+        setIsAiLoading(false);
+        return;
+      }
+
+      try {
+        setStatus("З'єднання з Gemini...");
+        const genAI = new GoogleGenerativeAI(personalApiKey);
+        const model = genAI.getGenerativeModel({ model: geminiModel });
+        
+        const allSongs = songAiKnowledge.map(s => s.author).join(", ");
+        const durationText = track.duration ? `${Math.floor(track.duration / 60)}:${(track.duration % 60).toString().padStart(2, '0')}` : "невідома";
+        const lyricsInfo = track.lyrics && Array.isArray(track.lyrics) ? track.lyrics.map(l => `${l.time}с: ${l.text || ''}`).join("; ") : "відсутній";
+        const filtersInfo = track.filters && Array.isArray(track.filters) ? track.filters.map(f => `${f.start}-${f.end}с: ${f.type}`).join("; ") : "відсутні";
+        
+        const systemContext = `Ти - Домініц, помічник проекту "Стихія". У базі знань є такі пісні: ${allSongs}. Поточна пісня: ${track.author}, тривалість: ${durationText}. Таймінги тексту: ${lyricsInfo}. Ефекти (фільтри): ${filtersInfo}. Якщо питають "коли" або "який ефект" — використовуй ці дані.`;
+        const prompt = `${systemContext}\nЗапитання: ${query}\nВідповідай українською коротко:`;
+
+        const result = await model.generateContent(prompt);
+        const botText = result.response.text();
+
+        const final = [...newMessages, { text: botText || "Я не зміг отримати відповідь від Gemini.", isBot: true }];
+        setMessages(final);
+        await saveHistory(final);
+      } catch (e) {
+        const final = [...newMessages, { text: `Помилка Gemini: ${e.message}. Перевірте ключ або підключення.`, isBot: true }];
+        setMessages(final);
+        await saveHistory(final);
+      } finally {
+        setIsAiLoading(false);
+        setStatus("");
+      }
+    } else if (selectedModel === "openai-personal" || selectedModel === "groq-personal") {
+      const isOAI = selectedModel === "openai-personal";
+      const key = isOAI ? openaiApiKey : groqApiKey;
+      const endpoint = isOAI ? "https://api.openai.com/v1/chat/completions" : "https://api.groq.com/openai/v1/chat/completions";
+      const modelName = isOAI ? "gpt-4o-mini" : "llama-3.3-70b-versatile";
+
+      if (!key) {
+        const errFinal = [...newMessages, { text: `Будь ласка, введіть ваш API-ключ ${isOAI ? 'OpenAI' : 'Groq'} у налаштуваннях (кнопка 🔑).`, isBot: true }];
+        setMessages(errFinal);
+        setIsAiLoading(false);
+        return;
+      }
+
+      try {
+        setStatus(`З'єднання з ${isOAI ? 'OpenAI' : 'Groq'}...`);
+        const total = songAiKnowledge.length;
+        const songsSummary = songAiKnowledge.map(s => {
+          const dur = s.duration ? `${Math.floor(s.duration / 60)}:${(s.duration % 60).toString().padStart(2, '0')}` : "невідома";
+          const yt = s.YouTube ? ` [YouTube: ${s.YouTube}]` : "";
+          return `${s.author} (${dur})${yt}`;
+        }).join(", ");
+
+        const durationText = track.duration ? `${Math.floor(track.duration / 60)}:${(track.duration % 60).toString().padStart(2, '0')}` : "невідома";
+        const lyricsInfo = track.lyrics && Array.isArray(track.lyrics) ? track.lyrics.map(l => `${l.time}с: ${l.text || ''}`).join("; ") : "відсутній";
+        const filtersInfo = track.filters && Array.isArray(track.filters) ? track.filters.map(f => `${f.start}-${f.end}с: ${f.type}`).join("; ") : "відсутні";
+
+        const systemContext = `Ти помічник проекту "Стихія". Всього пісень: ${total}. Список: ${songsSummary}. Користувач слухає: ${track.author}, тривалість: ${durationText}. Текст: ${lyricsInfo}. Ефекти: ${filtersInfo}. Відповідай українською коротко.`;
+
+        const res = await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${key}`
+          },
+          body: JSON.stringify({
+            model: modelName,
+            messages: [
+              { role: "system", content: systemContext },
+              { role: "user", content: query }
+            ],
+            temperature: 0.7
+          })
+        });
+
+        if (!res.ok) {
+          const errData = await res.json();
+          throw new Error(errData.error?.message || "API Error");
+        }
+
+        const data = await res.json();
+        const botText = data.choices[0]?.message?.content;
+
+        const final = [...newMessages, { text: botText || "Я не зміг отримати відповідь.", isBot: true }];
+        setMessages(final);
+        await saveHistory(final);
+      } catch (e) {
+        const final = [...newMessages, { text: `Помилка ${isOAI ? 'OpenAI' : 'Groq'}: ${e.message}`, isBot: true }];
+        setMessages(final);
+        await saveHistory(final);
+      } finally {
+        setIsAiLoading(false);
+        setStatus("");
+      }
+    } else {
+      // 3. Генерація через Transformers (запасний план)
+      try {
+        setStatus("Завантаження інтелекту...");
+        if (!generator.current || currentModelRef.current !== selectedModel) {
+          const isWebGPUSupported = "gpu" in navigator;
+          generator.current = await pipeline("text-generation", selectedModel, {
+            device: isWebGPUSupported ? "webgpu" : "cpu",
+            dtype: isWebGPUSupported ? "q4" : "fp32",
+          });
+          currentModelRef.current = selectedModel;
+        }
+        setStatus(navigator.gpu ? "Обробка (WebGPU)..." : "Обробка запиту...");
+        const durationText = track.duration ? `${Math.floor(track.duration / 60)}:${(track.duration % 60).toString().padStart(2, '0')}` : "unknown";
+        const prompt = `Context: Author is ${track.author}, category ${track.category}, duration ${durationText}. Question: ${query}. Answer in Ukrainian briefly:`; // Define prompt here
+
+        const result = await generator.current(prompt, {
+          max_new_tokens: 60,
+          do_sample: true,
+          temperature: 0.1,
+          callback_function: (beams) => {
+            if (abortRef.current) return; // Stop streaming if aborted
+            const decoded = generator.current.tokenizer.decode( // Define `decoded` here
+              beams[0].output_token_ids,
+              { skip_special_tokens: true },
+            );
+            const content = decoded.replace(prompt, "").trim();
+            setStreamingText(content);
+          },
+        });
+        
+        if (!abortRef.current) { // Only update if not aborted
+          setStreamingText(""); // Clear streaming text once generation is complete
+          const generatedText = result[0].generated_text.replace(prompt, "").trim();
+          const final = [
+            ...newMessages,
+            {
+              text: generatedText || "Я не знаю відповіді на це питання.",
+              isBot: true,
+            },
+          ];
+          setMessages(final);
+            await saveHistory(final);
+        }
+      } catch (e) {
+        if (!abortRef.current) { // Only update if not aborted
+          setStreamingText(""); // Clear streaming text on error
+          
+          let errorMessage = "Помилка ШІ. Спробуйте пізніше або змініть модель.";
+          const errorStr = e.message?.toLowerCase() || "";
+
+          if (errorStr.includes("webgpu")) {
+            errorMessage = "Помилка WebGPU. Спробуйте обрати CPU версію моделі або оновити драйвери.";
+          } else if (errorStr.includes("fetch") || errorStr.includes("network")) {
+            errorMessage = "Помилка завантаження моделі. Перевірте з'єднання з інтернетом.";
+          } else if (errorStr.includes("memory") || errorStr.includes("vram")) {
+            errorMessage = "Недостатньо оперативної пам'яті для роботи цієї моделі. Спробуйте Qwen 1.5.";
+          }
+
+          const errMsgs = [
+            ...newMessages,
+          {
+            text: errorMessage,
+            isBot: true,
+          },
+          ];
+          setMessages(errMsgs);
+          await saveHistory(errMsgs);
+        }
+      } finally {
+        setIsAiLoading(false);
+        setStatus("");
+      }
+    }
+  };
+
+  const handleStop = () => {
+    abortRef.current = true;
+    setIsAiLoading(false);
+    setStatus("Генерацію зупинено.");
+    if (messages[messages.length - 1]?.text !== "Генерацію зупинено.") { // Avoid duplicate messages
+      setMessages((prev) => [...prev, { text: "Генерацію зупинено.", isBot: true }]);
+      saveHistory([...messages, { text: "Генерацію зупинено.", isBot: true }]);
+    }
+  };
+
+  const renderTextWithLinks = (text) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    return text.split(urlRegex).map((part, index) => {
+      if (part.match(urlRegex)) {
+        return (
+          <a key={index} href={part} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>
+            {part}
+          </a>
+        );
+      }
+      return part;
+    });
+  };
+
+  return (
+    <ModalOverlay onClick={onClose}>
+      <LyricsModalContent
+        onClick={(e) => e.stopPropagation()}
+        style={{ maxWidth: "400px", padding: 0, background: isDarkMode ? '#1e1e1e' : '#fff' }}
+      >
+        <div
+          style={{
+            padding: "15px",
+            borderBottom: "1px solid #eee",
+            position: "relative",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+          // Add a class or id here if needed for styling or specific targeting
+        >
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <h4 style={{ margin: 0, color: "black" }}>
+              ✨ Помічник {track.author}
+            </h4>
+            <select 
+              value={selectedModel} 
+              onChange={(e) => changeModel(e.target.value)}
+              style={{ fontSize: '10px', marginTop: '4px', border: '1px solid #ccc', borderRadius: '4px' }}
+            >
+              <option value="gemini-personal">Google Gemini (Free)</option>
+              <option value="groq-personal">Groq Llama 3 (Fast & Free)</option>
+              <option value="openai-personal">OpenAI GPT-4o mini</option>
+              <option value="meta-llama/Llama-3.2-3B-Instruct">Offline (Local)</option>
+            </select>
+          </div>
+          <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+            <button
+              onClick={() => setShowKeyInput(!showKeyInput)}
+              style={{ background: "none", border: "none", cursor: "pointer", fontSize: "14px" }}
+              title="Налаштування ключа Gemini"
+            >
+              🔑
+            </button>
+            <button
+              onClick={async () => {
+                if (window.confirm("Очистити історію чату для цієї пісні?")) {
+                  abortRef.current = true; // Abort any ongoing generation
+                  setIsAiLoading(false);
+                  setStatus("");
+                  // setStreamingText(""); // Removed as streamingText is no longer used
+                  setMessages([{ text: "Історію очищено.", isBot: true }]);
+                  await localforage.removeItem(`song_ai_history_${track.id}`);
+                }
+              }}
+              style={{ color: isDarkMode ? '#aaa' : '#333', background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px' }}
+              title="Очистити чат"
+            >
+              🗑️
+            </button>
+            {isAiLoading && (
+              <button
+                onClick={handleStop}
+                style={{
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  fontSize: "14px",
+                }}
+                title="Зупинити генерацію"
+              >
+                🛑
+              </button>
+            )}
+            <LyricsCloseButton style={{ color: isDarkMode ? '#fff' : '#333' }} onClick={onClose}>&times;</LyricsCloseButton>
+          </div>
+        </div>
+        
+        <AnimatePresence>
+          {showKeyInput && (
+            <motion.div 
+              initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }}
+              style={{ padding: '10px', background: isDarkMode ? '#252525' : '#fff9e6', borderBottom: `1px solid ${isDarkMode ? '#444' : '#eee'}`, overflow: 'hidden' }}
+            >
+              <div style={{ marginBottom: '8px' }}>
+                <label style={{ fontSize: '10px', color: isDarkMode ? '#aaa' : '#666' }}>Gemini Key:</label>
+                <input type="password" value={personalApiKey} onChange={(e) => saveKeys("gemini", e.target.value)} style={{ width: '100%', padding: '4px', fontSize: '11px', background: isDarkMode ? '#333' : '#fff', color: isDarkMode ? '#fff' : '#000', border: '1px solid #555' }} />
+              </div>
+              <div style={{ marginBottom: '8px' }}>
+                <label style={{ fontSize: '10px', color: isDarkMode ? '#aaa' : '#666' }}>Модель Gemini:</label>
+                <select
+                  value={geminiModel}
+                  onChange={(e) => saveGeminiModel(e.target.value)}
+                  style={{ width: '100%', padding: '4px', fontSize: '11px', background: isDarkMode ? '#333' : '#fff', color: isDarkMode ? '#fff' : '#000', border: '1px solid #555' }}
+                >
+                  <option value="gemini-2.5-flash">1.5 Flash (Швидка)</option>
+                  <option value="gemini-2.5-pro">1.5 Pro (Розумна)</option>
+                </select>
+              </div>
+              <div style={{ marginBottom: '8px' }}>
+                <label style={{ fontSize: '10px', color: isDarkMode ? '#aaa' : '#666' }}>
+                  Groq Key: {groqKeyStatus === "valid" ? "✅" : groqKeyStatus === "invalid" ? "❌" : ""}
+                </label>
+                <input type="password" value={groqApiKey} onChange={(e) => saveKeys("groq", e.target.value)} style={{ width: '100%', padding: '4px', fontSize: '11px', background: isDarkMode ? '#333' : '#fff', color: isDarkMode ? '#fff' : '#000', border: groqKeyStatus === 'invalid' ? '1px solid red' : '1px solid #555' }} />
+              </div>
+              <div style={{ marginBottom: '8px' }}>
+                <label style={{ fontSize: '10px', color: isDarkMode ? '#aaa' : '#666' }}>OpenAI Key:</label>
+                <input type="password" value={openaiApiKey} onChange={(e) => saveKeys("openai", e.target.value)} style={{ width: '100%', padding: '4px', fontSize: '11px', background: isDarkMode ? '#333' : '#fff', color: isDarkMode ? '#fff' : '#000', border: '1px solid #555' }} />
+              </div>
+              <p style={{ fontSize: '8px', color: '#888', textAlign: 'center' }}>
+                ℹ️ Ключі зберігаються лише у вашому браузері.
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <AiChatContainer $isDarkMode={isDarkMode}>
+          <MessageList ref={scrollRef} $isDarkMode={isDarkMode}>
+            {messages.map((m, i) => (
+              <Message key={i} $isUser={!m.isBot} $isDarkMode={isDarkMode}>
+                {renderTextWithLinks(m.text)}
+              </Message>
+            ))}
+            {streamingText && (
+              <Message $isUser={false}>{renderTextWithLinks(streamingText)}</Message>
+            )}
+            {isAiLoading && (
+              <div style={{ fontSize: "10px", color: "#999" }}>{status}</div>
+            )}
+          </MessageList>
+          <ChatInputRow $isDarkMode={isDarkMode}>
+            <input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSend()}
+              placeholder="Напишіть запитання..."
+              $isDarkMode={isDarkMode}
+              disabled={isAiLoading}
+            />
+            <button onClick={handleSend} disabled={isAiLoading}>
+              ➤
+            </button>
+          </ChatInputRow>
+        </AiChatContainer>
+      </LyricsModalContent>
+    </ModalOverlay>
+  );
+};
+
 const LyricsViewer = ({ lyrics, currentTime, voiceActingMode, trackText }) => {
   const activeLineIndex = useMemo(() => {
     if (!Array.isArray(lyrics)) return -1;
@@ -2293,7 +3111,9 @@ const LyricsViewer = ({ lyrics, currentTime, voiceActingMode, trackText }) => {
     <div>
       {lyrics.map((line, index) => (
         <LyricsLine key={index} $active={index === activeLineIndex}>
-          {voiceActingMode === "bbkids" && line.text_bbkids ? line.text_bbkids : line.text}
+          {voiceActingMode === "bbkids" && line.text_bbkids
+            ? line.text_bbkids
+            : line.text}
         </LyricsLine>
       ))}
     </div>
@@ -2311,6 +3131,7 @@ const FullScreenPlayer = ({
   onSetShuffle,
   onAudioBar,
   onMiniPlayer,
+  onOpenAi,
   user,
   playlist,
   onSelectTrack,
@@ -2395,7 +3216,8 @@ const FullScreenPlayer = ({
       setIsFullscreenNative(!!document.fullscreenElement);
     };
     document.addEventListener("fullscreenchange", handleFsChange);
-    return () => document.removeEventListener("fullscreenchange", handleFsChange);
+    return () =>
+      document.removeEventListener("fullscreenchange", handleFsChange);
   }, []);
 
   const [longPressSpeedIndicator, setLongPressSpeedIndicator] = useState(null); // Changed from dynamicSpeed to longPressSpeedIndicator
@@ -2461,7 +3283,9 @@ const FullScreenPlayer = ({
       try {
         const q = await localforage.getItem("video_quality");
         if (q) setVideoQuality(q);
-      } catch (e) { console.error(e); }
+      } catch (e) {
+        console.error(e);
+      }
     };
     loadQuality();
   }, []);
@@ -2471,7 +3295,9 @@ const FullScreenPlayer = ({
   }, [videoQuality]);
 
   const handleQualityChange = (q) => {
-    const currentPos = mediaRef.current ? mediaRef.current.currentTime : progress;
+    const currentPos = mediaRef.current
+      ? mediaRef.current.currentTime
+      : progress;
     setVideoQuality(q);
     // Логіка для перемикання джерела, якщо воно з'явиться в об'єкті track
     if (mediaRef.current) {
@@ -2639,20 +3465,27 @@ const FullScreenPlayer = ({
   const mediaFilter = useMemo(() => {
     if (!filtersEnabled || !mainFilter) return "none";
     let filters = [];
-    
-    if (mainFilter.type === "grayscale" || mainFilter.grayscale) filters.push("grayscale(100%)");
-    
-    const blurVal = dynamicBlur !== null ? dynamicBlur : (mainFilter.type === "blur" ? mainFilter.opacity * 10 : (mainFilter.blur || 0));
+
+    if (mainFilter.type === "grayscale" || mainFilter.grayscale)
+      filters.push("grayscale(100%)");
+
+    const blurVal =
+      dynamicBlur !== null
+        ? dynamicBlur
+        : mainFilter.type === "blur"
+          ? mainFilter.opacity * 10
+          : mainFilter.blur || 0;
     if (blurVal > 0) filters.push(`blur(${blurVal}px)`);
-    
+
     if (mainFilter.type === "contrast") {
-      const contrastVal = (dynamicOpacity !== null ? dynamicOpacity : mainFilter.opacity) * 2;
+      const contrastVal =
+        (dynamicOpacity !== null ? dynamicOpacity : mainFilter.opacity) * 2;
       filters.push(`contrast(${contrastVal})`);
     }
-    
+
     if (mainFilter.type === "negative") filters.push("invert(100%)");
     if (mainFilter.type === "vintage") filters.push("sepia(0.8) contrast(1.2)");
-    
+
     return filters.join(" ") || "none";
   }, [mainFilter, filtersEnabled, dynamicBlur, dynamicOpacity]);
 
@@ -2743,12 +3576,20 @@ const FullScreenPlayer = ({
 
   const progressRef = useRef(progress);
   const durationRef = useRef(duration);
-  useEffect(() => { progressRef.current = progress; }, [progress]);
-  useEffect(() => { durationRef.current = duration; }, [duration]);
+  useEffect(() => {
+    progressRef.current = progress;
+  }, [progress]);
+  useEffect(() => {
+    durationRef.current = duration;
+  }, [duration]);
 
   useEffect(() => {
     const handleSave = () => {
-      if (onSaveCheckpoint && progressRef.current > 5 && progressRef.current < durationRef.current - 5) {
+      if (
+        onSaveCheckpoint &&
+        progressRef.current > 5 &&
+        progressRef.current < durationRef.current - 5
+      ) {
         onSaveCheckpoint(track.id, progressRef.current);
       }
     };
@@ -2761,7 +3602,11 @@ const FullScreenPlayer = ({
   }, [track.id, onSaveCheckpoint]);
 
   useEffect(() => {
-    if (checkpointsEnabled && checkpoint && Math.abs(progress - checkpoint) < 1.5) {
+    if (
+      checkpointsEnabled &&
+      checkpoint &&
+      Math.abs(progress - checkpoint) < 1.5
+    ) {
       onClearCheckpoint(track.id);
     }
   }, [progress, checkpoint, track.id, checkpointsEnabled, onClearCheckpoint]);
@@ -2866,7 +3711,15 @@ const FullScreenPlayer = ({
       media.removeEventListener("ended", handleEnded);
       media.removeEventListener("error", handleErrorEvent);
     };
-  }, [track, loop, handleError, updateProgress, playMode, onNext, canPerformAction]);
+  }, [
+    track,
+    loop,
+    handleError,
+    updateProgress,
+    playMode,
+    onNext,
+    canPerformAction,
+  ]);
 
   useEffect(() => {
     if (mediaRef.current) {
@@ -2877,11 +3730,12 @@ const FullScreenPlayer = ({
 
   useEffect(() => {
     if ("mediaSession" in navigator && track) {
+      const artwork = track.image ? [{ src: track.image, sizes: "512x512", type: "image/webp" }] : [];
       navigator.mediaSession.metadata = new window.MediaMetadata({
         title: track.text || track.author || "Стихія",
         artist: track.author || "Stykhiya",
         album: track.category || "Music",
-        artwork: [{ src: track.image, sizes: "512x512", type: "image/webp" }],
+        artwork: artwork,
       });
 
       navigator.mediaSession.setActionHandler("play", togglePlay);
@@ -2931,7 +3785,7 @@ const FullScreenPlayer = ({
     setVideoFrames([]);
     const frames = [];
     const tempVideo = document.createElement("video");
-    
+
     // Використовуємо той самий URL, що і в плеєрі
     tempVideo.src = track.video;
     tempVideo.muted = true;
@@ -2955,7 +3809,7 @@ const FullScreenPlayer = ({
         await new Promise((resolve) => {
           tempVideo.onseeked = resolve;
         });
-        
+
         canvas.width = tempVideo.videoWidth || 640;
         canvas.height = tempVideo.videoHeight || 360;
         ctx.drawImage(tempVideo, 0, 0, canvas.width, canvas.height);
@@ -3042,7 +3896,8 @@ const FullScreenPlayer = ({
     for (let i = 0; i < track.lyrics.length; i++) {
       if (progress >= track.lyrics[i].time) {
         const line = track.lyrics[i];
-        active = mode === "bbkids" && line.text_bbkids ? line.text_bbkids : line.text;
+        active =
+          mode === "bbkids" && line.text_bbkids ? line.text_bbkids : line.text;
       } else {
         break;
       }
@@ -3052,6 +3907,11 @@ const FullScreenPlayer = ({
 
   useEffect(() => {
     const handleKeyDown = (e) => {
+      // Ігнорувати гарячі клавіші, якщо користувач пише в полі введення
+      if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") {
+        return;
+      }
+
       resetControlsTimeout();
       if (e.code === "Escape") handleClose();
 
@@ -3489,7 +4349,8 @@ const FullScreenPlayer = ({
         style={{ opacity: showControls ? 1 : 0, transition: "opacity 0.3s" }}
       >
         <div style={{ display: "flex", gap: "0px", alignItems: "center" }}>
-          <ActionButton style={{ fontSize: "26px" }}
+          <ActionButton
+            style={{ fontSize: "26px" }}
             onClick={() => {
               if (canPerformAction()) handleClose();
             }}
@@ -3523,8 +4384,12 @@ const FullScreenPlayer = ({
             🖼️
           </ActionButton>
           <ActionButton
-            onClick={() => { if (canPerformAction()) toggleFullscreen(); }}
-            title={isFullscreenNative ? "Вийти з повного екрану" : "На весь екран"}
+            onClick={() => {
+              if (canPerformAction()) toggleFullscreen();
+            }}
+            title={
+              isFullscreenNative ? "Вийти з повного екрану" : "На весь екран"
+            }
           >
             {isFullscreenNative ? "⏹" : "⛶"}
           </ActionButton>
@@ -3544,9 +4409,20 @@ const FullScreenPlayer = ({
             onClick={() => {
               if (canPerformAction()) onRate(track.id);
             }}
-            title={`Оцінка: ${rating} балів. (Макс 4 пісні з оцінками)`}
+            title={(() => {
+              if (rating === 2) return "2 бали (макс)";
+              if (rating === 1) return "1 бал";
+              if (rating === -1) return "Дизлайк";
+              return "Оцінити";
+            })()}
           >
-            {rating === 2 ? "💛" : rating === 1 ? "❤️" : "🤍"}
+            {rating === 2
+              ? "💛"
+              : rating === 1
+                ? "❤️"
+                : rating === -1
+                  ? "👎"
+                  : "🤍"}
           </ActionButton>
           <ActionButton
             onClick={() =>
@@ -3572,6 +4448,9 @@ const FullScreenPlayer = ({
             title="Список відтворення"
           >
             📑
+          </ActionButton>
+          <ActionButton onClick={() => onOpenAi(track)} title="ШІ Помічник">
+            ✨
           </ActionButton>
           <ActionButton
             onClick={() => setShowSettings(!showSettings)}
@@ -3657,9 +4536,9 @@ const FullScreenPlayer = ({
                 playsInline
                 loop={loop}
                 onError={handleError}
-                style={{ 
+                style={{
                   opacity: progress === 0 && !isPlaying ? 0 : 1,
-                  filter: mediaFilter
+                  filter: mediaFilter,
                 }}
               />
               {progress === 0 && !isPlaying && (
@@ -3689,6 +4568,7 @@ const FullScreenPlayer = ({
               blur={dynamicBlurSymbols || activeSymbols?.blur || 0}
               isExiting={isSymbolsExiting}
               variation={activeSymbols?.variation}
+              customSymbols={activeSymbols?.symbols || track.symbols}
             />
           )}
         </FSVisualWrapper>
@@ -3742,14 +4622,14 @@ const FullScreenPlayer = ({
               onMouseMove={handleSeekHover}
               onMouseLeave={() => setHoverTime(null)}
             >
-            {checkpointsEnabled && checkpoint > 0 && duration > 0 && (
-              <CheckpointMarker 
-                $left={(checkpoint / duration) * 100}
-                title="Минулого разу ви зупинилися тут"
-              >
-                🚩
-              </CheckpointMarker>
-            )}
+              {checkpointsEnabled && checkpoint > 0 && duration > 0 && (
+                <CheckpointMarker
+                  $left={(checkpoint / duration) * 100}
+                  title="Минулого разу ви зупинилися тут"
+                >
+                  🚩
+                </CheckpointMarker>
+              )}
               {hoverTime !== null && duration > 0 && (
                 <SeekTooltip
                   $left={(hoverTime / duration) * 100}
@@ -3761,6 +4641,7 @@ const FullScreenPlayer = ({
                       src={track.video || dinofrozVideo}
                       muted
                       preload="auto"
+                      style={{ filter: mediaFilter }} /* Apply filter to video preview */
                     />
                   ) : (
                     sliderImages.length > 0 && (
@@ -3775,13 +4656,20 @@ const FullScreenPlayer = ({
                             )
                           ]
                         }
+                        style={{ filter: mediaFilter }} /* Apply filter to image preview */
                         alt="preview"
                       />
                     )
                   )}
                   <span>{formatTime(hoverTime)}</span>
                   {checkpoint > 0 && Math.abs(hoverTime - checkpoint) < 5 && (
-                    <span style={{ fontSize: '9px', color: 'orange', marginTop: '2px' }}>
+                    <span
+                      style={{
+                        fontSize: "9px",
+                        color: "orange",
+                        marginTop: "2px",
+                      }}
+                    >
                       Ви зупинилися тут
                     </span>
                   )}
@@ -3799,15 +4687,15 @@ const FullScreenPlayer = ({
               />
             </SeekBarWrapper>
           ) : (
-            <StereoSeekBar 
+            <StereoSeekBar
               onClick={handleStereoSeek}
               onMouseMove={handleSeekHover}
               onMouseLeave={() => setHoverTime(null)}
             >
               {checkpointsEnabled && checkpoint > 0 && duration > 0 && (
-                <CheckpointMarker 
-                  $left={(checkpoint / duration) * 100} 
-                  style={{ bottom: 'auto', top: '-15px' }}
+                <CheckpointMarker
+                  $left={(checkpoint / duration) * 100}
+                  style={{ bottom: "auto", top: "-15px" }}
                   title="Минулого разу ви зупинилися тут"
                 >
                   🚩
@@ -3844,7 +4732,13 @@ const FullScreenPlayer = ({
                   )}
                   <span>{formatTime(hoverTime)}</span>
                   {checkpoint > 0 && Math.abs(hoverTime - checkpoint) < 5 && (
-                    <span style={{ fontSize: '9px', color: 'orange', marginTop: '2px' }}>
+                    <span
+                      style={{
+                        fontSize: "9px",
+                        color: "orange",
+                        marginTop: "2px",
+                      }}
+                    >
                       Ви зупинилися тут
                     </span>
                   )}
@@ -3960,26 +4854,44 @@ const FullScreenPlayer = ({
               ⏮
             </ActionButton>
             <ActionButton onClick={togglePlay}>
-              {isPlaying ? "⏸" : "▶"}
+              {isPlaying ? (
+                <svg
+                  viewBox="0 0 24 24"
+                  width="24"
+                  height="24"
+                  fill="currentColor"
+                >
+                  <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+                </svg>
+              ) : (
+                <svg
+                  viewBox="0 0 24 24"
+                  width="24"
+                  height="24"
+                  fill="currentColor"
+                >
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              )}
             </ActionButton>
             <ActionButton
               onClick={() => {
                 if (canPerformAction()) onNext();
               }}
-            title="Наступна пісня"
+              title="Наступна пісня"
             >
               ⏭
             </ActionButton>
-          <ActionButton
-            onClick={() => {
-              if (mediaRef.current && canPerformAction()) {
-                mediaRef.current.currentTime = duration - 1.5;
-              }
-            }}
-            title="В самий кінець (для перевірки зупинки)"
-          >
-            ⇥
-          </ActionButton>
+            <ActionButton
+              onClick={() => {
+                if (mediaRef.current && canPerformAction()) {
+                  mediaRef.current.currentTime = duration - 1.5;
+                }
+              }}
+              title="В самий кінець (для перевірки зупинки)"
+            >
+              ⇥
+            </ActionButton>
           </div>
 
           <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
@@ -4140,7 +5052,13 @@ const FullScreenPlayer = ({
                       : "Без режиму"
               }
             >
-              {playMode === 0 ? "⏭" : playMode === 1 ? "⚄" : playMode === 2 ? "↩" : "⏵❘"}
+              {playMode === 0
+                ? "⏭"
+                : playMode === 1
+                  ? "⚄"
+                  : playMode === 2
+                    ? "↩"
+                    : "⏵❘"}
             </LoopButton>
           </div>
         </div>
@@ -4189,7 +5107,10 @@ const FullScreenPlayer = ({
                   value={user?.voiceActingMode || "malyatko"}
                   onChange={(e) => {
                     if (onUpdateUser) {
-                      onUpdateUser({ ...user, voiceActingMode: e.target.value });
+                      onUpdateUser({
+                        ...user,
+                        voiceActingMode: e.target.value,
+                      });
                     }
                   }}
                   style={{
@@ -4209,11 +5130,16 @@ const FullScreenPlayer = ({
               ) : (
                 <button
                   onClick={() => {
-                    const newMode = (user?.voiceActingMode === "off" ? "malyatko" : "off");
-                    if (onUpdateUser) onUpdateUser({ ...user, voiceActingMode: newMode });
+                    const newMode =
+                      user?.voiceActingMode === "off" ? "malyatko" : "off";
+                    if (onUpdateUser)
+                      onUpdateUser({ ...user, voiceActingMode: newMode });
                   }}
                   style={{
-                    background: (user?.voiceActingMode || "malyatko") === "off" ? "#444" : "orange",
+                    background:
+                      (user?.voiceActingMode || "malyatko") === "off"
+                        ? "#444"
+                        : "orange",
                     color: "white",
                     border: "none",
                     borderRadius: "4px",
@@ -4222,7 +5148,9 @@ const FullScreenPlayer = ({
                     fontSize: "11px",
                   }}
                 >
-                  {(user?.voiceActingMode || "malyatko") === "off" ? "Вимкнено" : "Увімкнено"}
+                  {(user?.voiceActingMode || "malyatko") === "off"
+                    ? "Вимкнено"
+                    : "Увімкнено"}
                 </button>
               )}
             </SliderRow>
@@ -4367,17 +5295,19 @@ const FullScreenPlayer = ({
                 style={{
                   marginTop: "2px",
                   width: "100%",
-                   fontSize: "11px",
+                  fontSize: "11px",
                   background: isGeneratingFrames ? "#3f3f3f" : "#b12c00",
                   color: "white",
                   border: "none",
                   padding: "2px",
                   borderRadius: "5px",
                   cursor: isGeneratingFrames ? "default" : "pointer",
-                  fontWeight: "bold"
+                  fontWeight: "bold",
                 }}
               >
-                {isGeneratingFrames ? `Генерація ${loadingProgress}%...` : `🎞️ Розділити на ${framesCount} кадрів`}
+                {isGeneratingFrames
+                  ? `Генерація ${loadingProgress}%...`
+                  : `🎞️ Розділити на ${framesCount} кадрів`}
               </button>
             </>
           )}
@@ -4469,7 +5399,7 @@ const FullScreenPlayer = ({
             }}
             style={{
               marginTop: "3px",
-               padding: "2px",
+              padding: "2px",
               width: "100%",
               background: "#ae0000",
               color: "white",
@@ -4487,7 +5417,7 @@ const FullScreenPlayer = ({
               marginTop: "4px",
               width: "100%",
               background: "transparent",
-               padding: "2px",
+              padding: "2px",
               border: "1px solid white",
               borderRadius: "5px",
               fontSize: "11px",
@@ -4501,49 +5431,99 @@ const FullScreenPlayer = ({
 
       {showFramesGallery && (
         <ModalOverlay onClick={() => setShowFramesGallery(false)}>
-          <PlaylistModalContent onClick={e => e.stopPropagation()} style={{ maxWidth: '1200px', background: '#1a1a1a', border: '1px solid orange' }}>
-            <PlaylistCloseButton onClick={() => setShowFramesGallery(false)} style={{ color: 'white' }}>&times;</PlaylistCloseButton>
-            <h3 style={{ color: 'orange', textAlign: 'center', marginBottom: '20px' }}>Кадри з відео ({videoFrames.length} зображень)</h3>
-            
-            <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', 
-              gap: '5px', 
-              padding: '10px',
-              maxHeight: '70vh',
-              overflowY: 'auto'
-            }}>
+          <PlaylistModalContent
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              maxWidth: "1200px",
+              background: "#1a1a1a",
+              border: "1px solid orange",
+            }}
+          >
+            <PlaylistCloseButton
+              onClick={() => setShowFramesGallery(false)}
+              style={{ color: "white" }}
+            >
+              &times;
+            </PlaylistCloseButton>
+            <h3
+              style={{
+                color: "orange",
+                textAlign: "center",
+                marginBottom: "20px",
+              }}
+            >
+              Кадри з відео ({videoFrames.length} зображень)
+            </h3>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
+                gap: "5px",
+                padding: "10px",
+                maxHeight: "70vh",
+                overflowY: "auto",
+              }}
+            >
               {videoFrames.map((frame, idx) => (
-                <div key={idx} style={{ 
-                  background: '#333', 
-                  borderRadius: '8px', 
-                  overflow: 'hidden', 
-                  border: '1px solid #444',
-                  display: 'flex',
-                  flexDirection: 'column'
-                }}>
-                  <img src={frame} alt={`Frame ${idx}`} style={{ width: '100%', aspectRatio: '16/9', objectFit: 'cover' }} />
-                  <div style={{ display: 'flex', gap: '2px', padding: '5px' }}>
-                    <button 
+                <div
+                  key={idx}
+                  style={{
+                    background: "#333",
+                    borderRadius: "8px",
+                    overflow: "hidden",
+                    border: "1px solid #444",
+                    display: "flex",
+                    flexDirection: "column",
+                  }}
+                >
+                  <img
+                    src={frame}
+                    alt={`Frame ${idx}`}
+                    style={{
+                      width: "100%",
+                      aspectRatio: "16/9",
+                      objectFit: "cover",
+                    }}
+                  />
+                  <div style={{ display: "flex", gap: "2px", padding: "5px" }}>
+                    <button
                       onClick={() => {
                         const a = document.createElement("a");
                         a.href = frame;
                         a.download = `frame-${idx + 1}.jpg`;
                         a.click();
                       }}
-                      style={{ flex: 1, padding: '4px', fontSize: '10px', background: 'orange', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                      style={{
+                        flex: 1,
+                        padding: "4px",
+                        fontSize: "10px",
+                        background: "orange",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: "pointer",
+                      }}
                     >
                       Скачати
                     </button>
-                    <button 
+                    <button
                       onClick={() => {
                         const printWindow = window.open("", "_blank");
                         printWindow.document.write(
-                          `<html><head><title>Print Frame</title></head><body style="text-align:center;"><img src="${frame}" style="max-width:100%;" onload="window.print();window.close()" /></body></html>`
+                          `<html><head><title>Print Frame</title></head><body style="text-align:center;"><img src="${frame}" style="max-width:100%;" onload="window.print();window.close()" /></body></html>`,
                         );
                         printWindow.document.close();
                       }}
-                      style={{ flex: 1, padding: '4px', fontSize: '10px', background: '#555', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                      style={{
+                        flex: 1,
+                        padding: "4px",
+                        fontSize: "10px",
+                        background: "#555",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: "pointer",
+                      }}
                     >
                       Друк
                     </button>
@@ -4551,8 +5531,20 @@ const FullScreenPlayer = ({
                 </div>
               ))}
             </div>
-            <div style={{ textAlign: 'center', marginTop: '20px' }}>
-              <button onClick={() => setShowFramesGallery(false)} style={{ padding: '10px 30px', borderRadius: '20px', background: 'orange', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}>Закрити галерею</button>
+            <div style={{ textAlign: "center", marginTop: "20px" }}>
+              <button
+                onClick={() => setShowFramesGallery(false)}
+                style={{
+                  padding: "10px 30px",
+                  borderRadius: "20px",
+                  background: "orange",
+                  border: "none",
+                  cursor: "pointer",
+                  fontWeight: "bold",
+                }}
+              >
+                Закрити галерею
+              </button>
             </div>
           </PlaylistModalContent>
         </ModalOverlay>
@@ -4859,7 +5851,16 @@ const FullScreenPlayer = ({
   );
 };
 
-const MusicCard = ({ cardData, onOpenModal, rating, onOpenPlayer, onRate, checkpoint, checkpointsEnabled }) => {
+const MusicCard = ({
+  cardData,
+  onOpenModal,
+  rating,
+  onOpenPlayer,
+  onRate,
+  onOpenAi = () => {},
+  checkpoint,
+  checkpointsEnabled,
+}) => {
   const { id, image, text, deezerLink } = cardData;
 
   const handleDownloadTrack = (e) => {
@@ -4882,24 +5883,39 @@ const MusicCard = ({ cardData, onOpenModal, rating, onOpenPlayer, onRate, checkp
     <CardWrapper $isFavorite={rating > 0} $rating={rating}>
       <MusicImageContainer>
         {checkpointsEnabled && checkpoint > 0 && (
-          <CheckpointBadge 
+          <CheckpointBadge
             title="Ви зупинилися тут"
-            onClick={(e) => { e.stopPropagation(); onOpenPlayer(id, checkpoint); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenPlayer(id, checkpoint);
+            }}
           >
-            🚩 {Math.floor(checkpoint / 60)}:{(Math.floor(checkpoint % 60)).toString().padStart(2, '0')}
+            🚩 {Math.floor(checkpoint / 60)}:
+            {Math.floor(checkpoint % 60)
+              .toString()
+              .padStart(2, "0")}
           </CheckpointBadge>
         )}
         <HeartButton
           $rating={rating}
-          title={
-            rating === 2 ? "2 бали (макс)" : rating === 1 ? "1 бал" : "Оцінити"
-          }
+          title={(() => {
+            if (rating === 2) return "2 бали (макс)";
+            if (rating === 1) return "1 бал";
+            if (rating === -1) return "Дизлайк";
+            return "Оцінити";
+          })()}
           onClick={(e) => {
             e.stopPropagation();
             onRate && onRate(id);
           }}
         >
-          {rating === 2 ? "💛" : rating === 1 ? "❤️" : "🤍"}
+          {rating === 2
+            ? "💛"
+            : rating === 1
+              ? "❤️"
+              : rating === -1
+                ? "👎"
+                : "🤍"}
         </HeartButton>
         <MusicImage src={image} alt="Music" onClick={() => onOpenPlayer(id)} />
       </MusicImageContainer>
@@ -4922,6 +5938,15 @@ const MusicCard = ({ cardData, onOpenModal, rating, onOpenPlayer, onRate, checkp
           <svg viewBox="0 0 24 24">
             <path d="M8 5v14l11-7z" />
           </svg>
+        </ActionButton>
+        <ActionButton
+          title="Запитати ШІ"
+          onClick={(e) => {
+            e.stopPropagation();
+            onOpenAi && onOpenAi(cardData);
+          }}
+        >
+          ✨
         </ActionButton>
         <ActionButton title="Завантажити" onClick={handleDownloadTrack}>
           ⇩
@@ -4946,935 +5971,6 @@ const MusicCard = ({ cardData, onOpenModal, rating, onOpenPlayer, onRate, checkp
     </CardWrapper>
   );
 };
-const musicCards = [
-  // {
-  //   id: 1,
-  //   image: christmas,
-  //   audio: christmasAudio,
-  //   text: "",
-  //   lyrics: [
-  //     { time: 226, text: "" },
-  //   ],
-  //   category: "хіти",
-  //   duration: 180,
-  //   images: [christmas],
-  //   author: "'Україна колядує' Озвучка Ірини Федишин",
-  // },
-  {
-    id: 1,
-    image: dinofrozone,
-    audio: dinofrozAudio,
-    category: "хіти",
-    author: "Динофроз - Mondo TV.",
-    video: dinofrozVideo,
-    text: "Легендарний мультфільм на Малятко ТВ(нажаль закритий). Зображено Імператора дрaконів Ніцерона.",
-    lyrics: [
-      {
-        time: 8,
-        text: "Динофроз...Динофроз!",
-        voice: "voice1",
-        text_bbkids: "Динофроз...Динофроз!",
-      },
-      {
-        time: 15,
-        text: "Світять яскраві зірки. Пригод крізь віки.",
-        text_bbkids: "Четверо друзів знайшли дивну гру. В доісторичну пішли давнину.",
-      },
-      {
-        time: 21,
-        text: "В доісторичний світ потрапили ми.",
-        voice: "voice1",
-        text_bbkids: "Там динозаврами стали вони",
-      },
-      {
-        time: 26,
-        text: "Тут динозаври б'ються в парі з людьми.",
-        text_bbkids: "Тут динозаври б'ються в парі з людьми.",
-      },
-      {
-        time: 33,
-        text: "В битвах з ворогом твердий гартується дух!",
-        text_bbkids: "В цьому карти їм допомогли. ",
-      },
-      {
-        time: 38,
-        text: "Страху немає, упевненим робиться рух!",
-        text_bbkids: "У давнині небезпечні дракони. Та з ними впорались наші герої.",
-      },
-      {
-        time: 44,
-        text: "Бачимемо ціль і до бою рушаєм! Ми батьківшину свою захищаєм!",
-        text_bbkids: "До бою готові всюди і завжди. І утілюють мрiї свої в боротьбі.",
-      },
-      {
-        time: 50,
-        text: "Динофроз! Воїни світла і воїни миру!",
-        text_bbkids: "Динофроз! Дружні, завзяті, зброя в руках. ",
-      },
-      {
-        time: 56,
-        text: "Динофроз! Лиш в боротьбі здобувам довіру!",
-        text_bbkids: "Динофроз! Вони Ніцерону не по зубах.",
-      },
-      {
-        time: 62,
-        text: "Динофроз! Готуємось до бою завзято!",
-        text_bbkids: "Динофроз! Дружні, завзяті, зброя в руках. Вони Ніцерону не по зубах.",
-      },
-      {
-        time: 66,
-        text: "Будь сміливим друже! Переможе дужий!",
-        text_bbkids: "Друзі б'ються завзято. Дракони тікають!",
-      },
-      {
-        time: 72,
-        text: "Чистимо зброю! Готові до бою!",
-        text_bbkids: "Четверо друзів майбутнє спасають!",
-      },
-      {
-        time: 75,
-        text: "В битві за волю! Пірна з головою!",
-        text_bbkids: "До бою завжди готові вони.",
-      },
-      {
-        time: 77,
-        text: "Пекло за дух. І мороз усе це динофроз!",
-        text_bbkids: "Ховайтеся, вороги!",
-      },
-    ],
-    duration: 120,
-    images: [dinofrozone],
-  },
-    {
-    id: 2,
-     image: turkeys,
-   audio: humorAudio,
-   video: humorVideo,
-     text: "Найгірший(і найсмішніший) виступ у шоу 'Україна має талант'. Дивіться самі. (Я думав лише Динофроз матиме відео)",
-     lyrics: [
-       { time: 226, text: "" },
-     ],
-    category: "хіти",
-     duration: 180,
-     images: [turkeys],
-    author: "'Нас немає' Оксана Самойлова(врахуйте вона переспівала, а не написала цю пісню)",
-   },
-  {
-    id: 3,
-    image: turkeys,
-    audio: turkeyAudio,
-    text: "",
-    category: "природа",
-    duration: 60,
-    author: "Звуки індиків - Моя робота :)",
-    lyrics: [
-      {
-        time: 25,
-        text: "Дякую всім слухачам! Давно хотів сказати, що робота над піснями, була примною і важкою.",
-      },
-      {
-        time: 40,
-        text: "Динофроз, режимом відео, забрав багато часу, та деякі пісні, у плані фільтрів. Тим не менш, індики, попри скромність, заслужили, бути на рівні з іншими.",
-      },
-      {
-        time: 55,
-        text: "Друзі, у кожного, своя улюблена тема(спільне, відмінне), і ненавидна. Я розміщую захопливе і заспокійливе, окрім моїх захоплень, тільки скажіть і ваше улюблене може з'явитись. Я це кажу, до того, що Стихію, ми розвиватимемо разом. ",
-      },
-    ],
-    images: [
-      turkeysone,
-      turkeytwo,
-      turkeythree,
-      turkeyfour,
-      turkeyfive,
-      turkeysix,
-      turkeyseven,
-      turkeys,
-    ],
-  },
-  {
-    id: 4,
-    image: monody,
-    category: "хіти",
-    filters: [
-      {
-        start: 71,
-        end: 89,
-        type: "symbols",
-        intensity: 110,
-        speed: 0.4,
-        blur: 1.3,
-      },
-      { start: 8, end: 16, type: "purple", opacity: 0.25 },
-      { start: 16, end: 16.4, type: "flash", opacity: 1 },
-      { start: 26, end: 45, type: "blue", opacity: 0.25 },
-      { start: 45, end: 52, type: "flicker", opacity: 0.4 },
-      { start: 52, end: 53, type: "flash", opacity: 1 },
-      { start: 53, end: 71, type: "ultrachaos", opacity: 0.25 },
-      { start: 89, end: 104, type: "chaos", opacity: 0.25 },
-      { start: 104, end: 124, type: "orange", opacity: 0.25 },
-      { start: 124, end: 143, type: "green", opacity: 0.25 },
-      { start: 143, end: 158, type: "orange", opacity: 0.25 },
-      { start: 158, end: 168, type: "grayscale", opacity: 1 },
-      { start: 196, end: 208, type: "purple", opacity: 0.25 },
-      { start: 208, end: 227, type: "cyan", opacity: 0.25 },
-      { start: 227, end: 243, type: "ultrachaos", opacity: 0.25 },
-      { start: 243, end: 262, type: "purple", opacity: 0.25 },
-      { start: 262, end: 278, type: "orange", opacity: 0.25 },
-      { start: 278, end: 300, type: "black", opacity: 0.85 },
-    ],
-    text: "",
-    audio: monodyAudio,
-    author: "Monody -  TheFatRat.",
-    lyrics: [
-      { time: 168, text: "Літо в пагорбах." },
-      { time: 172, text: "Ті туманні дні у мене в спогадах." },
-      { time: 175, text: "Ми все ще бігали." },
-      { time: 179, text: "Весь світ був біля наших ніг." },
-      { time: 182, text: "Бачачи зміни сезону." },
-      { time: 182, text: "Наші дороги були вкриті пригодами." },
-      { time: 185, text: "Гори на шляху." },
-      { time: 189, text: "Від моря не могли втримати нас." },
-      { time: 195, text: "Ось ми стоїмо з розпростертими обіймами." },
-      { time: 199, text: "Це наш дім." },
-      { time: 202, text: "Завжди сильні у світі, який ми створили." },
-      { time: 209, text: "Я все ще чую тебе у вітрі." },
-      { time: 212, text: "Бачу твої тіні на деревах." },
-      { time: 216, text: "Тримаючись, спогади ніколи не змінюються." },
-      { time: 226, text: "" },
-    ],
-    duration: 240,
-    images: [monody],
-    // Voice narrations can be added by creating mp3 files:
-    // src/mp3/monody-narration-voice1.mp3
-    // src/mp3/monody-narration-voice2.mp3
-    // src/mp3/monody-narration-voice3.mp3
-    // Then uncomment below:
-    // voiceNarrations: {
-    //   voice1: require("../../mp3/monody-narration-voice1.mp3"),
-    //   voice2: require("../../mp3/monody-narration-voice2.mp3"),
-    //   voice3: require("../../mp3/monody-narration-voice3.mp3"),
-    // },
-  },
-  {
-    id: 5,
-    image: desert,
-    author: "Звуки вітру - Моя робота :)",
-    audio: windAudio,
-    category: "природа",
-    text: "Звук дощу. Пустеля розділенна вічно грозовою і сонячною зоною.",
-    duration: 300,
-    images: [desert, desertone, deserttwo, desertthree, desertfour],
-  },
-  {
-    id: 6,
-    image: horse,
-    audio: horseAudio,
-    category: "природа",
-    text: "",
-    author: "Звуки коня - Телеканал Мега.",
-    duration: 45,
-    images: [horsethree, horsetwo, horse, chess],
-  },
-  {
-    id: 7,
-    image: dinofrozone,
-    audio: dragonoraAudio,
-    category: "ігри",
-    author: "Dragonora - MyLittleUniverse(Estoty)",
-    text: "І знову дракони, музика доісторичного світу. Картини взяті з мультфільму Динофроз.",
-    duration: 180,
-    images: [
-      dinofrozone,
-      dinofroztwo,
-      dinofrozthree,
-      dinofrozfour,
-      dinofrozfive,
-      dinofrozsix,
-      dinofrozseven,
-      dinofrozeight,
-      dinofroznine,
-    ],
-  },
-  {
-    id: 8,
-    image: soloveyko,
-    audio: soloveykoAudio,
-    category: "природа",
-    text: "Хто кращий по звукам соловеко чи індик? Зроблено за ідеї сім'ї.",
-    author: "Звук Соловейка - Телеканал Мега",
-    duration: 90,
-    images: [soloveyko],
-  },
-  {
-    id: 9,
-    image: harmony,
-    audio: harmonyAudio,
-    category: "ігри",
-    text: "Спокійна і прекрасна музика в японському стилі.",
-    author: "Asium - My little universe(Estoty).",
-    duration: 160,
-    images: [
-      asiumone,
-      asiumtwo,
-      asiumthree,
-      asiumfour,
-      asiumfive,
-      asiumsix,
-      asiumseven,
-      harmony,
-      asiumnine,
-      asiumten,
-      asiumeleven,
-    ],
-  },
-  {
-    id: 10,
-    image: mecha,
-    audio: mechaAudio,
-    category: "ігри",
-    text: "Спокійна і прекрасна музика в механічному стилі.",
-    author: "Factorium - My little universe(Estoty).",
-    duration: 160,
-    images: [mecha],
-  },
-  {
-    id: 12,
-    image: mia,
-    audio: require("../../mp3/mia-and-me.mp3"),
-    category: "хіти",
-    text: "",
-    author: "Мія та я.",
-    lyrics: "Текст в розробці.",
-    duration: 180,
-    images: [mia],
-  },
-  {
-    id: 13,
-    image: electrodynamix,
-    audio: electrodynamixAudio,
-    text: "",
-    author: "Electrodynamix - DJ-Nate (GeometryDash).",
-    category: "ігри",
-    duration: 160,
-    images: [electrodynamix],
-    filters: [
-      {
-        start: 127,
-        end: 134,
-        type: "symbols",
-        intensity: 105,
-        speed: 0.1,
-        blur: 1.7,
-      },
-      {
-        start: 148,
-        end: 154,
-        type: "symbols",
-        intensity: 115,
-        speed: 0 / 3,
-        blur: 1.7,
-      },
-      { start: 1, end: 4, type: "flicker", opacity: 0.4 },
-      { start: 19, end: 22.5, type: "flicker", opacity: 0.05 },
-      { start: 4, end: 7, type: "black", opacity: 1 },
-      { start: 11, end: 15, type: "blue", opacity: 0.2 },
-      { start: 19, end: 23, type: "black", opacity: 0.95 },
-      { start: 23, end: 35, type: "ultrachaos", opacity: 0.15 },
-      { start: 35, end: 37, type: "flash", opacity: 1 },
-      { start: 37, end: 52, type: "chaos", opacity: 0.15 },
-      { start: 37, end: 52, type: "flicker", opacity: 0.2 },
-      { start: 52, end: 60, type: "grayscale", opacity: 1 },
-      { start: 60, end: 75, type: "red", opacity: 0.2 },
-      { start: 75, end: 77, type: "grayscale", opacity: 1 },
-      { start: 77, end: 80, type: "red", opacity: 0.2 },
-      { start: 80, end: 91, type: "black", opacity: 1 },
-      { start: 91, end: 97, type: "black", opacity: 0.9 },
-      { start: 97, end: 112, type: "ultrachaos", opacity: 0.2 },
-      { start: 112, end: 127, type: "red", opacity: 0.2 },
-      { start: 134, end: 148, type: "cyan", opacity: 0.14 },
-      { start: 154, end: 170, type: "red", opacity: 0.2 },
-      { start: 170, end: 188, type: "green", opacity: 0.12 },
-      { start: 188, end: 199, type: "grayscale", opacity: 1 },
-      { start: 199, end: 201, type: "white", opacity: 1 },
-      { start: 201, end: 206, type: "black", opacity: 1 },
-    ],
-  },
-  {
-    id: 14,
-    image: clubstep,
-    text: "",
-    audio: clubstepAudio,
-    author: "Clubstep - DJ-Nate(GeometryDash).",
-    filters: [
-      {
-        start: 37,
-        end: 49,
-        type: "symbols",
-        isRandomIntensity: true,
-        minIntensity: 100,
-        maxIntensity: 160,
-        isRandomSpeed: true,
-        minSpeed: 0.8,
-        maxSpeed: 2,
-        isRandomBlurSymbols: true,
-        minBlurSymbols: 0,
-        maxBlurSymbols: 2.5,
-      },
-      { start: 0.1, end: 0.4, type: "flash", opacity: 1 },
-      { start: 7, end: 20, type: "black", opacity: 1 },
-      { start: 20, end: 23, type: "grayscale", opacity: 1 },
-      {
-        start: 21,
-        end: 37,
-        randomColor: true,
-        colorOptions: ["red", "green"],
-        isRandom: true,
-        minOpacity: 0.1,
-        maxOpacity: 0.25,
-        isRandomBlur: true,
-        minBlur: 0,
-        maxBlur: 3,
-      },
-      { start: 49.7, end: 50, type: "flash", opacity: 1 },
-      {
-        start: 50,
-        end: 55,
-        randomColor: true,
-        colorOptions: ["black", "grayscale"],
-        isRandom: true,
-        minOpacity: 0.4,
-        maxOpacity: 0.8,
-        isRandomBlur: true,
-        minBlur: 1,
-        maxBlur: 2,
-      },
-      {
-        start: 59,
-        end: 64,
-        randomColor: true,
-        colorOptions: ["black", "grayscale"],
-        isRandom: true,
-        minOpacity: 0.6,
-        maxOpacity: 0.9,
-        isRandomBlur: true,
-        minBlur: 1,
-        maxBlur: 2,
-      },
-      {
-        start: 68,
-        end: 72,
-        randomColor: true,
-        colorOptions: ["black", "grayscale"],
-        isRandom: true,
-        minOpacity: 0.7,
-        maxOpacity: 0.8,
-        isRandomBlur: true,
-        minBlur: 1,
-        maxBlur: 2,
-      },
-      {
-        start: 72,
-        end: 87,
-        randomColor: true,
-        colorOptions: ["purple", "blue"],
-        isRandom: true,
-        minOpacity: 0.1,
-        maxOpacity: 0.25,
-        isRandomBlur: true,
-        minBlur: 1,
-        maxBlur: 2,
-      },
-      {
-        start: 87,
-        end: 100,
-        randomColor: true,
-        colorOptions: ["brown", "orange"],
-        isRandom: true,
-        minOpacity: 0.1,
-        maxOpacity: 0.25,
-        isRandomBlur: true,
-        minBlur: 1,
-        maxBlur: 2,
-      },
-      { start: 100, end: 103, type: "grayscale", opacity: 1 },
-      {
-        start: 103,
-        end: 133,
-        randomColor: true,
-        colorOptions: ["ultrachaos", "chaos"],
-        isRandom: true,
-        minOpacity: 0.1,
-        maxOpacity: 0.25,
-        isRandomBlur: true,
-        minBlur: 1,
-        maxBlur: 2,
-      },
-      { start: 133, end: 135, type: "grayscale", opacity: 1 },
-      {
-        start: 135,
-        end: 166,
-        type: "red",
-        minOpacity: 0.15,
-        isRandom: true,
-        maxOpacity: 0.3,
-      },
-    ],
-    category: "ігри",
-    duration: 160,
-    images: [clubstep],
-  },
-  {
-    id: 15,
-    image: fingerdash,
-    audio: fingerbang,
-    text: "Fingerdash, для додавання у GeometryDash, скоріше за все перемонтували і скоротили. Щоб рівень не був довгий.",
-    author: "Fingerbang-MDK(Fingerdash - Full Version)",
-    category: "ігри",
-    duration: 140,
-    images: [fingerdash],
-    filters: [
-      {
-        start: 77,
-        end: 85,
-        type: "symbols",
-        intensity: 120,
-        speed: 1,
-      },
-      {
-        start: 104,
-        end: 128,
-        type: "symbols",
-        intensity: 120,
-        speed: 1,
-      },
-      { start: 17, end: 34, type: "flicker", opacity: 1 },
-      { start: 34, end: 41, type: "grayscale", opacity: 1 },
-      { start: 41, end: 43, type: "black", opacity: 0.75 },
-      { start: 43, end: 49, type: "grayscale", opacity: 1 },
-      { start: 49, end: 51, type: "black", opacity: 0.75 },
-      { start: 51, end: 68, type: "red", opacity: 0.25 },
-      { start: 68, end: 77, type: "flicker", opacity: 0.95 },
-      { start: 77, end: 85, type: "chaos", opacity: 0.25 },
-      { start: 85, end: 87, type: "grayscale", opacity: 1 },
-      { start: 87, end: 102, type: "ultrachaos", opacity: 0.25 },
-      { start: 102, end: 104, type: "grayscale", opacity: 1 },
-      { start: 110, end: 128, type: "grayscale", opacity: 1 },
-      { start: 145, end: 156, type: "flicker", opacity: 1 },
-      { start: 156, end: 170, type: "ultrachaos", opacity: 0.25 },
-      { start: 170, end: 187, type: "grayscale", opacity: 1 },
-      { start: 187, end: 206, type: "black", opacity: 0.67 },
-      { start: 186, end: 223, type: "flicker", opacity: 0.95 },
-      { start: 231, end: 246, type: "ultrachaos", opacity: 0.2 },
-      { start: 246, end: 248, type: "grayscale", opacity: 1 },
-      { start: 248, end: 253, type: "ultrachaos", opacity: 0.2 },
-      { start: 253, end: 257, type: "grayscale", opacity: 1 },
-      { start: 257, end: 264, type: "ultrachaos", opacity: 0.2 },
-      { start: 264, end: 277, type: "grayscale", opacity: 1 },
-    ],
-  },
-  {
-    id: 16,
-    image: theorytwo,
-    audio: theorytwoAudio,
-    author: "Theory of everything II - DJ-Nate(GeometryDash).",
-    category: "ігри",
-    duration: 140,
-    text: "",
-    images: [theorytwo],
-    filters: [
-      { start: 70, end: 90, type: "flicker", opacity: 0.3 },
-      {
-        start: 52,
-        end: 66.5,
-        type: "symbols",
-        intensity: 160,
-        speed: 1,
-        blur: 1.3,
-      },
-      { start: 2, end: 3, type: "green", opacity: 0.1 },
-      { start: 5, end: 7, type: "orange", opacity: 0.2 },
-      { start: 7, end: 10, type: "red", opacity: 0.3 },
-      { start: 10, end: 18, type: "purple", opacity: 0.4 },
-      { start: 18, end: 23, type: "blue", opacity: 0.3 },
-      { start: 23, end: 25, type: "grayscale", opacity: 1 },
-      { start: 25, end: 32, type: "cyan", opacity: 0.3 },
-      { start: 32, end: 37, type: "brown", opacity: 0.4 },
-      { start: 37, end: 40, type: "grayscale", opacity: 1 },
-      { start: 40, end: 40.2, type: "flash", opacity: 1 },
-      { start: 40.3, end: 45, type: "purple", opacity: 0.4 },
-      { start: 45, end: 47, type: "grayscale", opacity: 1 },
-      { start: 47, end: 52, type: "chaos", opacity: 0.3 },
-      { start: 52, end: 57, type: "black", opacity: 0.33, blur: 3.3 },
-      { start: 57, end: 63, type: "black", opacity: 0.67, blur: 6.7 },
-      { start: 63, end: 69, type: "black", opacity: 1, blur: 10 },
-      { start: 69, end: 69.4, type: "flash", opacity: 1 },
-      { start: 69.4, end: 72, type: "red", opacity: 0.5 },
-      { start: 72, end: 78, type: "chaos", opacity: 0.3 },
-      { start: 78, end: 90, type: "cyan", opacity: 0.3 },
-      { start: 90, end: 92, type: "white", opacity: 0.6 },
-      { start: 92, end: 120, type: "ultrachaos", opacity: 0.3 },
-      { start: 120, end: 122, type: "white", opacity: 0.6 },
-      { start: 122, end: 129, type: "green", opacity: 0.3 },
-      { start: 129, end: 135, type: "black", opacity: 1 },
-      { start: 135, end: 147, type: "black", opacity: 0.67, blur: 3.3 },
-      { start: 147, end: 152, type: "black", opacity: 0.33, blur: 6.7 },
-      { start: 152, end: 154, type: "blue", opacity: 0.3, blur: 10 },
-      { start: 154, end: 164, type: "brown", opacity: 0.4 },
-      { start: 164, end: 168, type: "cyan", opacity: 0.3 },
-      { start: 168, end: 170, type: "grayscale", opacity: 1 },
-      { start: 170, end: 182, type: "purple", opacity: 0.4 },
-      { start: 182, end: 184, type: "grayscale", opacity: 1 },
-      { start: 184, end: 190, type: "orange", opacity: 0.4 },
-      { start: 190, end: 194, type: "white", opacity: 0.4 },
-      { start: 194, end: 198, type: "red", opacity: 0.5 },
-      { start: 198, end: 222, type: "grayscale", opacity: 1 },
-    ],
-  },
-  {
-    id: 17,
-    image: deadlocked,
-    audio: deadlockedAudio,
-    lyrics: [
-      { time: 1, text: "Діма: Кейт, де це ми?" },
-      {
-        time: 6,
-        text: "Кейт: Ми на якомусь болоті. Тут лежить книга, можливо, вона нам допоможе.",
-      },
-      {
-        time: 13,
-        text: "Книга: Колись це прекрасне озеро було прихистком для людей і тварин. Але болотний дракон знищив нормальне життя, і всі втекли. Це місце стало останнім притулком для багатьох подорожніх, як і для мене. Існує легенда про скарб, що здолає дракона і поверне все назад.",
-      },
-      { time: 24, text: "Кейт: Тут якась свічка, погляньмо в неї." },
-      {
-        time: 27,
-        text: "Діма: Шестерні... вони прояснюються у полум'ї. Може, це і є скарб?",
-      },
-      {
-        time: 30,
-        text: "Кейт: Точно! Це підказка сценотвору. Але є погана новина: це місце прискорює старіння шкіри. Треба поквапитись, бо тутешнє життя минає як одна доба.",
-      },
-      { time: 33, text: "Діма: Давай оглянемось. Підемо вправо." },
-      { time: 37, text: "Діма: Давай через міст, бо тут гігантський павук!" },
-      {
-        time: 40,
-        text: "Кейт: По-перше, це павучиха, а по-друге — тут шестерня!",
-      },
-      {
-        time: 43,
-        text: "Діма: Слухай, я сам вирушу у наступну пригоду, але благаю: йдемо по мосту.",
-      },
-      { time: 50, text: "Кейт: Діма, я згодна." },
-      {
-        time: 61,
-        text: "Діма: Кейт, тут немає шестерні, але ці кристали ніби дивляться на нас.",
-      },
-      { time: 64, text: "Володар кристалів: Охороно, знищити їх!" },
-      { time: 73, text: "Кейт: Стрибай у ліфт!" },
-      { time: 75, text: "Кейт: Молодець, схопив шестерню під час підйому!" },
-      { time: 83, text: "Кейт: Кидай у дракона!" },
-      {
-        time: 96,
-        text: "Шестерня знищила дракона. І Болото Мук знову стало Озером Волі.",
-      },
-      { time: 100, text: "Діма: Переживаю за Влада." },
-      {
-        time: 103,
-        text: "Кейт: Я теж. Під час переміщення у цей світ він залишився в реальності. Сказав, що зараз біля покинутого будинку, а навкруги — крижана пустеля.",
-      },
-      {
-        time: 109,
-        text: "Влад: Зараза, Кейт розвела руками... ну нічо, я сейчас осмотрю тут все.",
-      },
-      {
-        time: 113,
-        text: "Влад: О, цуцик! А де твій хазяїн? Чо ти на мене бросаєшся? Зараз геймер ФНАФу дасть тобі!",
-      },
-      {
-        time: 116,
-        text: "Класична помилка любителя фільмів жахів, спідранера по ФНАФу і Поппі Плейтайм. До того ж Влад згадав жарт Діми, в якому той порівняв його з драконом-генералом Владом з мультфільму «Динофроз». Замість спокійних і повільних кроків він зарядив ногою в бійцівську собаку. Вона з нелюдською силою переламала йому стопу. Влад ледь за допомогою рук доповз до дверей і скинув собаку з ноги.",
-      },
-      {
-        time: 123,
-        text: "Влад: Чого це у фільмі «Пила» сработало, а тут ні? А, пофіг. О, Фредді, дарова! Спати — так? А де твій друг Хагі? Бо на полу написано «час грати». Блін, Андрій Дебрін, чо сюда не їде з «Реальною містикою»? (Влад впав на підлогу).",
-      },
-      {
-        time: 135,
-        text: "Клоун: Зіграймо! Ти ховаєшся, а я шукаю. Ти ж так пишався, що в реальності нам вріжеш. Метра зробив нас реальними, так покажи, на що ти здатний. Чи твій друг тебе не вихваляв, а просто посміявся? До речі, Фредді сказав, що з ним у тебе нуль шансів, тому я тут. Ха-ха-ха! Я поки нагуляю апетит.",
-      },
-      { time: 155, text: "Клоун: Здавайся, я можу з'явитись будь-де." },
-      {
-        time: 170,
-        text: "Влад: О, в маяку портал! Він у ньому не може з'явитись, але може залізти, розбивши вікно. Давай, працюй, працюй!",
-      },
-      { time: 175, text: "Клоун: Час вийшов!" },
-      { time: 177, text: "Влад: Де я? Кругом темрява..." },
-      { time: 187, text: "Далі буде..." },
-    ],
-    text: "Моторошна, але епічна пісня. Друг фанат цього рівня :).",
-    author: "Deadlocked - F77(GeometryDash).",
-    category: "ігри",
-    duration: 140,
-    images: [
-      deadlocked,
-      swamptwo,
-      swampthree,
-      swampfour,
-      swampfive,
-      swampsix,
-      swampseven,
-      swampeight,
-      swampnine,
-      horror,
-      horrortwo,
-      horrorthree,
-      horrorfour,
-      horrorfive,
-      horrorsix,
-      horrorseven,
-      horroreight,
-    ],
-  },
-  {
-    id: 18,
-    image: theory,
-    audio: theoryAudio,
-    text: "",
-    author: "Theory of everything(GeometryDash) - DJ-Nate",
-    category: "ігри",
-    duration: 140,
-    filters: [
-      {
-        start: 65,
-        end: 81,
-        type: "symbols",
-        intensity: 150,
-        speed: 0.6,
-        blur: 1.3,
-      },
-      { start: 254, end: 274, type: "flicker", opacity: 0.15 },
-      { start: 7, end: 15, type: "brown", opacity: 0.28 },
-      { start: 15, end: 15.5, type: "flash", opacity: 1 },
-      { start: 21, end: 33, type: "green", opacity: 0.15 },
-      { start: 55, end: 65, type: "orange", opacity: 0.15 },
-      { start: 81, end: 83, type: "grayscale", opacity: 1 },
-      { start: 83, end: 88, type: "blue", opacity: 0.15 },
-      { start: 88, end: 103, type: "chaos", opacity: 0.15 },
-      { start: 103, end: 118, type: "red", opacity: 0.15 },
-      { start: 118, end: 120, type: "grayscale", opacity: 1 },
-      { start: 120, end: 132, type: "purple", opacity: 0.2 },
-      { start: 132, end: 134, type: "grayscale", opacity: 1 },
-      { start: 134, end: 146, type: "ultrachaos", opacity: 0.2 },
-      { start: 146, end: 150, type: "chaos", opacity: 0.28 },
-      { start: 150, end: 162, type: "black", opacity: 0.67 },
-      { start: 162, end: 179, type: "purple", opacity: 0.2 },
-      { start: 179, end: 191, type: "orange", opacity: 0.15 },
-      { start: 191, end: 208, type: "blue", opacity: 0.15 },
-      { start: 208, end: 218, type: "brown", opacity: 0.15 },
-      { start: 218, end: 223, type: "black", opacity: 1 },
-      { start: 223, end: 238, type: "purple", opacity: 0.2 },
-      { start: 238, end: 260, type: "cyan", opacity: 0.18 },
-      { start: 274, end: 275, type: "flash", opacity: 1 },
-      { start: 275, end: 300, type: "black", opacity: 0.9 },
-    ],
-    images: [theory],
-  },
-  {
-    id: 19,
-    image: unity,
-    audio: unityAudio,
-    text: "Класний комп'ютерний хіт, не розумію чого його не поставили у фільм Матриця?",
-    author: "Unity-TheFatRat.",
-    lyrics: [
-      { time: 119, text: "Текст хаотичний, лише для атмосфери" },
-      { time: 154, text: "" },
-      { time: 170, text: "Відлуння атмосферного вигуку" },
-      { time: 180, text: "" },
-    ],
-    filters: [
-      { start: 170, end: 191, type: "flicker", opacity: 0.3 },
-      {
-        start: 81,
-        end: 100,
-        type: "symbols",
-        intensity: 140,
-        speed: 1.4,
-        blur: 0.5,
-      },
-      { start: 8, end: 27, type: "purple", opacity: 0.25 },
-      { start: 27, end: 27.5, type: "flash", opacity: 1 },
-      { start: 45, end: 63, type: "blue", opacity: 0.2 },
-      { start: 100, end: 116, type: "orange", opacity: 0.2 },
-      { start: 116, end: 119.6, type: "grayscale", opacity: 1 },
-      { start: 119.6, end: 120, type: "flash", opacity: 1 },
-      { start: 120, end: 136, type: "ultrachaos", opacity: 0.2 },
-      { start: 136, end: 154, type: "cyan", opacity: 0.2 },
-      { start: 154, end: 170, type: "brown", opacity: 0.2 },
-      { start: 170, end: 191, type: "chaos", opacity: 0.2 },
-      { start: 191, end: 210, type: "red", opacity: 0.2 },
-      { start: 210, end: 240, type: "black", opacity: 0.8 },
-    ],
-    category: "хіти",
-    duration: 180,
-    images: [unity],
-  },
-  {
-    id: 20,
-    image: hunger,
-    audio: hungerAudio,
-    author: "Hunger-TheFatRat.",
-    text: "",
-    lyrics: [
-      {
-        time: 11,
-        text: "Донечко, не лишай страх на згадку, я подбаю про те, щоб ти була у порядку",
-      },
-      { time: 16, text: "Донечко, не хвилюйся за мене, все погане мине" },
-      { time: 22, text: "Віддам все, тобі моє" },
-      { time: 27, text: "Сподіваюся, ти не помітиш страх голоду, в моїх очах" },
-      { time: 34, text: "Все, про що ми мріяли" },
-      { time: 39, text: "Брехню за хмарами нам повіяли" },
-      { time: 44, text: "Зі страхами, з дощами, сльозами та болями" },
-      {
-        time: 49,
-        text: "Донечко, не бійся за неньку, я подбаю про твою безпеконьку",
-      },
-      {
-        time: 52,
-        text: "Я продовжуватиму боротьбу, я продовжуватиму боротьбу",
-      },
-      { time: 66, text: "Ховайся тут на ходу, поки я йду" },
-      { time: 69, text: "Ніхто не зашкодить, тобі хочу пообіцять" },
-      {
-        time: 72,
-        text: "Все буде добре, тут залишайся і мовчи, завдання тобі таке",
-      },
-      { time: 75, text: "Не йди за мною, я повернуся завтра з тобою" },
-      { time: 78, text: "Віддам все, тобі моє" },
-      { time: 82, text: "Сподіваюся, ти не помітиш страх голоду, в моїх очах" },
-      { time: 89, text: "Все, про що ми мріяли" },
-      { time: 94, text: "Брехню за хмарами нам повіяли" },
-      { time: 100, text: "Зі страхами, зі дощами, сльозами та болями" },
-      {
-        time: 104,
-        text: "Донечко, не бійся за неньку, я подбаю про твою безпеконьку",
-      },
-      {
-        time: 110,
-        text: "Я продовжуватиму боротьбу, я продовжуватиму боротьбу",
-      },
-      {
-        time: 133,
-        text: "Не плач, моя айстра. Я повернуся завтра, коли прокинешся",
-      },
-      {
-        time: 145,
-        text: "Не плач. Я буду сьогодні ввечері та триматиму монстрів подалі",
-      },
-      { time: 155, text: "" },
-      {
-        time: 165,
-        text: "(Come closer, пошепки) Підійди ближче, підійди ближче.",
-      },
-      { time: 175, text: "Я продовжуватиму боротьбу, бо я їх здолаю" },
-    ],
-    filters: [
-      {
-        start: 55,
-        end: 66,
-        type: "symbols",
-        intensity: 140,
-        speed: 1.4,
-      },
-      { start: 10, end: 22, type: "purple", opacity: 0.25 },
-      { start: 22, end: 33, type: "cyan", opacity: 0.2 },
-      { start: 33, end: 44, type: "green", opacity: 0.2 },
-      { start: 44, end: 55, type: "orange", opacity: 0.2 },
-      { start: 55, end: 66, type: "purple", opacity: 0.2 },
-      { start: 77, end: 88, type: "green", opacity: 0.2 },
-      { start: 88, end: 100, type: "cyan", opacity: 0.2 },
-      { start: 100, end: 111, type: "orange", opacity: 0.2 },
-      { start: 111, end: 133, type: "chaos", opacity: 0.2 },
-      { start: 155, end: 174, type: "brown", opacity: 0.2 },
-      { start: 174, end: 191, type: "chaos", opacity: 0.2 },
-    ],
-    category: "хіти",
-    duration: 180,
-    images: [hunger],
-  },
-    {
-    id: 22,
-    image: horror,
-    text: "Друзі, хоррор зроблений мною (склеїв з різних джерел звуки). Я додаю сюжет у сайт, щоб зробити його більш атмосферним.",
-    audio: domino,
-    author: "Болотна крамниця",
-    category: "природа",
-    duration: 140,
-    images: [horror, horrortwo, horrorthree],
-    filters: [
-      {
-        start: 5,
-        end: 15,
-        type: "image",
-        imageUrl: theorytwo,
-        opacity: 0.4,
-      },
-    ],
-  },
-      {
-    id: 22,
-    image: horror,
-    text: "Друзі, хоррор зроблений мною (склеїв з різних джерел звуки). Я додаю сюжет у сайт, щоб зробити його більш атмосферним.",
-    audio: domino,
-    author: "Болотна крамниця",
-    category: "природа",
-    duration: 140,
-    images: [horror, horrortwo, horrorthree],
-    filters: [
-      {
-        start: 5,
-        end: 15,
-        type: "image",
-        imageUrl: theorytwo,
-        opacity: 0.4,
-      },
-    ],
-  },
-    {
-    id: 23,
-    image: turkeys,
-    audio: turkeyAudio,
-    text: "",
-    category: "природа",
-    duration: 60,
-    author: "Звуки індиків - Моя робота :)",
-    lyrics: [
-      {
-        time: 25,
-        text: "Дякую всім слухачам! Давно хотів сказати, що робота над піснями, була примною і важкою.",
-      },
-      {
-        time: 40,
-        text: "Динофроз, режимом відео, забрав багато часу, та деякі пісні, у плані фільтрів. Тим не менш, індики, попри скромність, заслужили, бути на рівні з іншими.",
-      },
-      {
-        time: 55,
-        text: "Друзі, у кожного, своя улюблена тема(спільне, відмінне), і ненавидна. Я розміщую захопливе і заспокійливе, окрім моїх захоплень, тільки скажіть і ваше улюблене може з'явитись. Я це кажу, до того, що Стихію, ми розвиватимемо разом. ",
-      },
-    ],
-    images: [
-      turkeysone,
-      turkeytwo,
-      turkeythree,
-      turkeyfour,
-      turkeyfive,
-      turkeysix,
-      turkeyseven,
-      turkeys,
-    ],
-  },
-];
-
 const PLAYLISTS = {
   хіти: {
     title: "Хіти",
@@ -5905,6 +6001,22 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
   const [addCooldown, setAddCooldown] = useState(0);
   const [progress, setProgress] = useState(0);
   const [activeProgressId, setActiveProgressId] = useState(null);
+  const [storageInfo, setStorageInfo] = useState({ usage: 0, quota: 0 });
+
+  const updateStorageEstimate = useCallback(async () => {
+    if (navigator.storage && navigator.storage.estimate) {
+      try {
+        const estimate = await navigator.storage.estimate();
+        setStorageInfo({ usage: estimate.usage || 0, quota: estimate.quota || 0 });
+      } catch (e) {
+        console.error("Storage Manager error:", e);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    updateStorageEstimate();
+  }, [updateStorageEstimate]);
 
   const handleFile = (e, callback, progressId = null) => {
     const file = e.target.files[0];
@@ -5914,7 +6026,7 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
       setActiveProgressId(progressId);
       setProgress(0);
     }
-    
+
     // Замість FileReader просто повертаємо файл
     callback(file);
     if (progressId) {
@@ -6049,19 +6161,10 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
     setActiveProgressId("playlist-cover");
     setProgress(0);
 
-    const reader = new FileReader();
-    reader.onprogress = (ev) => {
-      if (ev.lengthComputable) {
-        const percent = Math.round((ev.loaded / ev.total) * 100);
-        setProgress(percent);
-      }
-    };
-    reader.onload = (ev) => {
-      setCover(ev.target.result);
-      setProgress(0);
-      setActiveProgressId(null);
-    };
-    reader.readAsDataURL(file);
+    // Зберігаємо файл (Blob) замість Base64 для економії місця та стабільності
+    setCover(file);
+    setProgress(100);
+    setActiveProgressId(null);
   };
   const addDeezerTrack = (track) => {
     if (tracks.length >= 10) return setError("Максимум 10 пісень!");
@@ -6111,6 +6214,29 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
         <h3 style={{ color: "black", textAlign: "center" }}>
           Створити плейлист
         </h3>
+
+        {storageInfo.quota > 0 && (
+          <StorageIndicatorContainer>
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <span>Пам'ять (IndexedDB):</span>
+              <span>
+                {Math.round(storageInfo.usage / 1024 / 1024)} MB /{" "}
+                {storageInfo.quota > 1024 * 1024 * 1024
+                  ? (storageInfo.quota / (1024 * 1024 * 1024)).toFixed(1) + " GB"
+                  : Math.round(storageInfo.quota / 1024 / 1024) + " MB"}
+              </span>
+            </div>
+            <StorageBar>
+              <StorageBarFill
+                $percent={Math.min(
+                  100,
+                  (storageInfo.usage / storageInfo.quota) * 100
+                )}
+              />
+            </StorageBar>
+          </StorageIndicatorContainer>
+        )}
+
         <InputGroup>
           <label>Назва (макс 12)</label>
           <input
@@ -6145,7 +6271,7 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
         </InputGroup>
         {cover && (
           <img
-            src={cover}
+            src={typeof cover === "string" ? cover : URL.createObjectURL(cover)}
             alt="Cover"
             style={{ width: 100, height: 100, objectFit: "cover" }}
           />
@@ -6513,9 +6639,11 @@ const PlaylistModal = ({
   user,
   onOpenRegister,
   customTracks,
+  onUpdateCustomPlaylist,
   onEdit,
   onMiniPlayer,
   onAudioBar,
+  onOpenAi,
   onDeleteTrack,
   customPlaylistName,
   initialFullScreenTrack,
@@ -6541,7 +6669,9 @@ const PlaylistModal = ({
       try {
         const bgMode = await localforage.getItem("background_mode_enabled");
         if (bgMode !== null) setBackgroundMode(bgMode);
-      } catch (e) { console.error(e); }
+      } catch (e) {
+        console.error(e);
+      }
     };
     loadCheckpoints();
   }, []);
@@ -6573,9 +6703,20 @@ const PlaylistModal = ({
     const currentCP = (await localforage.getItem("custom_playlist")) || {};
 
     const updatedPlaylist = { ...currentCP, tracks: updatedTracks };
-    await localforage.setItem("custom_playlist", updatedPlaylist);
-    setLevelEditorTrack(null);
-    window.location.reload();
+    if (onUpdateCustomPlaylist) {
+      onUpdateCustomPlaylist(updatedPlaylist);
+    }
+    try {
+      await localforage.setItem("custom_playlist", updatedPlaylist);
+      setLevelEditorTrack(null);
+    } catch (e) {
+      console.error("Save error:", e);
+      if (e.name === "QuotaExceededError" || e.name === "NS_ERROR_DOM_QUOTA_REACHED") {
+        alert("❌ Помилка: Перевищено ліміт пам'яті браузера! Спробуйте видалити частину пісень або зменшити розмір зображень.");
+      } else {
+        alert("❌ Помилка при збереженні змін.");
+      }
+    }
   };
   const [favorites, setFavorites] = useState([]);
   const [isHydrated, setIsHydrated] = useState(false);
@@ -6618,17 +6759,22 @@ const PlaylistModal = ({
       return;
     }
     const currentRating = getRating(id);
-    const nextRating = (currentRating + 1) % 3;
+    let nextRating;
+    // Цикл: 0 (біле) -> 1 (червоне) -> 2 (золоте) -> -1 (дизлайк) -> 0 (біле)
+    if (currentRating === 0) nextRating = 1;
+    else if (currentRating === 1) nextRating = 2;
+    else if (currentRating === 2) nextRating = -1;
+    else nextRating = 0;
+
     const ratedCount = Array.isArray(favorites)
       ? favorites.length
       : Object.values(favorites).filter((v) => v > 0).length;
-    if (nextRating > 0 && currentRating === 0 && ratedCount >= 4) {
+
+    if (nextRating > 0 && currentRating <= 0 && ratedCount >= 4) {
       alert("Ліміт: можна оцінити лише 4 пісні!");
       return;
     }
     setFavorites((prev) => {
-      let currentRating = getRating(id);
-      let nextRating = (currentRating + 1) % 3;
       if (Array.isArray(prev)) {
         const newObj = {};
         prev.forEach((p) => (newObj[p] = 1));
@@ -6708,15 +6854,18 @@ const PlaylistModal = ({
   }, [playlistKey, searchQuery, sortOption, customTracks, getRating]);
 
   // Зміна треку з додаванням у чергу історії
-  const handleSetFullScreenTrack = useCallback((newTrack) => {
-    if (fullScreenTrack && newTrack && fullScreenTrack.id !== newTrack.id) {
-      setPlayHistory(prev => {
-        const next = [...prev, fullScreenTrack];
-        return next.slice(-10); // Лишаємо тільки 10 останніх
-      });
-    }
-    setFullScreenTrack(newTrack);
-  }, [fullScreenTrack]);
+  const handleSetFullScreenTrack = useCallback(
+    (newTrack) => {
+      if (fullScreenTrack && newTrack && fullScreenTrack.id !== newTrack.id) {
+        setPlayHistory((prev) => {
+          const next = [...prev, fullScreenTrack];
+          return next.slice(-10); // Лишаємо тільки 10 останніх
+        });
+      }
+      setFullScreenTrack(newTrack);
+    },
+    [fullScreenTrack],
+  );
 
   const handleTrackEnd = (id) => {
     if (isShuffle) {
@@ -6731,7 +6880,8 @@ const PlaylistModal = ({
     }
     const currentIndex = processedCards.findIndex((c) => c.id === id);
     if (currentIndex !== -1 && currentIndex < processedCards.length - 1) {
-      if (fullScreenTrack) handleSetFullScreenTrack(processedCards[currentIndex + 1]);
+      if (fullScreenTrack)
+        handleSetFullScreenTrack(processedCards[currentIndex + 1]);
     } else {
       if (fullScreenTrack) setFullScreenTrack(null);
     }
@@ -6743,7 +6893,7 @@ const PlaylistModal = ({
   const playPrev = () => {
     if (playHistory.length > 0) {
       const prevTrack = playHistory[playHistory.length - 1];
-      setPlayHistory(prev => prev.slice(0, -1));
+      setPlayHistory((prev) => prev.slice(0, -1));
       setFullScreenTrack(prevTrack); // Назад без handleSet, щоб не зациклити історію
       return;
     }
@@ -6827,13 +6977,17 @@ const PlaylistModal = ({
                 user={user}
                 rating={getRating(card.id)}
                 onOpenModal={setLyricsModalData}
-              onOpenPlayer={(id, startTime) => {
-                const t = processedCards.find((c) => c.id === id);
-                handleSetFullScreenTrack({ ...t, initialTime: startTime || 0 });
-              }}
+                onOpenPlayer={(id, startTime) => {
+                  const t = processedCards.find((c) => c.id === id);
+                  handleSetFullScreenTrack({
+                    ...t,
+                    initialTime: startTime || 0,
+                  });
+                }}
                 onRate={handleToggleFavorite}
-              checkpoint={checkpoints[card.id]}
-              checkpointsEnabled={checkpointsEnabled}
+                onOpenAi={onOpenAi}
+                checkpoint={checkpoints[card.id]}
+                checkpointsEnabled={checkpointsEnabled}
               />
               {playlistKey === "custom" && (
                 <button
@@ -7066,7 +7220,7 @@ const PlaylistModal = ({
                     });
                   }}
                 >
-                  Додати рандомні фільтри з Clubstep
+                  Додати фільтри
                 </button>
               </div>
               <div style={{ marginBottom: 10 }}>
@@ -7224,6 +7378,7 @@ const PlaylistModal = ({
             setFullScreenTrack(null);
             onAudioBar(fullScreenTrack, time, isPlaying, vol, spd);
           }}
+          onOpenAi={onOpenAi}
           playlist={processedCards}
           onSelectTrack={setFullScreenTrack}
           onUpdateUser={onUpdateUser}
@@ -7245,7 +7400,8 @@ const PlaylistCover = ({ playlistKey, defaultImage, customImage }) => {
 
   const images = useMemo(() => {
     if (playlistKey === "custom") {
-      return [customImage || defaultImage];
+      const src = customImage instanceof Blob ? URL.createObjectURL(customImage) : (customImage || defaultImage);
+      return [src];
     }
     const cards = musicCards.filter((c) => c.category === playlistKey);
     return cards.length > 0 ? cards.map((c) => c.image) : [defaultImage];
@@ -7286,10 +7442,12 @@ const MusicPhoto = ({ user, onOpenRegister, isAnyModalOpen, onUpdateUser }) => {
 
   const [miniPlayerTrack, setMiniPlayerTrack] = useState(null);
   const [miniPlayerInitialTime, setMiniPlayerInitialTime] = useState(0);
-  const [miniPlayerInitialIsPlaying, setMiniPlayerInitialIsPlaying] = useState(false);
+  const [miniPlayerInitialIsPlaying, setMiniPlayerInitialIsPlaying] =
+    useState(false);
   const [miniPlayerInitialVolume, setMiniPlayerInitialVolume] = useState(1);
   const [miniPlayerInitialSpeed, setMiniPlayerInitialSpeed] = useState(1);
   const [audioBarTrack, setAudioBarTrack] = useState(null);
+  const [activeAiTrack, setActiveAiTrack] = useState(null);
   const [restoreTrack, setRestoreTrack] = useState(null);
 
   const [checkpoints, setCheckpoints] = useState({});
@@ -7302,22 +7460,27 @@ const MusicPhoto = ({ user, onOpenRegister, isAnyModalOpen, onUpdateUser }) => {
         if (saved) setCheckpoints(saved);
         const enabled = await localforage.getItem("checkpoints_enabled");
         if (enabled !== null) setCheckpointsEnabled(enabled);
-      } catch (e) { console.error(e); }
+      } catch (e) {
+        console.error(e);
+      }
     };
     loadCheckpoints();
   }, []);
 
-  const handleSaveCheckpoint = useCallback(async (id, time) => {
-    if (!checkpointsEnabled) return;
-    setCheckpoints(prev => {
-      const next = { ...prev, [id]: time };
-      localforage.setItem("music_checkpoints", next);
-      return next;
-    });
-  }, [checkpointsEnabled]);
+  const handleSaveCheckpoint = useCallback(
+    async (id, time) => {
+      if (!checkpointsEnabled) return;
+      setCheckpoints((prev) => {
+        const next = { ...prev, [id]: time };
+        localforage.setItem("music_checkpoints", next);
+        return next;
+      });
+    },
+    [checkpointsEnabled],
+  );
 
   const handleClearCheckpoint = useCallback(async (id) => {
-    setCheckpoints(prev => {
+    setCheckpoints((prev) => {
       const next = { ...prev };
       delete next[id];
       localforage.setItem("music_checkpoints", next);
@@ -7341,8 +7504,8 @@ const MusicPhoto = ({ user, onOpenRegister, isAnyModalOpen, onUpdateUser }) => {
 
   useEffect(() => {
     if (isAnyModalOpen) {
-        setMiniPlayerTrack(null);
-        setAudioBarTrack(null);
+      setMiniPlayerTrack(null);
+      setAudioBarTrack(null);
     }
   }, [isAnyModalOpen, miniPlayerTrack]);
 
@@ -7352,7 +7515,9 @@ const MusicPhoto = ({ user, onOpenRegister, isAnyModalOpen, onUpdateUser }) => {
       return;
     }
     if (!Array.isArray(customPlaylist.tracks)) {
-      console.error("Custom playlist tracks is not an array, cannot delete track.");
+      console.error(
+        "Custom playlist tracks is not an array, cannot delete track.",
+      );
       return;
     }
     const updatedTracks = customPlaylist.tracks.filter((t) => t.id !== trackId);
@@ -7376,7 +7541,12 @@ const MusicPhoto = ({ user, onOpenRegister, isAnyModalOpen, onUpdateUser }) => {
       await localforage.setItem("custom_playlist", data);
       setShowCreateModal(false);
     } catch (e) {
-      alert("Помилка збереження! Можливо, файли занадто великі.");
+      console.error("Save error:", e);
+      if (e.name === "QuotaExceededError" || e.name === "NS_ERROR_DOM_QUOTA_REACHED") {
+        alert("❌ Помилка: Недостатньо місця для збереження плейлиста. Спробуйте використати менше пісень або стиснути зображення.");
+      } else {
+        alert("Помилка збереження! Можливо, файли занадто великі.");
+      }
     }
   };
 
@@ -7459,6 +7629,7 @@ const MusicPhoto = ({ user, onOpenRegister, isAnyModalOpen, onUpdateUser }) => {
           customTracks={
             currentPlaylist === "custom" ? customPlaylist?.tracks : null
           }
+          onUpdateCustomPlaylist={setCustomPlaylist}
           onEdit={
             currentPlaylist === "custom" ? handleEditCustomPlaylist : null
           }
@@ -7482,6 +7653,7 @@ const MusicPhoto = ({ user, onOpenRegister, isAnyModalOpen, onUpdateUser }) => {
             setMiniPlayerTrack(null);
             setRestoreTrack(null);
           }}
+          onOpenAi={setActiveAiTrack}
           onDeleteTrack={
             currentPlaylist === "custom" ? deleteTrackFromCustomPlaylist : null
           }
@@ -7548,17 +7720,26 @@ const MusicPhoto = ({ user, onOpenRegister, isAnyModalOpen, onUpdateUser }) => {
               setMiniPlayerInitialSpeed(speed);
               setRestoreTrack(track);
               setAudioBarTrack(null);
-              setCurrentPlaylist(track.category === "custom" ? "custom" : track.category);
+              setCurrentPlaylist(
+                track.category === "custom" ? "custom" : track.category,
+              );
             }}
             checkpoint={checkpoints[audioBarTrack.id]}
             checkpointsEnabled={checkpointsEnabled}
             onSaveCheckpoint={handleSaveCheckpoint}
             onClearCheckpoint={handleClearCheckpoint}
+            onOpenAi={setActiveAiTrack}
           />
         )}
       </AnimatePresence>
+
+      {activeAiTrack && (
+        <SongAiModal
+          track={activeAiTrack}
+          onClose={() => setActiveAiTrack(null)}
+        />
+      )}
     </MusicPhotoDiv>
   );
 };
-
 export default MusicPhoto;

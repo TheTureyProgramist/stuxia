@@ -411,24 +411,6 @@ const StopBtn = styled.button`
   justify-content: center;
 `;
 
-const ClearBtn = styled.button`
-  background: rgba(0, 0, 0, 0.1);
-  color: #333;
-  border: none;
-  border-radius: 50%;
-  width: 35px;
-  height: 35px;
-  cursor: pointer;
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s;
-  &:hover {
-    background: rgba(0, 0, 0, 0.2);
-  }
-`;
-
 const InfoModal = ({ onClose, isOpen }) => {
   const [isClosing, setIsClosing] = useState(false);
   const customDays = useSelector((state) => state.calendar?.customDays || []);
@@ -486,14 +468,6 @@ const InfoModal = ({ onClose, isOpen }) => {
   const handleStopGeneration = () => {
     if (abortControllerRef.current) abortControllerRef.current.abort();
     setIsAiLoading(false);
-  };
-
-  const handleClearHistory = async () => {
-    if (window.confirm("Очистити історію чату з асистентом?")) {
-      const resetMsg = [{ text: "Привіт! Я твій асистент 'Стихії'. Запитай мене про погоду, пісні або правила сайту.", isBot: true }];
-      setChatHistory(resetMsg);
-      await localforage.removeItem("user_help_session");
-    }
   };
 
   // Save pinned state
@@ -802,8 +776,9 @@ Clubstep: рандомні фільтри.
         const dur = s.duration ? `${Math.floor(s.duration / 60)}:${(s.duration % 60).toString().padStart(2, '0')}` : "невідомо";
         const lyricsSum = s.lyrics && Array.isArray(s.lyrics) ? s.lyrics.map(l => `${l.time}s:${l.text}`).join("|").substring(0, 100) : "no";
         const filtersSum = s.filters && Array.isArray(s.filters) ? s.filters.map(f => `${f.start}-${f.end}s:${f.type}`).join("|") : "no";
+        const fCount = Array.isArray(s.filters) ? s.filters.length : 0;
         
-        let base = `Song: ${s.author}, Category: ${s.category}, Duration: ${dur}, Lyrics: ${lyricsSum}..., Filters: ${filtersSum}, Info: ${s.text}`;
+        let base = `Song: ${s.author}, Category: ${s.category}, Duration: ${dur}, FiltersCount: ${fCount}, Lyrics: ${lyricsSum}..., Filters: ${filtersSum}, Info: ${s.text}`;
         
         if (s.schedule) {
           const sched = s.schedule.map(e => `S${e.season}E${e.ep}: ${e.title} (${e.date})`).join("; ");
@@ -812,20 +787,12 @@ Clubstep: рандомні фільтри.
         return base;
       }).join("\n");
       
-      const prompt = `Ти асистент проекту "Стихія". Тобі доступні дві бази даних:
-      1. База FAQ: містить правила сайту, інформацію про підписки, набори 🧧 та інструкції щодо розділу Погода.
-      2. База пісень: містить повний список треків (${songAiKnowledge.length} шт), авторів, тексти пісень та візуальні ефекти (фільтри).
-
-      ІНСТРУКЦІЯ:
-      - Якщо запит стосується температури, вітру, УФ-індексу або роботи розділу погоди — шукай у базі FAQ.
-      - Якщо запит стосується конкретної пісні, її тривалості, тексту або ефектів — шукай у Базі пісень.
-      - Якщо питання про валюту сайту (конверти) — дивись розділ Валюти в FAQ.
-      - Відповідай коротко, професійно та виключно українською мовою.
-
-      КОНТЕКСТ FAQ: ${faqContext.substring(0, 2000)}
-      КОНТЕКСТ ПІСЕНЬ: ${songsContext.substring(0, 15000)}
-
-      ЗАПИТ КОРИСТУВАЧА: ${userText}`;
+      const prompt = `Ти асистент сайту "Стихія". 
+      Ось база знань FAQ: ${faqContext.substring(0, 1000)}
+      Ось база пісень: ${songsContext.substring(0, 1000)}
+      
+      Користувач запитує: ${userText}
+      Відповідай коротко українською мовою.`;
 
       const result = await model.generateContent(prompt);
       const response = await result.response;
@@ -846,20 +813,6 @@ Clubstep: рандомні фільтри.
 
   const handleEditMessage = (index) => {
     setSearchQuery(chatHistory[index].text);
-  };
-
-  const renderTextWithLinks = (text) => {
-    const urlRegex = /(https?:\/\/[^\s]+)/g;
-    return text.split(urlRegex).map((part, index) => {
-      if (part.match(urlRegex)) {
-        return (
-          <a key={index} href={part} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>
-            {part}
-          </a>
-        );
-      }
-      return part;
-    });
   };
 
   const sortedFaqData = [...faqData]
@@ -909,7 +862,7 @@ Clubstep: рандомні фільтри.
         <ChatWrapper ref={scrollRef}>
           {chatHistory.map((m, i) => (
             <Message key={i} $isUser={!m.isBot}>
-              {renderTextWithLinks(m.text)}
+              {m.text}
               {!m.isBot && i === chatHistory.length - 1 && !isAiLoading && (
                 <EditBtn onClick={() => handleEditMessage(i)}>редагувати</EditBtn>
               )}
@@ -926,11 +879,10 @@ Clubstep: рандомні фільтри.
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleAskAi()}
           />
-          <ClearBtn onClick={handleClearHistory} title="Очистити чат">🗑️</ClearBtn>
           {isAiLoading ? (
             <StopBtn onClick={handleStopGeneration} title="Зупинити">🛑</StopBtn>
           ) : (
-            <AcceptBtn style={{ marginTop: 0, padding: '0 15px' }} onClick={handleAskAi}>
+            <AcceptBtn style={{marginTop: 0, padding: '0 15px'}} onClick={handleAskAi}>
               Запитати
             </AcceptBtn>
           )}

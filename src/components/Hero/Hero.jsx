@@ -1462,6 +1462,8 @@ const Hero = ({
   screenshots = [],
   selectedTimezone,
   setSelectedTimezone,
+  customHolidayName,
+  setCustomHolidayName,
 }) => {
   const dispatch = useDispatch();
   const customDays = useSelector((state) => state.calendar?.customDays || []);
@@ -1896,7 +1898,7 @@ const Hero = ({
   };
 
   const handleAddDay = () => {
-    if (newDayInput.date && newDayInput.reason) {
+    if (newDayInput.date && customHolidayName) {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const selectedDate = new Date(newDayInput.date);
@@ -1906,15 +1908,16 @@ const Hero = ({
         return;
       }
 
-      if (newDayInput.reason.length > 12) {
+      if (customHolidayName.length > 12) {
         alert("Назва свята занадто довга (макс. 12 символів)!");
         return;
       }
 
       dispatch(
-        addCustomDay({ date: newDayInput.date, reason: newDayInput.reason }),
+        addCustomDay({ date: newDayInput.date, reason: customHolidayName }),
       );
-      setNewDayInput({ date: "", reason: "" });
+      setNewDayInput({ ...newDayInput, date: "" });
+      setCustomHolidayName("");
     }
   };
 
@@ -2078,14 +2081,12 @@ const Hero = ({
             <StyledHeroInput
               type="text"
               placeholder="Що за свято?"
-              $isError={newDayInput.reason.length > 12}
-              value={newDayInput.reason}
-              onChange={(e) =>
-                setNewDayInput({ ...newDayInput, reason: e.target.value })
-              }
+              $isError={customHolidayName.length > 12}
+              value={customHolidayName}
+              onChange={(e) => setCustomHolidayName(e.target.value)}
             />
-            <HeroCharCount $isError={newDayInput.reason.length > 12}>
-              {newDayInput.reason.length}/12
+            <HeroCharCount $isError={customHolidayName.length > 12}>
+              {customHolidayName.length}/12
             </HeroCharCount>
             <button onClick={handleAddDay}>Додати</button>
           </DayInputCard>

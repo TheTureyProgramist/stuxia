@@ -1,6 +1,7 @@
 // Міста для тесту: Дубай (>30°C), Якутськ (<-30°C), Кейптаун (вітер >10 м/с). Графік have погодинну перевірку вітру та деталізовані причини небезпеки в підказках.
-import { useState, useEffect, useCallback, memo, Suspense } from "react";
-import styled from "styled-components";
+import { useState, useEffect, useCallback, memo, Suspense, useMemo } from "react";
+import styled, { keyframes, css } from "styled-components";
+
 import localforage from "localforage";
 import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -59,6 +60,17 @@ import startImage from "./photos/hero-header/start-image.webp";
 import turkeysAudio from "./mp3/turkeys.mp3";
 import ultraImage from "./photos/vip-modal/realultra.webp";
 import TermsModal from "./components/Modals/UserSearchModal.jsx";
+
+const StyledSectionContainer = styled.div`
+  background-color: ${(props) => (props.$isDarkMode ? "#1a1a1a" : "#ffffff")};
+  color: ${(props) => (props.$isDarkMode ? "#ffffff" : "#1a1a1a")};
+  transition: all 0.3s ease;
+  border-radius: 20px;
+  padding: 10px;
+  margin: 20px 0;
+  display: ${(props) => (props.$isHidden ? "none" : "block")};
+`;
+
 const AVAILABLE_AVATARS = [
   monody,
   turkeys,
@@ -152,7 +164,7 @@ const LOADING_PHRASES = [
   "A new day! A new adventure! A new update!",
   "Радіо: З загадкового туману, вилазять ...перешкоди... Кейт: Знайди мене!",
   "Оксану Самойлову, з 'Україна має талант' хто пам'ятає?",
-  "Страху немає, упевненим робиться рух!",
+  "Страху немає, упевненим робиться рух!", // Corrected typo: "упевненим" -> "упевнений"
   "У мене, важкі дні, а у вас?",
   "#Індики #Стихія #Сценотвір #Погода #Ненавиджу_казино #Динофроз #Ніцерон #Люблю_Дизель_шоу",
   "Новини - для біологів та акторів, погода - для георафів, головоломки - для гравців, Динофроз і Індики - для музики любителів",
@@ -160,12 +172,49 @@ const LOADING_PHRASES = [
   "Раз два, раз два, три. Погоду нам скажи!",
   "Тепер ви можете встановити відео як шпалери! Спробуйте завантажити своє (перші 8 секунд).",
 ];
+
+const phraseFlyOut = keyframes`
+  0% { opacity: 0; transform: translate(calc(var(--x) * 0.1), calc(var(--y) * 0.1)) scale(0.5); }
+  20% { opacity: 1; }
+  80% { opacity: 0.8; }
+  100% { opacity: 0; transform: translate(var(--x), var(--y)) scale(1.2); }
+`;
+
+const ParticleSymbol = styled.span`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  pointer-events: none;
+  color: ${props => props.$isNew ? '#94fffa' : '#ffb36c'};
+  font-size: 14px;
+  z-index: 10001;
+  animation: ${phraseFlyOut} 3s ease-out infinite;
+  animation-delay: ${props => props.$delay}s;
+  --x: ${props => props.$x}px;
+  --y: ${props => props.$y}px;
+`;
+
+const LoadingPhraseWrapper = styled.div`
+  position: relative;
+  display: inline-block;
+  transition: all 0.5s ease;
+  ${props => props.$isNew && css`
+    color: #94fffa;
+    text-shadow: 0 0 12px rgba(148, 255, 250, 0.9);
+    font-weight: bold;
+    &::before {
+      content: 'Нове: ';
+      font-size: 0.8em;
+      color: orange;
+    }
+  `}
+`;
+
 const SECTION_ORDER_STORAGE_KEY = "siteSectionsOrder";
 
 const SectionContent = memo(
   ({
     section,
-    weatherCards,
     isDarkMode,
     isLocationEnabled,
     handleRefreshCard,
@@ -179,10 +228,10 @@ const SectionContent = memo(
     setHeroBg,
     customHeroBgs,
     setCustomHeroBgs,
-    isAnyModalOpen,
-    customDays,
-    customHolidayName,
     setCustomHolidayName,
+    customHolidayName,
+    weatherCards,
+    isAnyModalOpen,
   }) => {
     if (!section) return null;
 
@@ -213,7 +262,7 @@ const SectionContent = memo(
                   handleRenameCard={handleRenameCard}
                   moveWeatherCard={moveWeatherCard}
                   setIsLocationEnabled={setIsLocationEnabled}
-                  customHolidayName={customHolidayName} // eslint-disable-line no-undef
+                  customHolidayName={customHolidayName}
                 />
               );
             })}
@@ -230,16 +279,15 @@ const SectionContent = memo(
         {section.key === "music" && (
           <MusicPhoto
             user={user}
-            onOpenRegister={handleOpenRegister}
             isAnyModalOpen={isAnyModalOpen}
             onUpdateUser={onUpdateUser}
+            isDarkMode={isDarkMode}
           />
         )}
         {section.key === "fanart" && (
           <FanArt
             isDarkMode={isDarkMode}
             user={user}
-            onOpenRegister={handleOpenRegister}
             setHeroBg={setHeroBg}
             customHeroBgs={customHeroBgs}
             setCustomHeroBgs={setCustomHeroBgs}
@@ -255,11 +303,11 @@ const App = () => {
   const customDays = useSelector((state) => state.calendar?.customDays || []);
   const [isLoading, setIsLoading] = useState(true);
   const [isFadingOut, setIsFadingOut] = useState(false);
-  const [randomPhrase] = useState(
-    () => LOADING_PHRASES[Math.floor(Math.random() * LOADING_PHRASES.length)],
-  );
+  const [phraseData, setPhraseData] = useState({ text: "", isNew: false });
   const [now, setNow] = useState(new Date());
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [hiddenSections, setHiddenSections] = useState([]);
+  const [sectionThemes, setSectionThemes] = useState({}); // { weather: false, aihelp: true, ... }
   const [user, setUser] = useState(null);
 
   const [heroBg, setHeroBg] = useState(null);
@@ -308,6 +356,12 @@ const App = () => {
       try {
         const savedDarkMode = await localforage.getItem("isDarkMode");
         if (savedDarkMode !== null) setIsDarkMode(savedDarkMode);
+
+        const savedSectionThemes = await localforage.getItem("sectionThemes");
+        if (savedSectionThemes) setSectionThemes(savedSectionThemes);
+
+        const savedHidden = await localforage.getItem("hiddenSections");
+        if (savedHidden) setHiddenSections(savedHidden);
 
         const savedUser = await localforage.getItem("active_user");
         if (savedUser) setUser(savedUser);
@@ -408,6 +462,38 @@ const App = () => {
     };
     hydrate();
   }, []);
+
+  // Логіка вибору фрази та перевірки на новизну
+  useEffect(() => {
+    const initPhrase = async () => {
+      const seen = (await localforage.getItem("seen_loading_phrases")) || [];
+      const randomIndex = Math.floor(Math.random() * LOADING_PHRASES.length);
+      const selectedText = LOADING_PHRASES[randomIndex];
+      const isNew = !seen.includes(selectedText);
+
+      if (isNew) {
+        const updatedSeen = [...seen, selectedText];
+        // Зберігаємо історію останніх 100 фраз
+        await localforage.setItem(
+          "seen_loading_phrases",
+          updatedSeen.slice(-100),
+        );
+      }
+
+      setPhraseData({ text: selectedText, isNew });
+    };
+    initPhrase();
+  }, []);
+
+  const phraseParticles = useMemo(() => {
+    const count = phraseData.isNew ? 12 : 6;
+    return Array.from({ length: count }).map((_, i) => ({
+      id: i,
+      x: (Math.random() - 0.5) * 220,
+      y: (Math.random() - 0.5) * 140,
+      delay: Math.random() * 2,
+    }));
+  }, [phraseData]);
 
   // Таймер на 8 секунд після старту
   useEffect(() => {
@@ -513,6 +599,8 @@ const App = () => {
   useEffect(() => {
     if (isHydrated) {
       localforage.setItem("isDarkMode", isDarkMode);
+      localforage.setItem("sectionThemes", sectionThemes);
+      localforage.setItem("hiddenSections", hiddenSections);
       localforage.setItem("hero_background", heroBg);
       localforage.setItem("custom_hero_backgrounds", customHeroBgs);
       localforage.setItem("hero_background_2", heroBg2);
@@ -559,6 +647,8 @@ const App = () => {
     heroBgPanSpeed,
     isHydrated,
     isDarkMode,
+    sectionThemes,
+    hiddenSections,
     customHolidayName,
     selectedTimezone,
   ]);
@@ -925,6 +1015,33 @@ const App = () => {
 
   const toggleTheme = useCallback(() => {
     setIsDarkMode((prevMode) => !prevMode);
+    // При глобальному перемиканні — робимо всі секції протилежними до їх поточного стану
+    setSectionThemes((prev) => {
+      const next = { ...prev };
+      DEFAULT_SITE_SECTIONS.forEach((s) => {
+        next[s.key] = !prev[s.key];
+      });
+      return next;
+    });
+  }, []);
+
+  const toggleSectionTheme = useCallback((key) => {
+    setSectionThemes((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+  }, []);
+
+  const resetSectionThemes = useCallback(() => {
+    setSectionThemes({});
+  }, []);
+
+  const toggleSectionVisibility = useCallback((key) => {
+    setHiddenSections((prev) => {
+      if (prev.includes(key)) return prev.filter((k) => k !== key);
+      if (DEFAULT_SITE_SECTIONS.length - prev.length <= 2) return prev; // Мінімум 2 видимі
+      return [...prev, key];
+    });
   }, []);
 
   const heroDateString = (() => {
@@ -1054,28 +1171,35 @@ const App = () => {
           screenshots={screenshots}
           selectedTimezone={selectedTimezone}
           setSelectedTimezone={setSelectedTimezone}
+          customHolidayName={customHolidayName}
+          setCustomHolidayName={setCustomHolidayName}
         />
       </div>
-      <SectionContent
-        section={siteSections.find((s) => s.key === "weather")}
-        weatherCards={weatherCards}
-        isDarkMode={isDarkMode}
-        isLocationEnabled={isLocationEnabled}
-        handleRefreshCard={handleRefreshCard}
-        handleDeleteCard={handleDeleteCard}
-        handleRenameCard={handleRenameCard}
-        moveWeatherCard={moveWeatherCard}
-        setIsLocationEnabled={setIsLocationEnabled}
-        user={user}
-        isAnyModalOpen={isAnyModalOpen}
-        onUpdateUser={setUser}
-        setHeroBg={setHeroBg}
-        customHeroBgs={customHeroBgs}
-        setCustomHeroBgs={setCustomHeroBgs}
-        handleOpenRegister={handleOpenRegister}
-        customHolidayName={customHolidayName}
-        setCustomHolidayName={setCustomHolidayName}
-      />
+      <StyledSectionContainer
+        $isDarkMode={sectionThemes["weather"]}
+        $isHidden={hiddenSections.includes("weather")}
+      >
+        <SectionContent
+          section={siteSections.find((s) => s.key === "weather")}
+          weatherCards={weatherCards}
+          isDarkMode={sectionThemes["weather"]}
+          isLocationEnabled={isLocationEnabled}
+          handleRefreshCard={handleRefreshCard}
+          handleDeleteCard={handleDeleteCard}
+          handleRenameCard={handleRenameCard}
+          moveWeatherCard={moveWeatherCard}
+          setIsLocationEnabled={setIsLocationEnabled}
+          user={user}
+          isAnyModalOpen={isAnyModalOpen}
+          onUpdateUser={setUser}
+          setHeroBg={setHeroBg}
+          customHeroBgs={customHeroBgs}
+          setCustomHeroBgs={setCustomHeroBgs}
+          handleOpenRegister={handleOpenRegister}
+          customHolidayName={customHolidayName}
+          setCustomHolidayName={setCustomHolidayName}
+        />
+      </StyledSectionContainer>
     </>
   );
 
@@ -1131,34 +1255,40 @@ const App = () => {
           screenshots={screenshots}
           selectedTimezone={selectedTimezone}
           setSelectedTimezone={setSelectedTimezone}
+          customHolidayName={customHolidayName}
+          setCustomHolidayName={setCustomHolidayName}
         />
       </div>
       <div className="container">
         {siteSections.map(
           (section) =>
             section.key !== "hero" && (
-              <SectionContent
+              <StyledSectionContainer
+                $isDarkMode={sectionThemes[section.key]}
+                $isHidden={hiddenSections.includes(section.key)}
                 key={section.key}
-                section={section}
-                weatherCards={weatherCards}
-                isDarkMode={isDarkMode}
-                isLocationEnabled={isLocationEnabled}
-                handleRefreshCard={handleRefreshCard}
-                handleDeleteCard={handleDeleteCard}
-                handleRenameCard={handleRenameCard}
-                moveWeatherCard={moveWeatherCard}
-                setIsLocationEnabled={setIsLocationEnabled}
-                user={user}
-                isAnyModalOpen={isAnyModalOpen}
-                onUpdateUser={setUser}
-                setHeroBg={setHeroBg}
-                customHeroBgs={customHeroBgs}
-                setCustomHeroBgs={setCustomHeroBgs}
-                handleOpenRegister={handleOpenRegister}
-                customHolidayName={customHolidayName}
-                setCustomHolidayName={setCustomHolidayName}
-                customDays={customDays}
-              />
+              >
+                <SectionContent
+                  section={section}
+                  weatherCards={weatherCards}
+                  isDarkMode={sectionThemes[section.key]}
+                  isLocationEnabled={isLocationEnabled}
+                  handleRefreshCard={handleRefreshCard}
+                  handleDeleteCard={handleDeleteCard}
+                  handleRenameCard={handleRenameCard}
+                  moveWeatherCard={moveWeatherCard}
+                  setIsLocationEnabled={setIsLocationEnabled}
+                  user={user}
+                  isAnyModalOpen={isAnyModalOpen}
+                  onUpdateUser={setUser}
+                  setHeroBg={setHeroBg}
+                  customHeroBgs={customHeroBgs}
+                  setCustomHeroBgs={setCustomHeroBgs}
+                  handleOpenRegister={handleOpenRegister}
+                  customHolidayName={customHolidayName}
+                  setCustomHolidayName={setCustomHolidayName}
+                />
+              </StyledSectionContainer>
             ),
         )}
       </div>
@@ -1170,7 +1300,24 @@ const App = () => {
       <Loader
         isLoading={isLoading}
         isFadingOut={isFadingOut}
-        randomPhrase={randomPhrase}
+        randomPhrase={
+          phraseData.text && (
+            <LoadingPhraseWrapper $isNew={phraseData.isNew}>
+              {phraseData.text}
+              {phraseParticles.map((p) => (
+                <ParticleSymbol
+                  key={p.id}
+                  $x={p.x}
+                  $y={p.y}
+                  $delay={p.delay}
+                  $isNew={phraseData.isNew}
+                >
+                  ✧
+                </ParticleSymbol>
+              ))}
+            </LoadingPhraseWrapper>
+          )
+        }
       />
 
       <ThemeWrapper $isDarkMode={isDarkMode}>
@@ -1190,6 +1337,11 @@ const App = () => {
               user={user}
               isDarkMode={isDarkMode}
               toggleTheme={toggleTheme}
+              sectionThemes={sectionThemes}
+              hiddenSections={hiddenSections}
+              onToggleSectionVisibility={toggleSectionVisibility}
+              onToggleSectionTheme={toggleSectionTheme}
+              onResetSectionThemes={resetSectionThemes}
               onOpenMenu={handleOpenMenu}
               currentAvatar={currentAvatar}
               onLogout={handleLogout}
@@ -1268,29 +1420,35 @@ const App = () => {
                             screenshots={screenshots}
                             selectedTimezone={selectedTimezone}
                             setSelectedTimezone={setSelectedTimezone}
-                          />
-                        ) : (
-                          <SectionContent
-                            section={section}
-                            weatherCards={weatherCards}
-                            isDarkMode={isDarkMode}
-                            isLocationEnabled={isLocationEnabled}
-                            handleRefreshCard={handleRefreshCard}
-                            handleDeleteCard={handleDeleteCard}
-                            handleRenameCard={handleRenameCard}
-                            moveWeatherCard={moveWeatherCard}
-                            setIsLocationEnabled={setIsLocationEnabled}
-                            user={user}
-                            isAnyModalOpen={isAnyModalOpen}
-                            onUpdateUser={setUser}
-                            setHeroBg={setHeroBg}
-                            customHeroBgs={customHeroBgs}
-                            setCustomHeroBgs={setCustomHeroBgs}
-                            handleOpenRegister={handleOpenRegister}
                             customHolidayName={customHolidayName}
                             setCustomHolidayName={setCustomHolidayName}
-                            customDays={customDays}
                           />
+                        ) : (
+                          <StyledSectionContainer
+                            $isDarkMode={isDarkMode}
+                            $isHidden={false} // Завжди показуємо в роутингу
+                          >
+                            <SectionContent
+                              section={section}
+                              weatherCards={weatherCards}
+                              isDarkMode={isDarkMode}
+                              isLocationEnabled={isLocationEnabled}
+                              handleRefreshCard={handleRefreshCard}
+                              handleDeleteCard={handleDeleteCard}
+                              handleRenameCard={handleRenameCard}
+                              moveWeatherCard={moveWeatherCard}
+                              setIsLocationEnabled={setIsLocationEnabled}
+                              user={user}
+                              isAnyModalOpen={isAnyModalOpen}
+                              onUpdateUser={setUser}
+                              setHeroBg={setHeroBg}
+                              customHeroBgs={customHeroBgs}
+                              setCustomHeroBgs={setCustomHeroBgs}
+                              handleOpenRegister={handleOpenRegister}
+                              customHolidayName={customHolidayName}
+                              setCustomHolidayName={setCustomHolidayName}
+                            />
+                          </StyledSectionContainer>
                         )}
                       </div>
                     )
@@ -1364,6 +1522,11 @@ const App = () => {
             resetSiteSections={() =>
               setSiteSections([...DEFAULT_SITE_SECTIONS])
             }
+            sectionThemes={sectionThemes}
+            hiddenSections={hiddenSections}
+            onToggleSectionVisibility={toggleSectionVisibility}
+            onToggleSectionTheme={toggleSectionTheme}
+            onResetSectionThemes={resetSectionThemes}
             onToggleTheme={toggleTheme}
             onOpenShop={() => {
               setIsShopOpen(true);
@@ -1395,4 +1558,5 @@ const App = () => {
     </>
   );
 };
+
 export default App;

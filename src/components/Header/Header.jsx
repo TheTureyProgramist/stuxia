@@ -125,6 +125,7 @@ const HeaderDiv = styled.div`
   border-bottom: 2px solid #8f8f8f;
   position: fixed;
   background: ${(props) => (props.$isDarkMode ? "#1a1a1a" : "white")};
+  color: ${(props) => (props.$isDarkMode ? "white" : "#1a1a1a")};
   top: 0;
   left: 0;
   z-index: 1000;
@@ -549,6 +550,11 @@ const Header = ({
   isInfoOpen,
   isDarkMode,
   toggleTheme,
+  sectionThemes,
+  hiddenSections,
+  onToggleSectionVisibility,
+  onToggleSectionTheme,
+  onResetSectionThemes,
   onOpenAchievements,
   currentAvatar,
   onLogout,
@@ -891,6 +897,11 @@ const Header = ({
         siteSections={siteSections}
         moveSiteSection={moveSiteSection}
         resetSiteSections={resetSiteSections}
+        sectionThemes={sectionThemes}
+        hiddenSections={hiddenSections}
+        onToggleSectionVisibility={onToggleSectionVisibility}
+        onToggleSectionTheme={onToggleSectionTheme}
+        onResetSectionThemes={onResetSectionThemes}
         onToggleTheme={handleThemeToggle}
         onOpenShop={onOpenShop}
         onDownloadLogo={handleDownloadLogo}

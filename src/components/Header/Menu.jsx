@@ -428,6 +428,11 @@ const Menu = ({
   siteSections,
   resetSiteSections,
   moveSiteSection,
+  sectionThemes,
+  hiddenSections,
+  onToggleSectionVisibility,
+  onToggleSectionTheme,
+  onResetSectionThemes,
   onToggleTheme,
   onOpenShop,
   onOpenAchievements,
@@ -552,6 +557,25 @@ const Menu = ({
                     >
                       {section.label}
                     </NavButton>
+                    <ControlButtons>
+                      <OrderButton
+                        $isDarkMode={isDarkMode}
+                        onClick={() => onToggleSectionVisibility?.(section.key)}
+                        title={hiddenSections?.includes(section.key) ? "Показати" : "Приховати"}
+                        disabled={!hiddenSections?.includes(section.key) && (siteSections.length - (hiddenSections?.length || 0) <= 2)}
+                      >
+                        {hiddenSections?.includes(section.key) ? "👁️‍🗨️" : "👁️"}
+                      </OrderButton>
+                    </ControlButtons>
+                    <ControlButtons>
+                      <OrderButton
+                        $isDarkMode={isDarkMode}
+                        onClick={() => onToggleSectionTheme?.(section.key)}
+                        title="Змінити тему секції"
+                      >
+                        {sectionThemes?.[section.key] ? "🌙" : "☀️"}
+                      </OrderButton>
+                    </ControlButtons>
                     {section.key !== "hero" && (
                       <ControlButtons>
                         <OrderButton
@@ -592,6 +616,33 @@ const Menu = ({
             >
               Скинути порядок секцій
             </button>
+            <button
+              onClick={onResetSectionThemes}
+              style={{
+                marginTop: "10px",
+                width: "100%",
+                cursor: "pointer",
+                padding: "7px",
+                borderRadius: "7px",
+                border: "none",
+                fontWeight: "bold",
+                background: isDarkMode ? "#333" : "#eee",
+                color: isDarkMode ? "#fff" : "#333",
+              }}
+            >
+              Скинути теми секцій
+            </button>
+
+            {(hiddenSections?.length > 0) && (
+               <div style={{
+                 marginTop: "10px", 
+                 fontSize: "10px", 
+                 color: isDarkMode ? "#aaa" : "#666",
+                 fontStyle: "italic"
+               }}>
+                 💡 Приховані секції доступні через "Маршрутизацію". Щоб залишити лише одну секцію, увімкніть режим ракети 🚀.
+               </div>
+            )}
           </div>
 
           <div>

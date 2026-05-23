@@ -149,3 +149,4 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig); */
+/* //GENERATE_SOURCEMAP=false y .env */
