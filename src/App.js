@@ -4,7 +4,7 @@ import styled, { keyframes, css } from "styled-components";
 
 import localforage from "localforage";
 import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+//import { useSelector } from "react-redux";
 import Loader from "./components/Loader/Loader.jsx";
 import WeatherCardComponent from "./components/Weather/Weather.jsx";
 import NotFound from "./components/NotFound.jsx";
@@ -33,6 +33,7 @@ import LoginModal from "./components/Modals/LoginModal.jsx";
 import UserSettingsModal from "./components/Modals/UserSettingsModal.jsx";
 import userDefault from "./photos/hero-header/user.webp";
 import VipModal from "./components/Modals/VipModal.jsx";
+import WeatherDetailsModal from "./components/Modals/WeatherDetailsModal.jsx";
 import Aihelp from "./components/Aihelp/Aihelp.jsx";
 import FanArt from "./components/FanArt/FanArt.jsx";
 import ShopModal from "./components/Modals/ShopModal.jsx";
@@ -231,7 +232,12 @@ const SectionContent = memo(
     setCustomHolidayName,
     customHolidayName,
     weatherCards,
+    weatherCardLayout,
     isAnyModalOpen,
+    isWeatherDetailsOpen,
+    setIsWeatherDetailsOpen,
+    selectedWeatherCard,
+    setSelectedWeatherCard,
   }) => {
     if (!section) return null;
 
@@ -263,6 +269,11 @@ const SectionContent = memo(
                   moveWeatherCard={moveWeatherCard}
                   setIsLocationEnabled={setIsLocationEnabled}
                   customHolidayName={customHolidayName}
+                  layout={weatherCardLayout}
+                  onOpenDetails={() => {
+                    setSelectedWeatherCard(card);
+                    setIsWeatherDetailsOpen(true);
+                  }}
                 />
               );
             })}
@@ -300,7 +311,6 @@ const SectionContent = memo(
 );
 
 const App = () => {
-  const customDays = useSelector((state) => state.calendar?.customDays || []);
   const [isLoading, setIsLoading] = useState(true);
   const [isFadingOut, setIsFadingOut] = useState(false);
   const [phraseData, setPhraseData] = useState({ text: "", isNew: false });
@@ -331,6 +341,14 @@ const App = () => {
   const [heroBgPanEnabled, setHeroBgPanEnabled] = useState(false);
   const [heroBgPanSpeed, setHeroBgPanSpeed] = useState(6);
 
+  const [weatherCardLayout, setWeatherCardLayout] = useState([
+    { key: "current", visible: true },
+    { key: "details", visible: true },
+    { key: "ai", visible: true },
+    { key: "hourly", visible: true },
+    { key: "daily", visible: true },
+  ]);
+
   const [customHolidayName, setCustomHolidayName] = useState("");
 
   const [currentAvatar, setCurrentAvatar] = useState(userDefault);
@@ -343,6 +361,8 @@ const App = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserSearchOpen, setIsUserSearchOpen] = useState(false);
   const [isInfoOpen, setIsInfoOpen] = useState(false);
+  const [isWeatherDetailsOpen, setIsWeatherDetailsOpen] = useState(false);
+  const [selectedWeatherCard, setSelectedWeatherCard] = useState(null);
   const [hasInteracted, setHasInteracted] = useState(false);
   const [isUpdatePending, setIsUpdatePending] = useState(false);
   const [timerFinished, setTimerFinished] = useState(false);
@@ -449,6 +469,9 @@ const App = () => {
         const lastSeenVersion = await localforage.getItem(
           "last_deployed_version",
         );
+        const savedLayout = await localforage.getItem("weather_card_layout");
+        if (savedLayout) setWeatherCardLayout(savedLayout);
+
         const deployId = process.env.REACT_APP_DEPLOY_ID;
         if (deployId && lastSeenVersion !== deployId) {
           setIsUpdatePending(true);
@@ -623,6 +646,7 @@ const App = () => {
       localforage.setItem("hero_bg_pan_speed", heroBgPanSpeed);
       localforage.setItem("custom_holiday_name", customHolidayName);
       localforage.setItem("selected_timezone", selectedTimezone);
+      localforage.setItem("weather_card_layout", weatherCardLayout);
     }
   }, [
     heroBg,
@@ -651,6 +675,7 @@ const App = () => {
     hiddenSections,
     customHolidayName,
     selectedTimezone,
+    weatherCardLayout,
   ]);
 
   useEffect(() => {
@@ -696,7 +721,7 @@ const App = () => {
           }
         }
 
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${targetLat}&longitude=${targetLon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m,surface_pressure&hourly=temperature_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,uv_index_max,wind_speed_10m_max&timezone=auto&forecast_days=16`;
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${targetLat}&longitude=${targetLon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m,surface_pressure,cloud_cover,visibility,dew_point_2m,temperature_80m&hourly=temperature_2m,apparent_temperature,weather_code,wind_speed_10m,relative_humidity_2m,dew_point_2m,precipitation,rain,pressure_msl,cloud_cover,visibility&daily=weather_code,temperature_2m_max,temperature_2m_min,uv_index_max,wind_speed_10m_max,precipitation_probability_max,rain_sum,precipitation_sum&timezone=auto&forecast_days=16`;
         console.log("Fetching weather from URL:", url);
         const res = await axios.get(url);
         const d = res.data;
@@ -761,9 +786,7 @@ const App = () => {
           const newCardData = {
             id: id,
             isMain: isMain,
-            locationName: existingCard
-              ? existingCard.locationName
-              : displayName,
+            locationName: (isMain && !cityData?.fullName) ? "Ваша локація" : (existingCard ? existingCard.locationName : displayName),
             lat: targetLat,
             lon: targetLon,
             current: {
@@ -774,7 +797,13 @@ const App = () => {
               pressure: `${Math.round(d.current.surface_pressure)} hPa`,
               wind_speed: `${d.current.wind_speed_10m ?? 0} м/с`,
               windNum: d.current.wind_speed_10m ?? 0,
+              wind_direction_10m: d.current.wind_direction_10m ?? 0,
+              wind_gusts_10m: d.current.wind_gusts_10m ?? 0,
               uv_index: d.daily?.uv_index_max?.[0] ?? 0,
+              cloud_cover: d.current.cloud_cover ?? 0,
+              visibility: d.current.visibility ?? 0,
+              dew_point_2m: d.current.dew_point_2m ?? 0,
+              temperature_80m: d.current.temperature_80m ?? 0,
               description: "За кодом: " + d.current.weather_code,
               iconPlaceholder: getWeatherIcon(d.current.weather_code),
             },
@@ -782,7 +811,16 @@ const App = () => {
               time: new Date(t).getHours() + ":00",
               temp: `${Math.round(d.hourly?.temperature_2m?.[i] ?? 0)}°C`,
               tempNum: Math.round(d.hourly?.temperature_2m?.[i] ?? 0),
+              feels_like: `${Math.round(d.hourly?.apparent_temperature?.[i] ?? 0)}°C`,
               windNum: d.hourly?.wind_speed_10m?.[i] ?? 0,
+              wind_direction_10m: d.hourly?.wind_direction_10m?.[i] ?? 0,
+              relative_humidity_2m: d.hourly?.relative_humidity_2m?.[i] ?? null,
+              dew_point_2m: d.hourly?.dew_point_2m?.[i] ?? 0,
+              precipitation: d.hourly?.precipitation?.[i] ?? null,
+              rain: d.hourly?.rain?.[i] ?? null,
+              pressure_msl: d.hourly?.pressure_msl?.[i] ?? null,
+              cloud_cover: d.hourly?.cloud_cover?.[i] ?? null,
+              visibility: d.hourly?.visibility?.[i] ?? 0,
               iconPlaceholder: getWeatherIcon(d.hourly?.weather_code?.[i] ?? 0),
             })),
             daily16: (d.daily?.time || []).map((t, i) => ({
@@ -796,6 +834,9 @@ const App = () => {
               temp_night: `${Math.round(d.daily.temperature_2m_min[i] ?? 0)}°C`,
               uv_index: d.daily.uv_index_max?.[i] ?? 0,
               wind_speed: `${d.daily.wind_speed_10m_max?.[i] ?? 0} м/с`,
+              precipitation_probability_max: d.daily.precipitation_probability_max?.[i] ?? 0,
+              rain_sum: d.daily.rain_sum?.[i] ?? 0,
+              precipitation_sum: d.daily.precipitation_sum?.[i] ?? 0,
               iconPlaceholder: getWeatherIcon(d.daily.weather_code[i] ?? 0),
             })),
           };
@@ -1198,6 +1239,11 @@ const App = () => {
           handleOpenRegister={handleOpenRegister}
           customHolidayName={customHolidayName}
           setCustomHolidayName={setCustomHolidayName}
+          weatherCardLayout={weatherCardLayout}
+          isWeatherDetailsOpen={isWeatherDetailsOpen}
+          setIsWeatherDetailsOpen={setIsWeatherDetailsOpen}
+          selectedWeatherCard={selectedWeatherCard}
+          setSelectedWeatherCard={setSelectedWeatherCard}
         />
       </StyledSectionContainer>
     </>
@@ -1287,6 +1333,11 @@ const App = () => {
                   handleOpenRegister={handleOpenRegister}
                   customHolidayName={customHolidayName}
                   setCustomHolidayName={setCustomHolidayName}
+                  weatherCardLayout={weatherCardLayout}
+                  isWeatherDetailsOpen={isWeatherDetailsOpen}
+                  setIsWeatherDetailsOpen={setIsWeatherDetailsOpen}
+                  selectedWeatherCard={selectedWeatherCard}
+                  setSelectedWeatherCard={setSelectedWeatherCard}
                 />
               </StyledSectionContainer>
             ),
@@ -1447,6 +1498,10 @@ const App = () => {
                               handleOpenRegister={handleOpenRegister}
                               customHolidayName={customHolidayName}
                               setCustomHolidayName={setCustomHolidayName}
+                              isWeatherDetailsOpen={isWeatherDetailsOpen}
+                              setIsWeatherDetailsOpen={setIsWeatherDetailsOpen}
+                              selectedWeatherCard={selectedWeatherCard}
+                              setSelectedWeatherCard={setSelectedWeatherCard}
                             />
                           </StyledSectionContainer>
                         )}
@@ -1483,6 +1538,8 @@ const App = () => {
               user={user}
               availableAvatars={AVAILABLE_AVATARS}
               onUpdate={setUser}
+              weatherCardLayout={weatherCardLayout}
+              onUpdateLayout={setWeatherCardLayout}
             />
           )}
           {isVipModalOpen && (
@@ -1552,6 +1609,13 @@ const App = () => {
             isRoutingMode={isRoutingMode}
             setIsRoutingMode={setIsRoutingMode}
             currentPath={location.pathname.substring(1)}
+          />
+
+          <WeatherDetailsModal
+            isOpen={isWeatherDetailsOpen}
+            onClose={() => setIsWeatherDetailsOpen(false)}
+            card={selectedWeatherCard}
+            isDarkMode={isDarkMode}
           />
         </div>
       </ThemeWrapper>

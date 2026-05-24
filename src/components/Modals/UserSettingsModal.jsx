@@ -19,7 +19,7 @@ const slideIn = keyframes`
 `;
 
 const slideOut = keyframes`
-  0% { 
+  0% {
     transform: translateY(0%) scale(1); 
     opacity: 1; 
   }
@@ -397,6 +397,8 @@ const DEFAULT_SECTIONS = [
   "avatar",
   "voiceActing",
   "dateDisplay",
+  "weatherLayout",
+  "newsLayout",
 ];
 
 const SECTION_LABELS = {
@@ -409,9 +411,25 @@ const SECTION_LABELS = {
   customCalendar: "Мої важливі дні",
   voiceActing: "Версія озвучки (Текст)",
   dateDisplay: "Відображення часу",
+  weatherLayout: "Елементи картки погоди",
+  newsLayout: "Елементи новин",
 };
 
-const UserSettingsModal = ({ onClose, user, availableAvatars, onUpdate }) => {
+const WEATHER_BLOCK_LABELS = {
+  current: "Температура та іконка",
+  details: "Деталі (Вологість, Вітер...)",
+  ai: "Підсумок ШІ",
+  hourly: "Годинний графік",
+  daily: "Прогноз на 16 днів",
+};
+
+const NEWS_BLOCK_LABELS = {
+  image: "Зображення",
+  title: "Заголовок",
+  description: "Опис",
+};
+
+const UserSettingsModal = ({ onClose, user, availableAvatars, onUpdate, weatherCardLayout, onUpdateLayout }) => {
   const dispatch = useDispatch();
   const customDays = useSelector((state) => state.calendar?.customDays || []);
   const [newDay, setNewDay] = useState({ d: "", m: "", reason: "" });
@@ -439,6 +457,11 @@ const UserSettingsModal = ({ onClose, user, availableAvatars, onUpdate }) => {
   const [showTerms, setShowTerms] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [sectionsOrder, setSectionsOrder] = useState([...DEFAULT_SECTIONS]);
+  const [newsLayout, setNewsLayout] = useState(user?.newsLayout || [
+    { key: "image", visible: true },
+    { key: "title", visible: true },
+    { key: "description", visible: true },
+  ]);
 
   // Зберігаємо початковий стан користувача для відкату у разі скасування без збереження
   const initialUser = useMemo(() => ({ ...user }), [user]);
@@ -494,6 +517,7 @@ const UserSettingsModal = ({ onClose, user, availableAvatars, onUpdate }) => {
       dateDisplayMode: newFormData.dateDisplayMode,
       hour12: newFormData.hour12,
       voiceActingMode: newFormData.voiceActingMode,
+      newsLayout: updates.newsLayout || newsLayout,
     });
   };
 
@@ -549,6 +573,7 @@ const UserSettingsModal = ({ onClose, user, availableAvatars, onUpdate }) => {
       dateDisplayMode: formData.dateDisplayMode,
       hour12: formData.hour12,
       voiceActingMode: formData.voiceActingMode,
+      newsLayout: newsLayout,
       ...(formData.newPassword
         ? {
             oldPassword: formData.oldPassword,
@@ -571,6 +596,45 @@ const UserSettingsModal = ({ onClose, user, availableAvatars, onUpdate }) => {
 
   const resetSectionsOrder = () => {
     setSectionsOrder([...DEFAULT_SECTIONS]);
+  };
+
+  const moveWeatherBlock = (idx, dir) => {
+    const arr = [...weatherCardLayout];
+    const newIdx = idx + dir;
+    if (newIdx < 0 || newIdx >= arr.length) return;
+    [arr[idx], arr[newIdx]] = [arr[newIdx], arr[idx]];
+    onUpdateLayout(arr);
+  };
+
+  const toggleWeatherBlockVisibility = (key) => {
+    const visibleCount = weatherCardLayout.filter((b) => b.visible).length;
+    const block = weatherCardLayout.find((b) => b.key === key);
+    
+    if (block.visible && visibleCount <= 1) {
+      alert("Має бути видимим хоча б один елемент!");
+      return;
+    }
+
+    const newLayout = weatherCardLayout.map((b) =>
+      b.key === key ? { ...b, visible: !b.visible } : b
+    );
+    onUpdateLayout(newLayout);
+  };
+
+  const toggleNewsBlockVisibility = (key) => {
+    const visibleCount = newsLayout.filter((b) => b.visible).length;
+    const block = newsLayout.find((b) => b.key === key);
+    
+    if (block.visible && visibleCount <= 1) {
+      alert("Має бути видимим хоча б один елемент!");
+      return;
+    }
+
+    const newLayout = newsLayout.map((b) =>
+      b.key === key ? { ...b, visible: !b.visible } : b
+    );
+    setNewsLayout(newLayout);
+    updateLivePreview({ newsLayout: newLayout });
   };
 
   const accepted = true;
@@ -996,6 +1060,68 @@ const UserSettingsModal = ({ onClose, user, availableAvatars, onUpdate }) => {
                     <option value="malyatko">Малятко ТВ</option>
                     <option value="bbkids">BBKidsUA</option>
                   </Select>
+                </Section>
+              );
+            } else if (section === "weatherLayout") {
+              content = (
+                <Section key="weatherLayout">
+                  <label style={{ fontSize: "13px", fontWeight: "bold" }}>
+                    Налаштування картки погоди
+                  </label>
+                  <p style={{ fontSize: "11px", color: "#666", margin: "0 0 5px 0" }}>
+                    Виберіть, які блоки відображати та в якому порядку.
+                  </p>
+                  {weatherCardLayout.map((block, idx) => (
+                    <div key={block.key} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "rgba(255,255,255,0.3)", padding: "5px 10px", borderRadius: "8px", marginBottom: "4px" }}>
+                      <CheckboxRow style={{ flex: 1 }}>
+                        <input
+                          type="checkbox"
+                          checked={block.visible}
+                          onChange={() => toggleWeatherBlockVisibility(block.key)}
+                        />
+                        <span style={{ fontSize: "12px", fontWeight: 500 }}>{WEATHER_BLOCK_LABELS[block.key]}</span>
+                      </CheckboxRow>
+                      <div style={{ display: "flex", gap: "2px" }}>
+                        <OrderButton
+                          style={{ width: "22px", height: "22px", fontSize: "12px" }}
+                          disabled={idx === 0}
+                          onClick={() => moveWeatherBlock(idx, -1)}
+                        >
+                          ↑
+                        </OrderButton>
+                        <OrderButton
+                          style={{ width: "22px", height: "22px", fontSize: "12px" }}
+                          disabled={idx === weatherCardLayout.length - 1}
+                          onClick={() => moveWeatherBlock(idx, 1)}
+                        >
+                          ↓
+                        </OrderButton>
+                      </div>
+                    </div>
+                  ))}
+                </Section>
+              );
+            } else if (section === "newsLayout") {
+              content = (
+                <Section key="newsLayout">
+                  <label style={{ fontSize: "13px", fontWeight: "bold" }}>
+                    Налаштування новин
+                  </label>
+                  <p style={{ fontSize: "11px", color: "#666", margin: "0 0 5px 0" }}>
+                    Виберіть, які елементи новин відображати.
+                  </p>
+                  {newsLayout.map((block) => (
+                    <div key={block.key} style={{ display: "flex", alignItems: "center", background: "rgba(255,255,255,0.3)", padding: "5px 10px", borderRadius: "8px", marginBottom: "4px" }}>
+                      <CheckboxRow style={{ flex: 1 }}>
+                        <input
+                          type="checkbox"
+                          checked={block.visible}
+                          onChange={() => toggleNewsBlockVisibility(block.key)}
+                        />
+                        <span style={{ fontSize: "12px", fontWeight: 500 }}>{NEWS_BLOCK_LABELS[block.key]}</span>
+                      </CheckboxRow>
+                    </div>
+                  ))}
                 </Section>
               );
             }

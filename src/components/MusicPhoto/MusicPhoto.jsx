@@ -3154,8 +3154,37 @@ const FullScreenPlayer = ({
   const [showFramesGallery, setShowFramesGallery] = useState(false);
   const [framesCount, setFramesCount] = useState(60);
 
-  const [isFullscreenNative, setIsFullscreenNative] = useState(false);
   const [duration, setDuration] = useState(0);
+
+  const timeToSeconds = (timeStr) => {
+    if (!timeStr) return 0;
+    const parts = timeStr.split(":");
+    if (parts.length === 2) {
+      const m = parseInt(parts[0], 10) || 0;
+      const s = parseInt(parts[1], 10) || 0;
+      return m * 60 + s;
+    }
+    return parseInt(timeStr, 10) || 0;
+  };
+
+  const secondsToTime = (secs) => {
+    const m = Math.floor(secs / 60) || 0;
+    const s = Math.floor(secs % 60) || 0;
+    return `${m}:${s < 10 ? "0" : ""}${s}`;
+  };
+
+  const [frameStartStr, setFrameStartStr] = useState("0:00");
+  const [frameEndStr, setFrameEndStr] = useState("0:00");
+
+  const isStartInvalid = useMemo(() => timeToSeconds(frameStartStr) > duration, [frameStartStr, duration]);
+  const isEndInvalid = useMemo(() => timeToSeconds(frameEndStr) > duration, [frameEndStr, duration]);
+
+  const handleResetFrames = () => {
+    setFrameStartStr("0:00");
+    setFrameEndStr(secondsToTime(duration));
+  };
+
+  const [isFullscreenNative, setIsFullscreenNative] = useState(false);
   const [volume, setVolume] = useState(1);
   const [speed, setSpeed] = useState(1);
   const [seekForwardAmount, setSeekForwardAmount] = useState(10);
@@ -3626,6 +3655,7 @@ const FullScreenPlayer = ({
     setIsAssetsLoaded(false);
     setLoadingProgress(0);
     setIsPlaying(false);
+    setFrameStartStr("0:00");
 
     const preloadAssets = async () => {
       const urlsToLoad = new Set();
@@ -3679,11 +3709,14 @@ const FullScreenPlayer = ({
 
     const updateTime = () => setProgress(media.currentTime);
     const updateDur = () => {
-      setDuration(media.duration);
+      if (!mediaRef.current) return;
+      const dur = mediaRef.current.duration;
+      setDuration(dur);
       setDownloadRange((prev) => ({
         ...prev,
-        end: Math.floor(media.duration),
+        end: Math.floor(dur),
       }));
+      setFrameEndStr(secondsToTime(dur));
     };
 
     const handleEnded = () => {
@@ -3783,7 +3816,6 @@ const FullScreenPlayer = ({
     if (!track.video || isGeneratingFrames) return;
     setIsGeneratingFrames(true);
     setVideoFrames([]);
-    const frames = [];
     const tempVideo = document.createElement("video");
 
     // Використовуємо той самий URL, що і в плеєрі
@@ -3799,13 +3831,23 @@ const FullScreenPlayer = ({
         setTimeout(() => reject(new Error("Timeout")), 15000);
       });
 
-      const totalDuration = tempVideo.duration;
-      const interval = totalDuration / framesCount;
+      const startTime = timeToSeconds(frameStartStr);
+      const endTime = Math.min(timeToSeconds(frameEndStr), tempVideo.duration);
+      const range = endTime - startTime;
+
+      if (range <= 0) {
+        alert("Помилка: Початковий час не може бути пізніше або дорівнювати кінцевому!");
+        setIsGeneratingFrames(false);
+        return;
+      }
+
+      const interval = range / framesCount;
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
+      const frames = [];
 
       for (let i = 0; i < framesCount; i++) {
-        tempVideo.currentTime = i * interval;
+        tempVideo.currentTime = startTime + i * interval;
         await new Promise((resolve) => {
           tempVideo.onseeked = resolve;
         });
@@ -5289,6 +5331,79 @@ const FullScreenPlayer = ({
                   <option value={120}>120 кадрів</option>
                 </select>
               </SliderRow>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "5px",
+                  marginBottom: "8px",
+                  padding: "0 5px",
+                }}
+              >
+                <div style={{ flex: 1 }}>
+                  <label style={{ fontSize: "9px", color: "#aaa", display: "block", marginBottom: "2px" }}>
+                    Початок (хв:сс)
+                  </label>
+                  <div style={{ display: "flex", gap: "2px" }}>
+                    <input
+                      type="text"
+                      value={frameStartStr}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (/^[0-9:]*$/.test(val)) setFrameStartStr(val);
+                      }}
+                      placeholder="0:59"
+                      style={{ width: "100%", background: "#222", color: "white", border: `1px solid ${isStartInvalid ? "#ff4d4d" : "#555"}`, borderRadius: "4px", padding: "2px", fontSize: "10px" }}
+                    />
+                    <button
+                      onClick={() => setFrameStartStr(secondsToTime(progress))}
+                      title="Вставити поточний час"
+                      style={{ background: "#444", border: "1px solid #666", borderRadius: "4px", cursor: "pointer", color: "white", fontSize: "9px", padding: "0 2px" }}
+                    >
+                      ⏱️
+                    </button>
+                  </div>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={{ fontSize: "9px", color: "#aaa", display: "block", marginBottom: "2px" }}>
+                    Кінець (хв:сс)
+                  </label>
+                  <div style={{ display: "flex", gap: "2px" }}>
+                    <input
+                      type="text"
+                      value={frameEndStr}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (/^[0-9:]*$/.test(val)) setFrameEndStr(val);
+                      }}
+                      placeholder="2:33"
+                      style={{ width: "100%", background: "#222", color: "white", border: `1px solid ${isEndInvalid ? "#ff4d4d" : "#555"}`, borderRadius: "4px", padding: "2px", fontSize: "10px" }}
+                    />
+                    <button
+                      onClick={() => setFrameEndStr(secondsToTime(progress))}
+                      title="Вставити поточний час"
+                      style={{ background: "#444", border: "1px solid #666", borderRadius: "4px", cursor: "pointer", color: "white", fontSize: "9px", padding: "0 2px" }}
+                    >
+                      ⏱️
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={handleResetFrames}
+                style={{
+                  width: "100%",
+                  background: "#333",
+                  color: "#aaa",
+                  border: "1px solid #444",
+                  borderRadius: "4px",
+                  padding: "2px",
+                  fontSize: "9px",
+                  cursor: "pointer",
+                  marginBottom: "4px",
+                }}
+              >
+                ↺ Скинути проміжок
+              </button>
               <button
                 onClick={generateFrames}
                 disabled={isGeneratingFrames}

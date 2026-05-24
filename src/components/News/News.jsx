@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import styled from "styled-components";
+import { motion, AnimatePresence } from "framer-motion";
+import localforage from "localforage";
 import rainbow from "../../photos/vip-images/stars.webp";
 const SOURCES = [
-  "https://www.nationalgeographic.com/animals/index.rss",
-  "https://phys.org/rss-feed/biology-news/animals-news/",
+
+  { url: "https://phys.org/rss-feed/biology-news/animals-news/", name: "Phys.org", flag: "🇬🇧", home: "https://phys.org" },
 ];
 
 const STOP_WORDS = [
@@ -16,6 +18,19 @@ const STOP_WORDS = [
   "ставки",
   "корупція",
 ];
+
+const translateText = async (text) => {
+  if (!text || text.length < 3) return text;
+  try {
+    const res = await fetch(
+      `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=uk&dt=t&q=${encodeURIComponent(text)}`,
+    );
+    const data = await res.json();
+    return data[0].map((s) => s[0]).join("");
+  } catch {
+    return text;
+  }
+};
 
 const NewsDiv = styled.div`
   margin-top: 35px;
@@ -79,6 +94,51 @@ const NewsImg = styled.img`
   display: block;
 `;
 
+const LoadMoreContainer = styled(motion.div)`
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+`;
+
+const LoadMoreBtn = styled.button`
+  background: ${(props) => (props.$isDarkMode ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)")};
+  color: ${(props) => (props.$isDarkMode ? "#fff" : "#333")};
+  border: 1px solid #ffb36c;
+  border-radius: 20px;
+  padding: 8px 35px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  &:hover {
+    background: #ffb36c;
+    color: #000;
+    transform: scale(1.05);
+  }
+  &:active {
+    transform: scale(0.95);
+  }
+`;
+
+const SourceFlag = styled.span`
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  z-index: 5;
+  cursor: pointer;
+  text-decoration: none;
+  &:hover {
+    background: rgba(0, 0, 0, 0.8);
+    color: #ffb36c;
+  }
+  backdrop-filter: blur(4px);
+`;
+
 const CardContent = styled.div`
   padding: 20px;
   font-family: var(--font-family);
@@ -87,131 +147,435 @@ const CardContent = styled.div`
   flex-grow: 1;
 `;
 
-const News = ({ $isDarkMode }) => {
+const FilterContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 25px;
+`;
+
+const FilterBtn = styled.button`
+  background: ${(props) => (props.$active ? "#ffb36c" : "transparent")};
+  color: ${(props) => (props.$active ? "#000" : props.$isDarkMode ? "#666" : "#ccc")};
+  border: 1px solid #ffb36c;
+  border-radius: 20px;
+  padding: 4px 15px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 600;
+  &:hover {
+    background: rgba(255, 179, 108, 0.3);
+  }
+  &:disabled {
+    opacity: 0.5;
+  }
+`;
+
+const RefreshBtn = styled.button`
+  background: none;
+  border: 1px solid ${(props) => (props.$isDarkMode ? "rgba(0,0,0,0.2)" : "rgba(255,255,255,0.3)")};
+  color: ${(props) => (props.$isDarkMode ? "#666" : "#ccc")};
+  border-radius: 12px;
+  padding: 2px 10px;
+  font-size: 11px;
+  margin-left: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  vertical-align: middle;
+  &:hover:not(:disabled) {
+    background: #ffb36c;
+    color: #000;
+    border-color: #ffb36c;
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+const ProgressBar = styled.div`
+  width: 200px;
+  height: 8px;
+  background: ${(props) => (props.$isDarkMode ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.2)")};
+  border: 1px solid ${(props) => (props.$isDarkMode ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.1)")};
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 0 auto;
+`;
+
+const ProgressBarFill = styled.div`
+  height: 100%;
+  background: ${(props) => (props.$isError ? "#ff4d4d" : "#ffb36c")};
+  width: ${(props) => props.$progress}%;
+  transition: width 0.3s ease, background-color 0.3s ease;
+  box-shadow: 0 0 10px ${(props) => (props.$isError ? "rgba(255, 77, 77, 0.7)" : "rgba(255, 179, 108, 0.5)")};
+`;
+
+const News = ({ $isDarkMode, user }) => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadProgress, setLoadProgress] = useState(0);
+  const [hasError, setHasError] = useState(false);
+  const [filterSource, setFilterSource] = useState("all");
+  const [lastUpdated, setLastUpdated] = useState(null);
+  const [cooldown, setCooldown] = useState(0);
+  const [visibleCount, setVisibleCount] = useState(3);
+  
+  // 1. Стан розмонтування для Memory Leak Protection
+  const isMounted = useRef(true);
 
   useEffect(() => {
-    const translateText = async (text) => {
-      if (!text || text.length < 3) return text;
-      try {
-        const res = await fetch(
-          `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=uk&dt=t&q=${encodeURIComponent(text)}`,
-        );
-        const data = await res.json();
-        return data[0].map((s) => s[0]).join("");
-      } catch {
-        return text;
-      }
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
     };
+  }, []);
 
-    const getData = async () => {
+  const getData = useCallback(async (showLoader = false) => {
+    if (showLoader && isMounted.current) {
       setLoading(true);
-      try {
-        let allItems = [];
-        for (const url of SOURCES) {
-          try {
-            const res = await fetch(
-              `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`,
-            );
-            const data = await res.json();
-            if (data.status === "ok" && data.items.length > 0) {
-              allItems = data.items;
-              break;
-            }
-          } catch (e) {
-            continue;
+      setLoadProgress(5);
+      setHasError(false);
+    }
+    try {
+      let allItems = [];
+      for (const source of SOURCES) {
+        try {
+          const res = await fetch(
+            `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(source.url)}`,
+          );
+          const data = await res.json();
+          if (data.status === "ok" && data.items.length > 0) {
+            // Додаємо інформацію про джерело до кожного елемента
+            const itemsWithSource = data.items.map(item => ({
+              ...item,
+              sourceName: source.name,
+              sourceFlag: source.flag,
+              sourceHome: source.home
+            }));
+            allItems = [...allItems, ...itemsWithSource];
           }
+        } catch (e) {
+          continue;
+        }
+      }
+
+      // 1. Якщо жодне джерело не повернуло дані — викликаємо помилку для UI
+      if (allItems.length === 0) {
+        throw new Error("Не вдалося завантажити жодне джерело новин");
+      }
+
+      if (showLoader && isMounted.current) setLoadProgress(25);
+
+      // 1. Сортування об'єднаного списку новин за датою (найсвіжіші зверху)
+      allItems.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+
+      const clean = allItems.filter((i) => {
+        const content = (i.title + (i.description || "")).toLowerCase();
+        return !STOP_WORDS.some((word) => content.includes(word));
+      });
+
+      // Збільшуємо кількість новин до 15
+      const limited = clean.slice(0, 15);
+      const results = new Array(limited.length);
+      const toTranslateIndices = [];
+      const stringsToTranslate = [];
+
+      // 1. Перевіряємо кеш та збираємо тексти для пакетного перекладу
+      for (let i = 0; i < limited.length; i++) {
+        const item = limited[i];
+        const cacheKey = `news_trans_${item.link}`;
+        const cached = await localforage.getItem(cacheKey);
+
+        if (cached) {
+          results[i] = { ...cached, sourceName: item.sourceName, sourceFlag: item.sourceFlag, sourceHome: item.sourceHome };
+        } else {
+          const cleanDesc = (item.description || "")
+            .replace(/<[^>]*>?/gm, "")
+            .trim()
+            .substring(0, 80);
+
+          toTranslateIndices.push(i);
+          stringsToTranslate.push(item.title);
+          stringsToTranslate.push(cleanDesc);
+        }
+      }
+
+      // 2. Пакетний переклад з безпечним роздільником ___ та перевіркою довжини
+      if (stringsToTranslate.length > 0) {
+        if (showLoader && isMounted.current) setLoadProgress(40);
+        
+        let currentBatchStrings = [];
+        let currentBatchIndices = [];
+        let currentLen = 0;
+        const batches = [];
+
+        for (let i = 0; i < toTranslateIndices.length; i++) {
+          const title = stringsToTranslate[i * 2];
+          const desc = stringsToTranslate[i * 2 + 1];
+          const pairLen = title.length + desc.length + 10; // Довжина тексту + роздільники
+
+          if (currentLen + pairLen > 4500 && currentBatchStrings.length > 0) {
+            batches.push({ strings: currentBatchStrings, indices: currentBatchIndices });
+            currentBatchStrings = [];
+            currentBatchIndices = [];
+            currentLen = 0;
+          }
+          currentBatchStrings.push(title, desc);
+          currentBatchIndices.push(toTranslateIndices[i]);
+          currentLen += pairLen;
+        }
+        if (currentBatchStrings.length > 0) {
+          batches.push({ strings: currentBatchStrings, indices: currentBatchIndices });
         }
 
-        const clean = allItems.filter((i) => {
-          const content = (i.title + (i.description || "")).toLowerCase();
-          return !STOP_WORDS.some((word) => content.includes(word));
-        });
+        // Виконуємо запити для кожного батча
+        for (const batch of batches) {
+          const combinedText = batch.strings.join(" ___ ");
+          const translatedCombined = await translateText(combinedText);
+          // Використовуємо регулярний вираз для обробки можливих пробілів від Google
+          const splitResults = translatedCombined.split(/\s*___\s*/);
 
-        const limited = clean.slice(0, 5);
+          for (let j = 0; j < batch.indices.length; j++) {
+            const idx = batch.indices[j];
+            const item = limited[idx];
+            const bestImg = (item.enclosure && item.enclosure.link) || item.thumbnail || rainbow;
 
-        const translated = await Promise.all(
-          limited.map(async (item) => {
-            const cleanDesc = (item.description || "")
-              .replace(/<[^>]*>?/gm, "")
-              .trim();
-            const bestImg =
-              (item.enclosure && item.enclosure.link) ||
-              item.thumbnail ||
-              rainbow;
-
-            return {
-              title: await translateText(item.title),
-              description: await translateText(
-                cleanDesc.substring(0, 80) + "...",
-              ),
+            const translatedItem = {
+              title: splitResults[j * 2]?.trim() || item.title,
+              description: (splitResults[j * 2 + 1]?.trim() || "") + "...",
               link: item.link,
               displayImage: bestImg,
+              sourceName: item.sourceName,
+              sourceFlag: item.sourceFlag,
+              sourceHome: item.sourceHome
             };
-          }),
-        );
 
-        setItems(translated);
-      } catch (e) {
-        console.error("Помилка завантаження новин:", e);
-      } finally {
-        setLoading(false);
+            await localforage.setItem(`news_trans_${item.link}`, translatedItem);
+            results[idx] = translatedItem;
+          }
+        }
       }
+
+      if (showLoader && isMounted.current) setLoadProgress(100);
+
+      // 3. Авто-видалення: очищуємо старі записи, щоб не засмічувати пам'ять
+      const allKeys = await localforage.keys();
+      const newsCacheKeys = allKeys.filter((k) => k.startsWith("news_trans_"));
+      const currentActiveKeys = limited.map((i) => `news_trans_${i.link}`);
+
+      for (const key of newsCacheKeys) {
+        if (!currentActiveKeys.includes(key)) {
+          await localforage.removeItem(key);
+        }
+      }
+
+      if (isMounted.current) {
+        setItems(results);
+        setLastUpdated(new Date());
+      }
+    } catch (e) {
+      console.error("Помилка завантаження новин:", e);
+      if (showLoader && isMounted.current) {
+        setHasError(true);
+        setLoadProgress(100);
+        // Даємо користувачу 2.5 секунди побачити червоний прогрес-бар
+        await new Promise((resolve) => setTimeout(resolve, 2500));
+      }
+    } finally {
+      if (showLoader && isMounted.current) setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const init = async () => {
+      // Перевірка збереженого таймера обмеження в localforage
+      const endTime = await localforage.getItem("news_refresh_cooldown_end");
+      if (endTime) {
+        const remaining = Math.ceil((endTime - Date.now()) / 1000);
+        if (remaining > 0) setCooldown(remaining);
+      }
+      // Перший запуск із показом лоадера
+      getData(true);
     };
 
-    getData();
-  }, []);
+    init();
+
+    // Налаштування інтервалу оновлення (60 хвилин = 3600000 мс)
+    const interval = setInterval(() => getData(false), 60 * 60 * 1000);
+
+    // Очищення інтервалу при видаленні компонента
+    return () => {
+      clearInterval(interval);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // getData стабільна (useCallback []), тому ми можемо безпечно прибрати її звідси
+
+  // Скидаємо кількість видимих новин при зміні джерела
+  useEffect(() => {
+    setVisibleCount(3);
+  }, [filterSource]);
+
+  // Таймер для cooldown кнопки оновлення
+  useEffect(() => {
+    if (cooldown > 0) {
+      const timer = setTimeout(() => setCooldown(cooldown - 1), 1000);
+      return () => clearTimeout(timer);
+    } else {
+      // Видаляємо запис, коли час вийшов
+      localforage.removeItem("news_refresh_cooldown_end");
+    }
+  }, [cooldown]);
+
+  const handleManualRefresh = async () => {
+    if (cooldown > 0) return;
+    getData(true);
+    // Зберігаємо час закінчення (зараз + 60 секунд)
+    await localforage.setItem("news_refresh_cooldown_end", Date.now() + 60000);
+    setCooldown(60); // Встановлюємо 60 секунд обмеження
+  };
+
+  const filteredItems = items.filter((item) => {
+    return filterSource === "all" || item.sourceName === filterSource;
+  });
+
+  // Обрізаємо масив для пагінації
+  const displayedItems = filteredItems.slice(0, visibleCount);
+
+  // Отримуємо налаштування видимості з об'єкта користувача
+  const layout = user?.newsLayout || [];
+  const isVisible = (key) => layout.find(item => item.key === key)?.visible !== false;
+  const showImage = isVisible("image");
+  const showTitle = isVisible("title");
+  const showDescription = isVisible("description");
 
   return (
     <NewsDiv>
-      <AihelpTitle $isDarkMode={$isDarkMode}>Світ природи</AihelpTitle>
+      <AihelpTitle $isDarkMode={$isDarkMode}>
+        Світ природи
+        {lastUpdated && (
+          <span style={{ fontSize: '0.55em', opacity: 0.6, marginLeft: '12px', fontWeight: '400', verticalAlign: 'middle' }}>
+            (Оновлено: {lastUpdated.toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' })})
+          </span>
+        )}
+        <RefreshBtn 
+          $isDarkMode={$isDarkMode} 
+          onClick={handleManualRefresh}
+          disabled={loading || cooldown > 0}
+          title={cooldown > 0 ? `Повторне оновлення буде доступне через ${cooldown} сек.` : "Оновити новини"}
+        >
+          {loading ? "⌛ Оновлення..." : cooldown > 0 ? `⏳ ${cooldown}с` : "🔄 Оновити зараз"}
+        </RefreshBtn>
+      </AihelpTitle>
+
+      <FilterContainer>
+        <FilterBtn 
+          $isDarkMode={$isDarkMode} 
+          $active={filterSource === "all"} 
+          onClick={() => setFilterSource("all")}
+        >Усі</FilterBtn>
+        {SOURCES.map(s => (
+          <FilterBtn 
+            key={s.name}
+            $isDarkMode={$isDarkMode} 
+            $active={filterSource === s.name} 
+            onClick={() => setFilterSource(s.name)}
+          >{s.name}</FilterBtn>
+        ))}
+      </FilterContainer>
+
       {loading ? (
-        <div style={{ textAlign: "center", color: "gray", padding: "50px" }}>
-          Шукаємо цікавинки...
+        <div style={{ textAlign: "center", color: "gray", padding: "60px 20px" }}>
+          <div style={{ marginBottom: "15px", fontSize: "14px", fontWeight: "500" }}>
+            {hasError ? "⚠️ Помилка завантаження!" : `Шукаємо цікавинки... ${loadProgress}%`}
+          </div>
+          <ProgressBar $isDarkMode={$isDarkMode}>
+            <ProgressBarFill $progress={loadProgress} $isError={hasError} />
+          </ProgressBar>
         </div>
-      ) : items.length > 0 ? (
-        <Grid>
-          {items.map((item, idx) => (
-            <Card
-              key={idx}
-              href={item.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              $isDarkMode={$isDarkMode}
-            >
-              <NewsImg
-                src={item.displayImage}
-                alt=""
-                onError={(e) => {
-                  e.target.src = rainbow;
-                }}
-              />
-              <CardContent>
-                <h4
-                  style={{
-                    margin: "0 0 10px 0",
-                    fontSize: "18px",
-                    fontWeight: "700",
-                    lineHeight: "1.3",
-                  }}
+      ) : filteredItems.length > 0 ? (
+        <>
+          <Grid>
+            {displayedItems.map((item) => (
+              <Card
+                key={item.link}
+                href={item.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                $isDarkMode={$isDarkMode}
+              >
+                <div style={{ position: "relative" }}>
+                  <SourceFlag 
+                    onClick={(e) => {
+                      e.preventDefault(); 
+                      e.stopPropagation();
+                      window.open(item.sourceHome, "_blank");
+                    }}
+                    title={`Перейти на головну сторінку ${item.sourceName}`}
+                  >
+                    {item.sourceFlag} {item.sourceName}
+                  </SourceFlag>
+                  {showImage && (
+                    <NewsImg
+                      src={item.displayImage}
+                      alt=""
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = rainbow;
+                      }}
+                    />
+                  )}
+                </div>
+                {(showTitle || showDescription) && (
+                  <CardContent>
+                    {showTitle && (
+                      <h4
+                        style={{
+                          margin: "0 0 10px 0",
+                          fontSize: "18px",
+                          fontWeight: "700",
+                          lineHeight: "1.3",
+                        }}
+                      >
+                        {item.title}
+                      </h4>
+                    )}
+                    {showDescription && (
+                      <p
+                        style={{
+                          fontSize: "14px",
+                          opacity: 0.7,
+                          margin: 0,
+                          lineHeight: "1.5",
+                        }}
+                      >
+                        {item.description}
+                      </p>
+                    )}
+                  </CardContent>
+                )}
+              </Card>
+            ))}
+          </Grid>
+          <AnimatePresence>
+            {visibleCount < filteredItems.length && (
+              <LoadMoreContainer
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, transition: { duration: 0.3 } }}
+              >
+                <LoadMoreBtn 
+                  $isDarkMode={$isDarkMode}
+                  onClick={() => setVisibleCount(prev => prev + 3)}
                 >
-                  {item.title}
-                </h4>
-                <p
-                  style={{
-                    fontSize: "14px",
-                    opacity: 0.7,
-                    margin: 0,
-                    lineHeight: "1.5",
-                  }}
-                >
-                  {item.description}
-                </p>
-              </CardContent>
-            </Card>
-          ))}
-        </Grid>
+                  Показати ще +3
+                </LoadMoreBtn>
+              </LoadMoreContainer>
+            )}
+          </AnimatePresence>
+        </>
       ) : (
         <div style={{ textAlign: "center", color: "gray", padding: "20px" }}>
           Новини тимчасово відпочивають. Зазирніть за хвилину!
