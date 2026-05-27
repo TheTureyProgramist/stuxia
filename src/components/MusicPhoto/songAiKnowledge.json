@@ -109,26 +109,6 @@
     "YouTube": "https://www.youtube.com/watch?v=ZvZoga2EPzg"
   },
   {
-    "id": 3,
-    "category": "природа",
-    "image": "turkeys",
-    "audio": "turkeyAudio",
-    "text": "",
-    "duration": 60,
-    "author": "Звуки індиків - Моя робота :)",
-    "images": ["turkeysone", "turkeytwo", "turkeythree", "turkeyfour", "turkeyfive", "turkeysix", "turkeyseven", "turkeys"],
-    "lyrics": [
-      {
-        "time": 25,
-        "text": "Дякую всім слухачам! Давно хотів сказати, що робота над піснями, була примною і важкою."
-      },
-      {
-        "time": 55,
-        "Послання до людей": "Друзі, у кожного, своя улюблена тема(спільне, відмінне), і ненавидна. Я розміщую захопливе і заспокійливе, окрім моїх захоплень, тільки скажіть і ваше улюблене може з'явитись. Я це кажу, до того, що Стихію, ми розвиватимемо разом. "
-      }
-    ]
-  },
-  {
     "id": 4,
     "category": "хіти",
     "image": "monody",
@@ -774,19 +754,6 @@
       { "start": 198, "end": 222, "type": "grayscale", "opacity": 1 }
     ]
   },
-    {
-    "id": 17,
-    "image": "deadlocked",
-    "audio": "deadlockedAudio",
-    "text": "Моторошна, але епічна пісня. Друг фанат цього рівня :).",
-    "author": "Deadlocked - F77(GeometryDash).",
-    "category": "ігри",
-    "duration": 140,
-    "images": ["deadlocked", "swamptwo", "swampthree", "swampfour", "swampfive", "swampsix", "swampseven", "swampeight", "swampnine", "horror", "horrortwo", "horrorthree", "horrorfour", "horrorfive", "horrorsix", "horrorseven", "horroreight"],
-    "text": "Моторошна, але епічна пісня. Друг фанат цього рівня :).",
-    "author": "Deadlocked - F77(GeometryDash).",
-    "category": "ігри"
-  },
   {
     "id": 17,
     "image": "deadlocked",
@@ -966,12 +933,6 @@
     "category": "хіти",
     "duration": 180,
     "images": ["unity"],
-    "lyrics": [
-      { "time": 119, "text": "Текст хаотичний, лише для атмосфери" },
-      { "time": 154, "text": "" },
-      { "time": 170, "text": "Відлуння атмосферного вигуку" },
-      { "time": 180, "text": "" }
-    ],
     "filters": [
       { "start": 170, "end": 191, "type": "flicker", "opacity": 0.3 },
       { "start": 81, "end": 100, "type": "symbols", "intensity": 140, "speed": 1.4, "blur": 0.5 },
@@ -1088,7 +1049,16 @@
       { "time": 45, "text": "Чи твій образ, це уява? Де ти зараз?" },
       { "time": 50, "text": "Чи, уява тоді, взяла гору якраз? Де ти зараз?" },
       { "time": 55, "text": "Де ти зараз? Атлантида. На глибині моря." },
+      { "time": 66, "text": "Ще один сон, шалено біжить у мені дракон." },
+            { "time": 73, "text": "Я зникла. І так втрачена. Я зникла." },
+      { "time": 97, "text": "Це мілководдя ніколи не зустрічало, що моє серце бажало" },
+      { "time": 105, "text": "Я відпускаю. Глибше занурення. Вічна тиша моря. Я дихаю" },
+      { "time": 113, "text": "Живий" },
+      { "time": 115, "text": "Де ти зараз?" },
+      { "time": 126, "text": "Чи, уява тоді, взяла гору якраз? Де ти зараз?" },
+      { "time": 55, "text": "Де ти зараз? Атлантида. На глибині моря." },
       { "time": 68, "text": "Ще один сон, шалено біжить у мені дракон." }
+
     ],
     "filters": [
       { "start": 55, "end": 86, "type": "symbols", "intensity": 140, "speed": 1.4 },

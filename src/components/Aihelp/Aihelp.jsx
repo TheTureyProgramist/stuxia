@@ -114,8 +114,9 @@ const Aihelp = ({ isDarkMode }) => {
   const [openaiApiKey, setOpenaiApiKey] = useState("");
   const [groqApiKey, setGroqApiKey] = useState("");
   const [groqKeyStatus, setGroqKeyStatus] = useState("idle");
-  const [setGeminiModel] = useState("gemini-2.5-flash");
+  const [geminiModel, setGeminiModel] = useState("gemini-2.5-flash");
   const [showKeyInput, setShowKeyInput] = useState(false);
+  const [responseLength, setResponseLength] = useState("concise"); // 'concise' або 'detailed'
 
   const generator = useRef(null);
 
@@ -136,7 +137,7 @@ const Aihelp = ({ isDarkMode }) => {
     };
 
     loadKey();
-  }, [setGeminiModel]);
+  }, []);
 
   const verifyGroqKey = async (key) => {
     if (!key || key.length < 10) {
@@ -239,9 +240,10 @@ const Aihelp = ({ isDarkMode }) => {
         setStatus("З'єднання з Google Gemini...");
         try {
           const genAI = new GoogleGenerativeAI(personalApiKey);
-          const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-          
-          const result = await model.generateContent(query);
+          const model = genAI.getGenerativeModel({ model: geminiModel });
+          const lengthInstruction = responseLength === "detailed" ? "Надай дуже розгорнуту та детальну відповідь." : "Відповідай максимально коротко.";
+          const promptWithLength = `${lengthInstruction} Запитання: ${query}`;
+          const result = await model.generateContent(promptWithLength);
           const botText = result.response.text();
           
           setResponse(botText || "Gemini не повернув тексту.");
@@ -264,7 +266,10 @@ const Aihelp = ({ isDarkMode }) => {
             headers: { "Content-Type": "application/json", "Authorization": `Bearer ${key}` },
             body: JSON.stringify({
               model: modelName,
-              messages: [{ role: "user", content: query }],
+              messages: [
+                { role: "system", content: responseLength === "detailed" ? "Ти відповідаєш максимально докладно." : "Ти відповідаєш максимально стисло." },
+                { role: "user", content: query }
+              ],
               temperature: 0.7
             })
           });
@@ -389,6 +394,16 @@ const Aihelp = ({ isDarkMode }) => {
                 border: groqKeyStatus === 'invalid' ? '1px solid red' : '1px solid #ccc'
               }}
             />
+          </div>
+          <div style={{ display: 'flex', gap: '15px', marginTop: '10px' }}>
+            <label style={{ fontSize: '11px', display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer' }}>
+              <input type="radio" name="len" checked={responseLength === 'concise'} onChange={() => setResponseLength('concise')} />
+              Стисла відповідь
+            </label>
+            <label style={{ fontSize: '11px', display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer' }}>
+              <input type="radio" name="len" checked={responseLength === 'detailed'} onChange={() => setResponseLength('detailed')} />
+              Докладна відповідь
+            </label>
           </div>
             <p style={{ fontSize: '9px', opacity: 0.7, marginTop: '5px' }}>
               Ключі зберігаються локально. Якщо вам менше 18 років, попросіть батьків допомогти.

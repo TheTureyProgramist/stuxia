@@ -546,11 +546,11 @@ const ShopModal = ({ onClose }) => {
       isCharacter: true,
     },
     {
-      name: "Баффі конвертів",
+      name: "Спонсорський",
       img: time,
-      count: "1.5х",
-      buttonText: "2хв",
-      badge: "Раз/Добу",
+      count: "Ви поліпшите Стихію! Та дасте знати, що я роблю це не надарма! Дякую! Без:",
+      buttonText: "Будь-яка ціна",
+      badge: "Підтримайте мене",
     },
     {
       name: "Підписка",

@@ -281,11 +281,6 @@ const CancelButton = styled.button`
   border: 2px solid black;
   cursor: pointer;
 `;
-const GreenText = styled.p`
-  font-size: 12px;
-  font-weight: bold;
-  color: green;
-`;
 const Title = styled.h3`
   font-weight: 900;
   color: black;
@@ -855,10 +850,8 @@ const UserSettingsModal = ({ onClose, user, availableAvatars, onUpdate, weatherC
                       color: "grey",
                     }}
                   >
-                    Аватар оберіть, 1-ий доступний з
-                    <AnimatedText>Стихія+</AnimatedText>, наступні 2 за{" "}
-                    <GreenText>досягнення</GreenText>. Та ще 3 за 🧧, та сама
-                    логіка з вибором кольору імені, та рамки аватара.
+                    Аватар оберіть. Активуйте
+                    <AnimatedText>Стихія+</AnimatedText> яка, дає доступ до відео аватарів. Отримуйте з магазину доміно, за сезонний пропуск
                   </div>
                   <AvatarSlider>
                     {availableAvatars.map((img, i) => (
@@ -1045,24 +1038,7 @@ const UserSettingsModal = ({ onClose, user, availableAvatars, onUpdate, weatherC
                   </div>
                 </Section>
               );
-            } else if (section === "voiceActing") {
-              content = (
-                <Section key="voiceActing">
-                  <label style={{ fontSize: "13px", fontWeight: "bold" }}>
-                    Версія озвучки (Текст пісень)
-                  </label>
-                  <Select
-                    value={formData.voiceActingMode}
-                    onChange={(e) =>
-                      updateLivePreview({ voiceActingMode: e.target.value })
-                    }
-                  >
-                    <option value="malyatko">Малятко ТВ</option>
-                    <option value="bbkids">BBKidsUA</option>
-                  </Select>
-                </Section>
-              );
-            } else if (section === "weatherLayout") {
+            }  else if (section === "weatherLayout") {
               content = (
                 <Section key="weatherLayout">
                   <label style={{ fontSize: "13px", fontWeight: "bold" }}>

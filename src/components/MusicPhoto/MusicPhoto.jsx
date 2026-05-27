@@ -605,8 +605,7 @@ const FilterOverlay = styled.div`
   background-color: rgba(0, 0, 0, 0);
   background-image: none;
   opacity: 1;
-  /* Для плавності переходу структура функцій у backdrop-filter має бути незмінною */
-  backdrop-filter: none;
+   backdrop-filter: none;
   -webkit-backdrop-filter: none;
 
   ${(props) =>
@@ -1294,8 +1293,6 @@ const AudioBar = ({
           width: 800,
           height: 100,
         });
-
-        // Копіюємо стилі з основного вікна
         [...document.styleSheets].forEach((styleSheet) => {
           try {
             const cssRules = [...styleSheet.cssRules]
@@ -1306,8 +1303,6 @@ const AudioBar = ({
             pip.document.head.appendChild(style);
           } catch (e) {}
         });
-
-        // Переносимо контент (React Portal або переміщення вузла)
         pip.document.body.appendChild(containerRef.current);
         setPipWindow(pip);
 
@@ -1414,7 +1409,7 @@ const AudioBar = ({
         </span>
       </div>
 
-      <div style={{ display: "flex", gap: "10px" }}>
+      <div style={{ display: "flex", gap: "3px" }}>
         <AudioBarBtn
           onClick={() => {
             if (mediaRef.current) mediaRef.current.currentTime = 0;
@@ -1478,7 +1473,6 @@ const AudioBar = ({
           borderRadius: "10px",
         }}
       >
-        <span style={{ fontSize: "10px" }}>⚡</span>
         <SpeedSlider
           type="range"
           min="0.5"
@@ -2131,10 +2125,9 @@ const FSSliderContainer = styled.div`
   display: flex;
   gap: 7px;
   overflow-x: auto;
-  padding: 5px 20px;
-  margin-bottom: 10px;
+  padding: 5px 11px;
   &::-webkit-scrollbar {
-    height: 4px;
+    height: 2px;
   }
   &::-webkit-scrollbar-thumb {
     background: orange;
@@ -2593,6 +2586,7 @@ const SongAiModal = ({ track, onClose, isDarkMode }) => {
   const [groqKeyStatus, setGroqKeyStatus] = useState("idle"); // idle, loading, valid, invalid
   const [geminiModel, setGeminiModel] = useState("gemini-2.5-flash");
   const [showKeyInput, setShowKeyInput] = useState(false);
+  const [responseLength, setResponseLength] = useState("concise"); // 'concise' або 'detailed'
   const [streamingText, setStreamingText] = useState("");
   const generator = useRef(null);
   const currentModelRef = useRef(null);
@@ -2635,7 +2629,7 @@ const SongAiModal = ({ track, onClose, isDarkMode }) => {
   const saveHistory = async (newMessages) => {
     await localforage.setItem(
       `song_ai_history_${track.id}`,
-      newMessages.slice(-10),
+      newMessages.slice(-25),
     );
   };
 
@@ -2681,8 +2675,6 @@ const SongAiModal = ({ track, onClose, isDarkMode }) => {
     const newMessages = [...messages, { text: query, isBot: false }];
     setMessages(newMessages);
     await saveHistory(newMessages);
-
-    // 1. Блокуючий фільтр
     const blocked = ["пароль", "хак", "адмін", "казино"];
     if (blocked.some((word) => query.toLowerCase().includes(word))) {
       const final = [
@@ -2736,7 +2728,7 @@ const SongAiModal = ({ track, onClose, isDarkMode }) => {
         // Пошук у фільтрах
         if (entry.filters && Array.isArray(entry.filters)) {
           const foundFilter = entry.filters.find(f => 
-            lowerQuery.includes(f.type.toLowerCase()) && (lowerQuery.includes("коли") || lowerQuery.includes("фільтр") || lowerQuery.includes("ефект"))
+            f.type && lowerQuery.includes(f.type.toLowerCase()) && (lowerQuery.includes("коли") || lowerQuery.includes("фільтр") || lowerQuery.includes("ефект"))
           );
           if (foundFilter) {
             answer = `У пісні "${entry.author}" ефект "${foundFilter.type}" активується на проміжку від ${foundFilter.start} до ${foundFilter.end} секунди.`;
@@ -2769,7 +2761,17 @@ const SongAiModal = ({ track, onClose, isDarkMode }) => {
         const lyricsInfo = track.lyrics && Array.isArray(track.lyrics) ? track.lyrics.map(l => `${l.time}с: ${l.text || ''}`).join("; ") : "відсутній";
         const filtersInfo = track.filters && Array.isArray(track.filters) ? track.filters.map(f => `${f.start}-${f.end}с: ${f.type}`).join("; ") : "відсутні";
         
-        const systemContext = `Ти - Домініц, помічник проекту "Стихія". У базі знань є такі пісні: ${allSongs}. Поточна пісня: ${track.author}, тривалість: ${durationText}. Таймінги тексту: ${lyricsInfo}. Ефекти (фільтри): ${filtersInfo}. Якщо питають "коли" або "який ефект" — використовуй ці дані.`;
+        const lengthInstruction = responseLength === "detailed" ? "Відповідай максимально докладно, розгорнуто та з деталями." : "Відповідай максимально стисло, коротко та лаконічно.";
+
+        const systemContext = `Ти - Домініц, помічник проекту "Стихія". У базі знань є такі пісні: ${allSongs}. Поточна пісня: ${track.author}, тривалість: ${durationText}. Таймінги тексту: ${lyricsInfo}. Ефекти (фільтри): ${filtersInfo}. Якщо питають "коли" або "який ефект" — використовуй ці дані.
+Правила роботи:
+1. ВИКОРИСТАННЯ ДАНИХ: Для запитань про пісні, тексти та ефекти використовуй надані дані:
+   - База пісень: ${allSongs}
+   - Поточний трек: ${track.author}, тривалість: ${durationText}
+   - Таймінги та ефекти: ${lyricsInfo}, ${filtersInfo}
+2. ЗАГАЛЬНІ ЗНАННЯ: Якщо користувач запитує про щось поза межами цих даних, відповідай, спираючись на свої загальні знання, але вказуй, що це загальна інформація.
+3. ${lengthInstruction}
+4. СТИЛЬ: Будь ввічливим, чітким і конструктивним. Не обмежуйся лише даними зі змінних, якщо питання виходить за їх рамки.`;
         const prompt = `${systemContext}\nЗапитання: ${query}\nВідповідай українською коротко:`;
 
         const result = await model.generateContent(prompt);
@@ -2812,7 +2814,8 @@ const SongAiModal = ({ track, onClose, isDarkMode }) => {
         const lyricsInfo = track.lyrics && Array.isArray(track.lyrics) ? track.lyrics.map(l => `${l.time}с: ${l.text || ''}`).join("; ") : "відсутній";
         const filtersInfo = track.filters && Array.isArray(track.filters) ? track.filters.map(f => `${f.start}-${f.end}с: ${f.type}`).join("; ") : "відсутні";
 
-        const systemContext = `Ти помічник проекту "Стихія". Всього пісень: ${total}. Список: ${songsSummary}. Користувач слухає: ${track.author}, тривалість: ${durationText}. Текст: ${lyricsInfo}. Ефекти: ${filtersInfo}. Відповідай українською коротко.`;
+        const lengthInstruction = responseLength === "detailed" ? "Відповідай максимально докладно." : "Відповідай максимально стисло.";
+        const systemContext = `Ти помічник проекту "Стихія". Всього пісень: ${total}. Список: ${songsSummary}. Користувач слухає: ${track.author}, тривалість: ${durationText}. Текст: ${lyricsInfo}. Ефекти: ${filtersInfo}. ${lengthInstruction} Відповідай українською.`;
 
         const res = await fetch(endpoint, {
           method: "POST",
@@ -3057,6 +3060,16 @@ const SongAiModal = ({ track, onClose, isDarkMode }) => {
               <p style={{ fontSize: '8px', color: '#888', textAlign: 'center' }}>
                 ℹ️ Ключі зберігаються лише у вашому браузері.
               </p>
+              <div style={{ display: 'flex', gap: '10px', marginTop: '5px', justifyContent: 'center' }}>
+                <label style={{ fontSize: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                  <input type="radio" name="length" checked={responseLength === 'concise'} onChange={() => setResponseLength('concise')} />
+                  Стисло
+                </label>
+                <label style={{ fontSize: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                  <input type="radio" name="length" checked={responseLength === 'detailed'} onChange={() => setResponseLength('detailed')} />
+                  Докладно
+                </label>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -4817,11 +4830,10 @@ const FullScreenPlayer = ({
           style={{
             display: "flex",
             justifyContent: "center",
-            gap: "20px",
+            gap: "5px",
             alignItems: "center",
           }}
         >
-          {/* Slider for images if not video */}
           {!isDinofroz && (
             <FSSliderContainer>
               {sliderImages.map((img, i) => (
@@ -4855,8 +4867,6 @@ const FullScreenPlayer = ({
             </FSSliderContainer>
           )}
         </div>
-
-        {/* Main Controls */}
         <div
           style={{
             display: "flex",
@@ -4961,7 +4971,6 @@ const FullScreenPlayer = ({
                 borderRadius: "20px",
               }}
             >
-              <span style={{ color: "white", fontSize: "12px" }}>⚡</span>
               <SpeedSlider
                 type="range"
                 min="0.2"
@@ -5143,8 +5152,8 @@ const FullScreenPlayer = ({
           </SliderRow>
           {(track.lyrics || track.text) && (
             <SliderRow>
-              <span style={{ color: "white" }}>Версія озвучки</span>
-              {Array.isArray(track.lyrics) ? (
+              <span style={{ color: "white" }}>Субтитри</span>
+              {track.id === 1 && Array.isArray(track.lyrics) ? (
                 <select
                   value={user?.voiceActingMode || "malyatko"}
                   onChange={(e) => {

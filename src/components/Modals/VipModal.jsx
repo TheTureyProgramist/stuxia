@@ -19,7 +19,6 @@ import puzzle2 from "../../photos/fan-art/puzzle-2.webp";
 import puzzle3 from "../../photos/fan-art/puzzle-3.webp";
 import puzzle4 from "../../photos/fan-art/puzzle-4.webp";
 import font from "../../photos/vip-images/flame.webp";
-import puzzle1 from "../../photos/fan-art/puzzle-1.webp";
 //Prewiew
 import second from "../../photos/fan-art/theorytwo.webp";
 import seconds from "../../mp3/theoty-of-everything-ll.mp3";
@@ -1376,7 +1375,7 @@ const VipModal = ({ onClose }) => {
       },
       {
         src: dinofroz,
-        text: "Ціни на аватари, рамки та райдужний текст менш спонтанні 20-30🧧, не 20-40🧧.",
+        text: "Доступ до відео аватарів",
       },
       {
         src: font,
@@ -1391,10 +1390,6 @@ const VipModal = ({ onClose }) => {
       {
         src: puzzle5,
         text: "Перезарядка деяких 🏆 у випадку невдачі 33год, не 42год. Перезарядка деяких 🏆 в плані 🧧 у випадку успішного виконнання 12дн., а не 21дн.",
-      },
-      {
-        src: puzzle1,
-        text: "Баффі(х2, не 1,5х конверти(з досягнень, головоломок). В наступні 3хв(не 2хв) після активації(в магазині в розділі наборів).",
       },
     ],
     interface: [
@@ -1416,7 +1411,7 @@ const VipModal = ({ onClose }) => {
       },
       {
         src: documentImg,
-        text: "Доступно 10 останніх новин, а не 5.",
+        text: "Доступно 6 останніх новин, а не 3.",
       },
       {
         src: puzzle3,
@@ -1435,11 +1430,7 @@ const VipModal = ({ onClose }) => {
     music: [
       {
         src: asium,
-        text: "Отримайте500 балів. Назавжди!",
-      },
-      {
-        src: dinofroz,
-        text: "Ціни на аватари, рамки та райдужний текст менш спонтанні 20-25🧧. Та за 50🧧 поставити ваш аватар.",
+        text: "Отримайте 500 балів. Назавжди!",
       },
       {
         src: font,
@@ -1458,10 +1449,6 @@ const VipModal = ({ onClose }) => {
       {
         src: puzzle5,
         text: "Перезарядка деяких 🏆 21год у разі невдачі. Перезарядка деяких 🏆 в плані 🧧 у випадку успішного виконнання 7дн. Лімітована акція!",
-      },
-      {
-        src: puzzle1,
-        text: "Баффі(х2 конверти(з досягнень, головоломок). В наступні 5хв після активації(в магазині в розділі наборів). Лімітована акція!",
       },
     ],
     interface: [

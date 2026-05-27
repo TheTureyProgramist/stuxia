@@ -4,11 +4,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import music from "../../../mp3/mechanik-kindom.mp3";
 import decor from "../../../photos/fan-art/modaldecor.webp";
 
-// --- Анімації ---
 const fadeIn = keyframes`from { opacity: 0; } to { opacity: 1; }`;
 const pulseElectric = keyframes`0% { box-shadow: inset 0 0 5px #00e5ff; } 50% { box-shadow: inset 0 0 15px #00e5ff; } 100% { box-shadow: inset 0 0 5px #00e5ff; }`;
 
-// --- Стилі ---
 const GameWrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -191,7 +189,6 @@ const VolumeControl = styled.div`
   }
 `;
 
-// Фігури блоків: 1 - залізна частина, 0 - пустота
 const BLOCK_SHAPES = [
   {
     id: 1,
@@ -265,7 +262,6 @@ const PuzzleNine = ({ onExit }) => {
 
   const GOAL_VOLTAGE = 360;
 
-  // Музика
   useEffect(() => {
     audioRef.current = new Audio(music);
     audioRef.current.loop = true;
@@ -279,7 +275,6 @@ const PuzzleNine = ({ onExit }) => {
     if (audioRef.current) audioRef.current.volume = volume;
   }, [volume]);
 
-  // Лічильник напруги
   useEffect(() => {
     if (displayVoltage !== voltage) {
       const diff = voltage - displayVoltage;
@@ -291,7 +286,6 @@ const PuzzleNine = ({ onExit }) => {
     }
   }, [voltage, displayVoltage]);
 
-  // Розрахунок напруги та перевірка виграшу
   const calculateVoltage = useCallback((currentBlocks) => {
     let coveredTiles = new Set();
 
@@ -360,7 +354,6 @@ const PuzzleNine = ({ onExit }) => {
     const movingBlock = currentBlocks.find((b) => b.id === id);
     const otherBlocks = currentBlocks.filter((b) => b.id !== id);
 
-    // Отримуємо всі зайняті координати рухомого блоку в новій позиції
     const movingCoords = [];
     movingBlock.shape.forEach((row, dy) => {
       row.forEach((active, dx) => {
@@ -368,11 +361,9 @@ const PuzzleNine = ({ onExit }) => {
       });
     });
 
-    // Перевірка межі арени
     if (movingCoords.some((c) => c.x < 0 || c.x >= 10 || c.y < 0 || c.y >= 10))
       return true;
 
-    // Перевірка зіткнення з іншими блоками
     for (const other of otherBlocks) {
       const otherCoords = [];
       other.shape.forEach((row, dy) => {
@@ -397,7 +388,6 @@ const PuzzleNine = ({ onExit }) => {
     const board = boardRef.current.getBoundingClientRect();
     const cellSize = board.width / 10;
 
-    // Розраховуємо клітинку на основі зсуву
     const currentBlock = blocks.find((b) => b.id === id);
     const gridX = Math.round(
       (currentBlock.x * cellSize + info.offset.x) / cellSize,
@@ -407,7 +397,6 @@ const PuzzleNine = ({ onExit }) => {
     );
 
     if (checkCollision(id, gridX, gridY, blocks)) {
-      // Повертаємо назад (відкидує блок)
       setMetalBlocks([...blocks]);
     } else {
       const nextBlocks = blocks.map((b) =>

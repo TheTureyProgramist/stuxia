@@ -794,7 +794,7 @@ Clubstep: рандомні фільтри.
 
     try {
       const genAI = new GoogleGenerativeAI(geminiKey);
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
       
       // Формуємо контекст з FAQ та бази пісень
       const faqContext = faqData.map(f => `Q: ${f.q} A: ${f.a}`).join("\n");
@@ -867,8 +867,8 @@ Clubstep: рандомні фільтри.
       if (!searchQuery) return true;
       const query = searchQuery.toLowerCase();
       return (
-        item.q.toLowerCase().includes(query) ||
-        item.a.toLowerCase().includes(query)
+        item.q?.toLowerCase().includes(query) ||
+        item.a?.toLowerCase().includes(query)
       );
     })
     .map((item, originalIndex) => ({
