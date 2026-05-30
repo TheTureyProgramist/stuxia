@@ -5,6 +5,7 @@ import BurgerMenu from "./Menu.jsx";
 import bell from "../../mp3/modals/bell.mp3";
 import money from "../../photos/fan-art/money.webp";
 import logofix from "../../photos/hero-header/logo-fix.webp";
+import { useVisualFilters } from "./useVisualFilters";
 const flow = keyframes`
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
@@ -609,46 +610,18 @@ const Header = ({
     }
   }, []);
 
-  const [visualConfig, setVisualConfig] = useState(() => {
-    try {
-      const saved = localStorage.getItem("visualConfig");
-      const parsed = saved ? JSON.parse(saved) : null;
-      if (parsed) {
-        if (
-          parsed.darkIntensity !== undefined &&
-          parsed.filterType === undefined
-        ) {
-          return {
-            darkIntensity: parsed.darkIntensity || 0,
-            filterType: parsed.bwIntensity > 0 ? "grayscale" : "none",
-            filterIntensity: parsed.bwIntensity || 50,
-          };
-        }
-        return parsed;
-      }
-      return { darkIntensity: 0, filterType: "none", filterIntensity: 50 };
-    } catch {
-      return { darkIntensity: 0, filterType: "none", filterIntensity: 50 };
-    }
-  });
-
-  useEffect(() => {
-    localStorage.setItem("visualConfig", JSON.stringify(visualConfig));
-    const brightness = 100 - visualConfig.darkIntensity * 0.6;
-    let filters = `brightness(${brightness}%)`;
-    const { filterType, filterIntensity } = visualConfig;
-
-    if (filterType === "grayscale")
-      filters += ` grayscale(${filterIntensity}%)`;
-    else if (filterType === "sepia") filters += ` sepia(${filterIntensity}%)`;
-    else if (filterType === "invert") filters += ` invert(${filterIntensity}%)`;
-    else if (filterType === "matrix")
-      filters += ` sepia(${filterIntensity}%) hue-rotate(${filterIntensity}deg)`;
-    else if (filterType === "uv")
-      filters += ` hue-rotate(${filterIntensity * 2.4}deg)`;
-
-    document.documentElement.style.filter = filters;
-  }, [visualConfig]);
+  const {
+    visualConfig,
+    setVisualConfig,
+    resetFilters,
+    FILTERS,
+    PRESETS,
+    customPresets,
+    saveCustomPreset,
+    deleteCustomPreset,
+    updateCustomPresetName,
+    reorderCustomPresets,
+  } = useVisualFilters(user);
 
   useEffect(() => {
     const interval = setInterval(() => setShowUltra((prev) => !prev), 3000);
@@ -659,15 +632,6 @@ const Header = ({
     new Audio(bell).play().catch(() => {});
     toggleTheme();
   };
-
-  const FILTERS = [
-    { id: "none", label: "Вимкнено" },
-    { id: "grayscale", label: "Дальтонізм" },
-    { id: "sepia", label: "Сепія" },
-    { id: "invert", label: "Негатив" },
-    { id: "matrix", label: "Матриця" },
-    { id: "uv", label: "УФ-Лампа" },
-  ];
 
   return (
     <>
@@ -886,6 +850,52 @@ const Header = ({
                 />
               </div>
             )}
+
+            <div style={{ marginTop: "5px" }}>
+              <VisualLabel $isDarkMode={isDarkMode} style={{ marginBottom: "8px" }}>
+                Стилі
+              </VisualLabel>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "5px" }}>
+                {PRESETS.map((preset) => (
+                  <button
+                    key={preset.id}
+                    style={{
+                      background: "transparent",
+                      border: "1px solid #ffb36c",
+                      color: isDarkMode ? "#ffb36c" : "#333",
+                      borderRadius: "6px",
+                      padding: "5px",
+                      fontSize: "10px",
+                      fontWeight: "bold",
+                      cursor: "pointer"
+                    }}
+                    onClick={() => setVisualConfig(preset.config)}
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+                {customPresets.map((preset) => (
+                  <button
+                    key={preset.id}
+                    style={{
+                      background: "rgba(255, 179, 108, 0.1)",
+                      border: "1px solid #7afcff",
+                      color: isDarkMode ? "#7afcff" : "#006666",
+                      borderRadius: "6px",
+                      padding: "5px",
+                      fontSize: "10px",
+                      fontWeight: "bold",
+                      cursor: "pointer",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis"
+                    }}
+                    onClick={() => setVisualConfig(preset.config)}
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+            </div>
           </VisualSettingsPanel>
         )}
       </HeaderDiv>
@@ -919,6 +929,12 @@ const Header = ({
         currentPath={currentPath}
         visualConfig={visualConfig}
         setVisualConfig={setVisualConfig}
+        onResetFilters={resetFilters}
+        customPresets={customPresets}
+        onSavePreset={saveCustomPreset}
+        onDeletePreset={deleteCustomPreset}
+        onUpdatePresetName={updateCustomPresetName}
+        onReorderPresets={reorderCustomPresets}
       />
     </>
   );

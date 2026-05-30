@@ -117,8 +117,37 @@ const Aihelp = ({ isDarkMode }) => {
   const [geminiModel, setGeminiModel] = useState("gemini-2.5-flash");
   const [showKeyInput, setShowKeyInput] = useState(false);
   const [responseLength, setResponseLength] = useState("concise"); // 'concise' або 'detailed'
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [isListening, setIsListening] = useState(false);
 
   const generator = useRef(null);
+
+  const handleVoiceInput = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Ваш браузер не підтримує розпізнавання голосу.");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'uk-UA';
+    recognition.interimResults = false;
+
+    recognition.onstart = () => {
+      setIsListening(true);
+      setStatus("Слухаю вас...");
+    };
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      setPrompt(prev => (prev ? prev + " " : "") + transcript);
+    };
+
+    recognition.onerror = () => setIsListening(false);
+    recognition.onend = () => { setIsListening(false); setStatus(""); };
+
+    recognition.start();
+  };
 
   useEffect(() => {
     const loadKey = async () => {
@@ -138,6 +167,15 @@ const Aihelp = ({ isDarkMode }) => {
 
     loadKey();
   }, []);
+
+  const fileToGenerativePart = async (file) => {
+    const base64 = await new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result.split(',')[1]);
+      reader.readAsDataURL(file);
+    });
+    return { inlineData: { data: base64, mimeType: file.type } };
+  };
 
   const verifyGroqKey = async (key) => {
     if (!key || key.length < 10) {
@@ -243,7 +281,14 @@ const Aihelp = ({ isDarkMode }) => {
           const model = genAI.getGenerativeModel({ model: geminiModel });
           const lengthInstruction = responseLength === "detailed" ? "Надай дуже розгорнуту та детальну відповідь." : "Відповідай максимально коротко.";
           const promptWithLength = `${lengthInstruction} Запитання: ${query}`;
-          const result = await model.generateContent(promptWithLength);
+          
+          let parts = [promptWithLength];
+          if (selectedFile) {
+            const filePart = await fileToGenerativePart(selectedFile);
+            parts.push(filePart);
+          }
+
+          const result = await model.generateContent(parts);
           const botText = result.response.text();
           
           setResponse(botText || "Gemini не повернув тексту.");
@@ -286,6 +331,7 @@ const Aihelp = ({ isDarkMode }) => {
     } finally {
       setLoading(false);
       setStatus("");
+      setSelectedFile(null);
     }
   };
 
@@ -419,13 +465,35 @@ const Aihelp = ({ isDarkMode }) => {
         </div>
       )}
 
-      <TextArea
-        placeholder="Напишіть ваше запитання..."
-        $isDarkMode={isDarkMode}
-        value={prompt}
-        onChange={(e) => setPrompt(e.target.value)}
-        rows={3}
-      />
+      <div style={{ width: '100%', maxWidth: '500px', position: 'relative' }}>
+        <TextArea
+          placeholder="Напишіть ваше запитання..."
+          $isDarkMode={isDarkMode}
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          rows={3}
+          style={{ paddingRight: '40px' }}
+        />
+        <button 
+          onClick={handleVoiceInput}
+          style={{ 
+            position: 'absolute', right: '10px', top: '10px', 
+            background: 'none', border: 'none', cursor: 'pointer', 
+            fontSize: '20px', color: isListening ? 'red' : 'inherit' 
+          }}
+          title="Голосовий ввід"
+        >
+          {isListening ? "🛑" : "🎤"}
+        </button>
+      </div>
+
+      <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+        <label style={{ fontSize: '12px', cursor: 'pointer', background: '#eee', padding: '5px 10px', borderRadius: '5px', color: '#333' }}>
+          📎 {selectedFile ? selectedFile.name : "Додати фото/скріншот"}
+          <input type="file" accept="image/*" hidden onChange={(e) => setSelectedFile(e.target.files[0])} />
+        </label>
+        {selectedFile && <button onClick={() => setSelectedFile(null)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>✕</button>}
+      </div>
 
       <SendButton onClick={handleAsk} disabled={loading || !prompt.trim()}>
         {loading ? "Думаю..." : "Запитати ШІ"}

@@ -254,6 +254,7 @@ const WeatherCardComponent = ({
   moveWeatherCard,
   setIsLocationEnabled,
   customHolidayName,
+  currentTimeString,
   layout,
   onOpenDetails,
 }) => {
@@ -296,6 +297,12 @@ const WeatherCardComponent = ({
 
       const current = card.current;
       const daily = card.daily16 || [];
+      const hourly = card.hourly || [];
+
+      // Беремо прогноз на найближчі 5 годин для ШІ
+      const shortTermForecast = hourly.slice(0, 5).map(h => 
+        `${h.time}: ${h.temp}, вітер ${h.windNum}м/с, ${h.iconPlaceholder}`
+      ).join("; ");
       
       const lengthInstruction = responseLength === "extensive" 
         ? "надай розгорнуту відповідь (кілька речень)" 
@@ -310,7 +317,7 @@ const WeatherCardComponent = ({
         ? `Ти метеоролог-асистент. ${styleInstruction}. Виконуй цю інструкцію: ${customAiPrompt}. Відповідь надай українською мовою.`
         : `Ти метеоролог-асистент. На основі наданих даних ${lengthInstruction}. ${styleInstruction}. Згадай про комфортний одяг. Відповідь виключно українською мовою.`;
 
-      const promptText = `${systemInstructions}\n\nДані для міста ${card.locationName}:\nЗараз: ${current.temp}, ${current.description}, вологість ${current.humidity}, вітер ${current.wind_speed}. \nПрогноз: завтра ${daily[1]?.temp_day || 'н/д'}, післязавтра ${daily[2]?.temp_day || 'н/д'}, через 3 дні ${daily[3]?.temp_day || 'н/д'}. \nТенденція на 2 тижні: 1-й тиждень ~${daily[7]?.temp_day || 'н/д'}, 2-й тиждень ~${daily[14]?.temp_day || 'н/д'}.`;
+      const promptText = `${systemInstructions}\n\nМісто: ${card.locationName}. Поточний час на сайті: ${currentTimeString}.\n\nПоточні показники: ${current.temp}, ${current.description}, вологість ${current.humidity}, вітер ${current.wind_speed}.\nНайближчі години: ${shortTermForecast}.\nПрогноз на дні: завтра ${daily[1]?.temp_day || 'н/д'}, післязавтра ${daily[2]?.temp_day || 'н/д'}.\nТенденція на 2 тижні: 1-й тиждень ~${daily[7]?.temp_day || 'н/д'}, 2-й тиждень ~${daily[14]?.temp_day || 'н/д'}.`;
 
       const result = await model.generateContent(promptText);
       const response = await result.response;
@@ -326,25 +333,22 @@ const WeatherCardComponent = ({
     } finally {
       setIsAiLoading(false);
     }
-  }, [card, isAiLoading, customAiPrompt, responseLength, aiStyle]);
+  }, [card, isAiLoading, customAiPrompt, responseLength, aiStyle, currentTimeString]);
 
   const checkAndUpdate = useCallback(async () => {
     const saved = await localforage.getItem(`ai_weather_summary_${card.id}`);
-    const now = new Date();
-    const today10AM = new Date();
-    today10AM.setHours(10, 0, 0, 0);
+    const now = Date.now();
+    const TWO_HOURS = 2 * 60 * 60 * 1000; // 7,200,000 мс
 
-    const needsUpdate =
-      !saved ||
-      (now.getTime() >= today10AM.getTime() &&
-        saved.timestamp < today10AM.getTime());
+    // Оновлюємо лише якщо даних немає або пройшло більше 2 годин з останнього запиту
+    const needsUpdate = !saved || (now - saved.timestamp > TWO_HOURS);
 
     if (needsUpdate) {
       generateWeatherSummary();
     } else {
       setAiSummary(saved.text);
     }
-  }, [card, generateWeatherSummary]);
+  }, [card.id, generateWeatherSummary]);
 
   const handleAiToggle = async () => {
     const newVal = !isAiEnabled;
@@ -1120,7 +1124,7 @@ const WeatherCardComponent = ({
 
         <h4 style={{ margin: "15px 0 10px 0" }}>Прогноз на 16 днів:</h4>
         <ChartScrollWrapper>
-          <ChartInnerContainer $width={1000} $height="220px">
+          <ChartInnerContainer $width={1300} $height="220px">
             <Line options={dailyChartOptions} data={dailyChartData} />
           </ChartInnerContainer>
         </ChartScrollWrapper>

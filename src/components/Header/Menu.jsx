@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styled, { keyframes, css } from "styled-components";
 import { useNavigate } from "react-router-dom";
+import { FILTERS, PRESETS } from "./useVisualFilters";
 export const DEFAULT_SITE_SECTIONS = [
   { key: "hero", label: "🏠 Головна", path: "hero" },
   { key: "weather", label: "🌤️ Погода", path: "weather" },
@@ -21,6 +22,11 @@ const slideDown = keyframes`
 const slideUp = keyframes`
   from { transform: translateY(0); }
   to { transform: translateY(-100%); }
+`;
+
+const appearScale = keyframes`
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
 `;
 
 const flow = keyframes`
@@ -394,7 +400,7 @@ const OrderButton = styled.button`
 
 const FilterGridInMenu = styled.div`
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
   gap: 3px;
   margin-bottom: 5px;
 `;
@@ -418,6 +424,115 @@ const FilterButtonInMenu = styled.button`
   @media (min-width: 1920px) {
     padding: 12px;
     font-size: 16px;
+  }
+`;
+
+const PresetGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 5px;
+  margin-top: 5px;
+`;
+
+const PresetActionRow = styled.div`
+  display: flex;
+  gap: 5px;
+  margin-top: 10px;
+  margin-bottom: 5px;
+`;
+
+const PresetInput = styled.input`
+  flex: 1;
+  background: ${(props) => (props.$isDarkMode ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.03)")};
+  border: 1px solid #ffb36c;
+  border-radius: 8px;
+  padding: 6px 10px;
+  color: ${(props) => (props.$isDarkMode ? "#fff" : "#333")};
+  font-size: 12px;
+  outline: none;
+  &::placeholder { color: #888; }
+`;
+
+const AddPresetBtn = styled.button`
+  background: #ffb36c;
+  color: #3e2723;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-weight: bold;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+  &:hover { background: #ffa04d; }
+`;
+
+const PresetButton = styled.button`
+  background: ${(props) => (props.$isDarkMode ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.03)")};
+  border: 1px solid #ffb36c;
+  color: ${(props) => (props.$isDarkMode ? "#ffb36c" : "#333")};
+  border-radius: 8px;
+  padding: 6px;
+  font-size: 11px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+  &:hover {
+    background: #ffb36c;
+    color: #3e2723;
+  }
+`;
+
+const CustomPresetWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  width: 100%;
+  button:first-child { flex: 1; }
+  animation: ${appearScale} 0.3s ease-out forwards;
+`;
+
+const EditPresetBtn = styled.button`
+  background: transparent;
+  border: none;
+  color: #ffb36c;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0 5px;
+  transition: transform 0.2s;
+  &:hover { transform: scale(1.2); }
+`;
+
+const DeletePresetBtn = styled.button`
+  background: transparent;
+  border: none;
+  color: #ff4d4d;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0 5px;
+  &:hover { color: #ff1a1a; transform: scale(1.1); }
+`;
+
+const DragHandle = styled.div`
+  cursor: grab;
+  color: #ffb36c;
+  font-size: 14px;
+  padding: 0 4px;
+  user-select: none;
+`;
+
+const ResetFiltersBtn = styled.button`
+  width: 100%;
+  background: #ff4d4d;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: all 0.2s;
+  &:hover {
+    background: #ff1a1a;
   }
 `;
 
@@ -450,58 +565,50 @@ const Menu = ({
   currentPath,
   visualConfig,
   setVisualConfig,
+  onResetFilters,
+  customPresets = [],
+  onSavePreset,
+  onDeletePreset,
+  onUpdatePresetName,
+  onReorderPresets,
 }) => {
   const [isRendered, setIsRendered] = useState(false);
+  const [newPresetName, setNewPresetName] = useState("");
+  const [draggedIndex, setDraggedIndex] = useState(null);
   const navigate = useNavigate();
 
-  const FILTERS = [
-    { id: "none", label: "Вимкнено" },
-    { id: "grayscale", label: "Дальтонізм" },
-    { id: "sepia", label: "Сепія" },
-    { id: "invert", label: "Негатив" },
-    { id: "matrix", label: "Матриця" },
-    { id: "uv", label: "УФ-Лампа" },
-  ];
+  const handleDragStart = (e, index) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = "move";
+    // Створюємо прозорий ефект при перетягуванні
+    e.currentTarget.style.opacity = "0.5";
+  };
 
-  const applyFilterEffect = (config) => {
-    const brightness = 100 - config.darkIntensity * 0.6;
-    let filters = `brightness(${brightness}%)`;
-    const { filterType, filterIntensity } = config;
+  const handleDragEnd = (e) => {
+    e.currentTarget.style.opacity = "1";
+    setDraggedIndex(null);
+  };
 
-    if (filterType === "grayscale") {
-      filters += ` grayscale(${filterIntensity}%)`;
-    } else if (filterType === "sepia") {
-      filters += ` sepia(${filterIntensity}%)`;
-    } else if (filterType === "invert") {
-      filters += ` invert(${filterIntensity}%)`;
-    } else if (filterType === "matrix") {
-      filters += ` hue-rotate(180deg) grayscale(${filterIntensity}%)`;
-    } else if (filterType === "uv") {
-      filters += ` hue-rotate(280deg) saturate(${100 + filterIntensity}%)`;
-    }
+  const handleDrop = (e, targetIndex) => {
+    e.preventDefault();
+    if (draggedIndex === null || draggedIndex === targetIndex) return;
 
-    document.documentElement.style.filter = filters;
+    const updatedPresets = [...customPresets];
+    const [movedItem] = updatedPresets.splice(draggedIndex, 1);
+    updatedPresets.splice(targetIndex, 0, movedItem);
+    onReorderPresets(updatedPresets);
   };
 
   const handleFilterChange = (filterId) => {
-    const newConfig = { ...visualConfig, filterType: filterId };
-    setVisualConfig(newConfig);
-    localStorage.setItem("visualConfig", JSON.stringify(newConfig));
-    applyFilterEffect(newConfig);
+    setVisualConfig((prev) => ({ ...prev, filterType: filterId }));
   };
 
   const handleBrightnessChange = (value) => {
-    const newConfig = { ...visualConfig, darkIntensity: value };
-    setVisualConfig(newConfig);
-    localStorage.setItem("visualConfig", JSON.stringify(newConfig));
-    applyFilterEffect(newConfig);
+    setVisualConfig((prev) => ({ ...prev, darkIntensity: value }));
   };
 
   const handleIntensityChange = (value) => {
-    const newConfig = { ...visualConfig, filterIntensity: value };
-    setVisualConfig(newConfig);
-    localStorage.setItem("visualConfig", JSON.stringify(newConfig));
-    applyFilterEffect(newConfig);
+    setVisualConfig((prev) => ({ ...prev, filterIntensity: value }));
   };
 
   useEffect(() => {
@@ -848,6 +955,90 @@ const Menu = ({
                   </div>
                 </li>
               )}
+              <li>
+                <div style={{ marginTop: "10px" }}>
+                  <div
+                    style={{
+                      fontSize: "14px",
+                      fontWeight: "bold",
+                      marginBottom: "8px",
+                      color: isDarkMode ? "#ffb36c" : "#ff005d",
+                    }}
+                  >
+                    ✨ Швидкі стилі
+                  </div>
+                  <PresetGrid>
+                    {PRESETS.map((preset) => (
+                      <PresetButton
+                        key={preset.id}
+                        $isDarkMode={isDarkMode}
+                        onClick={() => setVisualConfig(preset.config)}
+                      >
+                        {preset.label}
+                      </PresetButton>
+                    ))}
+                    {customPresets.map((preset, idx) => (
+                      <CustomPresetWrapper 
+                        key={preset.id}
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, idx)}
+                        onDragEnd={handleDragEnd}
+                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={(e) => handleDrop(e, idx)}
+                      >
+                        <DragHandle title="Перетягніть для сортування">⠿</DragHandle>
+                        <PresetButton
+                          $isDarkMode={isDarkMode}
+                          style={{ borderColor: "#7afcff", color: isDarkMode ? "#7afcff" : "#006666" }}
+                          onClick={() => setVisualConfig(preset.config)}
+                        >
+                          {preset.label}
+                        </PresetButton>
+                        <EditPresetBtn 
+                          onClick={() => {
+                            const currentName = preset.label.replace("✨ ", "");
+                            const n = window.prompt("Введіть нову назву пресета:", currentName);
+                            if (n) onUpdatePresetName(preset.id, n);
+                          }}
+                          title="Редагувати назву"
+                        >
+                          ✎
+                        </EditPresetBtn>
+                        <DeletePresetBtn 
+                          onClick={() => onDeletePreset(preset.id)}
+                          title="Видалити пресет"
+                        >
+                          ×
+                        </DeletePresetBtn>
+                      </CustomPresetWrapper>
+                    ))}
+                  </PresetGrid>
+                  <PresetActionRow>
+                    <PresetInput 
+                      $isDarkMode={isDarkMode}
+                      placeholder="Назва пресета..."
+                      value={newPresetName}
+                      onChange={(e) => setNewPresetName(e.target.value)}
+                      maxLength={15}
+                    />
+                    <AddPresetBtn 
+                      onClick={() => {
+                        if(newPresetName.trim()) {
+                          onSavePreset(newPresetName);
+                          setNewPresetName("");
+                        }
+                      }}
+                    >
+                      Зберегти
+                    </AddPresetBtn>
+                  </PresetActionRow>
+                </div>
+              </li>
+              <li>
+                <ResetFiltersBtn onClick={onResetFilters}>
+                  Скинути всі фільтри ↺
+                </ResetFiltersBtn>
+              </li>
               <li>
                 <ActionButton
                   $isDarkMode={isDarkMode}

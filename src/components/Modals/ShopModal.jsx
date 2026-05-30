@@ -7,6 +7,9 @@ import ultra from "../../photos/vip-modal/realultra.webp";
 import turkey from "../../photos/vip-images/turkeys/ultra-vip-turkeys.webp";
 import shop from "../../photos/hero-header/shop.webp";
 import VipModal from "./VipModal";
+import InfoModal from "./UserSearchModal";
+import dominoVideo from "../../mp4/shop.mp4";
+
 const slideIn = keyframes`
   0% { transform: translateY(100%) scale(0.5); opacity: 0; }
   100% { transform: translateY(0%) scale(1); opacity: 1; }
@@ -461,19 +464,70 @@ const CharacterFrame = styled.div`
   z-index: 3;
 `;
 
-const LateMessage = styled.div`
-  margin-top: 7px;
-  padding: 5px 10px;
-  border-radius: 18px;
-  border: 1px solid rgba(255, 108, 108, 0.3);
-  background: rgba(255, 108, 108, 0.08);
-  color: #ffe7e7;
-  font-size: 13px;
-  text-align: center;
-  max-width: 680px;
-  margin-left: auto;
-  margin-right: auto;
-  box-shadow: 0 0 0 1px rgba(255, 108, 108, 0.08);
+const VideoBackground = styled.video`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 15px;
+  z-index: 0;
+`;
+
+const SeasonOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.95);
+  z-index: 3000;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  overflow-y: auto;
+  animation: ${fadeIn} 0.3s ease-out;
+`;
+
+const SeasonCardGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 15px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+`;
+
+const SeasonCard = styled.div`
+  background: #2a1212;
+  border: 1px solid #ff6c6c;
+  border-radius: 12px;
+  position: relative;
+  aspect-ratio: 1;
+  padding: 10px;
+  display: flex;
+  align-items: flex-end;
+  font-size: 11px;
+  font-weight: bold;
+  background-image: url(${(props) => props.$img});
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.2s;
+  &:hover {
+    transform: scale(1.03);
+  }
+`;
+
+const SeasonLabel = styled.div`
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: #ff6c6c;
+  color: white;
+  font-size: 8px;
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-weight: 900;
+  text-transform: uppercase;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 `;
 
 const CHARACTER_PHRASES = [
@@ -511,6 +565,9 @@ const ShopModal = ({ onClose }) => {
   const [showInfo, setShowInfo] = useState(false);
   const [characterPhrases, setCharacterPhrases] = useState([]);
   const [showLateMessage, setShowLateMessage] = useState(false);
+  const [showLearning, setShowLearning] = useState(false);
+  const [showDominoVideo, setShowDominoVideo] = useState(false);
+  const [showSeasonModal, setShowSeasonModal] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -532,6 +589,13 @@ const ShopModal = ({ onClose }) => {
     const lateTimer = setTimeout(() => setShowLateMessage(true), 20000);
     return () => clearTimeout(lateTimer);
   }, []);
+
+  const seasonCards = Array.from({ length: 25 }, (_, i) => ({
+    id: i,
+    title: `Сезонна нагорода ${i + 1}`,
+    label: ["моя робота", "жахи", "різновид"][i % 3],
+    img: shop,
+  }));
 
   const handleClose = () => {
     setIsClosing(true);
@@ -617,7 +681,28 @@ const ShopModal = ({ onClose }) => {
                   $isSub={pack.isSub}
                   $isCharacter={pack.isCharacter}
                   $activeImg={activeSubImg}
+                  onClick={() => {
+                    if (pack.isCharacter) setShowDominoVideo(true);
+                    if (pack.name.includes("Сезонний")) setShowSeasonModal(true);
+                  }}
+                  style={{
+                    cursor:
+                      pack.isCharacter || pack.name.includes("Сезонний")
+                        ? "pointer"
+                        : "default",
+                  }}
                 >
+                  {pack.isCharacter && showDominoVideo && (
+                    <VideoBackground
+                      src={dominoVideo}
+                      autoPlay
+                      onEnded={() => setShowDominoVideo(false)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowDominoVideo(false);
+                      }}
+                    />
+                  )}
                   {pack.badge && <Badge>{pack.badge}</Badge>}
                   <PackInfo>
                     <PackContent>
@@ -627,11 +712,16 @@ const ShopModal = ({ onClose }) => {
                       </PackName>
                     </PackContent>
                   </PackInfo>
-                  {pack.isCharacter && characterPhrases.length > 0 && (
+                  {pack.isCharacter && (characterPhrases.length > 0 || showLateMessage) && (
                     <CharacterFrame>
                       {characterPhrases.map((text, index) => (
                         <span key={index}>{text}</span>
                       ))}
+                      {showLateMessage && (
+                        <span style={{ color: "#ff6c6c", fontWeight: "bold", marginTop: "4px" }}>
+                          {LATE_WARNING_PHRASE}
+                        </span>
+                      )}
                     </CharacterFrame>
                   )}
                   <BuyButton
@@ -645,9 +735,6 @@ const ShopModal = ({ onClose }) => {
                 </PackCard>
               ))}
             </PackGrid>
-            {showLateMessage && (
-              <LateMessage>{LATE_WARNING_PHRASE}</LateMessage>
-            )}
           </AnimatedContent>
         ) : (
           <AnimatedContent key="info">
@@ -724,12 +811,44 @@ const ShopModal = ({ onClose }) => {
             fontStyle: "italic",
             lineHeight: "1.6",
             opacity: 0.9,
+            cursor: "pointer",
           }}
+          onClick={() => setShowLearning(true)}
         >
           Усі примітки, розміщені в навчанні, кнопка ? вгорі, як і питання про
-          внутрішньоігрові валюти.
+          внутрішньоігрові валюти. Натисніть тут!
         </div>
       </ShopContainer>
+      {showLearning && <InfoModal isOpen={showLearning} onClose={() => setShowLearning(false)} />}
+
+      {showSeasonModal && (
+        <SeasonOverlay>
+          <CloseButton onClick={() => setShowSeasonModal(false)}>
+            &times;
+          </CloseButton>
+          <ShopTitle style={{ marginTop: "40px" }}>
+            Сезон Сонцестояння: Колекція
+          </ShopTitle>
+          <SeasonCardGrid>
+            {seasonCards.map((card) => (
+              <SeasonCard key={card.id} $img={card.img}>
+                <SeasonLabel>{card.label}</SeasonLabel>
+                <span style={{ textShadow: "0 2px 4px black" }}>
+                  {card.title}
+                </span>
+              </SeasonCard>
+            ))}
+          </SeasonCardGrid>
+          <div style={{ textAlign: "center", marginTop: "30px" }}>
+            <BuyButton
+              style={{ maxWidth: "200px", margin: "0 auto" }}
+              onClick={() => setShowSeasonModal(false)}
+            >
+              <span>Закрити колекцію</span>
+            </BuyButton>
+          </div>
+        </SeasonOverlay>
+      )}
     </Overlay>
   );
 };

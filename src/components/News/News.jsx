@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import localforage from "localforage";
 import rainbow from "../../photos/vip-images/stars.webp";
 const SOURCES = [
-
   { url: "https://phys.org/rss-feed/biology-news/animals-news/", name: "Phys.org", flag: "🇬🇧", home: "https://phys.org" },
 ];
 
@@ -33,13 +32,10 @@ const translateText = async (text) => {
 };
 
 const NewsDiv = styled.div`
-  margin-top: 35px;
+  margin-top: 15px;
   padding: 0 20px;
   @media (min-width: 768px) {
-    margin-top: 50px;
-  }
-  @media (min-width: 1200px) {
-    margin-top: 80px;
+    margin-top: 30px;
   }
 `;
 

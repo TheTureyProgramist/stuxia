@@ -1,5 +1,5 @@
 // Міста для тесту: Дубай (>30°C), Якутськ (<-30°C), Кейптаун (вітер >10 м/с). Графік have погодинну перевірку вітру та деталізовані причини небезпеки в підказках.
-import { useState, useEffect, useCallback, memo, Suspense, useMemo } from "react";
+import { useState, useEffect, useCallback, memo, Suspense, useMemo, useRef } from "react";
 import styled, { keyframes, css } from "styled-components";
 
 import localforage from "localforage";
@@ -195,6 +195,40 @@ const ParticleSymbol = styled.span`
   --y: ${props => props.$y}px;
 `;
 
+const UpdateTimerBadge = styled.div`
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: ${(props) => (props.$isDarkMode ? "rgba(30, 30, 30, 0.85)" : "rgba(255, 255, 255, 0.85)")};
+  color: ${(props) => (props.$isDarkMode ? "#00eaff" : "#004cff")};
+  padding: 8px 15px;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 800;
+  z-index: 9999;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  backdrop-filter: blur(6px);
+  border: 1px solid ${(props) => (props.$isDarkMode ? "rgba(0, 234, 255, 0.4)" : "rgba(0, 76, 255, 0.4)")};
+  pointer-events: auto;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  @media (max-width: 768px) {
+    bottom: 10px;
+    right: 10px;
+    font-size: 11px;
+  }
+  &:hover {
+    transform: scale(1.05);
+    background: ${(props) => (props.$isDarkMode ? "rgba(45, 45, 45, 0.95)" : "rgba(240, 240, 240, 0.95)")};
+  }
+  &:active {
+    transform: scale(0.95);
+  }
+`;
+
 const LoadingPhraseWrapper = styled.div`
   position: relative;
   display: inline-block;
@@ -234,6 +268,7 @@ const SectionContent = memo(
     weatherCards,
     weatherCardLayout,
     isAnyModalOpen,
+    heroDateString,
     isWeatherDetailsOpen,
     setIsWeatherDetailsOpen,
     selectedWeatherCard,
@@ -274,6 +309,7 @@ const SectionContent = memo(
                     setSelectedWeatherCard(card);
                     setIsWeatherDetailsOpen(true);
                   }}
+                currentTimeString={heroDateString}
                 />
               );
             })}
@@ -363,6 +399,17 @@ const App = () => {
   const [isInfoOpen, setIsInfoOpen] = useState(false);
   const [isWeatherDetailsOpen, setIsWeatherDetailsOpen] = useState(false);
   const [selectedWeatherCard, setSelectedWeatherCard] = useState(null);
+
+  // Функція для розрахунку секунд до початку наступної години
+  const calculateSecondsUntilNextHour = useCallback(() => {
+    const now = new Date();
+    const secondsRemaining = 3600 - (now.getMinutes() * 60 + now.getSeconds());
+    return secondsRemaining <= 0 ? 3600 : secondsRemaining;
+  }, []);
+
+  const [secondsUntilUpdate, setSecondsUntilUpdate] = useState(calculateSecondsUntilNextHour());
+  const weatherCardsRef = useRef([]);
+
   const [hasInteracted, setHasInteracted] = useState(false);
   const [isUpdatePending, setIsUpdatePending] = useState(false);
   const [timerFinished, setTimerFinished] = useState(false);
@@ -692,6 +739,17 @@ const App = () => {
     }
   }, [user, isHydrated]);
 
+  // Запит дозволу на системні сповіщення
+  useEffect(() => {
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+  }, []);
+
+  useEffect(() => {
+    weatherCardsRef.current = weatherCards;
+  }, [weatherCards]);
+
   const fetchWeather = useCallback(
     async (cityData, isMain, lat = null, lon = null) => {
       try {
@@ -721,7 +779,7 @@ const App = () => {
           }
         }
 
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${targetLat}&longitude=${targetLon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m,surface_pressure,cloud_cover,visibility,dew_point_2m,temperature_80m&hourly=temperature_2m,apparent_temperature,weather_code,wind_speed_10m,relative_humidity_2m,dew_point_2m,precipitation,rain,pressure_msl,cloud_cover,visibility&daily=weather_code,temperature_2m_max,temperature_2m_min,uv_index_max,wind_speed_10m_max,precipitation_probability_max,rain_sum,precipitation_sum&timezone=auto&forecast_days=16`;
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${targetLat}&longitude=${targetLon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m,surface_pressure,cloud_cover,visibility,dew_point_2m,temperature_80m&hourly=temperature_2m,apparent_temperature,weather_code,wind_speed_10m,relative_humidity_2m,dew_point_2m,precipitation,rain,pressure_msl,cloud_cover,visibility&daily=weather_code,temperature_2m_max,temperature_2m_min,uv_index_max,wind_speed_10m_max,precipitation_probability_max,rain_sum,precipitation_sum&timezone=auto&past_days=1&forecast_days=16`;
         console.log("Fetching weather from URL:", url);
         const res = await axios.get(url);
         const d = res.data;
@@ -772,6 +830,32 @@ const App = () => {
           });
         }
 
+        // Логіка сповіщень про небезпечну погоду
+        if ("Notification" in window && Notification.permission === "granted") {
+          const temp = Math.round(d.current.temperature_2m);
+          const wind = d.current.wind_speed_10m ?? 0;
+          const uv = d.daily?.uv_index_max?.[0] ?? 0;
+          const extremeConditions = [];
+
+          if (temp > 30) extremeConditions.push(`Спека ${temp}°C`);
+          if (temp < -30) extremeConditions.push(`Мороз ${temp}°C`);
+          if (wind > 10) extremeConditions.push(`Сильний вітер ${wind} м/с`);
+          if (uv > 7) extremeConditions.push(`Високий УФ-індекс ${uv}`);
+
+          if (extremeConditions.length > 0) {
+            new Notification(`⚠️ Погода: ${displayName}`, {
+              body: `Виявлено небезпечні умови: ${extremeConditions.join(", ")}. Будьте обережні!`,
+              icon: "/favicon.ico"
+            });
+          }
+        }
+
+        // Обчислюємо hStartIndex, щоб годинний графік починався з поточної години
+        const nowLocal = new Date();
+        const localHourStr = `${nowLocal.getFullYear()}-${String(nowLocal.getMonth() + 1).padStart(2, "0")}-${String(nowLocal.getDate()).padStart(2, "0")}T${String(nowLocal.getHours()).padStart(2, "0")}:00`;
+        let hStartIndex = (d.hourly?.time || []).findIndex((t) => t.startsWith(localHourStr));
+        if (hStartIndex === -1) hStartIndex = 0;
+
         setWeatherCards((prev) => {
           const id = isMain ? "main-card" : cityData?.id || Date.now();
           const existingCard = prev.find((c) => c.id === id);
@@ -807,22 +891,27 @@ const App = () => {
               description: "За кодом: " + d.current.weather_code,
               iconPlaceholder: getWeatherIcon(d.current.weather_code),
             },
-            hourly: (d.hourly?.time || []).slice(0, 24).map((t, i) => ({
-              time: new Date(t).getHours() + ":00",
-              temp: `${Math.round(d.hourly?.temperature_2m?.[i] ?? 0)}°C`,
-              tempNum: Math.round(d.hourly?.temperature_2m?.[i] ?? 0),
-              feels_like: `${Math.round(d.hourly?.apparent_temperature?.[i] ?? 0)}°C`,
-              windNum: d.hourly?.wind_speed_10m?.[i] ?? 0,
-              wind_direction_10m: d.hourly?.wind_direction_10m?.[i] ?? 0,
-              relative_humidity_2m: d.hourly?.relative_humidity_2m?.[i] ?? null,
-              dew_point_2m: d.hourly?.dew_point_2m?.[i] ?? 0,
-              precipitation: d.hourly?.precipitation?.[i] ?? null,
-              rain: d.hourly?.rain?.[i] ?? null,
-              pressure_msl: d.hourly?.pressure_msl?.[i] ?? null,
-              cloud_cover: d.hourly?.cloud_cover?.[i] ?? null,
-              visibility: d.hourly?.visibility?.[i] ?? 0,
-              iconPlaceholder: getWeatherIcon(d.hourly?.weather_code?.[i] ?? 0),
-            })),
+          hourly: (d.hourly?.time || [])
+            .slice(hStartIndex, hStartIndex + 24)
+            .map((t, i) => {
+              const dataIdx = hStartIndex + i;
+              return {
+                time: new Date(t).getHours() + ":00",
+                temp: `${Math.round(d.hourly?.temperature_2m?.[dataIdx] ?? 0)}°C`,
+                tempNum: Math.round(d.hourly?.temperature_2m?.[dataIdx] ?? 0),
+                feels_like: `${Math.round(d.hourly?.apparent_temperature?.[dataIdx] ?? 0)}°C`,
+                windNum: d.hourly?.wind_speed_10m?.[dataIdx] ?? 0,
+                wind_direction_10m: d.hourly?.wind_direction_10m?.[dataIdx] ?? 0,
+                relative_humidity_2m: d.hourly?.relative_humidity_2m?.[dataIdx] ?? null,
+                dew_point_2m: d.hourly?.dew_point_2m?.[dataIdx] ?? 0,
+                precipitation: d.hourly?.precipitation?.[dataIdx] ?? null,
+                rain: d.hourly?.rain?.[dataIdx] ?? null,
+                pressure_msl: d.hourly?.pressure_msl?.[dataIdx] ?? null,
+                cloud_cover: d.hourly?.cloud_cover?.[dataIdx] ?? null,
+                visibility: d.hourly?.visibility?.[dataIdx] ?? 0,
+                iconPlaceholder: getWeatherIcon(d.hourly?.weather_code?.[dataIdx] ?? 0),
+              };
+            }),
             daily16: (d.daily?.time || []).map((t, i) => ({
               date: new Date(t).toLocaleDateString("uk", {
                 day: "numeric",
@@ -954,30 +1043,63 @@ const App = () => {
     }
   }, [fetchWeather, isLocationEnabled]);
 
+  const handleRefreshCard = useCallback(
+    (card) => {
+      card.isMain ? getInitialLocation() : fetchWeather(card, false);
+    },
+    [getInitialLocation, fetchWeather],
+  );
+
+  // Функція для миттєвого оновлення всіх карток та скидання таймера
+  const handleManualBulkRefresh = useCallback(() => {
+    console.log("Manual bulk refresh triggered...");
+    if (weatherCardsRef.current.length > 0) {
+      weatherCardsRef.current.forEach((card) => handleRefreshCard(card));
+    }
+    setSecondsUntilUpdate(calculateSecondsUntilNextHour());
+  }, [handleRefreshCard, calculateSecondsUntilNextHour]);
+
+  // 1. Початкове завантаження локації
   useEffect(() => {
     getInitialLocation();
   }, [getInitialLocation]);
 
+  // 2. Перевірка актуальності даних при завантаженні (якщо сьогодні 30-те, а дані за 25-те)
   useEffect(() => {
+    if (!isHydrated) return;
+
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, "0")}-${String(yesterday.getDate()).padStart(2, "0")}`;
+
     weatherCards.forEach((card) => {
-      if (!card.isMain && (!card.hourly || card.hourly.length === 0)) {
-        fetchWeather(card, false);
+      const firstDayDate = card.daily16?.[0]?.fullDate;
+      if (firstDayDate !== yesterdayStr) {
+        handleRefreshCard(card);
       }
     });
-  }, [weatherCards, fetchWeather]);
+  }, [isHydrated, weatherCards, handleRefreshCard]);
 
-  const handleAddCityFromHero = useCallback(
-    (cityObj) => {
-      if (!user) {
-        alert(
-          "Створювати картки погоди можуть лише зареєстровані користувачі!",
-        );
-        return;
+  // 3. Автоматичне оновлення кожну годину (тільки якщо вкладка активна)
+  useEffect(() => {
+    if (!isHydrated) return;
+
+    const timerId = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        const remaining = calculateSecondsUntilNextHour();
+        setSecondsUntilUpdate((prev) => {
+          // Якщо ми перетнули межу години (було мало секунд, а стало знову близько 3600)
+          if (prev <= 5 && remaining > 3590) {
+            console.log("Auto-updating weather cards at start of hour...");
+            weatherCardsRef.current.forEach((card) => handleRefreshCard(card));
+          }
+          return remaining;
+        });
       }
-      fetchWeather(cityObj, false);
-    },
-    [user, fetchWeather],
-  );
+    }, 1000);
+
+    return () => clearInterval(timerId);
+  }, [isHydrated, handleRefreshCard, calculateSecondsUntilNextHour]);
 
   const handleDeleteCard = useCallback(
     (id) => {
@@ -1009,11 +1131,17 @@ const App = () => {
     [hideDeleteModalUntil],
   );
 
-  const handleRefreshCard = useCallback(
-    (card) => {
-      card.isMain ? getInitialLocation() : fetchWeather(card, false);
+  const handleAddCityFromHero = useCallback(
+    (cityObj) => {
+      if (!user) {
+        alert(
+          "Створювати картки погоди можуть лише зареєстровані користувачі!",
+        );
+        return;
+      }
+      fetchWeather(cityObj, false);
     },
-    [getInitialLocation, fetchWeather],
+    [user, fetchWeather],
   );
 
   const handleRenameCard = useCallback((id, newName) => {
@@ -1223,6 +1351,7 @@ const App = () => {
         <SectionContent
           section={siteSections.find((s) => s.key === "weather")}
           weatherCards={weatherCards}
+          heroDateString={heroDateString}
           isDarkMode={sectionThemes["weather"]}
           isLocationEnabled={isLocationEnabled}
           handleRefreshCard={handleRefreshCard}
@@ -1617,6 +1746,15 @@ const App = () => {
             card={selectedWeatherCard}
             isDarkMode={isDarkMode}
           />
+
+          <UpdateTimerBadge 
+            $isDarkMode={isDarkMode} 
+            onClick={handleManualBulkRefresh}
+            title="Натисніть, щоб оновити всі картки зараз"
+          >
+            🕒 Оновлення через: {Math.floor(secondsUntilUpdate / 60)}:
+            {(secondsUntilUpdate % 60).toString().padStart(2, '0')}
+          </UpdateTimerBadge>
         </div>
       </ThemeWrapper>
     </>
