@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/react-weather-music-project/static/css/main.72130527.css",
-    "main.js": "/react-weather-music-project/static/js/main.7d33d32a.js",
+    "main.js": "/react-weather-music-project/static/js/main.e2567d00.js",
     "static/media/dinofroz.mp4": "/react-weather-music-project/static/media/dinofroz.d6619cdcbd7c26257b58.mp4",
     "static/media/humor.mp4": "/react-weather-music-project/static/media/humor.156af6fc24c239313491.mp4",
     "static/media/ort-wasm-simd-threaded.asyncify.wasm": "/react-weather-music-project/static/media/ort-wasm-simd-threaded.asyncify.bb191ad2bb217f542c38.wasm",
@@ -23,6 +23,7 @@
     "static/media/mechanik-kindom.mp3": "/react-weather-music-project/static/media/mechanik-kindom.63de6bff6b9786908a1b.mp3",
     "static/media/humor.mp3": "/react-weather-music-project/static/media/humor.b46bc22e3153b119611e.mp3",
     "static/media/turkeys.mp3": "/react-weather-music-project/static/media/turkeys.93b5f532d79307147fea.mp3",
+    "static/media/shop.mp4": "/react-weather-music-project/static/media/shop.067ed830f5fb47e7f63e.mp4",
     "static/media/dinofroz.mp3": "/react-weather-music-project/static/media/dinofroz.f77b79e82f0b057474b3.mp3",
     "static/media/horse.mp3": "/react-weather-music-project/static/media/horse.cf201415f1443a5bbab2.mp3",
     "static/media/clubstep.mp4": "/react-weather-music-project/static/media/clubstep.5ed1791fc79d97fc70fd.mp4",
@@ -166,6 +167,6 @@
   },
   "entrypoints": [
     "static/css/main.72130527.css",
-    "static/js/main.7d33d32a.js"
+    "static/js/main.e2567d00.js"
   ]
 }
