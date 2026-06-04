@@ -46,7 +46,7 @@
     "build": "react-scripts build",
     "backup": "powershell -Command \"$date = Get-Date -Format 'yyyy-MM-dd_HH-mm'; Get-ChildItem -Path './*' -Exclude 'node_modules', 'server', '.next', '.git', 'out', 'build', '.env*' | Compress-Archive -DestinationPath ('../stykhiya-backup-' + $date + '.zip')\"",
     "predeploy": "node generate-deploy-id.js && npm run build",
-    "deploy": "gh-pages -d build",
+    "deploy": "gh-pages -r https://github.com/TheTureyProgramist/react-weather-music-project.git -d build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "star": "node server/index.js",
