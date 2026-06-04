@@ -1,8 +1,14 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import { motion, AnimatePresence } from "framer-motion";
 import localforage from "localforage";
 import rainbow from "../../photos/vip-images/stars.webp";
+
+const fadeIn = keyframes`
+  from { opacity: 0; }
+  to { opacity: 1; }
+`;
+
 const SOURCES = [
   { url: "https://phys.org/rss-feed/biology-news/animals-news/", name: "Phys.org", flag: "🇬🇧", home: "https://phys.org" },
 ];
@@ -34,6 +40,7 @@ const translateText = async (text) => {
 const NewsDiv = styled.div`
   margin-top: 15px;
   padding: 0 20px;
+  position: relative;
   @media (min-width: 768px) {
     margin-top: 30px;
   }
@@ -90,32 +97,6 @@ const NewsImg = styled.img`
   display: block;
 `;
 
-const LoadMoreContainer = styled(motion.div)`
-  display: flex;
-  justify-content: center;
-  margin-top: 30px;
-`;
-
-const LoadMoreBtn = styled.button`
-  background: ${(props) => (props.$isDarkMode ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)")};
-  color: ${(props) => (props.$isDarkMode ? "#fff" : "#333")};
-  border: 1px solid #ffb36c;
-  border-radius: 20px;
-  padding: 8px 35px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  &:hover {
-    background: #ffb36c;
-    color: #000;
-    transform: scale(1.05);
-  }
-  &:active {
-    transform: scale(0.95);
-  }
-`;
-
 const SourceFlag = styled.span`
   position: absolute;
   top: 10px;
@@ -134,6 +115,134 @@ const SourceFlag = styled.span`
   }
   backdrop-filter: blur(4px);
 `;
+
+const PaginationSide = styled.div`
+  position: absolute;
+  right: -10px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  background: ${(props) => (props.$isDarkMode ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.4)")};
+  padding: 15px 8px;
+  border-radius: 30px;
+  backdrop-filter: blur(10px);
+  border: 1px solid #ffb36c;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  @media (max-width: 576px) {
+    right: -5px;
+    padding: 10px 5px;
+    transform: translateY(-50%) scale(0.8);
+  }
+`;
+
+const PageArrow = styled.button`
+  background: none;
+  border: none;
+  color: #ffb36c;
+  cursor: pointer;
+  font-size: 20px;
+  padding: 0;
+  &:disabled { opacity: 0.3; cursor: not-allowed; }
+`;
+
+const NewBadge = styled.span`
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #ff4d4d;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+  z-index: 6;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  animation: ${fadeIn} 0.5s ease;
+`;
+
+const NewsCard = ({ item, $isDarkMode, showImage, showTitle, showDescription }) => {
+  const cardRef = useRef(null);
+  const [isVisible, setIsVisible] = useState(item.isNew);
+
+  useEffect(() => {
+    if (!item.isNew) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          // Коли новина потрапила на очі, запускаємо таймер на 1 хвилину
+          const timer = setTimeout(async () => {
+            setIsVisible(false);
+            // Оновлюємо список побачених в localforage
+            const seenLinks = (await localforage.getItem("seen_news_links")) || [];
+            if (!seenLinks.includes(item.link)) {
+              await localforage.setItem("seen_news_links", [...seenLinks, item.link]);
+            }
+          }, 60000); // 60000мс = 1 хвилина
+
+          observer.unobserve(entry.target);
+          return () => clearTimeout(timer);
+        }
+      },
+      { threshold: 0.5 } // Мінімум 50% картки має бути видно
+    );
+
+    if (cardRef.current) observer.observe(cardRef.current);
+    return () => observer.disconnect();
+  }, [item.isNew, item.link]);
+
+  return (
+    <Card
+      ref={cardRef}
+      href={item.link}
+      target="_blank"
+      rel="noopener noreferrer"
+      $isDarkMode={$isDarkMode}
+    >
+      <div style={{ position: "relative" }}>
+        {isVisible && <NewBadge>Нове</NewBadge>}
+        <SourceFlag 
+          onClick={(e) => {
+            e.preventDefault(); 
+            e.stopPropagation();
+            window.open(item.sourceHome, "_blank");
+          }}
+          title={`Перейти на головну сторінку ${item.sourceName}`}
+        >
+          {item.sourceFlag} {item.sourceName}
+        </SourceFlag>
+        {showImage && (
+          <NewsImg
+            src={item.displayImage}
+            alt=""
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = rainbow;
+            }}
+          />
+        )}
+      </div>
+      {(showTitle || showDescription) && (
+        <CardContent>
+          {showTitle && (
+            <h4 style={{ margin: "0 0 10px 0", fontSize: "18px", fontWeight: "700", lineHeight: "1.3" }}>
+              {item.title}
+            </h4>
+          )}
+          {showDescription && (
+            <p style={{ fontSize: "14px", opacity: 0.7, margin: 0, lineHeight: "1.5" }}>
+              {item.description}
+            </p>
+          )}
+        </CardContent>
+      )}
+    </Card>
+  );
+};
 
 const CardContent = styled.div`
   padding: 20px;
@@ -217,7 +326,6 @@ const News = ({ $isDarkMode, user }) => {
   const [filterSource, setFilterSource] = useState("all");
   const [lastUpdated, setLastUpdated] = useState(null);
   const [cooldown, setCooldown] = useState(0);
-  const [visibleCount, setVisibleCount] = useState(3);
   
   // 1. Стан розмонтування для Memory Leak Protection
   const isMounted = useRef(true);
@@ -280,13 +388,16 @@ const News = ({ $isDarkMode, user }) => {
       const stringsToTranslate = [];
 
       // 1. Перевіряємо кеш та збираємо тексти для пакетного перекладу
+      const seenLinks = (await localforage.getItem("seen_news_links")) || [];
+
       for (let i = 0; i < limited.length; i++) {
         const item = limited[i];
         const cacheKey = `news_trans_${item.link}`;
         const cached = await localforage.getItem(cacheKey);
+        const isNew = !seenLinks.includes(item.link);
 
         if (cached) {
-          results[i] = { ...cached, sourceName: item.sourceName, sourceFlag: item.sourceFlag, sourceHome: item.sourceHome };
+          results[i] = { ...cached, sourceName: item.sourceName, sourceFlag: item.sourceFlag, sourceHome: item.sourceHome, isNew };
         } else {
           const cleanDesc = (item.description || "")
             .replace(/<[^>]*>?/gm, "")
@@ -346,7 +457,8 @@ const News = ({ $isDarkMode, user }) => {
               displayImage: bestImg,
               sourceName: item.sourceName,
               sourceFlag: item.sourceFlag,
-              sourceHome: item.sourceHome
+              sourceHome: item.sourceHome,
+              isNew: !seenLinks.includes(item.link)
             };
 
             await localforage.setItem(`news_trans_${item.link}`, translatedItem);
@@ -411,7 +523,7 @@ const News = ({ $isDarkMode, user }) => {
 
   // Скидаємо кількість видимих новин при зміні джерела
   useEffect(() => {
-    setVisibleCount(3);
+    setCurrentPage(1);
   }, [filterSource]);
 
   // Таймер для cooldown кнопки оновлення
@@ -437,8 +549,8 @@ const News = ({ $isDarkMode, user }) => {
     return filterSource === "all" || item.sourceName === filterSource;
   });
 
-  // Обрізаємо масив для пагінації
-  const displayedItems = filteredItems.slice(0, visibleCount);
+  const [currentPage, setCurrentPage] = useState(1);
+  const displayedItems = filteredItems.slice((currentPage - 1) * 3, currentPage * 3);
 
   // Отримуємо налаштування видимості з об'єкта користувача
   const layout = user?.newsLayout || [];
@@ -492,86 +604,55 @@ const News = ({ $isDarkMode, user }) => {
           </ProgressBar>
         </div>
       ) : filteredItems.length > 0 ? (
-        <>
-          <Grid>
-            {displayedItems.map((item) => (
-              <Card
-                key={item.link}
-                href={item.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                $isDarkMode={$isDarkMode}
-              >
-                <div style={{ position: "relative" }}>
-                  <SourceFlag 
-                    onClick={(e) => {
-                      e.preventDefault(); 
-                      e.stopPropagation();
-                      window.open(item.sourceHome, "_blank");
-                    }}
-                    title={`Перейти на головну сторінку ${item.sourceName}`}
-                  >
-                    {item.sourceFlag} {item.sourceName}
-                  </SourceFlag>
-                  {showImage && (
-                    <NewsImg
-                      src={item.displayImage}
-                      alt=""
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = rainbow;
-                      }}
-                    />
-                  )}
-                </div>
-                {(showTitle || showDescription) && (
-                  <CardContent>
-                    {showTitle && (
-                      <h4
-                        style={{
-                          margin: "0 0 10px 0",
-                          fontSize: "18px",
-                          fontWeight: "700",
-                          lineHeight: "1.3",
-                        }}
-                      >
-                        {item.title}
-                      </h4>
-                    )}
-                    {showDescription && (
-                      <p
-                        style={{
-                          fontSize: "14px",
-                          opacity: 0.7,
-                          margin: 0,
-                          lineHeight: "1.5",
-                        }}
-                      >
-                        {item.description}
-                      </p>
-                    )}
-                  </CardContent>
-                )}
-              </Card>
-            ))}
-          </Grid>
-          <AnimatePresence>
-            {visibleCount < filteredItems.length && (
-              <LoadMoreContainer
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, transition: { duration: 0.3 } }}
-              >
-                <LoadMoreBtn 
-                  $isDarkMode={$isDarkMode}
-                  onClick={() => setVisibleCount(prev => prev + 3)}
-                >
-                  Показати ще +3
-                </LoadMoreBtn>
-              </LoadMoreContainer>
-            )}
+        <div style={{ position: "relative", maxWidth: "1400px", margin: "0 auto" }}>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentPage + filterSource}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Grid>
+                {displayedItems.map((item) => (
+                  <NewsCard
+                    key={item.link}
+                    item={item}
+                    $isDarkMode={$isDarkMode}
+                    showImage={showImage}
+                    showTitle={showTitle}
+                    showDescription={showDescription}
+                  />
+                ))}
+              </Grid>
+            </motion.div>
           </AnimatePresence>
-        </>
+          
+          <PaginationSide $isDarkMode={$isDarkMode}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '5px' }}>
+              <PageArrow 
+                disabled={currentPage === 1} 
+                onClick={() => setCurrentPage(p => p - 1)}
+              >▲</PageArrow>
+              <PageArrow 
+                disabled={currentPage === 3 || filteredItems.length <= currentPage * 3} 
+                onClick={() => setCurrentPage(p => p + 1)}
+              >▼</PageArrow>
+            </div>
+            {[1, 2, 3].map(num => (
+              <FilterBtn
+                key={num}
+                $active={currentPage === num}
+                $isDarkMode={$isDarkMode}
+                onClick={() => setCurrentPage(num)}
+                style={{ padding: '8px', minWidth: '35px', borderRadius: '50%' }}
+                disabled={filteredItems.length < (num - 1) * 3 + 1}
+              >
+                {num}
+              </FilterBtn>
+            ))}
+          </PaginationSide>
+        </div>
       ) : (
         <div style={{ textAlign: "center", color: "gray", padding: "20px" }}>
           Новини тимчасово відпочивають. Зазирніть за хвилину!

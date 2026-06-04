@@ -557,6 +557,7 @@ const Menu = ({
   onOpenVip,
   onOpenSettings,
   onOpenHelp,
+  onOpenOtherOptions,
   showUltra,
   onOpenInfo,
   onLogout,
@@ -1048,6 +1049,14 @@ const Menu = ({
                   }}
                 >
                   <span className="icon">🧧</span> Магазин
+                </ActionButton>
+              </li>
+              <li>
+                <ActionButton
+                  $isDarkMode={isDarkMode}
+                  onClick={() => { onOpenOtherOptions(); onClose(); }}
+                >
+                  <span className="icon">⋯</span> Інші опції
                 </ActionButton>
               </li>
               <li>

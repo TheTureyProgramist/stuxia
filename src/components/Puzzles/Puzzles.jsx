@@ -14,18 +14,18 @@ const TitleContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 15px;
-  margin-bottom: 30px;
+  gap: 5px;
+  margin-bottom: 10px;
 `;
 
 const HelpButton = styled.button`
   background: #ffb36c;
   color: black;
   border: none;
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
-  font-size: 24px;
+  font-size: 17px;
   font-weight: bold;
   cursor: pointer;
   display: flex;
@@ -41,7 +41,7 @@ const HelpButton = styled.button`
 const PuzzlesGrid = styled(motion.div)`
   display: grid;
   grid-template-columns: repeat(1, 1fr);
-  gap: 30px;
+  gap: 10px;
   justify-items: center;
   width: 100%;
 
@@ -65,7 +65,7 @@ const PuzzleCard = styled(motion.div)`
 const ImageWrapper = styled.div`
   position: relative;
   width: 100%;
-  height: 200px;
+  height: 170px;
   overflow: hidden;
   border-radius: 12px;
   border: 3px solid ${(props) => props.$rarityColor || "#ffb36c"};
@@ -76,22 +76,12 @@ const ImageWrapper = styled.div`
   font-size: 40px;
   color: white;
 `;
-
-// const PreviewImage = styled.img`
-//   width: 100%;
-//   height: 100%;
-//   object-fit: cover;
-//   transition: transform 0.3s;
-//   ${PuzzleCard}:hover & {
-//     transform: scale(1.1);
-//   }
-// `;
 const SearchInput = styled.input`
   display: block;
   margin: 0 auto 30px;
   width: 100%;
   max-width: 400px;
-  padding: 12px 20px;
+  padding: 6px 10px;
   border-radius: 25px;
   border: 2px solid #ffb36c;
   background: rgba(255, 255, 255, 0.05);
@@ -110,13 +100,12 @@ const SearchInput = styled.input`
 
 const LoadMoreBtn = styled.button`
   display: block;
-  margin: 40px auto;
-  padding: 12px 30px;
+  margin: 5px auto;
+  padding: 4px 10px;
   background: transparent;
   border: 2px solid #ffb36c;
   color: #ffb36c;
   font-size: 18px;
-  font-family: "Montserrat", sans-serif;
   font-weight: bold;
   cursor: pointer;
   border-radius: 5px;
@@ -206,7 +195,7 @@ const customMessages = {
   29: "Хочеш бути мільйонером. То ось роби що. Це книга 'Кіра і таємниця бублика'",
   30: "Неймовірні теорії. Макс Кідрук",
   31: "3 щоденники.",
-  32: "Болото.",
+  32: "Болото. А потім погоня: маєток, город, сніжна пустеля, 13, підземний замок, Поліна?",
   33: "Таємничий острів і порятук друга. Жуль Верн",
   34: "Папороть.",
   35: "10000льє під водою, і подорож у центр землі.",
@@ -282,13 +271,12 @@ const Puzzles = () => {
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [helpModalCustomText] = useState(
     `Друзі, «Стихія» — непростий сайт. Механіки та сценарій можуть змінитися, але наразі в мене такий план. Приблизно планую <strong>100 епізодів з головоломками</strong> за сюжетом «Сценотвору». Сюжет ділиться на <strong>8 глав</strong>, кожна з яких важча за попередню.
-
               <div
                 style={{
                   padding: "1px",
                   background: "rgba(255,255,255,0.05)",
                   borderRadius: "3px",
-                  marginBottom: "12px",
+                  marginBottom: "6px",
                 }}
               >
                 <strong style={{ color: "#ff4d4d" }}>
@@ -481,11 +469,11 @@ const Puzzles = () => {
 
   return (
     <div
-      style={{ padding: "40px 20px", minHeight: "100vh", background: "#111" }}
+      style={{ padding: "10px 5px", minHeight: "100vh", background: "#111" }}
     >
       <TitleContainer>
         <HelpButton onClick={() => setShowHelpModal(true)}>?</HelpButton>
-        <MainTitle style={{ marginBottom: 0 }}>ОБЕРІТЬ ГОЛОВОЛОМКУ</MainTitle>
+        <MainTitle style={{ marginBottom: 0 }}>Сценотвір</MainTitle>
       </TitleContainer>
 
       <SearchInput

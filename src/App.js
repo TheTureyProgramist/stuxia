@@ -1,6 +1,6 @@
 // Міста для тесту: Дубай (>30°C), Якутськ (<-30°C), Кейптаун (вітер >10 м/с). Графік have погодинну перевірку вітру та деталізовані причини небезпеки в підказках.
 import { useState, useEffect, useCallback, memo, Suspense, useMemo, useRef } from "react";
-import styled, { keyframes, css } from "styled-components";
+import styled, { keyframes, css, createGlobalStyle } from "styled-components";
 
 import localforage from "localforage";
 import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
@@ -22,7 +22,7 @@ import {
 } from "chart.js";
 // import { Line } from "react-chartjs-2";
 import Prison from "./components/Prison/Prison.jsx";
-import Menu, { DEFAULT_SITE_SECTIONS } from "./components/Header/Menu.jsx";
+import { DEFAULT_SITE_SECTIONS } from "./components/Header/Menu.jsx";
 import axios from "axios";
 import "./App.css";
 import Header from "./components/Header/Header.jsx";
@@ -61,6 +61,16 @@ import startImage from "./photos/hero-header/start-image.webp";
 import turkeysAudio from "./mp3/turkeys.mp3";
 import ultraImage from "./photos/vip-modal/realultra.webp";
 import TermsModal from "./components/Modals/UserSearchModal.jsx";
+import OtherOptionsModal from "./components/Header/OtherOptionsModal.jsx";
+
+const GlobalFilterLock = createGlobalStyle`
+  ${props => props.$locked && css`
+    html, body, #root, .App {
+      filter: none !important;
+      backdrop-filter: none !important;
+    }
+  `}
+`;
 
 const StyledSectionContainer = styled.div`
   background-color: ${(props) => (props.$isDarkMode ? "#1a1a1a" : "#ffffff")};
@@ -273,6 +283,7 @@ const SectionContent = memo(
     setIsWeatherDetailsOpen,
     selectedWeatherCard,
     setSelectedWeatherCard,
+    setIsFsActive,
   }) => {
     if (!section) return null;
 
@@ -326,6 +337,7 @@ const SectionContent = memo(
         {section.key === "music" && (
           <MusicPhoto
             user={user}
+            onFsToggle={setIsFsActive}
             isAnyModalOpen={isAnyModalOpen}
             onUpdateUser={onUpdateUser}
             isDarkMode={isDarkMode}
@@ -396,9 +408,23 @@ const App = () => {
   const [isVipModalOpen, setIsVipModalOpen] = useState(false);
   const [isShopOpen, setIsShopOpen] = useState(false);
   const [isAchivmentsOpen, setIsAchivmentsOpen] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserSearchOpen, setIsUserSearchOpen] = useState(false);
   const [isInfoOpen, setIsInfoOpen] = useState(false);
+  const [showUpdateTimer, setShowUpdateTimer] = useState(true); // New state for update timer visibility
+  const [isOtherOptionsOpen, setIsOtherOptionsOpen] = useState(false);
+  const [bgMusicEnabled, setBgMusicEnabled] = useState(false);
+  const [autoMuteBgMusic, setAutoMuteBgMusic] = useState(true);
+  const [bgMusicSource, setBgMusicSource] = useState(turkeysAudio);
+  const [bgMusicMode, setBgMusicMode] = useState("loop"); // 'loop' або 'order'
+  const [bgMusicShuffle, setBgMusicShuffle] = useState(false);
+  const [activeBgTrackId, setActiveBgTrackId] = useState(23); // ID для індиків за замовчуванням
+  const [, setTrackRepeatCounter] = useState(0);
+  const [bgMusicVolume, setBgMusicVolume] = useState(0.2);
+  const [bgMusicSpeed, setBgMusicSpeed] = useState(1);
+  const [customBgTracks, setCustomBgTracks] = useState([]); // [{name, file}]
+  const [libraryBgSettings, setLibraryBgSettings] = useState({}); // {trackId: {repeats, enabled}}
+  const [lockFiltersInFs, setLockFiltersInFs] = useState(false);
+  const [isFsActive, setIsFsActive] = useState(false);
   const [isWeatherDetailsOpen, setIsWeatherDetailsOpen] = useState(false);
   const [selectedWeatherCard, setSelectedWeatherCard] = useState(null);
 
@@ -411,6 +437,10 @@ const App = () => {
 
   const [secondsUntilUpdate, setSecondsUntilUpdate] = useState(calculateSecondsUntilNextHour());
   const weatherCardsRef = useRef([]);
+  const bgAudioRef = useRef(null);
+  const bgAudioRef2 = useRef(null); // Для Crossfade
+  const [initialBgPosition, setInitialBgPosition] = useState(0);
+  const bgPositionApplied = useRef(false);
 
   const [hasInteracted, setHasInteracted] = useState(false);
   const [isUpdatePending, setIsUpdatePending] = useState(false);
@@ -443,6 +473,31 @@ const App = () => {
 
         const savedTimezone = await localforage.getItem("selected_timezone");
         if (savedTimezone) setSelectedTimezone(savedTimezone);
+
+        const savedBgMusic = await localforage.getItem("bg_music_enabled");
+        if (savedBgMusic !== null) setBgMusicEnabled(savedBgMusic);
+        const savedAutoMute = await localforage.getItem("auto_mute_bg_music");
+        if (savedAutoMute !== null) setAutoMuteBgMusic(savedAutoMute);
+        const savedLockFilters = await localforage.getItem("lock_filters_in_fs");
+        if (savedLockFilters !== null) setLockFiltersInFs(savedLockFilters);
+        const savedBgSource = await localforage.getItem("bg_music_source");
+        if (savedBgSource) setBgMusicSource(savedBgSource);
+        const savedCustomBg = await localforage.getItem("custom_bg_tracks");
+        if (savedCustomBg) setCustomBgTracks(savedCustomBg);
+        const savedBgVolume = await localforage.getItem("bg_music_volume");
+        if (savedBgVolume !== null) setBgMusicVolume(savedBgVolume);
+        const savedBgSpeed = await localforage.getItem("bg_music_speed");
+        if (savedBgSpeed !== null) setBgMusicSpeed(savedBgSpeed);
+        const savedPos = await localforage.getItem("bg_music_position");
+        if (savedPos !== null) setInitialBgPosition(savedPos);
+        const savedBgMode = await localforage.getItem("bg_music_mode");
+        if (savedBgMode) setBgMusicMode(savedBgMode);
+        const savedShuffle = await localforage.getItem("bg_music_shuffle");
+        if (savedShuffle !== null) setBgMusicShuffle(savedShuffle);
+        const savedActiveId = await localforage.getItem("active_bg_track_id");
+        if (savedActiveId) setActiveBgTrackId(savedActiveId);
+        const savedLibSettings = await localforage.getItem("library_bg_settings");
+        if (savedLibSettings) setLibraryBgSettings(savedLibSettings);
 
         const savedCards = await localforage.getItem("weather_cards");
         if (savedCards) setWeatherCards(savedCards);
@@ -525,6 +580,9 @@ const App = () => {
         const savedLayout = await localforage.getItem("weather_card_layout");
         if (savedLayout) setWeatherCardLayout(savedLayout);
 
+        const savedShowUpdateTimer = await localforage.getItem("show_update_timer");
+        if (savedShowUpdateTimer !== null) setShowUpdateTimer(savedShowUpdateTimer);
+
         const deployId = process.env.REACT_APP_DEPLOY_ID;
         if (deployId && lastSeenVersion !== deployId) {
           setIsUpdatePending(true);
@@ -538,6 +596,24 @@ const App = () => {
     };
     hydrate();
   }, []);
+
+  useEffect(() => {
+    if (isHydrated) {
+      localforage.setItem("bg_music_enabled", bgMusicEnabled);
+      localforage.setItem("auto_mute_bg_music", autoMuteBgMusic);
+      localforage.setItem("lock_filters_in_fs", lockFiltersInFs);
+      if (bgMusicSource instanceof Blob || typeof bgMusicSource === "string") {
+        localforage.setItem("bg_music_source", bgMusicSource);
+      }
+      localforage.setItem("custom_bg_tracks", customBgTracks);
+      localforage.setItem("bg_music_volume", bgMusicVolume);
+      localforage.setItem("bg_music_speed", bgMusicSpeed);
+      localforage.setItem("bg_music_mode", bgMusicMode);
+      localforage.setItem("bg_music_shuffle", bgMusicShuffle);
+      localforage.setItem("active_bg_track_id", activeBgTrackId); // This should be activeBgTrackId, not bgMusicSource
+      localforage.setItem("library_bg_settings", libraryBgSettings);
+    }
+  }, [bgMusicEnabled, autoMuteBgMusic, lockFiltersInFs, bgMusicSource, customBgTracks, libraryBgSettings, bgMusicVolume, bgMusicSpeed, bgMusicMode, bgMusicShuffle, activeBgTrackId, isHydrated]);
 
   // Логіка вибору фрази та перевірки на новизну
   useEffect(() => {
@@ -660,7 +736,6 @@ const App = () => {
 
   useEffect(() => {
     if (isHydrated) {
-      setIsMenuOpen(false);
       localforage.setItem("weather_cards", weatherCards);
     }
   }, [weatherCards, isHydrated]);
@@ -671,6 +746,246 @@ const App = () => {
       localforage.setItem(SECTION_ORDER_STORAGE_KEY, siteSections);
     }
   }, [siteSections, isRoutingMode, isHydrated]);
+
+  // Реалізація Crossfade
+  useEffect(() => {
+    const a1 = bgAudioRef.current;
+    const a2 = bgAudioRef2.current;
+    if (!a1 || !a2) return;
+
+    const shouldPlay = bgMusicEnabled && (!isFsActive || !autoMuteBgMusic);
+    const targetVolume = shouldPlay ? bgMusicVolume : 0;
+    const fadeStep = 0.02;
+
+    // Визначаємо, який плеєр зараз активний за джерелом
+    const currentSource = bgMusicSource instanceof Blob ? URL.createObjectURL(bgMusicSource) : bgMusicSource;
+    
+    // Виправлена логіка: якщо жоден плеєр не містить поточне джерело, використовуємо перший плеєр
+    let activeAudio = a1;
+    let inactiveAudio = a2;
+    
+    if (a1.src && a1.src.includes(currentSource)) {
+      activeAudio = a1;
+      inactiveAudio = a2;
+    } else if (a2.src && a2.src.includes(currentSource)) {
+      activeAudio = a2;
+      inactiveAudio = a1;
+    } else {
+      // Якщо жоден не містить джерело, використовуємо перший вільний (паузований) плеєр
+      activeAudio = (a1.paused || a1.volume === 0) ? a1 : a2;
+      inactiveAudio = activeAudio === a1 ? a2 : a1;
+    }
+
+    if (shouldPlay) {
+      if (activeAudio.paused || activeAudio.src === "" || !activeAudio.src.includes(currentSource)) {
+        activeAudio.src = currentSource;
+        activeAudio.currentTime = 0;
+        activeAudio.volume = 0;
+        activeAudio.playbackRate = bgMusicSpeed;
+        activeAudio.play().catch(() => {});
+      } else if (activeAudio.paused) {
+        // Якщо плеєр вже має правильне джерело, але на паузі - просто запускаємо
+        activeAudio.play().catch(() => {});
+      }
+    } else if (!shouldPlay) {
+      // Якщо музику вимкнули - паузуємо обидва
+      if (!a1.paused) a1.pause();
+      if (!a2.paused) a2.pause();
+    }
+
+    const crossfadeInterval = setInterval(() => {
+      // Плавне наростання активного
+      if (activeAudio.volume < targetVolume) {
+        activeAudio.volume = Math.min(targetVolume, activeAudio.volume + fadeStep);
+      } else {
+        activeAudio.volume = targetVolume;
+      }
+
+      // Плавне затухання неактивного
+      if (inactiveAudio.volume > 0) {
+        inactiveAudio.volume = Math.max(0, inactiveAudio.volume - fadeStep);
+      } else {
+        inactiveAudio.pause();
+      }
+
+      if (activeAudio.volume === targetVolume && inactiveAudio.volume === 0) {
+        clearInterval(crossfadeInterval);
+      }
+    }, 50);
+
+    return () => clearInterval(crossfadeInterval);
+  }, [bgMusicEnabled, isFsActive, autoMuteBgMusic, bgMusicSource, bgMusicVolume, bgMusicSpeed, initialBgPosition]);
+
+  // Збереження позиції фонової музики
+  useEffect(() => {
+    const saveInterval = setInterval(() => {
+      const a1 = bgAudioRef.current;
+      const a2 = bgAudioRef2.current;
+      if (!a1 || !a2) return;
+      
+      const active = (a1 && !a1.paused) ? a1 : (a2 && !a2.paused ? a2 : null);
+      if (active && active.currentTime > 0) {
+        localforage.setItem("bg_music_position", active.currentTime);
+      }
+    }, 5000); // зберігаємо кожні 5 секунд
+
+    return () => clearInterval(saveInterval);
+  }, []);
+
+  const handleResetBgPosition = useCallback(async () => {
+    setInitialBgPosition(0);
+    await localforage.setItem("bg_music_position", 0);
+    // Також миттєво перемотуємо активні плеєри
+    if (bgAudioRef.current) bgAudioRef.current.currentTime = 0;
+    if (bgAudioRef2.current) bgAudioRef2.current.currentTime = 0;
+    // Дозволяємо логіці відновлення спрацювати знову, якщо це потрібно
+    bgPositionApplied.current = false;
+  }, []);
+
+  useEffect(() => {
+    setTrackRepeatCounter(0);
+    
+    // При зміні джерела, зупиняємо оба плеєри і скидаємо їх стан
+    if (bgAudioRef.current && bgAudioRef2.current) {
+      bgAudioRef.current.pause();
+      bgAudioRef2.current.pause();
+      bgAudioRef.current.currentTime = 0;
+      bgAudioRef2.current.currentTime = 0;
+    }
+    
+    // Запускаємо новий трек, якщо музика увімкнена
+    if (bgMusicEnabled) {
+      setTimeout(() => {
+        const a1 = bgAudioRef.current;
+        const a2 = bgAudioRef2.current;
+        if (!a1 || !a2) return;
+        
+        const currentSource = bgMusicSource instanceof Blob ? URL.createObjectURL(bgMusicSource) : bgMusicSource;
+        const activeAudio = (a1.paused || a1.volume === 0) ? a1 : a2;
+        
+        if (activeAudio.src !== currentSource) {
+          activeAudio.src = currentSource;
+        }
+        
+        // Застосовуємо збережену позицію тільки якщо це перша зміна джерела
+        if (!bgPositionApplied.current && initialBgPosition > 0) {
+          activeAudio.currentTime = initialBgPosition;
+          bgPositionApplied.current = true;
+        } else {
+          activeAudio.currentTime = 0;
+        }
+        
+        activeAudio.volume = 0;
+        activeAudio.playbackRate = bgMusicSpeed;
+        activeAudio.play().catch(() => {});
+      }, 10);
+    }
+  }, [bgMusicSource, bgMusicEnabled, bgMusicSpeed, initialBgPosition]);
+
+  // Автоматичне відтворення музики після гідратації
+  useEffect(() => {
+    if (!isHydrated || !bgMusicEnabled || !bgMusicSource) return;
+
+    setTimeout(() => {
+      const a1 = bgAudioRef.current;
+      const a2 = bgAudioRef2.current;
+      if (!a1 || !a2) return;
+
+      const currentSource = bgMusicSource instanceof Blob ? URL.createObjectURL(bgMusicSource) : bgMusicSource;
+      const activeAudio = (a1.paused || a1.volume === 0) ? a1 : a2;
+
+      if (activeAudio.src !== currentSource) {
+        activeAudio.src = currentSource;
+      }
+
+      // Застосовуємо збережену позицію, якщо це перша загрузка
+      if (!bgPositionApplied.current && initialBgPosition > 0) {
+        activeAudio.currentTime = initialBgPosition;
+        bgPositionApplied.current = true;
+      } else {
+        activeAudio.currentTime = 0;
+      }
+
+      activeAudio.volume = 0;
+      activeAudio.playbackRate = bgMusicSpeed;
+      activeAudio.play().catch(() => {});
+    }, 100);
+  }, [isHydrated, bgMusicEnabled, bgMusicSource, initialBgPosition, bgMusicSpeed]);
+
+  const handleBgMusicEnded = useCallback(() => {
+    const a1 = bgAudioRef.current;
+    const a2 = bgAudioRef2.current;
+    if (!a1 || !a2) return;
+    
+    // Визначаємо активний плеєр - той, що насправді грав
+    const currentSource = bgMusicSource instanceof Blob ? URL.createObjectURL(bgMusicSource) : bgMusicSource;
+    let activeAudio = a1;
+    if (a2.src && a2.src.includes(currentSource)) {
+      activeAudio = a2;
+    }
+    
+    if (bgMusicMode === "loop") {
+      // В режимі автоповтору просто перемотуємо музику і продовжуємо відтворення
+      activeAudio.currentTime = 0;
+      activeAudio.play().catch(() => {});
+      return;
+    }
+    
+    // Знаходимо кількість повторів: спочатку в кастомних, потім у бібліотеці сайту
+    const currentTrack = customBgTracks.find(t => t.file === bgMusicSource);
+    let maxRepeats = 1;
+    if (currentTrack) {
+      maxRepeats = currentTrack.repeats || 1;
+    } else if (activeBgTrackId) {
+      maxRepeats = libraryBgSettings[activeBgTrackId]?.repeats || 1;
+    }
+
+    setTrackRepeatCounter(prev => {
+      const nextCount = prev + 1;
+      if (nextCount < maxRepeats) {
+        activeAudio.currentTime = 0;
+        activeAudio.play().catch(() => {});
+        return nextCount;
+      } else {
+        // Шукаємо наступний доступний трек (enabled: true) в режимі "order"
+        if (bgMusicMode === "order") {
+          const enabledCustomTracks = customBgTracks.filter(t => t.enabled !== false);
+          
+          // Спочатку перевіримо, чи поточний трек - це кастомний
+          const isCurrentCustom = customBgTracks.some(t => t.file === bgMusicSource);
+          
+          if (isCurrentCustom && enabledCustomTracks.length > 0) {
+            // Переходимо до наступного кастомного треку
+            if (bgMusicShuffle) {
+              const otherTracks = enabledCustomTracks.filter(t => t.file !== bgMusicSource);
+              const randomTrack = otherTracks.length > 0 
+                ? otherTracks[Math.floor(Math.random() * otherTracks.length)]
+                : enabledCustomTracks[0];
+              setBgMusicSource(randomTrack.file);
+            } else {
+              const currentIdx = enabledCustomTracks.findIndex(t => t.file === bgMusicSource);
+              const nextIdx = (currentIdx + 1) % enabledCustomTracks.length;
+              setBgMusicSource(enabledCustomTracks[nextIdx].file);
+            }
+          } else if (enabledCustomTracks.length > 0) {
+            // Якщо поточний трек з бібліотеки, то переходимо на кастомні
+            const randomIdx = Math.floor(Math.random() * enabledCustomTracks.length);
+            setBgMusicSource(enabledCustomTracks[randomIdx].file);
+          }
+        }
+        return 0;
+      }
+    });
+  }, [bgMusicMode, bgMusicSource, customBgTracks, bgMusicShuffle, activeBgTrackId, libraryBgSettings]);
+
+  // При зміні режиму перезапускаємо трек, щоб новий режим застосувався відразу
+  useEffect(() => {
+    if (bgMusicEnabled && bgAudioRef.current && !bgAudioRef.current.paused) {
+      bgAudioRef.current.currentTime = 0;
+    } else if (bgMusicEnabled && bgAudioRef2.current && !bgAudioRef2.current.paused) {
+      bgAudioRef2.current.currentTime = 0;
+    }
+  }, [bgMusicMode, bgMusicEnabled, bgMusicSource, bgMusicSpeed, initialBgPosition]);
 
   useEffect(() => {
     if (isHydrated) {
@@ -702,6 +1017,7 @@ const App = () => {
       localforage.setItem("custom_holiday_name", customHolidayName);
       localforage.setItem("selected_timezone", selectedTimezone);
       localforage.setItem("weather_card_layout", weatherCardLayout);
+      localforage.setItem("show_update_timer", showUpdateTimer);
     }
   }, [
     heroBg,
@@ -733,6 +1049,7 @@ const App = () => {
     customHolidayName,
     selectedTimezone,
     weatherCardLayout,
+    showUpdateTimer, // Save new setting
   ]);
 
   useEffect(() => {
@@ -1274,9 +1591,6 @@ const App = () => {
     }
   })();
 
-  const handleOpenMenu = useCallback(() => setIsMenuOpen(true), []);
-  const handleCloseMenu = useCallback(() => setIsMenuOpen(false), []);
-
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -1387,6 +1701,7 @@ const App = () => {
           setIsWeatherDetailsOpen={setIsWeatherDetailsOpen}
           selectedWeatherCard={selectedWeatherCard}
           setSelectedWeatherCard={setSelectedWeatherCard}
+          setIsFsActive={setIsFsActive}
         />
       </StyledSectionContainer>
     </>
@@ -1485,6 +1800,8 @@ const App = () => {
                   setIsWeatherDetailsOpen={setIsWeatherDetailsOpen}
                   selectedWeatherCard={selectedWeatherCard}
                   setSelectedWeatherCard={setSelectedWeatherCard}
+                  heroDateString={heroDateString}
+                  setIsFsActive={setIsFsActive}
                 />
               </StyledSectionContainer>
             ),
@@ -1495,6 +1812,7 @@ const App = () => {
 
   return (
     <>
+      <GlobalFilterLock $locked={isFsActive && lockFiltersInFs} />
       <Loader
         isLoading={isLoading}
         isFadingOut={isFadingOut}
@@ -1520,6 +1838,8 @@ const App = () => {
 
       <ThemeWrapper $isDarkMode={isDarkMode}>
         <div className="App">
+          <audio ref={bgAudioRef} onEnded={handleBgMusicEnded} preload="auto" />
+          <audio ref={bgAudioRef2} onEnded={handleBgMusicEnded} preload="auto" />
           <div className="container">
             <Header
               onOpenRegister={() => setIsModalOpen(true)}
@@ -1530,6 +1850,7 @@ const App = () => {
               onOpenAchievements={() => setIsAchivmentsOpen(true)}
               onOpenHelp={() => setIsUserSearchOpen(true)}
               onOpenInfo={() => setIsInfoOpen(true)}
+              onOpenOtherOptions={() => setIsOtherOptionsOpen(true)}
               onCloseInfo={() => setIsInfoOpen(false)}
               isInfoOpen={isInfoOpen}
               user={user}
@@ -1540,7 +1861,6 @@ const App = () => {
               onToggleSectionVisibility={toggleSectionVisibility}
               onToggleSectionTheme={toggleSectionTheme}
               onResetSectionThemes={resetSectionThemes}
-              onOpenMenu={handleOpenMenu}
               currentAvatar={currentAvatar}
               onLogout={handleLogout}
               siteSections={siteSections}
@@ -1551,6 +1871,7 @@ const App = () => {
               isRoutingMode={isRoutingMode}
               setIsRoutingMode={setIsRoutingMode}
               currentPath={location.pathname.substring(1)}
+              setIsFsActive={setIsFsActive}
             />
           </div>
           <main>
@@ -1653,6 +1974,7 @@ const App = () => {
                               setIsWeatherDetailsOpen={setIsWeatherDetailsOpen}
                               selectedWeatherCard={selectedWeatherCard}
                               setSelectedWeatherCard={setSelectedWeatherCard}
+                              setIsFsActive={setIsFsActive}
                             />
                           </StyledSectionContainer>
                         )}
@@ -1691,6 +2013,8 @@ const App = () => {
               onUpdate={setUser}
               weatherCardLayout={weatherCardLayout}
               onUpdateLayout={setWeatherCardLayout}
+              showUpdateTimer={showUpdateTimer}
+              setShowUpdateTimer={setShowUpdateTimer}
             />
           )}
           {isVipModalOpen && (
@@ -1721,47 +2045,6 @@ const App = () => {
             {isInfoOpen && <TermsModal onClose={() => setIsInfoOpen(false)} />}
           </Suspense>
 
-          <Menu
-            isOpen={isMenuOpen}
-            onClose={handleCloseMenu}
-            isDarkMode={isDarkMode}
-            siteSections={siteSections}
-            moveSiteSection={moveSiteSection}
-            resetSiteSections={() =>
-              setSiteSections([...DEFAULT_SITE_SECTIONS])
-            }
-            sectionThemes={sectionThemes}
-            hiddenSections={hiddenSections}
-            onToggleSectionVisibility={toggleSectionVisibility}
-            onToggleSectionTheme={toggleSectionTheme}
-            onResetSectionThemes={resetSectionThemes}
-            onToggleTheme={toggleTheme}
-            onOpenShop={() => {
-              setIsShopOpen(true);
-              handleCloseMenu();
-            }}
-            onOpenAchievements={() => {
-              setIsAchivmentsOpen(true);
-              handleCloseMenu();
-            }}
-            onOpenSettings={() => {
-              setIsSettingsModalOpen(true);
-              handleCloseMenu();
-            }}
-            onOpenHelp={() => {
-              setIsUserSearchOpen(true);
-              handleCloseMenu();
-            }}
-            onOpenInfo={() => {
-              setIsInfoOpen(true);
-              handleCloseMenu();
-            }}
-            onLogout={handleLogout}
-            isRoutingMode={isRoutingMode}
-            setIsRoutingMode={setIsRoutingMode}
-            currentPath={location.pathname.substring(1)}
-          />
-
           <WeatherDetailsModal
             isOpen={isWeatherDetailsOpen}
             onClose={() => setIsWeatherDetailsOpen(false)}
@@ -1769,14 +2052,46 @@ const App = () => {
             isDarkMode={isDarkMode}
           />
 
-          <UpdateTimerBadge 
-            $isDarkMode={isDarkMode} 
-            onClick={handleManualBulkRefresh}
-            title="Натисніть, щоб оновити всі картки зараз"
-          >
-            🕒 Оновлення через: {Math.floor(secondsUntilUpdate / 60)}:
-            {(secondsUntilUpdate % 60).toString().padStart(2, '0')}
-          </UpdateTimerBadge>
+          {isOtherOptionsOpen && (
+            <OtherOptionsModal
+              onClose={() => setIsOtherOptionsOpen(false)}
+              bgMusicEnabled={bgMusicEnabled}
+              setBgMusicEnabled={setBgMusicEnabled}
+              autoMuteBgMusic={autoMuteBgMusic}
+              setAutoMuteBgMusic={setAutoMuteBgMusic}
+              lockFiltersInFs={lockFiltersInFs}
+              setLockFiltersInFs={setLockFiltersInFs}
+              bgMusicSource={bgMusicSource}
+              setBgMusicSource={setBgMusicSource}
+              customBgTracks={customBgTracks}
+              setCustomBgTracks={setCustomBgTracks}
+              bgMusicVolume={bgMusicVolume}
+              setBgMusicVolume={setBgMusicVolume}
+              bgMusicSpeed={bgMusicSpeed}
+              setBgMusicSpeed={setBgMusicSpeed}
+              bgMusicMode={bgMusicMode}
+              setBgMusicMode={setBgMusicMode}
+              bgMusicShuffle={bgMusicShuffle}
+              setBgMusicShuffle={setBgMusicShuffle}
+              libraryBgSettings={libraryBgSettings}
+              setLibraryBgSettings={setLibraryBgSettings}
+              activeBgTrackId={activeBgTrackId}
+              setActiveBgTrackId={setActiveBgTrackId}
+              onResetBgPosition={handleResetBgPosition}
+              isDarkMode={isDarkMode}
+            />
+          )}
+
+          {showUpdateTimer && ( // Conditionally render the badge
+            <UpdateTimerBadge 
+              $isDarkMode={isDarkMode} 
+              onClick={handleManualBulkRefresh}
+              title="Натисніть, щоб оновити всі картки зараз"
+            >
+              🕒 Оновлення через: {Math.floor(secondsUntilUpdate / 60)}:
+              {(secondsUntilUpdate % 60).toString().padStart(2, '0')}
+            </UpdateTimerBadge>
+          )}
         </div>
       </ThemeWrapper>
     </>

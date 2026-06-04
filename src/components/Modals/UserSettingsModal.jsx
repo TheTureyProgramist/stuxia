@@ -392,6 +392,7 @@ const DEFAULT_SECTIONS = [
   "avatar",
   "voiceActing",
   "dateDisplay",
+  "interfaceSettings", // New section
   "weatherLayout",
   "newsLayout",
 ];
@@ -407,6 +408,7 @@ const SECTION_LABELS = {
   voiceActing: "Версія озвучки (Текст)",
   dateDisplay: "Відображення часу",
   weatherLayout: "Елементи картки погоди",
+  interfaceSettings: "Налаштування інтерфейсу", // New section label
   newsLayout: "Елементи новин",
 };
 
@@ -424,7 +426,16 @@ const NEWS_BLOCK_LABELS = {
   description: "Опис",
 };
 
-const UserSettingsModal = ({ onClose, user, availableAvatars, onUpdate, weatherCardLayout, onUpdateLayout }) => {
+const UserSettingsModal = ({ 
+  onClose, 
+  user, 
+  availableAvatars, 
+  onUpdate, 
+  weatherCardLayout, 
+  onUpdateLayout,
+  showUpdateTimer,
+  setShowUpdateTimer 
+}) => {
   const dispatch = useDispatch();
   const customDays = useSelector((state) => state.calendar?.customDays || []);
   const [newDay, setNewDay] = useState({ d: "", m: "", reason: "" });
@@ -448,6 +459,7 @@ const UserSettingsModal = ({ onClose, user, availableAvatars, onUpdate, weatherC
     dateDisplayMode: user?.dateDisplayMode || "both",
     hour12: user?.hour12 === true,
     voiceActingMode: user?.voiceActingMode || "malyatko",
+    showUpdateTimer: showUpdateTimer !== false, 
   });
   const [showTerms, setShowTerms] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
@@ -500,6 +512,11 @@ const UserSettingsModal = ({ onClose, user, availableAvatars, onUpdate, weatherC
     const newFormData = { ...formData, ...updates };
     setFormData(newFormData);
 
+    // Оновлюємо стан у App.js миттєво
+    if (updates.hasOwnProperty("showUpdateTimer")) {
+      setShowUpdateTimer(updates.showUpdateTimer);
+    }
+
     // Викликаємо onUpdate відразу, щоб App.js перерендерився з новими налаштуваннями
     onUpdate({
       ...user,
@@ -512,6 +529,7 @@ const UserSettingsModal = ({ onClose, user, availableAvatars, onUpdate, weatherC
       dateDisplayMode: newFormData.dateDisplayMode,
       hour12: newFormData.hour12,
       voiceActingMode: newFormData.voiceActingMode,
+      showUpdateTimer: newFormData.showUpdateTimer,
       newsLayout: updates.newsLayout || newsLayout,
     });
   };
@@ -568,6 +586,7 @@ const UserSettingsModal = ({ onClose, user, availableAvatars, onUpdate, weatherC
       dateDisplayMode: formData.dateDisplayMode,
       hour12: formData.hour12,
       voiceActingMode: formData.voiceActingMode,
+      showUpdateTimer: formData.showUpdateTimer, // Save new setting
       newsLayout: newsLayout,
       ...(formData.newPassword
         ? {
@@ -1036,6 +1055,24 @@ const UserSettingsModal = ({ onClose, user, availableAvatars, onUpdate, weatherC
                       </div>
                     ))}
                   </div>
+                </Section>
+              );
+            } else if (section === "interfaceSettings") { // New section for interface settings
+              content = (
+                <Section key="interfaceSettings">
+                  <label style={{ fontSize: "13px", fontWeight: "bold" }}>
+                    Налаштування інтерфейсу
+                  </label>
+                  <CheckboxRow>
+                    <input
+                      type="checkbox"
+                      checked={formData.showUpdateTimer}
+                      onChange={(e) =>
+                        updateLivePreview({ showUpdateTimer: e.target.checked })
+                      }
+                    />
+                    <label>Показувати таймер оновлення погоди</label>
+                  </CheckboxRow>
                 </Section>
               );
             }  else if (section === "weatherLayout") {

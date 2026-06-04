@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import { motion } from "framer-motion";
 import { useSelector, useDispatch } from "react-redux";
 import styled, { keyframes } from "styled-components";
 import { Line } from "react-chartjs-2";
@@ -140,7 +141,7 @@ const ChartInnerContainer = styled.div`
   height: ${(props) => props.$height || "200px"};
 `;
 
-const AiSummaryBox = styled.div`
+const AiSummaryBox = styled(motion.div)`
   background: ${(props) => (props.$isDarkMode ? "rgba(138, 43, 226, 0.15)" : "rgba(138, 43, 226, 0.05)")};
   border: 1px solid rgba(138, 43, 226, 0.3);
   border-radius: 12px;
@@ -157,6 +158,25 @@ const AiSummaryBox = styled.div`
     .ai-header-text { font-size: 14px !important; }
     .ai-edit-btn { font-size: 14px !important; }
   }
+`;
+
+const SummaryText = styled.div`
+  display: -webkit-box;
+  -webkit-line-clamp: ${(props) => (props.$isExpanded ? "none" : "5")};
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  white-space: pre-line;
+`;
+
+const ShowMoreBtn = styled.button`
+  background: none;
+  border: none;
+  color: #8a2be2;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 0 0 0;
+  text-decoration: underline;
 `;
 
 const PromptEditor = styled.div`
@@ -270,6 +290,23 @@ const WeatherCardComponent = ({
   const [responseLength, setResponseLength] = useState("concise");
   const [aiStyle, setAiStyle] = useState("friendly");
   const [isEditingPrompt, setIsEditingPrompt] = useState(false);
+  const [isSummaryExpanded, setIsSummaryExpanded] = useState(false);
+  const [hasOverflow, setHasOverflow] = useState(false);
+  const summaryRef = useRef(null);
+
+  useEffect(() => {
+    // Скидаємо стан при зміні тексту (наприклад, при новому запиті)
+    setIsSummaryExpanded(false);
+    setHasOverflow(false);
+  }, [aiSummary]);
+
+  useEffect(() => {
+    // Перевіряємо на переповнення (якщо текст довший за 5 рядків)
+    if (summaryRef.current && aiSummary && !isSummaryExpanded) {
+      const isOverflowing = summaryRef.current.scrollHeight > summaryRef.current.clientHeight;
+      if (isOverflowing) setHasOverflow(true);
+    }
+  }, [aiSummary, isSummaryExpanded]);
 
   useEffect(() => {
     const loadAiSetting = async () => {
@@ -314,8 +351,8 @@ const WeatherCardComponent = ({
         "використовуй дружній та теплий тон";
 
       const systemInstructions = customAiPrompt.trim() 
-        ? `Ти метеоролог-асистент. ${styleInstruction}. Виконуй цю інструкцію: ${customAiPrompt}. Відповідь надай українською мовою.`
-        : `Ти метеоролог-асистент. На основі наданих даних ${lengthInstruction}. ${styleInstruction}. Згадай про комфортний одяг. Відповідь виключно українською мовою.`;
+        ? `Ти метеоролог-асистент. ${styleInstruction}. Виконуй цю інструкцію: ${customAiPrompt}. Критичні попередження (якщо є) виводь на самому початку. Використовуй абзаци для розбиття тексту. Відповідь надай українською мовою.`
+        : `Ти метеоролог-асистент. На основі наданих даних ${lengthInstruction}. ${styleInstruction}. Згадай про комфортний одяг. КРИТИЧНІ ПОПЕРЕДЖЕННЯ (температура, вітер, УФ) став найвище. Використовуй абзаци для зручності читання. Відповідь виключно українською мовою.`;
 
       const promptText = `${systemInstructions}\n\nМісто: ${card.locationName}. Поточний час на сайті: ${currentTimeString}.\n\nПоточні показники: ${current.temp}, ${current.description}, вологість ${current.humidity}, вітер ${current.wind_speed}.\nНайближчі години: ${shortTermForecast}.\nПрогноз на дні: завтра ${daily[1]?.temp_day || 'н/д'}, післязавтра ${daily[2]?.temp_day || 'н/д'}.\nТенденція на 2 тижні: 1-й тиждень ~${daily[7]?.temp_day || 'н/д'}, 2-й тиждень ~${daily[14]?.temp_day || 'н/д'}.`;
 
@@ -1052,7 +1089,7 @@ const WeatherCardComponent = ({
         </div>
 
         {aiSummary && (
-          <AiSummaryBox $isDarkMode={isDarkMode}>
+          <AiSummaryBox $isDarkMode={isDarkMode} layout>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '5px' }}>
                <span className="ai-header-text" style={{ fontWeight: 800, color: '#8a2be2', fontSize: '9px', textTransform: 'uppercase', letterSpacing: '1px' }}>
                  ✨ Адаптивний прогноз ШІ
@@ -1109,7 +1146,16 @@ const WeatherCardComponent = ({
                   </div>
                </PromptEditor>
             ) : (
-              <div>{aiSummary}</div>
+              <>
+                <motion.div layout transition={{ duration: 0.3 }}>
+                  <SummaryText ref={summaryRef} $isExpanded={isSummaryExpanded}>{aiSummary}</SummaryText>
+                </motion.div>
+                {hasOverflow && (
+                  <ShowMoreBtn onClick={() => setIsSummaryExpanded(!isSummaryExpanded)}>
+                    {isSummaryExpanded ? "Згорнути" : "Читати далі..."}
+                  </ShowMoreBtn>
+                )}
+              </>
             )}
           </AiSummaryBox>
         )}

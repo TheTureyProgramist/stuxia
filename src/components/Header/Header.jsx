@@ -547,6 +547,7 @@ const Header = ({
   onOpenVip,
   onOpenShop,
   onOpenHelp,
+  onOpenOtherOptions,
   onOpenInfo,
   isInfoOpen,
   isDarkMode,
@@ -566,6 +567,7 @@ const Header = ({
   isRoutingMode,
   setIsRoutingMode,
   currentPath,
+  setIsFsActive,
 }) => {
   const [showUltra, setShowUltra] = useState(false);
   const [isBurgerOpen, setIsBurgerOpen] = useState(false);
@@ -728,6 +730,14 @@ const Header = ({
                   🏆
                 </IconButton>
 
+                <IconButton 
+                  onClick={onOpenOtherOptions} 
+                  $isDarkMode={isDarkMode}
+                  title="Інші опції"
+                >
+                  <EmojiWrapper>⋯</EmojiWrapper>
+                </IconButton>
+
                 <IconButton onClick={onOpenSettings} $isDarkMode={isDarkMode}>
                   ⚙️
                 </IconButton>
@@ -765,6 +775,14 @@ const Header = ({
               >
                 <EmojiWrapper style={{ fontWeight: 900 }}>?</EmojiWrapper>
               </IconButton>
+              <IconButton 
+                onClick={onOpenOtherOptions} 
+                $isDarkMode={isDarkMode}
+                title="Інші опції"
+              >
+                <EmojiWrapper>⋯</EmojiWrapper>
+              </IconButton>
+
               <button
                 onClick={onOpenLogin}
                 style={{
@@ -923,6 +941,7 @@ const Header = ({
         onOpenSettings={onOpenSettings}
         onOpenHelp={onOpenHelp}
         onOpenInfo={onOpenInfo}
+        onOpenOtherOptions={onOpenOtherOptions}
         onLogout={onLogout}
         isRoutingMode={isRoutingMode}
         setIsRoutingMode={setIsRoutingMode}
@@ -935,6 +954,7 @@ const Header = ({
         onDeletePreset={deleteCustomPreset}
         onUpdatePresetName={updateCustomPresetName}
         onReorderPresets={reorderCustomPresets}
+        setIsFsActive={setIsFsActive}
       />
     </>
   );

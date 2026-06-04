@@ -752,7 +752,7 @@ const FanArt = ({
   const allImagesData = [
     { src: turkeys, category: "тварини" },
     { src: nicerone, category: "мультиплікація" },
-    { src: dragons, category: "давні часи" },
+    { src: dragons, category: "мультиплікація" },
     { src: horse, category: "тварини" },
     { src: lebid, category: "тварини" },
     { src: monody, category: "природа" },

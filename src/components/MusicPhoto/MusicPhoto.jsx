@@ -6764,6 +6764,7 @@ const PlaylistModal = ({
   onOpenRegister,
   customTracks,
   onUpdateCustomPlaylist,
+  onFsToggle,
   onEdit,
   onMiniPlayer,
   onAudioBar,
@@ -6813,6 +6814,10 @@ const PlaylistModal = ({
       setFullScreenTrack(initialFullScreenTrack);
     }
   }, [initialFullScreenTrack]);
+
+  useEffect(() => {
+    onFsToggle(!!fullScreenTrack);
+  }, [fullScreenTrack, onFsToggle]);
 
   const [lyricsModalData, setLyricsModalData] = useState(null);
   const [lyricsCurrentTime, setLyricsCurrentTime] = useState(0);
@@ -7560,7 +7565,7 @@ const PlaylistCover = ({ playlistKey, defaultImage, customImage }) => {
   );
 };
 
-const MusicPhoto = ({ user, onOpenRegister, isAnyModalOpen, onUpdateUser }) => {
+const MusicPhoto = ({ user, onOpenRegister, isAnyModalOpen, onUpdateUser, onFsToggle }) => {
   const [currentPlaylist, setCurrentPlaylist] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
 
@@ -7758,6 +7763,7 @@ const MusicPhoto = ({ user, onOpenRegister, isAnyModalOpen, onUpdateUser }) => {
             currentPlaylist === "custom" ? handleEditCustomPlaylist : null
           }
           onMiniPlayer={(track, time, isPlaying, volume, speed) => {
+            onFsToggle(false);
             setMiniPlayerTrack(track);
             setMiniPlayerInitialTime(time);
             setMiniPlayerInitialIsPlaying(isPlaying);
@@ -7768,6 +7774,7 @@ const MusicPhoto = ({ user, onOpenRegister, isAnyModalOpen, onUpdateUser }) => {
             setRestoreTrack(null);
           }}
           onAudioBar={(track, time, isPlaying, volume, speed) => {
+            onFsToggle(false);
             setAudioBarTrack(track);
             setMiniPlayerInitialTime(time);
             setMiniPlayerInitialIsPlaying(isPlaying);
@@ -7781,6 +7788,7 @@ const MusicPhoto = ({ user, onOpenRegister, isAnyModalOpen, onUpdateUser }) => {
           onDeleteTrack={
             currentPlaylist === "custom" ? deleteTrackFromCustomPlaylist : null
           }
+          onFsToggle={onFsToggle}
           customPlaylistName={
             currentPlaylist === "custom" ? customPlaylist?.name : null
           }
