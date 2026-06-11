@@ -19,12 +19,6 @@
  * Released under the MIT License
  */
 
-/*!
- * ONNX Runtime Web v1.26.0-dev.20260416-b7804b056c
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT License.
- */
-
 /**
  * @license
  * Copyright 2024 Google LLC
