@@ -244,6 +244,16 @@ const BurgerMenuPanel = styled.div`
   animation: ${(props) => (props.$isOpen ? slideDown : slideUp)} 0.4s
     cubic-bezier(0.16, 1, 0.3, 1) forwards;
 
+  &::-webkit-scrollbar { width: 8px; }
+  &::-webkit-scrollbar-thumb {
+    background-color: ${(props) => (props.$isDarkMode ? "rgba(255, 179, 108, 0.5)" : "rgba(255, 0, 93, 0.5)")};
+    border-radius: 10px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  scrollbar-width: thin;
+  scrollbar-color: ${(props) => (props.$isDarkMode ? "#ffb36c" : "#ff005d")} transparent;
+
   @media (min-width: 768px) {
     padding: 40px;
   }
@@ -572,6 +582,8 @@ const Menu = ({
   onDeletePreset,
   onUpdatePresetName,
   onReorderPresets,
+  loadingStrategy,
+  onSetLoadingStrategy,
 }) => {
   const [isRendered, setIsRendered] = useState(false);
   const [newPresetName, setNewPresetName] = useState("");
@@ -681,7 +693,7 @@ const Menu = ({
                         onClick={() => onToggleSectionTheme?.(section.key)}
                         title="Змінити тему секції"
                       >
-                        {sectionThemes?.[section.key] ? "🌙" : "☀️"}
+                        {(sectionThemes?.[section.key] ?? isDarkMode) ? "🌙" : "☀️"}
                       </OrderButton>
                     </ControlButtons>
                     {section.key !== "hero" && (
@@ -856,6 +868,33 @@ const Menu = ({
                   </div>
                   <Switch $active={isRoutingMode} />
                 </ModeToggle>
+              </li>
+              <li>
+                <div style={{ marginTop: "15px", marginBottom: "10px" }}>
+                  <div style={{ fontSize: "14px", fontWeight: "bold", color: isDarkMode ? "#ffb36c" : "#ff005d", marginBottom: "5px" }}>
+                    🚀 Режим завантаження
+                  </div>
+                  <div style={{ display: 'flex', gap: '5px' }}>
+                    <FilterButtonInMenu 
+                      $active={loadingStrategy === "eager"} 
+                      $isDarkMode={isDarkMode} 
+                      onClick={() => onSetLoadingStrategy("eager")}
+                      title="Завантажує все відразу при старті сайту"
+                    >Повна</FilterButtonInMenu>
+                    <FilterButtonInMenu 
+                      $active={loadingStrategy === "delayed"} 
+                      $isDarkMode={isDarkMode} 
+                      onClick={() => onSetLoadingStrategy("delayed")}
+                      title="Завантажує важкі модулі через 8 секунд"
+                    >Оптим.</FilterButtonInMenu>
+                    <FilterButtonInMenu 
+                      $active={loadingStrategy === "lazy"} 
+                      $isDarkMode={isDarkMode} 
+                      onClick={() => onSetLoadingStrategy("lazy")}
+                      title="Завантажує тільки при натисканні (економія)"
+                    >Економ.</FilterButtonInMenu>
+                  </div>
+                </div>
               </li>
               <li>
                 <ActionButton $isDarkMode={isDarkMode} onClick={onToggleTheme}>
@@ -1048,7 +1087,7 @@ const Menu = ({
                     onClose();
                   }}
                 >
-                  <span className="icon">🧧</span> Магазин
+                  <span className="icon">🛒</span> Магазин Доміно
                 </ActionButton>
               </li>
               <li>

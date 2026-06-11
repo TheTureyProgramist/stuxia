@@ -78,8 +78,9 @@ const ModalOverlay = styled.div`
 `;
 
 const ModalContent = styled.div`
-  background: white;
-  padding: 30px 15px 15px 15px;
+  background: ${(props) => (props.$isDarkMode ? "#2c2c2c" : "white")};
+  color: ${(props) => (props.$isDarkMode ? "#f0f0f0" : "#000000")};
+  padding: 10px 5px 5px 5px;
   border-radius: 15px;
   width: 90%;
   max-width: 400px;
@@ -90,17 +91,34 @@ const ModalContent = styled.div`
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   max-height: 90vh;
   overflow-y: auto;
+  border: 1px solid ${(props) => (props.$isDarkMode ? "#555" : "#ddd")};
   animation: ${(props) => (props.$isClosing ? slideOut : slideIn)} 0.5s ease-out
     forwards;
   @media (min-width: 768px) {
-    padding: 30px 30px;
+    padding: 10px 10px;
+    max-width: 700px; 
+    flex-direction: row; 
+    flex-wrap: wrap; 
+    justify-content: space-between;
+    gap: 10px; 
+  }
+`;
+
+const FormColumn = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1; 
+  min-width: 250px; 
+  @media (min-width: 768px) {
+    flex: 1; 
   }
 `;
 
 const CloseButton = styled.button`
   position: absolute;
-  top: 10px;
-  right: 15px;
+  top: -4px;
+  right: 5px;
   background: none;
   border: none;
   font-size: 34px;
@@ -115,16 +133,19 @@ const Title = styled.h3`
   text-align: center;
   margin: 0;
   font-weight: 900;
-  color: #000000;
+  color: ${(props) => (props.$isDarkMode ? "#fff" : "#000000")};
+  width: 100%; /* Ensure title spans full width in horizontal layout */
 `;
 
 const Input = styled.input`
-  padding: 10px;
+  padding: 5px;
   border: 1px solid #ddd;
   border-radius: 8px;
   width: 100%;
   box-sizing: border-box;
   font-size: 14px;
+  color: ${(props) => (props.$isDarkMode ? "#fff" : "#000")}; /* Fix transparent text */
+  background: ${(props) => (props.$isDarkMode ? "#333" : "#fff")};
   &:focus {
     outline: none;
     border-color: #ffb36c;
@@ -170,6 +191,8 @@ const Select = styled.select`
   box-sizing: border-box;
   font-size: 14px;
   background: white;
+  color: ${(props) => (props.$isDarkMode ? "#fff" : "#000")}; /* Fix transparent text */
+  background: ${(props) => (props.$isDarkMode ? "#333" : "#fff")};
   cursor: pointer;
   &:focus {
     outline: none;
@@ -179,7 +202,7 @@ const Select = styled.select`
 
 const DateRow = styled.div`
   display: flex;
-  gap: 10px;
+  gap: 5px;
   justify-content: space-between;
 `;
 
@@ -188,19 +211,19 @@ const CheckboxRow = styled.div`
   align-items: center;
   gap: 8px;
   font-size: 12px;
-  color: #555;
+  color: ${(props) => (props.$isDarkMode ? "#ccc" : "#555")};
 `;
 
 const TermsBtn = styled.span`
-  color: #ffb36c;
+  color: ${(props) => (props.$isDarkMode ? "#ffb36c" : "#ffb36c")};
   text-decoration: underline;
   cursor: pointer;
   font-weight: bold;
 `;
 
 const AvatarOption = styled.div`
-  width: 60px;
-  height: 60px;
+  width: 40px;
+  height: 40px;
   min-width: 60px;
   min-height: 60px;
   flex-shrink: 0;
@@ -240,7 +263,7 @@ const AvatarOption = styled.div`
 
 const ImageSelectionContainer = styled.div`
   display: flex;
-  gap: 15px;
+  gap: 5px;
   overflow-x: auto;
   padding: 5px 2px;
   min-height: 75px;
@@ -309,7 +332,7 @@ const ColorCircle = styled.div`
 
 const SubmitButton = styled.button`
   background: #ffb36c;
-  color: black;
+  color: ${(props) => (props.$isDarkMode ? "#000" : "black")};
   font-weight: bold;
   padding: 12px;
   border-radius: 8px;
@@ -320,16 +343,11 @@ const SubmitButton = styled.button`
     opacity: 0.5;
     cursor: not-allowed;
   }
+  width: 100%; /* Ensure button spans full width */
+  @media (min-width: 768px) {
+    grid-column: 1 / -1; /* Span across all columns in horizontal layout */
+  }
 `;
-
-const GreenText = styled.p`
-  font-size: 12px;
-  font-weight: bold;
-  color: green;
-  margin: 0;
-  display: inline;
-`;
-
 const COLORS = [
   { name: "Сірий", value: "grey" },
   { name: "Помаранчевий", value: "orange" },
@@ -379,7 +397,7 @@ const Modal = ({ onClose, onRegister, availableAvatars = [] }) => {
   const [error, setError] = useState("");
   const [isClosing, setIsClosing] = useState(false);
   const [showKatScene, setShowKatScene] = useState(false);
-
+  const { isDarkMode } = {isDarkMode: false};
   const handleClose = (e) => {
     if (e) e.stopPropagation();
     setIsClosing(true);
@@ -490,243 +508,248 @@ const Modal = ({ onClose, onRegister, availableAvatars = [] }) => {
             <ModalContent
               $isClosing={isClosing}
               onClick={(e) => e.stopPropagation()}
+              $isDarkMode={isDarkMode}
             >
               <CloseButton onClick={handleClose}>&times;</CloseButton>
-              <Title>Реєстрація</Title>
+              <Title $isDarkMode={isDarkMode}>Реєстрація</Title>
 
-              <Input
-                type="email"
-                placeholder="Gmail"
-                onChange={(e) =>
-                  setFormData({ ...formData, account: e.target.value })
-                }
-              />
-
-              <NameInput
-                $color={formData.textColor}
-                style={
-                  !formData.textColor?.includes("linear-gradient")
-                    ? { color: formData.textColor }
-                    : { color: "#fff" }
-                }
-                placeholder="Ім'я та прізвище"
-                value={formData.firstName}
-                onChange={(e) =>
-                  setFormData({ ...formData, firstName: e.target.value })
-                }
-              />
-
-              <DateRow>
-                <Select
-                  value={birthDate.day}
+              <FormColumn>
+                <Input
+                  type="email"
+                  placeholder="Gmail"
                   onChange={(e) =>
-                    setBirthDate({ ...birthDate, day: e.target.value })
+                    setFormData({ ...formData, account: e.target.value })
                   }
-                >
-                  <option value="" disabled>
-                    День
-                  </option>
-                  {days.map((d) => (
-                    <option key={d} value={d}>
-                      {d}
-                    </option>
-                  ))}
-                </Select>
+                  $isDarkMode={isDarkMode}
+                />
 
-                <Select
-                  value={birthDate.month}
+                <NameInput
+                  $color={formData.textColor}
+                  style={
+                    !formData.textColor?.includes("linear-gradient")
+                      ? { color: formData.textColor }
+                      : { color: "#fff" }
+                  }
+                  placeholder="Ім'я та прізвище"
+                  value={formData.firstName}
                   onChange={(e) =>
-                    setBirthDate({ ...birthDate, month: e.target.value })
+                    setFormData({ ...formData, firstName: e.target.value })
                   }
-                >
-                  <option value="" disabled>
-                    Місяць
-                  </option>
-                  {months.map((m, i) => (
-                    <option key={i} value={i + 1}>
-                      {m}
-                    </option>
-                  ))}
-                </Select>
+                  $isDarkMode={isDarkMode}
+                />
 
-                <Select
-                  value={birthDate.year}
-                  onChange={(e) =>
-                    setBirthDate({ ...birthDate, year: e.target.value })
-                  }
-                >
-                  <option value="" disabled>
-                    Рік
-                  </option>
-                  {years.map((y) => (
-                    <option key={y} value={y}>
-                      {y}
-                    </option>
-                  ))}
-                </Select>
-              </DateRow>
-
-              {isInvalidDate && (
-                <div
-                  style={{
-                    color: "red",
-                    fontSize: "11px",
-                    textAlign: "center",
-                    marginTop: "-10px",
-                  }}
-                >
-                  Такої дати не існує!
-                </div>
-              )}
-
-              <ColorSection>
-                <ColorLabel>Оберіть колір тексту</ColorLabel>
-                <ColorContainer>
-                  {COLORS.map((color, index) => (
-                    <ColorCircle
-                      key={index}
-                      $color={color.value}
-                      $isSelected={formData.textColor === color.value}
-                      title={color.name}
-                      onClick={() =>
-                        setFormData({ ...formData, textColor: color.value })
-                      }
-                    />
-                  ))}
-                </ColorContainer>
-              </ColorSection>
-
-              <ColorSection>
-                <ColorLabel>Оберіть колір рамки аватара</ColorLabel>
-                <ColorContainer>
-                  {COLORS.map((color, index) => (
-                    <ColorCircle
-                      key={index}
-                      $color={color.value}
-                      $isSelected={formData.borderColor === color.value}
-                      title={color.name}
-                      onClick={() =>
-                        setFormData({ ...formData, borderColor: color.value })
-                      }
-                    />
-                  ))}
-                </ColorContainer>
-              </ColorSection>
-
-              <div
-                style={{ fontSize: "11px", fontWeight: "bold", color: "grey" }}
-              >
-                Аватар оберіть, 1-ий доступний з
-                <AnimatedText>Стихія+</AnimatedText>, наступні 2 за{" "}
-                <GreenText>досягнення</GreenText>, та ще 3 за 🧧, та сама логіка
-                з вибором кольору імені, та рамки аватара.
-              </div>
-
-              <ImageSelectionContainer>
-                {availableAvatars.map((imgSrc, index) => (
-                  <AvatarOption
-                    key={index}
-                    $isSelected={formData.avatarIndex === index}
-                    $borderColor={formData.borderColor}
-                    onClick={() =>
-                      setFormData({ ...formData, avatarIndex: index })
+                <DateRow>
+                  <Select
+                    value={birthDate.day}
+                    onChange={(e) =>
+                      setBirthDate({ ...birthDate, day: e.target.value })
                     }
+                    $isDarkMode={isDarkMode}
                   >
-                    <img
-                      src={
-                        typeof imgSrc === "string"
-                          ? imgSrc
-                          : imgSrc?.default || imgSrc
-                      }
-                      alt={`avatar-${index}`}
-                    />
-                  </AvatarOption>
-                ))}
-              </ImageSelectionContainer>
+                    <option value="" disabled>
+                      День
+                    </option>
+                    {days.map((d) => (
+                      <option key={d} value={d}>
+                        {d}
+                      </option>
+                    ))}
+                  </Select>
+                  <Select
+                    value={birthDate.month}
+                    onChange={(e) =>
+                      setBirthDate({ ...birthDate, month: e.target.value })
+                    }
+                    $isDarkMode={isDarkMode}
+                  >
+                    <option value="" disabled>
+                      Місяць
+                    </option>
+                    {months.map((m, i) => (
+                      <option key={i} value={i + 1}>
+                        {m}
+                      </option>
+                    ))}
+                  </Select>
 
-              <Input
-                type="password"
-                placeholder="Пароль"
-                onChange={(e) =>
-                  setFormData({ ...formData, password: e.target.value })
-                }
-                style={{ marginBottom: formData.password ? "4px" : "8px" }}
-              />
-              {formData.password && (
-                <>
+                  <Select
+                    value={birthDate.year}
+                    onChange={(e) =>
+                      setBirthDate({ ...birthDate, year: e.target.value })
+                    }
+                    $isDarkMode={isDarkMode}
+                  >
+                    <option value="" disabled>
+                      Рік
+                    </option>
+                    {years.map((y) => (
+                      <option key={y} value={y}>
+                        {y}
+                      </option>
+                    ))}
+                  </Select>
+                </DateRow>
+
+                {isInvalidDate && (
                   <div
                     style={{
-                      background: "rgba(0,0,0,0.1)",
-                      height: "6px",
-                      borderRadius: "3px",
-                      width: "100%",
-                      marginTop: "-2px",
-                      marginBottom: "2px",
-                      overflow: "hidden",
+                      color: "red",
+                      fontSize: "11px",
+                      textAlign: "center",
+                      marginTop: "-10px",
                     }}
                   >
+                    Такої дати не існує!
+                  </div>
+                )}
+
+                <Input
+                  type="password"
+                  placeholder="Пароль"
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
+                  style={{ marginBottom: formData.password ? "4px" : "8px" }}
+                  $isDarkMode={isDarkMode}
+                />
+                {formData.password && (
+                  <>
                     <div
                       style={{
-                        height: "100%",
+                        background: "rgba(0,0,0,0.1)",
+                        height: "6px",
                         borderRadius: "3px",
-                        backgroundColor: pwStrength.color,
-                        width: pwStrength.width,
-                        transition:
-                          "width 0.3s ease, background-color 0.3s ease",
+                        width: "100%",
+                        marginTop: "-2px",
+                        marginBottom: "2px",
+                        overflow: "hidden",
                       }}
-                    />
-                  </div>
-                  <span
-                    style={{
-                      fontSize: "11px",
-                      fontWeight: "bold",
-                      color: pwStrength.color,
-                      alignSelf: "flex-end",
-                      marginBottom: "8px",
-                    }}
-                  >
-                    Надійність: {pwStrength.label}
-                  </span>
-                </>
-              )}
-              <Input
-                type="password"
-                placeholder="Підтвердіть пароль"
-                onChange={(e) =>
-                  setFormData({ ...formData, confirmPassword: e.target.value })
-                }
-              />
-
-              <CheckboxRow>
-                <input
-                  type="checkbox"
-                  checked={accepted}
-                  onChange={(e) => setAccepted(e.target.checked)}
+                    >
+                      <div
+                        style={{
+                          height: "100%",
+                          borderRadius: "3px",
+                          backgroundColor: pwStrength.color,
+                          width: pwStrength.width,
+                          transition:
+                            "width 0.3s ease, background-color 0.3s ease",
+                        }}
+                      />
+                    </div>
+                    <span
+                      style={{
+                        fontSize: "11px",
+                        fontWeight: "bold",
+                        color: pwStrength.color,
+                        alignSelf: "flex-end",
+                        marginBottom: "8px",
+                      }}
+                    >
+                      Надійність: {pwStrength.label}
+                    </span>
+                  </>
+                )}
+                <Input
+                  type="password"
+                  placeholder="Підтвердіть пароль"
+                  onChange={(e) =>
+                    setFormData({ ...formData, confirmPassword: e.target.value })
+                  }
+                  $isDarkMode={isDarkMode}
                 />
-                <label>
-                  Я погоджуюсь з{" "}
-                  <TermsBtn onClick={() => setShowTerms(true)}>Угодою</TermsBtn>
-                </label>
-              </CheckboxRow>
-
-              {error && (
-                <div
-                  style={{
-                    color: "red",
-                    fontSize: "12px",
-                    textAlign: "center",
-                  }}
-                >
-                  {error}
-                </div>
-              )}
-
-              <SubmitButton
+                <CheckboxRow $isDarkMode={isDarkMode}>
+                  <input
+                    type="checkbox"
+                    checked={accepted}
+                    onChange={(e) => setAccepted(e.target.checked)}
+                  />
+                  <label>
+                    Я погоджуюсь з{" "}
+                    <TermsBtn $isDarkMode={isDarkMode} onClick={() => setShowTerms(true)}>Угодою</TermsBtn>
+                  </label>
+                </CheckboxRow>
+                   <SubmitButton
                 onClick={handleSubmit}
                 disabled={!accepted || isInvalidDate}
+                $isDarkMode={isDarkMode}
               >
                 Зареєструватися
               </SubmitButton>
+              </FormColumn>
+              <FormColumn>
+                <ColorSection>
+                  <ColorLabel $isDarkMode={isDarkMode}>Оберіть колір тексту</ColorLabel>
+                  <ColorContainer>
+                    {COLORS.map((color, index) => (
+                      <ColorCircle
+                        key={index}
+                        $color={color.value}
+                        $isSelected={formData.textColor === color.value}
+                        title={color.name}
+                        onClick={() =>
+                          setFormData({ ...formData, textColor: color.value })
+                        }
+                      />
+                    ))}
+                  </ColorContainer>
+                </ColorSection>
+
+                <ColorSection>
+                  <ColorLabel $isDarkMode={isDarkMode}>Оберіть колір рамки аватара</ColorLabel>
+                  <ColorContainer>
+                    {COLORS.map((color, index) => (
+                      <ColorCircle
+                        key={index}
+                        $color={color.value}
+                        $isSelected={formData.borderColor === color.value}
+                        title={color.name}
+                        onClick={() =>
+                          setFormData({ ...formData, borderColor: color.value })
+                        }
+                      />
+                    ))}
+                  </ColorContainer>
+                </ColorSection>
+                <div
+                  style={{ fontSize: "11px", fontWeight: "bold", color: isDarkMode ? "#ccc" : "grey" }}
+                >
+                  Аватар оберіть. Активуйте
+                    <AnimatedText>Стихія+</AnimatedText> яка, дає доступ до відео аватарів. Отримуйте з магазину доміно, за сезонний пропуск
+                </div>
+                <ImageSelectionContainer>
+                  {availableAvatars.map((imgSrc, index) => (
+                    <AvatarOption
+                      key={index}
+                      $isSelected={formData.avatarIndex === index}
+                      $borderColor={formData.borderColor}
+                      onClick={() =>
+                        setFormData({ ...formData, avatarIndex: index })
+                      }
+                    >
+                      <img
+                        src={
+                          typeof imgSrc === "string"
+                            ? imgSrc
+                            : imgSrc?.default || imgSrc
+                        }
+                        alt={`avatar-${index}`}
+                      />
+                    </AvatarOption>
+                  ))}
+                </ImageSelectionContainer>
+
+                {error && (
+                  <div
+                    style={{
+                      color: "red",
+                      fontSize: "12px",
+                      textAlign: "center",
+                    }}
+                  >
+                    {error}
+                  </div>
+                )}
+              </FormColumn>
             </ModalContent>
           </ModalOverlay>
           {showTerms && (

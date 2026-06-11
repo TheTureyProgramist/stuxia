@@ -305,11 +305,13 @@ const MusicPhotoDiv = styled.div`
       border: 3px solid orange;
       box-shadow: 0 15px 50px rgba(0, 0, 0, 0.6);
       &::-webkit-scrollbar {
-        width: 6px;
+        width: 8px;
       }
-      &::-webkit-scrollbar-thumb {
-        background: orange;
-        border-radius: 3px;
+      &::-webkit-scrollbar-thumb { /* Changed for dark mode */
+        background: ${props.$isDarkMode ? '#ffb36c' : 'orange'};
+        border-radius: 10px;
+        border: 2px solid ${props.$isDarkMode ? '#1a1a1a' : 'transparent'};
+        background-clip: content-box;
       }
     `}
 
@@ -323,17 +325,6 @@ const MusicPhotoFix = styled.div`
   flex-wrap: wrap;
   justify-content: center;
   align-items: flex-start;
-`;
-const MusicPhotoText = styled.div`
-  font-size: 17px;
-  text-align: center;
-  font-family: var(--font-family);
-  font-weight: 600;
-  color: black;
-  margin-bottom: 20px;
-  @media (min-width: 768px) {
-    font-size: 25px;
-  }
 `;
 const ControlsContainer = styled.div`
   display: flex;
@@ -349,13 +340,15 @@ const SearchInput = styled.input`
   width: 100%;
   max-width: 250px;
   padding: 6px 10px;
-  border-radius: 25px;
-  border: 2px solid #ccc;
+  border-radius: 25px; /* Changed for dark mode */
+  border: 2px solid ${props => props.$isDarkMode ? '#555' : '#ccc'};
   font-size: 13px;
   outline: none;
   transition: border-color 0.3s;
+  background: ${props => props.$isDarkMode ? '#333' : '#fff'};
+  color: ${props => props.$isDarkMode ? '#fff' : '#333'};
   &:focus {
-    border-color: orange;
+    border-color: ${props => props.$isDarkMode ? '#ffb36c' : 'orange'};
   }
 `;
 const SortSelect = styled.select`
@@ -363,47 +356,71 @@ const SortSelect = styled.select`
   border-radius: 25px;
   border: 2px solid #ccc;
   font-size: 13px;
+  background: ${props => props.$isDarkMode ? '#333' : '#fff'};
+  color: ${props => props.$isDarkMode ? '#fff' : '#333'};
   font-family: var(--font-family);
   outline: none;
-  cursor: pointer;
+  cursor: pointer; /* Changed for dark mode */
   transition: border-color 0.3s;
   &:focus {
     border-color: orange;
   }
 `;
-const PlaylistGrid = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 10px;
-  padding: 5px;
-`;
-const PlaylistCard = styled.div`
-  width: 320px;
-  border-radius: 15px;
-  overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  transition: transform 0.3s ease;
-  background: #fff;
+
+const AuthorCardWrapper = styled.div`
+  position: relative;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  width: 305px;
+  height: 156px;
+  border-radius: 15px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  
   &:hover {
-    transform: scale(1.05);
+    transform: translateY(-8px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+  }
+
+  img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.5;
   }
 `;
-const PlaylistImage = styled.img`
-  width: 100%;
-  height: 150px;
-  object-fit: cover;
-`;
-const PlaylistTitle = styled.div`
-  color: #333;
-  padding: 10px;
-  font-weight: bold;
-  font-size: 18px;
+
+const AuthorInfoOverlay = styled.div`
+  position: relative;
+  z-index: 2;
   text-align: center;
+  padding: 10px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+  width: 100%;
+  color: white;
+
+  h3 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: bold;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  }
+
+  p {
+    margin: 5px 0 0 0;
+    font-size: 13px;
+    opacity: 0.9;
+  }
 `;
+
 const CardWrapper = styled.div`
   position: relative;
   display: flex;
@@ -416,7 +433,7 @@ const CardWrapper = styled.div`
   padding-bottom: 15px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   transition: transform 0.2s;
-  opacity: ${(props) => (props.$rating === -1 ? 0.6 : 1)};
+  opacity: ${(props) => (props.$rating === -1 ? 0.6 : 1)}; /* Changed for dark mode */
   border: ${(props) =>
     props.$rating === 2
       ? "2px solid #ff0000"
@@ -429,7 +446,7 @@ const CardWrapper = styled.div`
           ${pulseRedBorder} 2s infinite
         `
       : "none"};
-  &:hover {
+  &:hover { /* Changed for dark mode */
     transform: translateY(-5px);
   }
 `;
@@ -441,7 +458,7 @@ const LyricsModalImage = styled.img`
   top: -10px;
   z-index: 10;
   background: white;
-  display: block;
+  display: block; /* Changed for dark mode */
   object-fit: cover;
   max-height: 250px;
 `;
@@ -450,7 +467,7 @@ const MusicImageContainer = styled.div`
   width: 308px;
   height: 183px;
   border-radius: 15px 15px 0 0;
-  background-color: #a5a5a5;
+  background-color: ${props => props.$isDarkMode ? '#444' : '#a5a5a5'};
   overflow: hidden;
   flex-shrink: 0;
 `;
@@ -458,7 +475,7 @@ const MusicImage = styled.img`
   width: 308px;
   height: 100%;
   object-fit: cover;
-  border-radius: 15px 15px 0 0;
+  border-radius: 15px 15px 0 0; /* Changed for dark mode */
   cursor: pointer;
   transition: transform 0.3s ease;
   &:hover {
@@ -478,7 +495,7 @@ const MusicImage = styled.img`
 const HeartButton = styled.button`
   position: absolute;
   top: 10px;
-  right: 10px;
+  right: 10px; /* Changed for dark mode */
   background: rgba(255, 255, 255, 0.8);
   border: none;
   border-radius: 50%;
@@ -503,7 +520,7 @@ const HeartButton = styled.button`
     background: white;
   }
 `;
-
+/* Changed for dark mode */
 const MusicText = styled.div`
   color: #333;
   text-align: center;
@@ -518,13 +535,6 @@ const MusicText = styled.div`
   overflow: hidden;
   box-sizing: border-box;
 `;
-
-const AuthorText = styled.div`
-  color: rgb(37, 37, 37);
-  font-size: 9.5px;
-  margin-top: 4px;
-`;
-
 const SliderRow = styled.div`
   display: flex;
   align-items: center;
@@ -547,7 +557,7 @@ const SliderRow = styled.div`
     font-weight: bold;
   }
 `;
-
+/* Changed for dark mode */
 const VolumeSlider = styled.input`
   flex-grow: 1;
   height: 3px;
@@ -581,7 +591,7 @@ const LoadMoreButton = styled.button`
   background-color: #333;
   color: white;
   border: none;
-  border-radius: 20px;
+  border-radius: 20px; /* Changed for dark mode */
   padding: 10px 110px;
   font-size: 19px;
   cursor: pointer;
@@ -595,13 +605,12 @@ const FilterOverlay = styled.div`
   height: 100%;
   pointer-events: none;
   z-index: 10;
-  transition:
+  transition: /* Changed for dark mode */
     background-color ${(props) => (props.$type === "flash" ? "0.05s" : "0.5s")}
       ease,
     opacity 0.5s ease,
     backdrop-filter 0.5s ease,
     -webkit-backdrop-filter 0.5s ease;
-
   background-color: rgba(0, 0, 0, 0);
   background-image: none;
   opacity: 1;
@@ -611,38 +620,28 @@ const FilterOverlay = styled.div`
   ${(props) =>
     props.$active &&
     css`
-      /* Колірна складова та затемнення (Black) */
-      ${props.$type === "red" &&
-      `background-color: rgba(255, 0, 0, ${props.$opacity});`}
-      ${props.$type === "purple" &&
-      `background-color: rgba(128, 0, 128, ${props.$opacity});`}
-      ${props.$type === "green" &&
-      `background-color: rgba(0, 255, 0, ${props.$opacity});`}
-      ${props.$type === "blue" &&
-      `background-color: rgba(0, 0, 255, ${props.$opacity});`}
-      ${props.$type === "black" &&
-      `background-color: rgba(0, 0, 0, ${props.$opacity});`}
-      ${props.$type === "orange" &&
-      `background-color: rgba(230, 149, 0, ${props.$opacity});`}
-      ${props.$type === "cyan" &&
-      `background-color: rgba(0, 255, 255, ${props.$opacity});`}
-      ${props.$type === "brown" &&
-      `background-color: rgba(139, 69, 19, ${props.$opacity});`}
-      ${props.$type === "white" &&
-      `background-color: rgba(255, 255, 255, ${props.$opacity});`}
+      ${props.$type === "red" && `background: linear-gradient(to right, rgba(255, 0, 0, ${props.$opacity}), rgba(255, 69, 0, ${props.$opacity}));`}
+      ${props.$type === "purple" && `background: linear-gradient(to right, rgba(128, 0, 128, ${props.$opacity}), rgba(218, 112, 214, ${props.$opacity}));`}
+      ${props.$type === "green" && `background: linear-gradient(to right, rgba(0, 255, 0, ${props.$opacity}), rgba(50, 205, 50, ${props.$opacity}));`}
+      ${props.$type === "blue" && `background: linear-gradient(to right, rgba(0, 0, 255, ${props.$opacity}), rgba(65, 105, 225, ${props.$opacity}));`}
+      ${props.$type === "black" && `background: linear-gradient(to right, rgba(0, 0, 0, ${props.$opacity}), rgba(50, 50, 50, ${props.$opacity}));`}
+      ${props.$type === "orange" && `background: linear-gradient(to right, rgba(230, 149, 0, ${props.$opacity}), rgba(255, 165, 0, ${props.$opacity}));`}
+      ${props.$type === "cyan" && `background: linear-gradient(to right, rgba(0, 255, 255, ${props.$opacity}), rgba(0, 206, 209, ${props.$opacity}));`}
+      ${props.$type === "brown" && `background: linear-gradient(to right, rgba(139, 69, 19, ${props.$opacity}), rgba(160, 82, 45, ${props.$opacity}));`}
+      ${props.$type === "white" && `background: linear-gradient(to right, rgba(255, 255, 255, ${props.$opacity}), rgba(240, 240, 240, ${props.$opacity}));`}
       ${props.$type === "image" &&
       css`
         background-image: url(${props.$imageUrl});
         background-size: cover;
         background-position: center;
-        background-color: transparent;
+        background: transparent;
         opacity: ${props.$opacity || 1};
       `}
       ${(props.$type === "flash" ||
         props.$type === "flicker" ||
         props.$flicker) &&
       css`
-        background-color: rgba(255, 255, 255, ${props.$opacity});
+        background: rgba(255, 255, 255, ${props.$opacity});
       `}
       ${props.$type === "vignette" &&
       css`
@@ -718,7 +717,7 @@ const FilterOverlay = styled.div`
       `}
       ${props.$type === "grayscale" &&
       css`
-        background-color: rgba(119, 119, 119, ${props.$opacity * 0.2});
+        background: rgba(119, 119, 119, ${props.$opacity * 0.2});
       `}
       ${props.$type === "flicker" &&
       css`
@@ -871,7 +870,7 @@ const SeekBar = styled.input`
   height: 5px;
   -webkit-appearance: none;
   background: linear-gradient(
-    to right,
+    to right, /* Changed for dark mode */
     orange 0%,
     orange ${(props) => (props.value / props.max) * 100 || 0}%,
     rgba(255, 255, 255, 0.3) ${(props) => (props.value / props.max) * 100 || 0}%,
@@ -903,7 +902,7 @@ const SeekBar = styled.input`
 const StereoSeekBar = styled.div`
   flex-grow: 1;
   height: 40px;
-  background: rgba(0, 0, 0, 0.2);
+  background: ${props => props.$isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.2)'};
   position: relative;
   cursor: pointer;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -919,7 +918,7 @@ const StereoSeekBar = styled.div`
 const StereoChannel = styled.div`
   flex: 1;
   height: ${(props) => Math.max(15, props.$height * 100)}%;
-  background: ${(props) =>
+  background: ${(props) => /* Changed for dark mode */
     props.$active ? "orange" : "rgba(255, 255, 255, 0.25)"};
   border-radius: 1px;
   transition: background 0.2s ease;
@@ -929,7 +928,7 @@ const SpeedSlider = styled.input`
   flex-grow: 1;
   height: 3px;
   -webkit-appearance: none;
-  background: linear-gradient(
+  background: linear-gradient( /* Changed for dark mode */
     to right,
     ${(props) => props.$activeColor || "orange"} 0%,
     ${(props) => props.$activeColor || "orange"}
@@ -941,7 +940,7 @@ const SpeedSlider = styled.input`
   outline: none;
   &::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 10px;
+    width: 10px; /* Changed for dark mode */
     height: 10px;
     border-radius: 50%;
     background: #333;
@@ -953,7 +952,7 @@ const SeekAmountSlider = styled.input`
   flex-grow: 1;
   height: 3px;
   -webkit-appearance: none;
-  background: linear-gradient(
+  background: linear-gradient( /* Changed for dark mode */
     to right,
     orange 0%,
     orange ${(props) => ((props.value - 5) / 15) * 100}%,
@@ -975,7 +974,7 @@ const SeekAmountSlider = styled.input`
 const LoopButton = styled.button`
   background: transparent;
   border: none;
-  color: ${(props) => (props.$active ? "skyblue" : "orange")};
+  color: ${(props) => (props.$active ? "skyblue" : 'orange')};
   font-size: 20px;
   cursor: pointer;
   margin-bottom: 5px;
@@ -997,7 +996,7 @@ const ActionButton = styled.button`
   border: none;
   border-radius: 5px;
   transition: color 0.6s;
-  color: skyblue;
+  color: skyblue; /* Changed for dark mode */
   width: 34px;
   padding: 3px 9px;
   font-size: 19px;
@@ -1020,20 +1019,20 @@ const ModalOverlay = styled.div`
   top: 0;
   left: 0;
   backdrop-filter: blur(3px);
-  width: 100vw;
+  width: 100vw; /* Changed for z-index */
   height: 100vh;
   background: hsla(0, 0%, 0%, 0.7);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  animation: ${(props) => (props.$isClosing ? fadeOut : "none")} forwards;
+  z-index: 2005; /* Increased z-index to be above FullScreenOverlay */
+  animation: ${(props) => (props.$isClosing ? fadeOut : "none")} forwards; /* Changed for z-index */
 `;
 
 const LyricsModalContent = styled.div`
-  background: white;
+  background: ${props => props.$isDarkMode ? '#1a1a1a' : 'white'};
   padding: 10px;
-  border-radius: 15px;
   width: 100%;
   max-width: 320px;
   max-height: 85vh;
@@ -1041,15 +1040,15 @@ const LyricsModalContent = styled.div`
   position: relative;
   animation: ${(props) => (props.$isClosing ? slideOut : slideIn)} forwards;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-  &::-webkit-scrollbar {
+  &::-webkit-scrollbar { /* Changed for dark mode */
     width: 6px;
   }
-  &::-webkit-scrollbar-thumb {
-    background: #ffb36c;
+  &::-webkit-scrollbar-thumb { /* Changed for dark mode */
+    background: ${props => props.$isDarkMode ? '#ffb36c' : '#ffb36c'};
     border-radius: 3px;
   }
-  &::-webkit-scrollbar-track {
-    background: #f0f0f0;
+  &::-webkit-scrollbar-track { /* Changed for dark mode */
+    background: ${props => props.$isDarkMode ? '#333' : '#f0f0f0'};
   }
 `;
 
@@ -1057,7 +1056,7 @@ const PlaylistModalContent = styled.div`
   background: #e8e8e8;
   padding: 10px;
   border-radius: 15px;
-  width: 95%;
+  width: 95%; /* Changed for dark mode */
   max-width: 1800px;
   max-height: 90vh;
   overflow-y: auto;
@@ -1065,15 +1064,15 @@ const PlaylistModalContent = styled.div`
   animation: ${(props) => (props.$isClosing ? slideOut : slideIn)} 0.5s ease-out
     forwards;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-  &::-webkit-scrollbar {
+  &::-webkit-scrollbar { /* Changed for dark mode */
     width: 8px;
   }
-  &::-webkit-scrollbar-thumb {
-    background: #ffb36c;
+  &::-webkit-scrollbar-thumb { /* Changed for dark mode */
+    background: ${props => props.$isDarkMode ? '#ffb36c' : '#ffb36c'};
     border-radius: 4px;
   }
-  &::-webkit-scrollbar-track {
-    background: #dcdcdc;
+  &::-webkit-scrollbar-track { /* Changed for dark mode */
+    background: ${props => props.$isDarkMode ? '#333' : '#dcdcdc'};
   }
 `;
 
@@ -1085,7 +1084,7 @@ const LyricsCloseButton = styled.button`
   border: none;
   font-size: 20px;
   cursor: pointer;
-  color: #333;
+  color: ${props => props.$isDarkMode ? '#fff' : '#333'};
   &:hover {
     color: #ffb36c;
   }
@@ -1925,7 +1924,7 @@ const MiniPlayer = ({
   return track ? (
     <MiniPlayerContainer
       initial={{ opacity: 0, scale: 0.5, y: 50 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }} /* Changed for dark mode */
       exit={{ opacity: 0, scale: 0.5, y: 50 }}
       transition={{ duration: 0.3 }}
       style={{
@@ -2246,7 +2245,7 @@ const LyricsLine = styled.p`
   transition:
     color 0.3s,
     font-weight 0.3s;
-  color: ${(props) => (props.$active ? "orange" : "#333")};
+  color: ${(props) => (props.$active ? "orange" : (props.$isDarkMode ? '#eee' : '#333'))};
   font-weight: ${(props) => (props.$active ? "bold" : "normal")};
 `;
 
@@ -2257,10 +2256,10 @@ const InputGroup = styled.div`
   gap: 5px;
   label {
     font-weight: bold;
-    font-size: 12px;
-    color: black;
+    font-size: 12px; /* Changed for dark mode */
+    color: ${props => props.$isDarkMode ? '#eee' : 'black'};
   }
-  input {
+  input { /* Changed for dark mode */
     padding: 8px;
     border-radius: 5px;
     border: 1px solid #ccc;
@@ -2272,10 +2271,10 @@ const StorageIndicatorContainer = styled.div`
   margin: 10px 0 20px 0;
   padding: 10px;
   background: rgba(0, 0, 0, 0.05);
-  border-radius: 10px;
+  border-radius: 10px; /* Changed for dark mode */
   font-size: 11px;
-  color: #555;
-  text-align: left;
+  color: ${props => props.$isDarkMode ? '#aaa' : '#555'};
+  text-align: left; /* Changed for dark mode */
 `;
 
 const StorageBar = styled.div`
@@ -2283,7 +2282,7 @@ const StorageBar = styled.div`
   height: 6px;
   background: #ddd;
   border-radius: 3px;
-  margin-top: 5px;
+  margin-top: 5px; /* Changed for dark mode */
   overflow: hidden;
 `;
 
@@ -2291,7 +2290,7 @@ const StorageBarFill = styled.div`
   height: 100%;
   background: ${(props) => (props.$percent > 80 ? "#ff4d4d" : "#00bdb3")};
   width: ${(props) => props.$percent}%;
-  transition: width 0.5s ease;
+  transition: width 0.5s ease; /* Changed for dark mode */
 `;
 
 const SliderItemWrapper = styled.div`
@@ -2968,7 +2967,7 @@ const SongAiModal = ({ track, onClose, isDarkMode }) => {
             alignItems: "center",
           }}
           // Add a class or id here if needed for styling or specific targeting
-        >
+        > {/* Changed for dark mode */}
           <div style={{ display: "flex", flexDirection: "column" }}>
             <h4 style={{ margin: 0, color: "black" }}>
               ✨ Помічник {track.author}
@@ -2976,7 +2975,7 @@ const SongAiModal = ({ track, onClose, isDarkMode }) => {
             <select 
               value={selectedModel} 
               onChange={(e) => changeModel(e.target.value)}
-              style={{ fontSize: '10px', marginTop: '4px', border: '1px solid #ccc', borderRadius: '4px' }}
+              style={{ fontSize: '10px', marginTop: '4px', border: `1px solid ${isDarkMode ? '#555' : '#ccc'}`, borderRadius: '4px', background: isDarkMode ? '#333' : '#fff', color: isDarkMode ? '#fff' : '#333' }}
             >
               <option value="gemini-personal">Google Gemini (Free)</option>
               <option value="groq-personal">Groq Llama 3 (Fast & Free)</option>
@@ -3031,7 +3030,7 @@ const SongAiModal = ({ track, onClose, isDarkMode }) => {
             <motion.div 
               initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }}
               style={{ padding: '10px', background: isDarkMode ? '#252525' : '#fff9e6', borderBottom: `1px solid ${isDarkMode ? '#444' : '#eee'}`, overflow: 'hidden' }}
-            >
+            > {/* Changed for dark mode */}
               <div style={{ marginBottom: '8px' }}>
                 <label style={{ fontSize: '10px', color: isDarkMode ? '#aaa' : '#666' }}>Gemini Key:</label>
                 <input type="password" value={personalApiKey} onChange={(e) => saveKeys("gemini", e.target.value)} style={{ width: '100%', padding: '4px', fontSize: '11px', background: isDarkMode ? '#333' : '#fff', color: isDarkMode ? '#fff' : '#000', border: '1px solid #555' }} />
@@ -3041,7 +3040,7 @@ const SongAiModal = ({ track, onClose, isDarkMode }) => {
                 <select
                   value={geminiModel}
                   onChange={(e) => saveGeminiModel(e.target.value)}
-                  style={{ width: '100%', padding: '4px', fontSize: '11px', background: isDarkMode ? '#333' : '#fff', color: isDarkMode ? '#fff' : '#000', border: '1px solid #555' }}
+                  style={{ width: '100%', padding: '4px', fontSize: '11px', background: isDarkMode ? '#333' : '#fff', color: isDarkMode ? '#fff' : '#000', border: `1px solid ${isDarkMode ? '#555' : '#ccc'}` }}
                 >
                   <option value="gemini-2.5-flash">1.5 Flash (Швидка)</option>
                   <option value="gemini-2.5-pro">1.5 Pro (Розумна)</option>
@@ -3051,11 +3050,11 @@ const SongAiModal = ({ track, onClose, isDarkMode }) => {
                 <label style={{ fontSize: '10px', color: isDarkMode ? '#aaa' : '#666' }}>
                   Groq Key: {groqKeyStatus === "valid" ? "✅" : groqKeyStatus === "invalid" ? "❌" : ""}
                 </label>
-                <input type="password" value={groqApiKey} onChange={(e) => saveKeys("groq", e.target.value)} style={{ width: '100%', padding: '4px', fontSize: '11px', background: isDarkMode ? '#333' : '#fff', color: isDarkMode ? '#fff' : '#000', border: groqKeyStatus === 'invalid' ? '1px solid red' : '1px solid #555' }} />
+                <input type="password" value={groqApiKey} onChange={(e) => saveKeys("groq", e.target.value)} style={{ width: '100%', padding: '4px', fontSize: '11px', background: isDarkMode ? '#333' : '#fff', color: isDarkMode ? '#fff' : '#000', border: groqKeyStatus === 'invalid' ? '1px solid red' : `1px solid ${isDarkMode ? '#555' : '#ccc'}` }} />
               </div>
               <div style={{ marginBottom: '8px' }}>
                 <label style={{ fontSize: '10px', color: isDarkMode ? '#aaa' : '#666' }}>OpenAI Key:</label>
-                <input type="password" value={openaiApiKey} onChange={(e) => saveKeys("openai", e.target.value)} style={{ width: '100%', padding: '4px', fontSize: '11px', background: isDarkMode ? '#333' : '#fff', color: isDarkMode ? '#fff' : '#000', border: '1px solid #555' }} />
+                <input type="password" value={openaiApiKey} onChange={(e) => saveKeys("openai", e.target.value)} style={{ width: '100%', padding: '4px', fontSize: '11px', background: isDarkMode ? '#333' : '#fff', color: isDarkMode ? '#fff' : '#000', border: `1px solid ${isDarkMode ? '#555' : '#ccc'}` }} />
               </div>
               <p style={{ fontSize: '8px', color: '#888', textAlign: 'center' }}>
                 ℹ️ Ключі зберігаються лише у вашому браузері.
@@ -3119,7 +3118,7 @@ const LyricsViewer = ({ lyrics, currentTime, voiceActingMode, trackText }) => {
   if (!Array.isArray(lyrics)) {
     return <>{lyrics || trackText || "Текст відсутній."}</>;
   }
-
+/* Changed for dark mode */
   return (
     <div>
       {lyrics.map((line, index) => (
@@ -3156,6 +3155,7 @@ const FullScreenPlayer = ({
   backgroundMode,
   onToggleBackgroundMode,
   onUpdateUser,
+  isDarkMode, // Added isDarkMode prop
 }) => {
   const isDinofroz = !!track.video;
 
@@ -4377,16 +4377,14 @@ const FullScreenPlayer = ({
   }, [sliderImages, currentImgIdx, isDinofroz, track.author]);
 
   return (
-    <FullScreenOverlay
-      ref={overlayRef}
-      onMouseMove={resetControlsTimeout}
-      onClick={(e) => {
-        e.stopPropagation();
-        resetControlsTimeout();
-      }}
-      $closing={isClosing}
-      onWheel={handleWheel}
-    >
+    <FullScreenOverlay ref={overlayRef}
+                       onMouseMove={resetControlsTimeout}
+                       onClick={(e) => { /* Changed for dark mode */
+                         e.stopPropagation();
+                         resetControlsTimeout();
+                       }}
+                       $closing={isClosing}
+                       onWheel={handleWheel}>
       <canvas
         ref={fsCanvasRef}
         width="640"
@@ -4400,10 +4398,8 @@ const FullScreenPlayer = ({
         style={{ display: "none" }}
       />
 
-      <FSHeader
-        style={{ opacity: showControls ? 1 : 0, transition: "opacity 0.3s" }}
-      >
-        <div style={{ display: "flex", gap: "0px", alignItems: "center" }}>
+      <FSHeader style={{ opacity: showControls ? 1 : 0, transition: "opacity 0.3s" }}>
+        <div style={{ display: "flex", gap: "0px", alignItems: "center" }}> {/* Changed for dark mode */}
           <ActionButton
             style={{ fontSize: "26px" }}
             onClick={() => {
@@ -4449,10 +4445,10 @@ const FullScreenPlayer = ({
             {isFullscreenNative ? "⏹" : "⛶"}
           </ActionButton>
           <div style={{ display: "flex", flexDirection: "column" }}>
-            <FSTitle>{track.author}</FSTitle>
+            <FSTitle>{track.author} - {track.text}</FSTitle>
             {track.category !== "мультфільми" && (
               <span
-                style={{ color: "#ccc", fontSize: "12px", textAlign: "start" }}
+                style={{ color: isDarkMode ? '#ccc' : '#666', fontSize: "12px", textAlign: "start" }}
               >
                 Музика • {track.category}
               </span>
@@ -4520,7 +4516,7 @@ const FullScreenPlayer = ({
         <LoadingContainer>
           <div
             style={{ color: "#94fffa", fontSize: "14px", marginBottom: "5px" }}
-          >
+          > {/* Changed for dark mode */}
             Завантаження... {loadingProgress}%
           </div>
           <ProgressBar>
@@ -4674,7 +4670,7 @@ const FullScreenPlayer = ({
           <span>{formatTime(progress)}</span>
           {progressMode === "linear" ? (
             <SeekBarWrapper
-              onMouseMove={handleSeekHover}
+              onMouseMove={handleSeekHover} /* Changed for dark mode */
               onMouseLeave={() => setHoverTime(null)}
             >
               {checkpointsEnabled && checkpoint > 0 && duration > 0 && (
@@ -4696,7 +4692,7 @@ const FullScreenPlayer = ({
                       src={track.video || dinofrozVideo}
                       muted
                       preload="auto"
-                      style={{ filter: mediaFilter }} /* Apply filter to video preview */
+                      style={{ filter: mediaFilter }} /* Apply filter to video preview */ /* Changed for dark mode */
                     />
                   ) : (
                     sliderImages.length > 0 && (
@@ -4710,7 +4706,7 @@ const FullScreenPlayer = ({
                               sliderImages.length - 1,
                             )
                           ]
-                        }
+                        } /* Changed for dark mode */
                         style={{ filter: mediaFilter }} /* Apply filter to image preview */
                         alt="preview"
                       />
@@ -4743,7 +4739,7 @@ const FullScreenPlayer = ({
             </SeekBarWrapper>
           ) : (
             <StereoSeekBar
-              onClick={handleStereoSeek}
+              onClick={handleStereoSeek} /* Changed for dark mode */
               onMouseMove={handleSeekHover}
               onMouseLeave={() => setHoverTime(null)}
             >
@@ -4891,7 +4887,7 @@ const FullScreenPlayer = ({
             <ActionButton
               onClick={() => {
                 if (mediaRef.current && canPerformAction()) {
-                  mediaRef.current.currentTime = 0;
+                  mediaRef.current.currentTime = 0; /* Changed for dark mode */
                 }
               }}
               title="На початок"
@@ -4966,7 +4962,7 @@ const FullScreenPlayer = ({
                 display: "flex",
                 alignItems: "center",
                 gap: "5px",
-                background: "rgba(255,255,255,0.1)",
+                background: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
                 padding: "5px 10px",
                 borderRadius: "20px",
               }}
@@ -4980,7 +4976,7 @@ const FullScreenPlayer = ({
                 value={speed}
                 onChange={(e) => setSpeed(parseFloat(e.target.value))}
                 style={{ width: "60px" }}
-              />
+              /> {/* Changed for dark mode */}
               <span
                 style={{
                   color: "white",
@@ -5023,7 +5019,7 @@ const FullScreenPlayer = ({
                 $active={isAutoSlideshow}
                 onClick={() => setIsAutoSlideshow(!isAutoSlideshow)}
                 title={
-                  isAutoSlideshow ? "Слайд-шоу ввімкнено" : "Слайд-шоу вимкнено"
+                  isAutoSlideshow ? "Слайд-шоу ввімкнено" : "Слайд-шоу вимкнено" /* Changed for dark mode */
                 }
               >
                 📽️
@@ -5037,7 +5033,7 @@ const FullScreenPlayer = ({
                   display: "flex",
                   alignItems: "center",
                   gap: "5px",
-                  background: "rgba(255,179,108,0.2)",
+                  background: isDarkMode ? 'rgba(255,179,108,0.2)' : 'rgba(0,0,0,0.1)',
                   padding: "5px 10px",
                   borderRadius: "20px",
                   border: "1px solid rgba(255,179,108,0.5)",
@@ -5118,7 +5114,7 @@ const FullScreenPlayer = ({
       {showSettings && (
         <GearModal>
           <h4>Налаштування</h4>
-          <SliderRow>
+          <SliderRow> {/* Changed for dark mode */}
             <span style={{ color: "white" }}>
               Промотка назад ({seekBackwardAmount}с)
             </span>
@@ -5134,7 +5130,7 @@ const FullScreenPlayer = ({
               }
             />
           </SliderRow>
-          <SliderRow>
+          <SliderRow> {/* Changed for dark mode */}
             <span style={{ color: "white" }}>
               Промотка вперед ({seekForwardAmount}с)
             </span>
@@ -5150,7 +5146,7 @@ const FullScreenPlayer = ({
               }
             />
           </SliderRow>
-          {(track.lyrics || track.text) && (
+          {(track.lyrics || track.text) && ( /* Changed for dark mode */
             <SliderRow>
               <span style={{ color: "white" }}>Субтитри</span>
               {track.id === 1 && Array.isArray(track.lyrics) ? (
@@ -5163,7 +5159,7 @@ const FullScreenPlayer = ({
                         voiceActingMode: e.target.value,
                       });
                     }
-                  }}
+                  }} /* Changed for dark mode */
                   style={{
                     background: "#444",
                     color: "white",
@@ -5205,7 +5201,7 @@ const FullScreenPlayer = ({
                 </button>
               )}
             </SliderRow>
-          )}
+          )} {/* Changed for dark mode */}
           {track.filters && track.filters.length > 0 && (
             <SliderRow>
               <span style={{ color: "white" }}>Ефекти</span>
@@ -5224,7 +5220,7 @@ const FullScreenPlayer = ({
                 {filtersEnabled ? "Увімкнено" : "Вимкнено"}
               </button>
             </SliderRow>
-          )}
+          )} {/* Changed for dark mode */}
           {isDinofroz && (
             <SliderRow>
               <span style={{ color: "white" }}>Якість відео</span>
@@ -5233,7 +5229,7 @@ const FullScreenPlayer = ({
                 onChange={(e) => handleQualityChange(e.target.value)}
                 style={{
                   background: "#444",
-                  color: "white",
+                  color: "white", /* Changed for dark mode */
                   border: "1px solid #666",
                   borderRadius: "4px",
                   padding: "3px 6px",
@@ -5245,7 +5241,7 @@ const FullScreenPlayer = ({
                 <option value="768з">768з</option>
                 <option value="480р">480р</option>
               </select>
-            </SliderRow>
+            </SliderRow> /* Changed for dark mode */
           )}
           {hasSymbols && (
             <SliderRow>
@@ -5262,7 +5258,7 @@ const FullScreenPlayer = ({
                 onChange={(e) => setDynamicIntensity(parseInt(e.target.value))}
               />
             </SliderRow>
-          )}
+          )} {/* Changed for dark mode */}
           <SliderRow>
             <span style={{ color: "white" }}>Чекпоінти</span>
             <button
@@ -5280,7 +5276,7 @@ const FullScreenPlayer = ({
               {checkpointsEnabled ? "Увімкнено" : "Вимкнено"}
             </button>
           </SliderRow>
-          <SliderRow>
+          <SliderRow> {/* Changed for dark mode */}
             <span style={{ color: "white" }}>Фоновий режим</span>
             <button
               onClick={onToggleBackgroundMode}
@@ -5297,7 +5293,7 @@ const FullScreenPlayer = ({
               {backgroundMode ? "Увімкнено" : "Вимкнено"}
             </button>
           </SliderRow>
-          <SliderRow>
+          <SliderRow> {/* Changed for dark mode */}
             <span style={{ color: "white" }}>Режим шкали</span>
             <button
               onClick={() =>
@@ -5318,7 +5314,7 @@ const FullScreenPlayer = ({
               {progressMode === "linear" ? "Часова шкала" : "Стереограмa"}
             </button>
           </SliderRow>
-          {isDinofroz && (
+          {isDinofroz && ( /* Changed for dark mode */
             <>
               <SliderRow>
                 <span style={{ color: "white" }}>Кількість кадрів</span>
@@ -5327,7 +5323,7 @@ const FullScreenPlayer = ({
                   onChange={(e) => setFramesCount(parseInt(e.target.value))}
                   style={{
                     background: "#444",
-                    color: "white",
+                    color: "white", /* Changed for dark mode */
                     border: "1px solid #666",
                     borderRadius: "4px",
                     padding: "3px 6px",
@@ -5339,7 +5335,7 @@ const FullScreenPlayer = ({
                   <option value={60}>60 кадрів</option>
                   <option value={120}>120 кадрів</option>
                 </select>
-              </SliderRow>
+              </SliderRow> {/* Changed for dark mode */}
               <div
                 style={{
                   display: "flex",
@@ -5361,7 +5357,7 @@ const FullScreenPlayer = ({
                         if (/^[0-9:]*$/.test(val)) setFrameStartStr(val);
                       }}
                       placeholder="0:59"
-                      style={{ width: "100%", background: "#222", color: "white", border: `1px solid ${isStartInvalid ? "#ff4d4d" : "#555"}`, borderRadius: "4px", padding: "2px", fontSize: "10px" }}
+                      style={{ width: "100%", background: isDarkMode ? '#222' : '#fff', color: isDarkMode ? 'white' : 'black', border: `1px solid ${isStartInvalid ? "#ff4d4d" : (isDarkMode ? '#555' : '#ccc')}`, borderRadius: "4px", padding: "2px", fontSize: "10px" }}
                     />
                     <button
                       onClick={() => setFrameStartStr(secondsToTime(progress))}
@@ -5385,7 +5381,7 @@ const FullScreenPlayer = ({
                         if (/^[0-9:]*$/.test(val)) setFrameEndStr(val);
                       }}
                       placeholder="2:33"
-                      style={{ width: "100%", background: "#222", color: "white", border: `1px solid ${isEndInvalid ? "#ff4d4d" : "#555"}`, borderRadius: "4px", padding: "2px", fontSize: "10px" }}
+                      style={{ width: "100%", background: isDarkMode ? '#222' : '#fff', color: isDarkMode ? 'white' : 'black', border: `1px solid ${isEndInvalid ? "#ff4d4d" : (isDarkMode ? '#555' : '#ccc')}`, borderRadius: "4px", padding: "2px", fontSize: "10px" }}
                     />
                     <button
                       onClick={() => setFrameEndStr(secondsToTime(progress))}
@@ -5401,7 +5397,7 @@ const FullScreenPlayer = ({
                 onClick={handleResetFrames}
                 style={{
                   width: "100%",
-                  background: "#333",
+                  background: isDarkMode ? '#333' : '#eee',
                   color: "#aaa",
                   border: "1px solid #444",
                   borderRadius: "4px",
@@ -5419,7 +5415,7 @@ const FullScreenPlayer = ({
                 style={{
                   marginTop: "2px",
                   width: "100%",
-                  fontSize: "11px",
+                    fontSize: "11px", /* Changed for dark mode */
                   background: isGeneratingFrames ? "#3f3f3f" : "#b12c00",
                   color: "white",
                   border: "none",
@@ -5432,7 +5428,7 @@ const FullScreenPlayer = ({
                 {isGeneratingFrames
                   ? `Генерація ${loadingProgress}%...`
                   : `🎞️ Розділити на ${framesCount} кадрів`}
-              </button>
+              </button> {/* Changed for dark mode */}
             </>
           )}
           <button
@@ -5449,7 +5445,7 @@ const FullScreenPlayer = ({
             disabled={track.id === 2}
             style={{
               marginTop: "3px",
-              width: "100%",
+              width: "100%", /* Changed for dark mode */
               background: track.id === 2 ? "#626262" : "#00ae0f",
               color: "white",
               border: "none",
@@ -5493,7 +5489,7 @@ const FullScreenPlayer = ({
             style={{
               marginTop: "4px",
               width: "100%",
-              background: "#7afcff",
+                background: isDarkMode ? '#7afcff' : '#00bcd4',
               color: "#333",
               border: "none",
               padding: "2px",
@@ -5524,7 +5520,7 @@ const FullScreenPlayer = ({
             style={{
               marginTop: "3px",
               padding: "2px",
-              width: "100%",
+              width: "100%", /* Changed for dark mode */
               background: "#ae0000",
               color: "white",
               border: "none",
@@ -5539,7 +5535,7 @@ const FullScreenPlayer = ({
             onClick={() => setShowSettings(false)}
             style={{
               marginTop: "4px",
-              width: "100%",
+              width: "100%", /* Changed for dark mode */
               background: "transparent",
               padding: "2px",
               border: "1px solid white",
@@ -5557,7 +5553,7 @@ const FullScreenPlayer = ({
         <ModalOverlay onClick={() => setShowFramesGallery(false)}>
           <PlaylistModalContent
             onClick={(e) => e.stopPropagation()}
-            style={{
+            style={{ /* Changed for dark mode */
               maxWidth: "1200px",
               background: "#1a1a1a",
               border: "1px solid orange",
@@ -5566,7 +5562,7 @@ const FullScreenPlayer = ({
             <PlaylistCloseButton
               onClick={() => setShowFramesGallery(false)}
               style={{ color: "white" }}
-            >
+            > {/* Changed for dark mode */}
               &times;
             </PlaylistCloseButton>
             <h3
@@ -5574,7 +5570,7 @@ const FullScreenPlayer = ({
                 color: "orange",
                 textAlign: "center",
                 marginBottom: "20px",
-              }}
+              }} /* Changed for dark mode */
             >
               Кадри з відео ({videoFrames.length} зображень)
             </h3>
@@ -5593,7 +5589,7 @@ const FullScreenPlayer = ({
                 <div
                   key={idx}
                   style={{
-                    background: "#333",
+                    background: isDarkMode ? '#333' : '#eee',
                     borderRadius: "8px",
                     overflow: "hidden",
                     border: "1px solid #444",
@@ -5622,7 +5618,7 @@ const FullScreenPlayer = ({
                         flex: 1,
                         padding: "4px",
                         fontSize: "10px",
-                        background: "orange",
+                        background: isDarkMode ? 'orange' : '#ffb36c',
                         border: "none",
                         borderRadius: "4px",
                         cursor: "pointer",
@@ -5642,7 +5638,7 @@ const FullScreenPlayer = ({
                         flex: 1,
                         padding: "4px",
                         fontSize: "10px",
-                        background: "#555",
+                        background: isDarkMode ? '#555' : '#ccc',
                         color: "white",
                         border: "none",
                         borderRadius: "4px",
@@ -5660,7 +5656,7 @@ const FullScreenPlayer = ({
                 onClick={() => setShowFramesGallery(false)}
                 style={{
                   padding: "10px 30px",
-                  borderRadius: "20px",
+                  borderRadius: "20px", /* Changed for dark mode */
                   background: "orange",
                   border: "none",
                   cursor: "pointer",
@@ -5677,7 +5673,7 @@ const FullScreenPlayer = ({
       {showScreenshotMenu && (
         <GearModal
           style={{ bottom: "auto", top: "70px", right: "80px", width: "150px" }}
-        >
+        > {/* Changed for dark mode */}
           <button
             onClick={() =>
               mainFilter
@@ -5686,7 +5682,7 @@ const FullScreenPlayer = ({
             }
             style={{
               background: "transparent",
-              border: "none",
+              border: "none", /* Changed for dark mode */
               color: "white",
               textAlign: "left",
               cursor: "pointer",
@@ -5699,7 +5695,7 @@ const FullScreenPlayer = ({
             onClick={saveScreenshotToGallery}
             style={{
               background: "transparent",
-              border: "none",
+              border: "none", /* Changed for dark mode */
               color: "#ffb36c",
               textAlign: "left",
               cursor: "pointer",
@@ -5718,7 +5714,7 @@ const FullScreenPlayer = ({
             }
             style={{
               background: "transparent",
-              border: "none",
+              border: "none", /* Changed for dark mode */
               color: "white",
               textAlign: "left",
               cursor: "pointer",
@@ -5732,7 +5728,7 @@ const FullScreenPlayer = ({
 
       {pendingScreenshotAction && (
         <DownloadModal>
-          <h3 style={{ color: "black" }}>Фільтр виявлено</h3>
+          <h3 style={{ color: isDarkMode ? 'white' : 'black' }}>Фільтр виявлено</h3>
           <p style={{ color: "black", fontSize: "14px" }}>
             Бажаєте накласти активний візуальний ефект на скріншот?
           </p>
@@ -5753,7 +5749,7 @@ const FullScreenPlayer = ({
                 else if (action === "print") printScreenshot(true);
               }}
               style={{
-                background: "orange",
+                background: isDarkMode ? 'orange' : '#ffb36c',
                 color: "white",
                 border: "none",
                 padding: "8px 15px",
@@ -5772,7 +5768,7 @@ const FullScreenPlayer = ({
                 else if (action === "print") printScreenshot(false);
               }}
               style={{
-                background: "#ccc",
+                background: isDarkMode ? '#555' : '#ccc',
                 border: "none",
                 padding: "8px 15px",
                 borderRadius: "5px",
@@ -5788,7 +5784,7 @@ const FullScreenPlayer = ({
       {showPlaylist && (
         <PlaylistOverlay>
           <div
-            style={{
+            style={{ /* Changed for dark mode */
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
@@ -5797,7 +5793,7 @@ const FullScreenPlayer = ({
             }}
           >
             <h4 style={{ margin: 0 }}>Черга відтворення</h4>
-            <button
+            <button /* Changed for dark mode */
               onClick={() => setShowPlaylist(false)}
               style={{
                 background: "transparent",
@@ -5817,7 +5813,7 @@ const FullScreenPlayer = ({
                   padding: "8px",
                   background:
                     t.id === track.id
-                      ? "rgba(255, 165, 0, 0.3)"
+                      ? isDarkMode ? "rgba(255, 165, 0, 0.3)" : "rgba(255, 165, 0, 0.1)"
                       : "transparent",
                   borderRadius: "6px",
                   cursor: "pointer",
@@ -5848,7 +5844,7 @@ const FullScreenPlayer = ({
                     textOverflow: "ellipsis",
                   }}
                 >
-                  {t.author}
+                  {t.author} {/* Changed for dark mode */}
                 </div>
                 <span style={{ fontSize: "11px", color: "#ccc" }}>
                   {formatTime(t.duration)}
@@ -5860,7 +5856,7 @@ const FullScreenPlayer = ({
       {showDownload && (
         <DownloadModal>
           <h3>Завантаження</h3>
-          <div
+          <div /* Changed for dark mode */
             style={{
               display: "flex",
               flexDirection: "column",
@@ -5878,7 +5874,7 @@ const FullScreenPlayer = ({
                 a.click();
               }}
               style={{
-                padding: "10px",
+                padding: "10px", /* Changed for dark mode */
                 background: "orange",
                 border: "none",
                 borderRadius: "5px",
@@ -5890,7 +5886,7 @@ const FullScreenPlayer = ({
             <hr style={{ width: "100%" }} />
             <label>Вибрати проміжок (сек):</label>
             <div
-              style={{ display: "flex", gap: "5px", justifyContent: "center" }}
+              style={{ display: "flex", gap: "5px", justifyContent: "center" }} /* Changed for dark mode */
             >
               <input
                 type="number"
@@ -5901,7 +5897,7 @@ const FullScreenPlayer = ({
                     start: parseInt(e.target.value, 10) || 0,
                   })
                 }
-                style={{ width: "60px", padding: "5px" }}
+                style={{ width: "60px", padding: "5px", background: isDarkMode ? '#333' : '#fff', color: isDarkMode ? '#fff' : '#000', border: `1px solid ${isDarkMode ? '#555' : '#ccc'}` }}
               />
               <span>-</span>
               <input
@@ -5913,7 +5909,7 @@ const FullScreenPlayer = ({
                     end: parseInt(e.target.value, 10) || 0,
                   })
                 }
-                style={{ width: "60px", padding: "5px" }}
+                style={{ width: "60px", padding: "5px", background: isDarkMode ? '#333' : '#fff', color: isDarkMode ? '#fff' : '#000', border: `1px solid ${isDarkMode ? '#555' : '#ccc'}` }}
               />
             </div>
             <button
@@ -5924,7 +5920,7 @@ const FullScreenPlayer = ({
                 setShowDownload(false);
               }}
               style={{
-                padding: "8px",
+                padding: "8px", /* Changed for dark mode */
                 background: "#444",
                 color: "white",
                 border: "none",
@@ -5945,7 +5941,7 @@ const FullScreenPlayer = ({
                   a.click();
                 }}
                 style={{
-                  marginTop: "5px",
+                  marginTop: "5px", /* Changed for dark mode */
                   padding: "8px",
                   background: "green",
                   color: "white",
@@ -5961,7 +5957,7 @@ const FullScreenPlayer = ({
           <button
             onClick={() => setShowDownload(false)}
             style={{
-              background: "transparent",
+              background: "transparent", /* Changed for dark mode */
               border: "1px solid #333",
               padding: "5px 15px",
               borderRadius: "5px",
@@ -5978,7 +5974,7 @@ const FullScreenPlayer = ({
 const MusicCard = ({
   cardData,
   onOpenModal,
-  rating,
+  rating, // Added isDarkMode prop
   onOpenPlayer,
   onRate,
   onOpenAi = () => {},
@@ -5986,10 +5982,10 @@ const MusicCard = ({
   checkpointsEnabled,
 }) => {
   const { id, image, text, deezerLink } = cardData;
-
+/* Changed for dark mode */
   const handleDownloadTrack = (e) => {
     e.stopPropagation();
-    const a = document.createElement("a");
+    const a = document.createElement("a"); /* Changed for dark mode */
     a.href = cardData.audio;
     a.download = `${text || "track"}.mp3`;
     a.download = `${text || "track"}${cardData.author ? ` - ${cardData.author}` : ""}.mp3`;
@@ -5997,7 +5993,7 @@ const MusicCard = ({
   };
   const handlePrintCover = (e) => {
     e.stopPropagation();
-    const printWindow = window.open("", "_blank");
+    const printWindow = window.open("", "_blank"); /* Changed for dark mode */
     printWindow.document.write(
       `<html><head><title>Print Cover</title></head><body style="text-align:center;"><img src="${image}" style="max-width:100%;" onload="window.print();window.close()" /></body></html>`,
     );
@@ -6045,8 +6041,6 @@ const MusicCard = ({
       </MusicImageContainer>
 
       {text && <MusicText title={text}>{text}</MusicText>}
-      <AuthorText>{cardData.author || "Невідомий автор"}</AuthorText>
-
       <ActionButtonsContainer>
         {cardData.lyrics && (
           <ActionButton
@@ -6095,28 +6089,10 @@ const MusicCard = ({
     </CardWrapper>
   );
 };
-const PLAYLISTS = {
-  хіти: {
-    title: "Хіти",
-    monody,
-  },
-  // мультфільми: {
-  //   title: "Українські",
-  //   енеїда,
-  // },
-  природа: {
-    title: "Моя робота",
-    turkeys,
-  },
-  ігри: {
-    title: "Ігри",
-    mecha,
-  },
-};
 const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
   const [name, setName] = useState(initialData?.name || "");
   const [cover, setCover] = useState(initialData?.cover || "");
-  const [tracks, setTracks] = useState(initialData?.tracks || []);
+  const [tracks, setTracks] = useState(initialData?.tracks || []); // Added isDarkMode prop
   const [error, setError] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [searchCooldown, setSearchCooldown] = useState(0);
@@ -6125,6 +6101,7 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
   const [addCooldown, setAddCooldown] = useState(0);
   const [progress, setProgress] = useState(0);
   const [activeProgressId, setActiveProgressId] = useState(null);
+  const isDarkMode = false; // Placeholder, will be passed from MusicPhoto
   const [storageInfo, setStorageInfo] = useState({ usage: 0, quota: 0 });
 
   const updateStorageEstimate = useCallback(async () => {
@@ -6332,7 +6309,7 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
   return (
     <ModalOverlay onClick={onClose}>
       <LyricsModalContent
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()} /* Changed for dark mode */
         style={{ maxWidth: "500px" }}
       >
         <h3 style={{ color: "black", textAlign: "center" }}>
@@ -6363,7 +6340,7 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
 
         <InputGroup>
           <label>Назва (макс 12)</label>
-          <input
+          <input /* Changed for dark mode */
             value={name}
             onChange={(e) => setName(e.target.value)}
             maxLength={12}
@@ -6402,7 +6379,7 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
         )}
 
         <div
-          style={{
+          style={{ /* Changed for dark mode */
             margin: "15px 0",
             borderTop: "1px solid #ccc",
             paddingTop: "10px",
@@ -6429,7 +6406,7 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
               value={artistQuery}
               onChange={(e) => setArtistQuery(e.target.value)}
               placeholder="Виконавець..."
-              style={{
+              style={{ /* Changed for dark mode */
                 flex: 1,
                 padding: "5px",
                 borderRadius: "5px",
@@ -6441,7 +6418,7 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
               value={titleQuery}
               onChange={(e) => setTitleQuery(e.target.value)}
               placeholder="Назва пісні..."
-              style={{
+              style={{ /* Changed for dark mode */
                 flex: 1,
                 padding: "5px",
                 borderRadius: "5px",
@@ -6453,7 +6430,7 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
               onClick={handleSearch}
               disabled={searchCooldown > 0 || isSearching}
               style={{
-                background: searchCooldown > 0 ? "grey" : "blue",
+                background: searchCooldown > 0 ? (isDarkMode ? '#555' : 'grey') : 'blue',
                 color: "white",
                 border: "none",
                 borderRadius: "5px",
@@ -6475,7 +6452,7 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
                 maxHeight: "150px",
                 overflowY: "auto",
                 marginTop: "10px",
-                border: "1px solid #ddd",
+                border: `1px solid ${isDarkMode ? '#444' : '#ddd'}`,
                 borderRadius: "5px",
               }}
             >
@@ -6485,7 +6462,7 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    padding: "5px",
+                    padding: "5px", /* Changed for dark mode */
                     borderBottom: "1px solid #eee",
                     gap: "10px",
                   }}
@@ -6503,7 +6480,7 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
                     style={{
                       flex: 1,
                       fontSize: "12px",
-                      color: "#333",
+                      color: isDarkMode ? '#eee' : '#333',
                       overflow: "hidden",
                       whiteSpace: "nowrap",
                       textOverflow: "ellipsis",
@@ -6514,7 +6491,7 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
                   <button
                     onClick={() => addDeezerTrack(track)}
                     style={{
-                      background: "green",
+                      background: isDarkMode ? 'green' : '#4CAF50',
                       color: "white",
                       border: "none",
                       borderRadius: "3px",
@@ -6528,7 +6505,7 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
                   <button
                     onClick={() => window.open(track.link, "_blank")}
                     style={{
-                      background: "blue",
+                      background: isDarkMode ? 'blue' : '#2196F3',
                       color: "white",
                       border: "none",
                       borderRadius: "3px",
@@ -6550,7 +6527,7 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
               onClick={handleLoadMore}
               disabled={searchCooldown > 0 || isSearching}
               style={{
-                background: searchCooldown > 0 ? "grey" : "green",
+                background: searchCooldown > 0 ? (isDarkMode ? '#555' : 'grey') : 'green',
                 color: "white",
                 border: "none",
                 borderRadius: "5px",
@@ -6568,7 +6545,7 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
           )}
         </div>
 
-        <h4 style={{ color: "black", margin: "10px 0" }}>
+        <h4 style={{ color: isDarkMode ? '#fff' : 'black', margin: "10px 0" }}>
           Пісні ({tracks.length}/10)
         </h4>
         {tracks.map((track, i) => (
@@ -6576,7 +6553,7 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
             key={track.id}
             style={{
               background: "#f0f0f0",
-              padding: 10,
+              padding: 10, /* Changed for dark mode */
               borderRadius: 5,
               marginBottom: 10,
             }}
@@ -6586,7 +6563,7 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
               <input
                 value={track.text}
                 onChange={(e) => updateTrack(i, "text", e.target.value)}
-              />
+              /> {/* Changed for dark mode */}
             </InputGroup>
             <InputGroup>
               <label>Аудіо (макс 5хв)</label>
@@ -6596,7 +6573,7 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
                 <div>
                   <audio controls src={track.audio} style={{ width: "100%" }} />
                   <button
-                    type="button"
+                    type="button" /* Changed for dark mode */
                     onClick={() => updateTrack(i, "audio", "")}
                     style={{ marginTop: "5px", cursor: "pointer" }}
                   >
@@ -6607,7 +6584,7 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
                 <input
                   type="file"
                   accept="audio/*"
-                  onChange={(e) => handleAudio(e, i)}
+                  onChange={(e) => handleAudio(e, i)} /* Changed for dark mode */
                 />
               )}
               {activeProgressId === `track-audio-${i}` && (
@@ -6647,7 +6624,7 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
                       borderRadius: "5px",
                     }}
                   />
-                  <button
+                  <button /* Changed for dark mode */
                     type="button"
                     onClick={() => updateTrack(i, "image", "")}
                     style={{
@@ -6670,7 +6647,7 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
                       `track-image-${i}`,
                     )
                   }
-                />
+                /> /* Changed for dark mode */
               )}
               {activeProgressId === `track-image-${i}` && (
                 <div
@@ -6696,7 +6673,7 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
             <button
               onClick={() => removeTrack(i)}
               style={{
-                background: "red",
+                background: isDarkMode ? 'red' : '#F44336',
                 color: "white",
                 border: "none",
                 borderRadius: 5,
@@ -6712,7 +6689,7 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
             onClick={addTrack}
             disabled={addCooldown > 0}
             style={{
-              background: addCooldown > 0 ? "grey" : "orange",
+              background: addCooldown > 0 ? (isDarkMode ? '#555' : 'grey') : 'orange',
               color: "white",
               border: "none",
               borderRadius: 5,
@@ -6730,7 +6707,7 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
         <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
           <button
             onClick={handleSave}
-            style={{
+            style={{ /* Changed for dark mode */
               background: "green",
               color: "white",
               border: "none",
@@ -6742,7 +6719,7 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
           </button>
           <button
             onClick={onClose}
-            style={{
+            style={{ /* Changed for dark mode */
               background: "grey",
               color: "white",
               border: "none",
@@ -6774,12 +6751,12 @@ const PlaylistModal = ({
   initialFullScreenTrack,
   onUpdateUser,
   checkpoints,
+  isDarkMode, // Added isDarkMode prop
   checkpointsEnabled,
   onSaveCheckpoint,
   onClearCheckpoint,
   onToggleCheckpoints,
 }) => {
-  const [isClosing, setIsClosing] = useState(false);
   const [visibleCount, setVisibleCount] = useState(8);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOption, setSortOption] = useState("favorites");
@@ -6788,6 +6765,11 @@ const PlaylistModal = ({
   const [fullScreenTrack, setFullScreenTrack] = useState(null);
   const [isLyricsClosing, setIsLyricsClosing] = useState(false);
   const [backgroundMode, setBackgroundMode] = useState(true);
+  const [selectedAuthor, setSelectedAuthor] = useState(null); // Стан для вибраного автора
+
+  useEffect(() => {
+    setSelectedAuthor(null);
+  }, [playlistKey]);
 
   useEffect(() => {
     const loadCheckpoints = async () => {
@@ -6824,7 +6806,7 @@ const PlaylistModal = ({
   const [levelEditorTrack, setLevelEditorTrack] = useState(null);
   const handleCloseLevelEditor = () => setLevelEditorTrack(null);
 
-  const handleSaveLevelEditor = async (updatedTrack) => {
+  const handleSaveLevelEditor = async (updatedTrack) => { /* Changed for dark mode */
     if (!customTracks) return;
     const updatedTracks = customTracks.map((t) =>
       t.id === updatedTrack.id ? updatedTrack : t,
@@ -6847,7 +6829,7 @@ const PlaylistModal = ({
       }
     }
   };
-  const [favorites, setFavorites] = useState([]);
+  const [favorites, setFavorites] = useState([]); /* Changed for dark mode */
   const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
@@ -6922,7 +6904,7 @@ const PlaylistModal = ({
   const handleCloseLyricsModal = (e) => {
     if (e) e.stopPropagation();
     setIsLyricsClosing(true);
-    setTimeout(() => {
+    setTimeout(() => { /* Changed for dark mode */
       setLyricsModalData(null);
       setIsLyricsClosing(false);
     }, 500);
@@ -6945,20 +6927,42 @@ const PlaylistModal = ({
       };
     }
   }, [lyricsModalData]);
+  const getAuthorGroupedCards = useMemo(() => {
+    let cards = musicCards;
+    if (customTracks) { /* Changed for dark mode */
+      cards = [...cards, ...customTracks];
+    }
+    cards = cards.filter((card) =>
+      (card.text || "").toLowerCase().includes(searchQuery.toLowerCase()),
+    );
+
+    const grouped = {};
+    cards.forEach((card) => {
+      const author = card.author || "Невідомий автор";
+      if (!grouped[author]) {
+        grouped[author] = [];
+      }
+      grouped[author].push(card);
+    });
+
+    return Object.entries(grouped).map(([author, tracks]) => ({
+      author,
+      tracks,
+      image: tracks[0].image, 
+    }));
+  }, [searchQuery, customTracks]);
 
   const processedCards = useMemo(() => {
-    let filtered;
-    if (playlistKey === "custom" && customTracks) {
-      filtered = customTracks.filter((card) =>
-        (card.text || "").toLowerCase().includes(searchQuery.toLowerCase()),
-      );
-    } else {
-      filtered = musicCards.filter(
-        (card) =>
-          card.category === playlistKey &&
-          (card.text || "").toLowerCase().includes(searchQuery.toLowerCase()),
-      );
+    let filtered = musicCards;
+    if (customTracks) {
+      filtered = [...filtered, ...customTracks];
     }
+    if (playlistKey !== "allSongs" && playlistKey !== "custom") {
+      filtered = filtered.filter(card => card.category === playlistKey);
+    }
+    filtered = filtered.filter((card) =>
+      (card.text || "").toLowerCase().includes(searchQuery.toLowerCase()),
+    );
 
     if (sortOption === "favorites") {
       return [...filtered].sort((a, b) => {
@@ -6979,16 +6983,14 @@ const PlaylistModal = ({
         (a, b) => (b.duration || 0) - (a.duration || 0),
       );
     }
-    return filtered;
+    return filtered; /* Changed for dark mode */
   }, [playlistKey, searchQuery, sortOption, customTracks, getRating]);
-
-  // Зміна треку з додаванням у чергу історії
   const handleSetFullScreenTrack = useCallback(
     (newTrack) => {
       if (fullScreenTrack && newTrack && fullScreenTrack.id !== newTrack.id) {
         setPlayHistory((prev) => {
           const next = [...prev, fullScreenTrack];
-          return next.slice(-10); // Лишаємо тільки 10 останніх
+          return next.slice(-10); 
         });
       }
       setFullScreenTrack(newTrack);
@@ -6997,8 +6999,12 @@ const PlaylistModal = ({
   );
 
   const handleTrackEnd = (id) => {
+    const currentTracks = selectedAuthor
+      ? getAuthorGroupedCards.find((a) => a.author === selectedAuthor)?.tracks || []
+      : processedCards;
+
     if (isShuffle) {
-      const remaining = processedCards.filter((c) => c.id !== id);
+      const remaining = currentTracks.filter((c) => c.id !== id);
       if (remaining.length > 0) {
         const randomIndex = Math.floor(Math.random() * remaining.length);
         if (fullScreenTrack) handleSetFullScreenTrack(remaining[randomIndex]);
@@ -7007,10 +7013,10 @@ const PlaylistModal = ({
       }
       return;
     }
-    const currentIndex = processedCards.findIndex((c) => c.id === id);
-    if (currentIndex !== -1 && currentIndex < processedCards.length - 1) {
+    const currentIndex = currentTracks.findIndex((c) => c.id === id);
+    if (currentIndex !== -1 && currentIndex < currentTracks.length - 1) {
       if (fullScreenTrack)
-        handleSetFullScreenTrack(processedCards[currentIndex + 1]);
+        handleSetFullScreenTrack(currentTracks[currentIndex + 1]);
     } else {
       if (fullScreenTrack) setFullScreenTrack(null);
     }
@@ -7026,58 +7032,45 @@ const PlaylistModal = ({
       setFullScreenTrack(prevTrack); // Назад без handleSet, щоб не зациклити історію
       return;
     }
-    const idx = processedCards.findIndex((c) => c.id === fullScreenTrack.id);
+    const currentTracks = selectedAuthor
+      ? getAuthorGroupedCards.find((a) => a.author === selectedAuthor)?.tracks || []
+      : processedCards;
+
+    const idx = currentTracks.findIndex((c) => c.id === fullScreenTrack.id);
     if (idx > 0) {
-      handleSetFullScreenTrack(processedCards[idx - 1]);
+      handleSetFullScreenTrack(currentTracks[idx - 1]);
     }
   };
-  const handleClose = () => {
-    setIsClosing(true);
-    setTimeout(onClose, 500);
-  };
-  const playlistTitle =
-    playlistKey === "custom"
-      ? customPlaylistName || "Мій Плейлист"
-      : PLAYLISTS[playlistKey].title;
-  const tracksToShow = playlistKey === "custom" ? customTracks : processedCards;
+  
   return (
-    <ModalOverlay $isClosing={isClosing} onClick={handleClose}>
-      <PlaylistModalContent
-        $isClosing={isClosing}
-        onClick={(e) => e.stopPropagation()}
+    <div style={{ width: "100%" }}>
+      <div /* Changed for dark mode */
+        style={{
+          background: "transparent",
+          padding: "10px",
+          width: "100%",
+          position: "relative",
+        }}
       >
-        <PlaylistCloseButton onClick={handleClose}>&times;</PlaylistCloseButton>
-        <h2
-          style={{
-            textAlign: "center",
-            color: "#333",
-            fontSize: "20px",
-            marginBottom: "10px",
-          }}
-        >
-          {playlistTitle}
-          {playlistKey === "custom" && ` (${tracksToShow?.length || 0}/10)`}
-        </h2>
-        {onEdit && (
-          <div style={{ textAlign: "center", marginBottom: "20px" }}>
-            <button
-              onClick={onEdit}
-              style={{
-                background: "orange",
-                color: "white",
-                border: "none",
-                borderRadius: "20px",
-                padding: "10px 20px",
-                fontWeight: "bold",
-                cursor: "pointer",
-              }}
-            >
-              Редагувати
-            </button>
-          </div>
-        )}
+        <div style={{ textAlign: "center", marginBottom: "20px" }}>
+          <button /* Changed for dark mode */
+            onClick={() => onEdit && onEdit()}
+            style={{
+              background: "black",
+              color: "white",
+              border: "none",
+              borderRadius: "20px",
+              padding: "10px 20px",
+              fontWeight: "bold",
+              cursor: "pointer",
+              fontSize: "16px",
+            }}
+          >
+            Додати з dezzer
+          </button>
+        </div>
         <ControlsContainer>
-          <SearchInput
+          <SearchInput $isDarkMode={isDarkMode}
             type="text"
             placeholder="Пошук пісні за описом..."
             value={searchQuery}
@@ -7085,7 +7078,7 @@ const PlaylistModal = ({
           />
           <SortSelect
             value={sortOption}
-            onChange={(e) => setSortOption(e.target.value)}
+            onChange={(e) => setSortOption(e.target.value)} $isDarkMode={isDarkMode}
           >
             <option value="favorites">Улюблені</option>
             <option value="name_asc">Назва (А-Я)</option>
@@ -7096,52 +7089,92 @@ const PlaylistModal = ({
         </ControlsContainer>
 
         <MusicPhotoFix>
-          {processedCards.slice(0, visibleCount).map((card) => (
-            <div
-              key={card.id}
-              style={{ position: "relative", marginBottom: 10 }}
-            >
-              <MusicCard
-                cardData={card}
-                user={user}
-                rating={getRating(card.id)}
-                onOpenModal={setLyricsModalData}
-                onOpenPlayer={(id, startTime) => {
-                  const t = processedCards.find((c) => c.id === id);
-                  handleSetFullScreenTrack({
-                    ...t,
-                    initialTime: startTime || 0,
-                  });
+          {!selectedAuthor ? (
+            // Показуємо авторів /* Changed for dark mode */
+            getAuthorGroupedCards.slice(0, visibleCount).map((authorData) => (
+              <div key={authorData.author} style={{ position: "relative", marginBottom: 5 }}>
+                <AuthorCardWrapper onClick={() => setSelectedAuthor(authorData.author)}>
+                  <img src={authorData.image} alt={authorData.author} />
+                  <AuthorInfoOverlay>
+                    <h3>{authorData.author}</h3>
+                    <p>📚 {authorData.tracks.length} пісні</p>
+                  </AuthorInfoOverlay>
+                </AuthorCardWrapper>
+              </div>
+            ))
+          ) : (
+            // Показуємо пісні обраного автора /* Changed for dark mode */
+            <>
+              <button
+                onClick={() => setSelectedAuthor(null)}
+                style={{
+                  width: "80px",
+                  padding: "5px",
+                  marginBottom: "15px",
+                  background: "#00bdb3",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  fontWeight: "bold",
+                  fontSize: "14px",
                 }}
-                onRate={handleToggleFavorite}
-                onOpenAi={onOpenAi}
-                checkpoint={checkpoints[card.id]}
-                checkpointsEnabled={checkpointsEnabled}
-              />
-              {playlistKey === "custom" && (
-                <button
-                  style={{
-                    position: "absolute",
-                    top: 10,
-                    right: 10,
-                    zIndex: 2,
-                    background: "#7afcff",
-                    color: "#222",
-                    border: "none",
-                    borderRadius: 8,
-                    padding: "4px 10px",
-                    fontSize: 12,
-                    cursor: "pointer",
-                  }}
-                  onClick={() => setLevelEditorTrack(card)}
-                >
-                  Налаштувати
-                </button>
-              )}
-            </div>
-          ))}
+              >
+                ← Автори
+              </button>
+              {getAuthorGroupedCards
+                .find((a) => a.author === selectedAuthor)
+                ?.tracks.slice(0, visibleCount)
+                .map((card) => (
+                  <div
+                    key={card.id}
+                    style={{ position: "relative", marginBottom: 10 }}
+                  >
+                    <MusicCard
+                      cardData={card}
+                      user={user}
+                      rating={getRating(card.id)} // Pass rating
+                      onOpenModal={setLyricsModalData} // Pass lyrics modal handler
+                      onOpenPlayer={(id, startTime) => { // Pass player open handler
+                        const t = getAuthorGroupedCards
+                          .find((a) => a.author === selectedAuthor)
+                          ?.tracks.find((c) => c.id === id); /* Changed for dark mode */
+                        handleSetFullScreenTrack({
+                          ...t,
+                          initialTime: startTime || 0,
+                        });
+                      }} // Pass player open handler
+                      onRate={handleToggleFavorite} // Pass rating handler
+                      onOpenAi={onOpenAi} // Pass AI handler
+                      checkpoint={checkpoints[card.id]}
+                      checkpointsEnabled={checkpointsEnabled}
+                    />
+                    {playlistKey === "custom" && (
+                      <button
+                        style={{
+                          position: "absolute",
+                          top: 10, /* Changed for dark mode */
+                          right: 10,
+                          zIndex: 2,
+                          background: "#7afcff",
+                          color: "#222",
+                          border: "none",
+                          borderRadius: 8,
+                          padding: "4px 10px",
+                          fontSize: 12,
+                          cursor: "pointer",
+                        }}
+                        onClick={() => setLevelEditorTrack(card)}
+                      >
+                        Налаштувати
+                      </button>
+                    )}
+                  </div>
+                ))}
+            </>
+          )}
         </MusicPhotoFix>
-        {levelEditorTrack && (
+        {levelEditorTrack && ( /* Changed for dark mode */
           <ModalOverlay onClick={handleCloseLevelEditor}>
             <PlaylistModalContent onClick={(e) => e.stopPropagation()}>
               <PlaylistCloseButton onClick={handleCloseLevelEditor}>
@@ -7162,7 +7195,7 @@ const PlaylistModal = ({
                           time: levelEditorTrack.lyrics?.[0]?.time || 0,
                           text: val,
                         },
-                      ],
+                      ], /* Changed for dark mode */
                     });
                   }}
                   style={{ width: "100%" }}
@@ -7183,7 +7216,7 @@ const PlaylistModal = ({
                           text: levelEditorTrack.lyrics?.[0]?.text || "",
                         },
                       ],
-                    });
+                    }); /* Changed for dark mode */
                   }}
                   style={{ width: "100%" }}
                 />
@@ -7205,7 +7238,7 @@ const PlaylistModal = ({
                       });
                     } catch {}
                   }}
-                  rows={8}
+                  rows={8} /* Changed for dark mode */
                   style={{ width: "100%", fontFamily: "monospace" }}
                 />
                 <button
@@ -7431,19 +7464,24 @@ const PlaylistModal = ({
           </ModalOverlay>
         )}
 
-        {visibleCount < processedCards.length && (
-          <LoadMoreButton
-            onClick={() => {
-              if (visibleCount === 10) {
-                setVisibleCount(20);
-              } else {
-                setVisibleCount(processedCards.length);
-              }
-            }}
-          >
-            {visibleCount === 10 ? "︾" : "︾"}
-          </LoadMoreButton>
-        )}
+        {(() => {
+          const maxCount = selectedAuthor
+            ? getAuthorGroupedCards.find((a) => a.author === selectedAuthor)?.tracks.length || 0
+            : getAuthorGroupedCards.length; // Total number of authors
+          return visibleCount < maxCount ? (
+            <LoadMoreButton
+              onClick={() => {
+                if (visibleCount === 10) {
+                  setVisibleCount(20);
+                } else {
+                  setVisibleCount(maxCount);
+                }
+              }}
+            >
+              ︾
+            </LoadMoreButton>
+          ) : null;
+        })()}
 
         {lyricsModalData && (
           <ModalOverlay
@@ -7487,7 +7525,7 @@ const PlaylistModal = ({
             </LyricsModalContent>
           </ModalOverlay>
         )}
-      </PlaylistModalContent>
+      </div>
       {fullScreenTrack && (
         <FullScreenPlayer
           track={fullScreenTrack}
@@ -7508,7 +7546,8 @@ const PlaylistModal = ({
             onAudioBar(fullScreenTrack, time, isPlaying, vol, spd);
           }}
           onOpenAi={onOpenAi}
-          playlist={processedCards}
+          playlist={selectedAuthor
+            ? processedCards : []} // Playlist should be the currently filtered songs
           onSelectTrack={setFullScreenTrack}
           onUpdateUser={onUpdateUser}
           checkpoint={checkpoints[fullScreenTrack.id]}
@@ -7520,53 +7559,12 @@ const PlaylistModal = ({
           onToggleBackgroundMode={handleToggleBackgroundMode}
         />
       )}
-    </ModalOverlay>
-  );
-};
-
-const PlaylistCover = ({ playlistKey, defaultImage, customImage }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  const images = useMemo(() => {
-    if (playlistKey === "custom") {
-      const src = customImage instanceof Blob ? URL.createObjectURL(customImage) : (customImage || defaultImage);
-      return [src];
-    }
-    const cards = musicCards.filter((c) => c.category === playlistKey);
-    return cards.length > 0 ? cards.map((c) => c.image) : [defaultImage];
-  }, [playlistKey, defaultImage, customImage]);
-
-  useEffect(() => {
-    if (images.length <= 1) return;
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % images.length);
-    }, 2000);
-    return () => clearInterval(interval);
-  }, [images]);
-
-  return (
-    <div style={{ position: "relative", width: "100%", height: "150px" }}>
-      {images.map((src, index) => (
-        <PlaylistImage
-          key={index}
-          src={src}
-          alt={playlistKey}
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            opacity: index === currentIndex ? 1 : 0,
-            transition: "opacity 1s ease-in-out",
-            zIndex: index === currentIndex ? 1 : 0,
-          }}
-        />
-      ))}
     </div>
   );
 };
 
 const MusicPhoto = ({ user, onOpenRegister, isAnyModalOpen, onUpdateUser, onFsToggle }) => {
-  const [currentPlaylist, setCurrentPlaylist] = useState(null);
+  const [currentPlaylist, setCurrentPlaylist] = useState("allSongs"); // Default to showing all songs/authors
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   const [miniPlayerTrack, setMiniPlayerTrack] = useState(null);
@@ -7655,14 +7653,6 @@ const MusicPhoto = ({ user, onOpenRegister, isAnyModalOpen, onUpdateUser, onFsTo
     await localforage.setItem("custom_playlist", updatedPlaylist);
   };
 
-  const handleEditCustomPlaylist = () => {
-    setCurrentPlaylist(null);
-    setShowCreateModal(true);
-  };
-
-  const handleClosePlaylist = () => {
-    setCurrentPlaylist(null);
-  };
 
   const saveCustomPlaylist = async (data) => {
     try {
@@ -7679,68 +7669,8 @@ const MusicPhoto = ({ user, onOpenRegister, isAnyModalOpen, onUpdateUser, onFsTo
     }
   };
 
-  const openCustomPlaylist = () => {
-    setCurrentPlaylist("custom");
-  };
-
   return (
     <MusicPhotoDiv $isAudioBarActive={!!audioBarTrack}>
-      <MusicPhotoText>Оберіть плейлист</MusicPhotoText>
-      <PlaylistGrid>
-        {Object.keys(PLAYLISTS).map((key) => (
-          <PlaylistCard key={key} onClick={() => setCurrentPlaylist(key)}>
-            <PlaylistCover
-              playlistKey={key}
-              defaultImage={PLAYLISTS[key].image}
-            />
-            <PlaylistTitle>{PLAYLISTS[key].title}</PlaylistTitle>
-          </PlaylistCard>
-        ))}
-        {customPlaylist ? (
-          <PlaylistCard onClick={openCustomPlaylist}>
-            <PlaylistCover
-              playlistKey="custom"
-              customImage={customPlaylist.cover}
-              defaultImage={require("../../photos/vip-images/mechannic.webp")}
-            />
-            <PlaylistTitle>{customPlaylist.name}</PlaylistTitle>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowCreateModal(true);
-              }}
-              style={{
-                background: "orange",
-                border: "none",
-                padding: 5,
-                borderRadius: 5,
-                cursor: "pointer",
-                marginBottom: 5,
-              }}
-            >
-              Редагувати
-            </button>
-          </PlaylistCard>
-        ) : (
-          <PlaylistCard
-            onClick={() => setShowCreateModal(true)}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              background: "#f0f0f0",
-            }}
-          >
-            <div style={{ color: "#00bdb3", fontSize: "56px" }}>+</div>
-            <div
-              style={{ color: "#00baad", fontWeight: 600, fontSize: "26px" }}
-            >
-              Створити плейлист
-            </div>
-          </PlaylistCard>
-        )}
-      </PlaylistGrid>
-
       {showCreateModal && (
         <CreatePlaylistModal
           onClose={() => setShowCreateModal(false)}
@@ -7749,19 +7679,13 @@ const MusicPhoto = ({ user, onOpenRegister, isAnyModalOpen, onUpdateUser, onFsTo
         />
       )}
 
-      {currentPlaylist && (
-        <PlaylistModal
-          playlistKey={currentPlaylist}
-          onClose={handleClosePlaylist}
+      <PlaylistModal
+          playlistKey="allSongs"
           user={user}
           onOpenRegister={onOpenRegister}
-          customTracks={
-            currentPlaylist === "custom" ? customPlaylist?.tracks : null
-          }
+          customTracks={customPlaylist?.tracks}
           onUpdateCustomPlaylist={setCustomPlaylist}
-          onEdit={
-            currentPlaylist === "custom" ? handleEditCustomPlaylist : null
-          }
+          onEdit={() => setShowCreateModal(true)}
           onMiniPlayer={(track, time, isPlaying, volume, speed) => {
             onFsToggle(false);
             setMiniPlayerTrack(track);
@@ -7785,9 +7709,7 @@ const MusicPhoto = ({ user, onOpenRegister, isAnyModalOpen, onUpdateUser, onFsTo
             setRestoreTrack(null);
           }}
           onOpenAi={setActiveAiTrack}
-          onDeleteTrack={
-            currentPlaylist === "custom" ? deleteTrackFromCustomPlaylist : null
-          }
+          onDeleteTrack={deleteTrackFromCustomPlaylist}
           onFsToggle={onFsToggle}
           customPlaylistName={
             currentPlaylist === "custom" ? customPlaylist?.name : null

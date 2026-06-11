@@ -374,22 +374,6 @@ const Spa = styled.span`
     font-size: 32px;
   }
 `;
-
-const Spn = styled.span`
-  font-size: 5px;
-  @media (min-width: 768px) {
-    font-size: 9px;
-  }
-  @media (min-width: 1920px) {
-    font-size: 13px;
-  }
-`;
-
-const ShopIconInner = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-`;
 const ButtonsGroup = styled.div`
   display: flex;
   align-items: center;
@@ -568,6 +552,8 @@ const Header = ({
   setIsRoutingMode,
   currentPath,
   setIsFsActive,
+  loadingStrategy,
+  onSetLoadingStrategy,
 }) => {
   const [showUltra, setShowUltra] = useState(false);
   const [isBurgerOpen, setIsBurgerOpen] = useState(false);
@@ -717,10 +703,7 @@ const Header = ({
                 </IconButton>
 
                 <IconButton onClick={onOpenShop} $isDarkMode={isDarkMode}>
-                  <ShopIconInner>
-                    <Spa>🧧</Spa>
-                    <Spn style={{ fontWeight: 800 }}>10к/10к</Spn>
-                  </ShopIconInner>
+                    <Spa>🛒</Spa>
                 </IconButton>
 
                 <IconButton
@@ -955,6 +938,8 @@ const Header = ({
         onUpdatePresetName={updateCustomPresetName}
         onReorderPresets={reorderCustomPresets}
         setIsFsActive={setIsFsActive}
+        loadingStrategy={loadingStrategy}
+        onSetLoadingStrategy={onSetLoadingStrategy}
       />
     </>
   );

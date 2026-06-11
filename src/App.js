@@ -1,5 +1,5 @@
 // Міста для тесту: Дубай (>30°C), Якутськ (<-30°C), Кейптаун (вітер >10 м/с). Графік have погодинну перевірку вітру та деталізовані причини небезпеки в підказках.
-import { useState, useEffect, useCallback, memo, Suspense, useMemo, useRef } from "react";
+import { useState, useEffect, useCallback, memo, Suspense, useMemo, useRef, lazy } from "react";
 import styled, { keyframes, css, createGlobalStyle } from "styled-components";
 
 import localforage from "localforage";
@@ -20,27 +20,7 @@ import {
   Legend,
   Filler,
 } from "chart.js";
-// import { Line } from "react-chartjs-2";
-import Prison from "./components/Prison/Prison.jsx";
-import { DEFAULT_SITE_SECTIONS } from "./components/Header/Menu.jsx";
-import axios from "axios";
-import "./App.css";
-import Header from "./components/Header/Header.jsx";
-import Hero from "./components/Hero/Hero.jsx";
-import MusicPhoto from "./components/MusicPhoto/MusicPhoto.jsx";
-import Modal from "./components/Modals/Modal.jsx";
-import LoginModal from "./components/Modals/LoginModal.jsx";
-import UserSettingsModal from "./components/Modals/UserSettingsModal.jsx";
 import userDefault from "./photos/hero-header/user.webp";
-import VipModal from "./components/Modals/VipModal.jsx";
-import WeatherDetailsModal from "./components/Modals/WeatherDetailsModal.jsx";
-import Aihelp from "./components/Aihelp/Aihelp.jsx";
-import FanArt from "./components/FanArt/FanArt.jsx";
-import ShopModal from "./components/Modals/ShopModal.jsx";
-import News from "./components/News/News.jsx";
-import AchivmentsModal from "./components/Modals/AchivmentsModal.jsx";
-import Puzzles from "./components/Puzzles/Puzzles.jsx";
-import ClimateMap from "./components/ClimateMap/ClimateMap.jsx";
 import turkeys from "./photos/vip-images/turkeys/ultra-vip-turkeys.webp";
 import dragons from "./photos/vip-images/dinofroz/vip-dragons.webp";
 import horrordog from "./photos/vip-images/horror/horror.webp";
@@ -60,8 +40,29 @@ import dinofrozVideo from "./mp3/dinofroz.mp4";
 import startImage from "./photos/hero-header/start-image.webp";
 import turkeysAudio from "./mp3/turkeys.mp3";
 import ultraImage from "./photos/vip-modal/realultra.webp";
-import TermsModal from "./components/Modals/UserSearchModal.jsx";
-import OtherOptionsModal from "./components/Header/OtherOptionsModal.jsx";
+
+import { DEFAULT_SITE_SECTIONS } from "./components/Header/Menu.jsx";
+import axios from "axios";
+import "./App.css";
+import Header from "./components/Header/Header.jsx";
+import Hero from "./components/Hero/Hero.jsx";
+
+const Prison = lazy(() => import("./components/Prison/Prison.jsx"));
+const Aihelp = lazy(() => import("./components/Aihelp/Aihelp.jsx"));
+const FanArt = lazy(() => import("./components/FanArt/FanArt.jsx"));
+const ShopModal = lazy(() => import("./components/Modals/ShopModal.jsx"));
+const News = lazy(() => import("./components/News/News.jsx"));
+const AchivmentsModal = lazy(() => import("./components/Modals/AchivmentsModal.jsx"));
+const Puzzles = lazy(() => import("./components/Puzzles/Puzzles.jsx"));
+const ClimateMap = lazy(() => import("./components/ClimateMap/ClimateMap.jsx"));
+const MusicPhoto = lazy(() => import("./components/MusicPhoto/MusicPhoto.jsx"));
+const Modal = lazy(() => import("./components/Modals/Modal.jsx"));
+const LoginModal = lazy(() => import("./components/Modals/LoginModal.jsx"));
+const UserSettingsModal = lazy(() => import("./components/Modals/UserSettingsModal.jsx"));
+const VipModal = lazy(() => import("./components/Modals/VipModal.jsx"));
+const WeatherDetailsModal = lazy(() => import("./components/Modals/WeatherDetailsModal.jsx"));
+const TermsModal = lazy(() => import("./components/Modals/UserSearchModal.jsx"));
+const OtherOptionsModal = lazy(() => import("./components/Header/OtherOptionsModal.jsx"));
 
 const GlobalFilterLock = createGlobalStyle`
   ${props => props.$locked && css`
@@ -363,7 +364,7 @@ const App = () => {
   const [isFadingOut, setIsFadingOut] = useState(false);
   const [phraseData, setPhraseData] = useState({ text: "", isNew: false });
   const [now, setNow] = useState(new Date());
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(true);
   const [hiddenSections, setHiddenSections] = useState([]);
   const [sectionThemes, setSectionThemes] = useState({}); // { weather: false, aihelp: true, ... }
   const [user, setUser] = useState(null);
@@ -420,6 +421,7 @@ const App = () => {
   const [activeBgTrackId, setActiveBgTrackId] = useState(23); // ID для індиків за замовчуванням
   const [, setTrackRepeatCounter] = useState(0);
   const [bgMusicVolume, setBgMusicVolume] = useState(0.2);
+  const [loadingStrategy, setLoadingStrategy] = useState("eager"); // eager, lazy, delayed
   const [bgMusicSpeed, setBgMusicSpeed] = useState(1);
   const [customBgTracks, setCustomBgTracks] = useState([]); // [{name, file}]
   const [libraryBgSettings, setLibraryBgSettings] = useState({}); // {trackId: {repeats, enabled}}
@@ -583,6 +585,9 @@ const App = () => {
         const savedShowUpdateTimer = await localforage.getItem("show_update_timer");
         if (savedShowUpdateTimer !== null) setShowUpdateTimer(savedShowUpdateTimer);
 
+        const savedStrategy = await localforage.getItem("modal_loading_strategy");
+        if (savedStrategy) setLoadingStrategy(savedStrategy);
+
         const deployId = process.env.REACT_APP_DEPLOY_ID;
         if (deployId && lastSeenVersion !== deployId) {
           setIsUpdatePending(true);
@@ -636,6 +641,36 @@ const App = () => {
     };
     initPhrase();
   }, []);
+
+  const preloadComponents = useCallback(() => {
+    // Ручний виклик динамічного імпорту для кешування
+    import("./components/Prison/Prison.jsx");
+    import("./components/Aihelp/Aihelp.jsx");
+    import("./components/FanArt/FanArt.jsx");
+    import("./components/Modals/ShopModal.jsx");
+    import("./components/News/News.jsx");
+    import("./components/Modals/AchivmentsModal.jsx");
+    import("./components/Puzzles/Puzzles.jsx");
+    import("./components/ClimateMap/ClimateMap.jsx");
+    import("./components/MusicPhoto/MusicPhoto.jsx");
+    import("./components/Modals/Modal.jsx");
+    import("./components/Modals/LoginModal.jsx");
+    import("./components/Modals/UserSettingsModal.jsx");
+    import("./components/Modals/VipModal.jsx");
+    import("./components/Modals/WeatherDetailsModal.jsx");
+    import("./components/Modals/UserSearchModal.jsx");
+    import("./components/Header/OtherOptionsModal.jsx");
+  }, []);
+
+  useEffect(() => {
+    if (!isHydrated) return;
+    if (loadingStrategy === "eager") {
+      preloadComponents();
+    } else if (loadingStrategy === "delayed") {
+      const timer = setTimeout(preloadComponents, 8000);
+      return () => clearTimeout(timer);
+    }
+  }, [isHydrated, loadingStrategy, preloadComponents]);
 
   const phraseParticles = useMemo(() => {
     const count = phraseData.isNew ? 12 : 6;
@@ -1018,6 +1053,7 @@ const App = () => {
       localforage.setItem("selected_timezone", selectedTimezone);
       localforage.setItem("weather_card_layout", weatherCardLayout);
       localforage.setItem("show_update_timer", showUpdateTimer);
+      localforage.setItem("modal_loading_strategy", loadingStrategy);
     }
   }, [
     heroBg,
@@ -1050,6 +1086,7 @@ const App = () => {
     selectedTimezone,
     weatherCardLayout,
     showUpdateTimer, // Save new setting
+    loadingStrategy,
   ]);
 
   useEffect(() => {
@@ -1510,14 +1547,12 @@ const App = () => {
   };
 
   const toggleTheme = useCallback(() => {
-    setIsDarkMode((prevMode) => !prevMode);
-    // При глобальному перемиканні — робимо всі секції протилежними до їх поточного стану
-    setSectionThemes((prev) => {
-      const next = { ...prev };
-      DEFAULT_SITE_SECTIONS.forEach((s) => {
-        next[s.key] = !prev[s.key];
-      });
-      return next;
+    setIsDarkMode((prevMode) => {
+      const nextMode = !prevMode;
+      // При зміні глобальної теми скидаємо індивідуальні налаштування секцій,
+      // щоб вони всі перейшли в новий глобальний режим
+      setSectionThemes({});
+      return nextMode;
     });
   }, []);
 
@@ -1673,14 +1708,14 @@ const App = () => {
         />
       </div>
       <StyledSectionContainer
-        $isDarkMode={sectionThemes["weather"]}
+        $isDarkMode={sectionThemes["weather"] ?? isDarkMode}
         $isHidden={hiddenSections.includes("weather")}
       >
         <SectionContent
           section={siteSections.find((s) => s.key === "weather")}
           weatherCards={weatherCards}
           heroDateString={heroDateString}
-          isDarkMode={sectionThemes["weather"]}
+          isDarkMode={sectionThemes["weather"] ?? isDarkMode}
           isLocationEnabled={isLocationEnabled}
           handleRefreshCard={handleRefreshCard}
           handleDeleteCard={handleDeleteCard}
@@ -1772,14 +1807,14 @@ const App = () => {
           (section) =>
             section.key !== "hero" && (
               <StyledSectionContainer
-                $isDarkMode={sectionThemes[section.key]}
+                $isDarkMode={sectionThemes[section.key] ?? isDarkMode}
                 $isHidden={hiddenSections.includes(section.key)}
                 key={section.key}
               >
                 <SectionContent
                   section={section}
                   weatherCards={weatherCards}
-                  isDarkMode={sectionThemes[section.key]}
+                  isDarkMode={sectionThemes[section.key] ?? isDarkMode}
                   isLocationEnabled={isLocationEnabled}
                   handleRefreshCard={handleRefreshCard}
                   handleDeleteCard={handleDeleteCard}
@@ -1871,11 +1906,13 @@ const App = () => {
               isRoutingMode={isRoutingMode}
               setIsRoutingMode={setIsRoutingMode}
               currentPath={location.pathname.substring(1)}
+              loadingStrategy={loadingStrategy}
+              onSetLoadingStrategy={setLoadingStrategy}
               setIsFsActive={setIsFsActive}
             />
           </div>
           <main>
-            <Routes>
+            <Suspense fallback={null}><Routes>
               <Route path="/" element={LandingPage} />
               {siteSections.map((section) => (
                 <Route
@@ -1927,7 +1964,6 @@ const App = () => {
                             heroBgBlurType={heroBgBlurType}
                             heroBgPixelation={heroBgPixelation}
                             setHeroBgPixelation={setHeroBgPixelation}
-                            setHeroBgBlurType={setHeroBgBlurType}
                             heroBgFocal1={heroBgFocal1}
                             setHeroBgFocal1={setHeroBgFocal1}
                             heroBgFocal2={heroBgFocal2}
@@ -1948,13 +1984,13 @@ const App = () => {
                           />
                         ) : (
                           <StyledSectionContainer
-                            $isDarkMode={isDarkMode}
+                            $isDarkMode={sectionThemes[section.key] ?? isDarkMode}
                             $isHidden={false} // Завжди показуємо в роутингу
                           >
                             <SectionContent
                               section={section}
                               weatherCards={weatherCards}
-                              isDarkMode={isDarkMode}
+                              isDarkMode={sectionThemes[section.key] ?? isDarkMode}
                               isLocationEnabled={isLocationEnabled}
                               handleRefreshCard={handleRefreshCard}
                               handleDeleteCard={handleDeleteCard}
@@ -1984,8 +2020,9 @@ const App = () => {
                 />
               ))}
               <Route path="*" element={<NotFound />} />
-            </Routes>
+            </Routes></Suspense>
           </main>
+          <Suspense fallback={null}>
           {isModalOpen && (
             <Modal
               onClose={() => setIsModalOpen(false)}
@@ -1994,6 +2031,7 @@ const App = () => {
                 setIsModalOpen(false);
               }}
               availableAvatars={AVAILABLE_AVATARS}
+              isDarkMode={isDarkMode}
             />
           )}
           {isLoginOpen && (
@@ -2029,11 +2067,10 @@ const App = () => {
               isDarkMode={isDarkMode}
             />
           )}
-          <Suspense fallback={null}>
             {isUserSearchOpen && (
               <TermsModal
                 isOpen={isUserSearchOpen}
-                onClose={() => setIsUserSearchOpen(false)}
+                onClose={() => setIsUserSearchOpen(false)} 
               />
             )}
             {isFirstTimeHelpOpen && (
@@ -2043,7 +2080,6 @@ const App = () => {
               />
             )}
             {isInfoOpen && <TermsModal onClose={() => setIsInfoOpen(false)} />}
-          </Suspense>
 
           <WeatherDetailsModal
             isOpen={isWeatherDetailsOpen}
@@ -2081,6 +2117,7 @@ const App = () => {
               isDarkMode={isDarkMode}
             />
           )}
+          </Suspense>
 
           {showUpdateTimer && ( // Conditionally render the badge
             <UpdateTimerBadge 

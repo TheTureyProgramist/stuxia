@@ -8,9 +8,9 @@
  "Сюжет": "",
     "image": "dinofrozone",
     "audio": "dinofrozAudio",
-    "author": "Динофроз - Mondo TV.",
+    "author": "Mondo TV",
     "video": "dinofrozVideo",
-    "text": "Легендарний мультфільм на Малятко ТВ(нажаль закритий). Зображено Імператора дрaконів Ніцерона.",
+    "text": "Динофроз - Легендарний мультфільм Малятко ТВ(нажаль закритий). Зображено Імператора дрaконів Ніцерона.",
     "duration": 120,
     "images": ["dinofrozone"],
     "lyrics": [
@@ -97,7 +97,7 @@
     "text": "Найгірший(і найсмішніший) виступ у шоу 'Україна має талант'.",
     "duration": 180,
     "images": ["turkeys"],
-    "author": "'Нас немає' Оксана Самойлова(врахуйте вона переспівала, а не написала цю пісню)",
+    "author": "Українські телешоу",
     "Хто така Оксана Самойлова?": "Касирка з Харкова.",
     "Хто журналістка, що брала інтерв'ю в Оксани Самойлової?": "Ви не впізнали Оксану Марченко?",
     "А були ще такі виступи?": "Звичайно, Оксана Самойлова виступила через рік, із власною піснею, але не пройшла знову :) ",
@@ -225,7 +225,7 @@
         "opacity": 0.85
       }
     ],
-    "author": "Monody -  TheFatRat.",
+    "author": "TheFatRat",
     "lyrics": [
       {
         "time": 168,
@@ -287,72 +287,38 @@
         "time": 226,
         "text": ""
       }
-    ]
-  },
-  {
-    "id": 5,
-    "author": "Звуки вітру - Моя робота :)",
-    "audio": "windAudio",
-    "image": "desert",
-    "category": "природа",
-    "text": "Звук дощу. Пустеля розділенна вічно грозовою і сонячною зоною."
-  },
-  {
-    "id": 6,
-    "category": "природа",
-    "author": "Звуки коня - Моя робота :).",
-    "audio": "horseAudio",
-    "image": "horse"
+    ],
+        "text": "Monody"
   },
   {
     "id": 7,
-    "category": "ігри",
-    "author": "Dragonora - MyLittleUniverse(Estoty)",
-    "text": "І знову дракони, музика доісторичного світу. Картини взяті з мультфільму Динофроз.",
+    "category": "хіти",
+    "author": "SayGames - MyLittleUniverse(Estoty)",
+    "text": "Dragonora",
     "audio": "dragonoraAudio",
     "image": "dinofroztwo"
   },
   {
-    "id": 8,
-    "category": "природа",
-    "text": "Хто кращий по звукам соловеко чи індик? Зроблено за ідеї сім'ї.",
-    "author": "Звук Соловейка - Моя робота :)",
-    "audio": "soloveykoAudio",
-    "image": "soloveyko"
-  },
-  {
     "id": 9,
-    "category": "ігри",
-    "text": "Спокійна і прекрасна музика в японському стилі.",
-    "author": "Asium - My little universe(Estoty).",
+    "category": "хіти",
+    "text": "Asium",
+    "author": "SayGames - MyLittleUniverse(Estoty)",
     "audio": "harmonyAudio",
     "image": "harmony"
   },
   {
     "id": 10,
-    "category": "ігри",
-    "text": "Спокійна і прекрасна музика в механічному стилі.",
-    "author": "Factorium - My little universe(Estoty).",
+    "category": "хіти",
+    "text": "Factorium",
+    "author": "SayGames - MyLittleUniverse(Estoty)",
     "audio": "mechaAudio",
     "image": "mecha"
   },
   {
-    "id": 11,
-    "category": "хіти",
-    "author": "Мія та я.",
-    "audio": "miaAudio",
-    "image": "mia",
-    "lyrics": [
-      {
-        "time": 0,
-        "text": "Текст в розробці."
-      }
-    ]
-  },
-  {
     "id": 12,
-    "category": "ігри",
-    "author": "Electrodynamix - DJ-Nate (GeometryDash).",
+    "category": "хіти",
+    "text": "Electrodynamix",
+    "author": "DJ-Nate(GeometryDash)",
     "image": "electrodynamix",
     "audio": "electrodynamixAudio",
     "filters": [
@@ -517,8 +483,9 @@
     "symbols": [
       "⏧"
     ],
-    "author": "Clubstep - DJ-Nate(GeometryDash).",
+    "author": "DJ-Nate(GeometryDash)",
     "image": "clubstep",
+    "text": "Clubstep",
     "audio": "clubstepAudio",
     "filters": [
       {
@@ -671,7 +638,7 @@
     "audio": "fingerbang",
     "text": "Fingerdash, для додавання у GeometryDash, скоріше за все перемонтували і скоротили. Щоб рівень не був довгий.",
     "author": "Fingerbang-MDK(Fingerdash - Full Version)",
-    "category": "ігри",
+    "category": "хіти",
     "duration": 140,
     "images": ["fingerdash"],
     "filters": [
@@ -706,10 +673,10 @@
     "id": 16,
     "image": "theorytwo",
     "audio": "theorytwoAudio",
-    "author": "Theory of everything II - DJ-Nate(GeometryDash).",
-    "category": "ігри",
+    "author": "DJ-Nate(GeometryDash)",
+    "category": "хіти",
     "duration": 140,
-    "text": "",
+    "text": "Theory of everything II",
     "images": ["theorytwo"],
     "symbols": ["✧"],
     "filters": [
@@ -760,7 +727,7 @@
     "audio": "deadlockedAudio",
     "text": "Моторошна, але епічна пісня. Друг фанат цього рівня :).",
     "author": "Deadlocked - F77(GeometryDash).",
-    "category": "ігри",
+    "category": "хіти",
     "duration": 140,
     "images": ["deadlocked", "swamptwo", "swampthree", "swampfour", "swampfive", "swampsix", "swampseven", "swampeight", "swampnine", "horror", "horrortwo", "horrorthree", "horrorfour", "horrorfive", "horrorsix", "horrorseven", "horroreight"],
     "Чому ми в пісню вставили розмову персонажів?": "Найближчим часом, у Стихії з'явиться сюжет.",
@@ -884,16 +851,16 @@
     ],
     "text": "Моторошна, але епічна пісня. Друг фанат цього рівня :).",
     "author": "Deadlocked - F77(GeometryDash).",
-    "category": "ігри"
+    "category": "хіти"
   },
   {
     "id": 18,
     "image": "theory",
     "audio": "theoryAudio",
-    "text": "",
+    "text": "Theory of everything",
     "symbols": ["✦"],
-    "author": "Theory of everything(GeometryDash) - DJ-Nate",
-    "category": "ігри",
+    "author": "DJ-Nate(GeometryDash)",
+    "category": "хіти",
     "duration": 140,
     "images": ["theory"],
     "filters": [
@@ -928,8 +895,8 @@
     "id": 19,
     "image": "unity",
     "audio": "unityAudio",
-    "text": "Класний комп'ютерний хіт, не розумію чого його не поставили у фільм Матриця?",
-    "author": "Unity-TheFatRat.",
+    "text": "Unity",
+    "author": "TheFatRat",
     "category": "хіти",
     "duration": 180,
     "images": ["unity"],
@@ -954,8 +921,8 @@
     "id": 20,
     "image": "hunger",
     "audio": "hungerAudio",
-    "author": "Hunger-TheFatRat.",
-    "text": "",
+    "author": "TheFatRat",
+    "text": "Hunger",
     "category": "хіти",
     "duration": 180,
     "images": ["hunger"],
@@ -1006,9 +973,9 @@
     "id": 22,
     "image": "horror",
     "audio": "domino",
-    "text": "Друзі, хоррор зроблений мною (склеїв з різних джерел звуки). Я додаю сюжет у сайт, щоб зробити його більш атмосферним.",
-    "author": "Болотна крамниця",
-    "category": "природа",
+    "text": "Болотна крамниця",
+    "author": "Моя робота :)",
+    "category": "хіти",
     "duration": 140,
     "images": ["horror", "horrortwo", "horrorthree"],
      "Які треки, я використав": "Авторські слова: Трохи свого, трохи з т/с Реальна містика, запис на секунду збився і вставило Ніцерона :) Коли я побачив мені було лінь міняти, то вставив уривок,мще уривок з Динофрозу, можливо це додасть у саунтрек таємничості.",
@@ -1020,10 +987,10 @@
     "id": 23,
     "image": "turkeys",
     "audio": "turkeyAudio",
-    "text": "",
-    "category": "природа",
+    "text": "Звуки індиків",
+    "category": "хіти",
     "duration": 60,
-    "author": "Звуки індиків - Моя робота :)",
+    "author": "Моя робота :)",
     "images": ["turkeysone", "turkeytwo", "turkeythree", "turkeyfour", "turkeyfive", "turkeysix", "turkeyseven", "turkeys"],
     "lyrics": [
       { "time": 25, "text": "Дякую всім слухачам! Давно хотів сказати, що робота над піснями, була примною і важкою." },
@@ -1035,11 +1002,11 @@
     "id": 24,
     "image": "faded",
     "audio": "fadedAudio",
-    "text": "",
+    "text": "Faded",
     "category": "хіти",
     "duration": 180,
     "images": ["faded"],
-    "author": "Alan Walker - Faded",
+    "author": "Alan Walker",
     "YouTube": "https://www.youtube.com/watch?v=S2u0hDVsTWA",
     "lyrics": [
       { "time": 10, "text": "Ти був тінню для мого світла. Ти відчував нас, коли я тут була?" },

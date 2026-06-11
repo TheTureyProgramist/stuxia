@@ -1,7 +1,9 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import styled, { keyframes } from "styled-components";
+import styled
+// { keyframes } 
+from "styled-components";
 import { motion, AnimatePresence } from "framer-motion";
-import localforage from "localforage";
+//import localforage from "localforage";
 import dinofrozVideo from "../../mp3/dinofroz.mp4";
 import ultra from "../../photos/hero-header/start-image.webp";
 import ultraTurkeys from "../../photos/vip-images/turkeys/ultra-vip-turkeys.webp";
@@ -91,10 +93,10 @@ const OverlayText = styled.div`
   pointer-events: none;
 `;
 
-const fadeIn = keyframes`
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
-`;
+// const fadeIn = keyframes`
+//   from { opacity: 0; transform: translateY(-10px); }
+//   to { opacity: 1; transform: translateY(0); }
+// `;
 
 const TimeIndicator = styled.div`
   position: absolute;
@@ -150,23 +152,6 @@ const SkipButton = styled.button`
     cursor: not-allowed;
   `}
 `;
-
-const SkipWarning = styled.div`
-  position: absolute;
-  top: 50px;
-  left: 10px;
-  background: rgba(74, 29, 29, 0.9);
-  color: white;
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-size: 12px;
-  z-index: 100;
-  pointer-events: none;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-  border: 1px solid white;
-  animation: ${fadeIn} 0.4s ease-out forwards;
-`;
-
 const PausedOverlay = styled(motion.div)`
   position: absolute;
   inset: 0;
@@ -365,16 +350,6 @@ const SEQUENCE = [
     text: "Велика подяка, API сайтам, які допомогли при створенні Стихії. Малятко ТВ, Пікселю за гарні роки дитинства. І найголовніше сім'ї та близьким. Дякую за користування сайтом!",
   },
 ];
-
-const calculateTotalSequenceTime = () => {
-  return SEQUENCE.reduce((acc, step) => {
-    if (step.type === "video") {
-      return acc + (step.end - step.start);
-    }
-    return acc + step.duration / 1000;
-  }, 0);
-};
-
 const KatSceneModal = ({ onClose }) => {
   const [stepIndex, setStepIndex] = useState(0);
   const [text, setText] = useState("");
@@ -385,59 +360,15 @@ const KatSceneModal = ({ onClose }) => {
   const [isLooping, setIsLooping] = useState(false);
   const [isCaching, setIsCaching] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
-  const [connectionError, setConnectionError] = useState(false);
-  const [showWarning, setShowWarning] = useState(false);
-  const [isWatched, setIsWatched] = useState(false);
-
-  useEffect(() => {
-    const checkWatched = async () => {
-      const val = await localforage.getItem("katSceneWatched");
-      if (val === "true") setIsWatched(true);
-    };
-    checkWatched();
-  }, []);
-
-  const [skipBlockTimer, setSkipBlockTimer] = useState(() => {
-    return isWatched ? 0 : Math.ceil(calculateTotalSequenceTime());
-  });
   const [isAssetsLoaded, setIsAssetsLoaded] = useState(false);
   const stepStartTimeRef = useRef(null);
-
   const videoRef = useRef(null);
   const audioRef = useRef(null);
   const containerRef = useRef(null); // Ref для контейнера Fullscreen
   const volumeRef = useRef(volume);
   const isPausedRef = useRef(isPaused);
   const handleCloseRef = useRef(null);
-
   const step = SEQUENCE[stepIndex];
-
-  // Таймер на випадок проблем зі зв'язком (15 секунд)
-  useEffect(() => {
-    if (isAssetsLoaded) return;
-
-    const timer = setTimeout(() => {
-      if (!isAssetsLoaded) {
-        setConnectionError(true);
-      }
-    }, 15000);
-    return () => clearTimeout(timer);
-  }, [isAssetsLoaded]);
-
-  useEffect(() => {
-    if (isWatched || !isAssetsLoaded) return;
-
-    // Розрахунок часу, що залишився, починаючи з поточного кроку
-    let remaining = timeLeft;
-    for (let i = stepIndex + 1; i < SEQUENCE.length; i++) {
-      const s = SEQUENCE[i];
-      if (s.type === "video") remaining += s.end - s.start;
-      else remaining += s.duration / 1000;
-    }
-    setSkipBlockTimer(Math.ceil(remaining));
-  }, [stepIndex, timeLeft, isWatched, isAssetsLoaded]);
-
-  // Функція для керування повноекранним режимом
   const toggleFullscreen = () => {
     const elem = containerRef.current;
     if (!elem) return;
@@ -494,15 +425,8 @@ const KatSceneModal = ({ onClose }) => {
     setIsPaused((prev) => !prev);
   };
 
-  const handleSkipClick = () => {
-    const canSkip = isWatched || skipBlockTimer === 0 || connectionError;
-
-    if (canSkip) {
-      handleClose();
-    } else {
-      setShowWarning(true);
-      setTimeout(() => setShowWarning(false), 3000);
-    }
+  const handleSkipClick = () => { // Simplified
+    handleClose();
   };
 
   const handleCacheAll = async () => {
@@ -666,8 +590,6 @@ const KatSceneModal = ({ onClose }) => {
 
     const handleNextStep = () => {
       if (stepIndex === SEQUENCE.length - 1 && !isLooping) {
-        localforage.setItem("katSceneWatched", "true");
-        setIsWatched(true);
         if (handleCloseRef.current) handleCloseRef.current();
       } else {
         setStepIndex((prev) => (prev + 1) % SEQUENCE.length);
@@ -798,19 +720,9 @@ const KatSceneModal = ({ onClose }) => {
         {!isPaused && (
           <>
             <SkipButton
-              onClick={handleSkipClick}
-              $isBlocked={!isWatched && skipBlockTimer > 0 && !connectionError}
-              $isError={connectionError}
-            >
-              {isWatched || connectionError
-                ? "Пропустити"
-                : `Пропустити (${skipBlockTimer}с)`}
+              onClick={handleSkipClick} // Always callable
+            >Пропустити
             </SkipButton>
-            {showWarning && (
-              <SkipWarning>
-                Потрібно додивитися сцену до кінця для першого разу
-              </SkipWarning>
-            )}
             <FullscreenButton onClick={toggleFullscreen}>
               ⛶ Bесь екран
             </FullscreenButton>
@@ -879,16 +791,14 @@ const KatSceneModal = ({ onClose }) => {
                 <PausedButton onClick={handleScreenshot}>
                   📸 Зробити скріншот
                 </PausedButton>
-                {isWatched && (
-                  <PausedButton
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleClose();
-                    }}
-                  >
-                    Закрити
-                  </PausedButton>
-                )}
+                <PausedButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleClose();
+                  }}
+                >
+                  Закрити
+                </PausedButton>
               </PausedButtonsRow>
             </PausedOverlay>
           )}

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import styled, { keyframes, css } from "styled-components";
 import { motion, AnimatePresence } from "framer-motion";
-import localforage from "localforage";
+// import localforage from "localforage";
 // Імпорти фото
 import turkeys from "../../photos/vip-images/collectors-edition.webp";
 import dinofroz from "../../photos/vip-images/dinofroz/vip-dinofroz.webp";
@@ -12,13 +12,9 @@ import ultra from "../../photos/vip-modal/realultra.webp";
 import stars from "../../photos/vip-images/stars.webp";
 import buton from "../../photos/vip-modal/buton.webp";
 import asium from "../../photos/vip-images/asium/asium.webp";
-import rainbow from "../../photos/fan-art/rainbow.webp";
 import documentImg from "../../photos/fan-art/document.webp";
-import puzzle5 from "../../photos/fan-art/puzzle-5.webp";
 import puzzle2 from "../../photos/fan-art/puzzle-2.webp";
 import puzzle3 from "../../photos/fan-art/puzzle-3.webp";
-import puzzle4 from "../../photos/fan-art/puzzle-4.webp";
-import font from "../../photos/vip-images/flame.webp";
 //Prewiew
 import second from "../../photos/fan-art/theorytwo.webp";
 import seconds from "../../mp3/theoty-of-everything-ll.mp3";
@@ -935,16 +931,6 @@ const UltraPlayer = ({ volume, setVolume, onPlayerClose }) => {
   const [timeLeft, setTimeLeft] = useState(0);
   const volumeRef = useRef(volume);
   const isPausedRef = useRef(isPaused);
-  const [isWatched, setIsWatched] = useState(false);
-
-  useEffect(() => {
-    const checkWatched = async () => {
-      const val = await localforage.getItem("katSceneWatched");
-      if (val === "true") setIsWatched(true);
-    };
-    checkWatched();
-  }, []);
-
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [isAssetsLoaded, setIsAssetsLoaded] = useState(false);
@@ -1250,7 +1236,6 @@ const UltraPlayer = ({ volume, setVolume, onPlayerClose }) => {
               <PausedButton onClick={handleScreenshot}>
                 📸 Скріншот
               </PausedButton>
-              {isWatched && (
                 <PausedButton
                   onClick={(e) => {
                     e.stopPropagation();
@@ -1258,8 +1243,7 @@ const UltraPlayer = ({ volume, setVolume, onPlayerClose }) => {
                   }}
                 >
                   Закрити
-                </PausedButton>
-              )}
+              </PausedButton>
             </PausedButtonsRow>
           </PausedOverlay>
         )}
@@ -1365,7 +1349,7 @@ const VipModal = ({ onClose }) => {
     ai: [
       {
         src: puzzle2,
-        text: "Пам'ять на 15днів, не на 7днів! Ліміт історії запитів 70, не 50. Ліміт паралельних чатів спілкування 5, не 3.",
+        text: "Пам'ять на 15днів, не на 7днів! Ліміт історії запитів 50, не 25. Ліміт паралельних чатів спілкування(в розділі запитати ШІ) 5, не 3.",
       },
     ],
     music: [
@@ -1377,37 +1361,25 @@ const VipModal = ({ onClose }) => {
         src: dinofroz,
         text: "Доступ до відео аватарів",
       },
-      {
-        src: font,
-        text: "Станьте творцем! Розміщуйте індивідуальні плейлист, з лімітом у 20пісень(на ваш альбом, не 10), з обкладиками. Можете прив'язати відео з ютубу. До 3хв, не 2. Назавжди!",
-      },
     ],
     economics: [
       {
         src: dragons,
-        text: "Знижка 5грн у магазині Доміно, 🏆 дають додатково до 20🧧, якщо їх к-сть у 🏆 < 40. У сумі вийде 40. Навіть, якщо ви вже виконали 🏆 вони будуть після оплати автоматично відправлені. Можна зберігати 5000🧧, замість 2500(Після кінця зайві не анулюються, але ви не зможете отримувати наступну партію, доти доки к-сть буде >= ліміту). Шанс 25%(не 20%) на джекпот(Ціна збільшена на 10🧧).",
-      },
-      {
-        src: puzzle5,
-        text: "Перезарядка деяких 🏆 у випадку невдачі 33год, не 42год. Перезарядка деяких 🏆 в плані 🧧 у випадку успішного виконнання 12дн., а не 21дн.",
+        text: "Знижка 5грн у магазині Доміно.",
       },
     ],
     interface: [
       {
         src: vip,
-        text: "Доступ до безкоштовних функцій, які мали стати доступними у версії 1.1",
+        text: "Доступ до безкоштовних функцій, які мали стати доступними у версії 1.1. А також ранній доступ до епізодів Сценотвору.",
       },
       {
         src: stars,
-        text: "Реклама, при переході на інший сайт через наш(розділ новини, Deezer - і безкоштовно без реклами) не кожний перехід, а через раз.",
+        text: "Перегляд реклами дає 20хв перезарядки та 200мб трафіку, не 10хв та 100мб. Прискорює перезарядку: Додавання/Оновлення міста, фанарту; пошуку музики при створенні власного альбому.",
       },
       {
         src: buton,
-        text: "Кнопки: Додавання/Оновлення міста, фанарту, пошуку музики, плейлисту має перезарядку 20с замість 40c. Ліміт додаткових карток 4. Зайві картки видаляються коли підписка сплине в терміні.",
-      },
-      {
-        src: rainbow,
-        text: "Райдужне(Неанімовані) ім'я та рамка доступні! Назавжди!",
+        text: "Ліміт карток 6, не 3. Зайві картки видаляються коли підписка сплине в терміні.",
       },
       {
         src: documentImg,
@@ -1424,31 +1396,19 @@ const VipModal = ({ onClose }) => {
     ai: [
       {
         src: puzzle2,
-        text: "Пам'ять доки діє підписка(якщо на телефоні є місце)! Пам'ять запитів 100. Ліміт паралельних чатів 7. Лімітована акція!",
+        text: "Пам'ять доки діє підписка(якщо на телефоні є місце)! Пам'ять запитів 100. Ліміт паралельних чатів 10.",
       },
     ],
     music: [
       {
         src: asium,
         text: "Отримайте 500 балів. Назавжди!",
-      },
-      {
-        src: font,
-        text: "Розміщуйте у вашому плейлисті, з лімітом у 8пісень, з обкладиками(в сумі не може бути більше 50мб. Можете додавати фільтри(в інтервалах мелодії) та прив'язати відео з ютубу(до 4хв). Назавжди!",
-      },
+      }
     ],
     economics: [
       {
         src: dragons,
-        text: "Знижка 10грн у магазині Доміно. Можна зберігати 10000🧧. Шанс 50% на джекпот(Ціна збільшена на 20🧧).",
-      },
-      {
-        src: puzzle4,
-        text: "Передавайте до 250🧧/добу, не 125. Втрата конвертів піля передачі 10%. Лімітована акція!",
-      },
-      {
-        src: puzzle5,
-        text: "Перезарядка деяких 🏆 21год у разі невдачі. Перезарядка деяких 🏆 в плані 🧧 у випадку успішного виконнання 7дн. Лімітована акція!",
+        text: "Знижка 10грн у магазині Доміно.",
       },
     ],
     interface: [
@@ -1458,19 +1418,15 @@ const VipModal = ({ onClose }) => {
       },
       {
         src: vip,
-        text: "Доступ до функцій, якій стануть доступними лише у версії 1.3 Назавжди!",
+        text: "Доступ до функцій, якій стануть доступними лише у версії 1.3 Назавжди! А також нових модифікаторів Сценотвору(буде додано в майбутньому).",
       },
       {
         src: buton,
-        text: "Кнопки Додавання/Оновлення міста, фанарту, пошуку музики, плейлисту має перезарядку 4с. Ліміт додаткових карток 8. Лімітована акція!",
-      },
-      {
-        src: rainbow,
-        text: "Райдужне(анімоване) ім'я та рамка доступні. Назавжди!",
+        text: "Перегляд реклами дає 30хв перезарядки та 300мб трафіку.",
       },
       {
         src: documentImg,
-        text: "Доступ до 20 останніх новин. Лімітована акція!",
+        text: "Доступ до 12 останніх новин.",
       },
       {
         src: puzzle3,
