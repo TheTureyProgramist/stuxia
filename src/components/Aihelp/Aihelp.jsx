@@ -37,20 +37,31 @@ const AihelpTitle = styled.div`
   }
 `;
 
-const TextArea = styled.textarea`
+const InputContainer = styled.div`
+  position: relative;
   width: 100%;
   max-width: 1200px;
-  padding: 12px 160px 12px 12px; /* Великий відступ справа для кнопок */
-  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
   border: 1px solid ${props => props.$isDarkMode ? '#444' : '#ccc'};
+  border-radius: 8px;
   background: ${props => props.$isDarkMode ? '#2c2c2c' : 'white'};
+  transition: border-color 0.2s;
+  &:focus-within { border-color: orange; }
+`;
+
+const TextArea = styled.textarea`
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 12px;
+  border-radius: 8px 8px 0 0;
   color: ${props => props.$isDarkMode ? 'white' : 'black'};
   font-size: 14px;
   outline: none;
   resize: none; /* Заборона ручної зміни розміру */
-  overflow-y: hidden;
+  overflow-y: auto; /* Дозволити прокрутку, якщо текст перевищує висоту */
   min-height: 50px;
-  &:focus { border-color: orange; }
 `;
 
 const ChatHistory = styled.div`
@@ -122,11 +133,10 @@ const ModeSelector = styled.div`
 `
 
 const ActionButtons = styled.div`
-  position: absolute;
-  right: 10px;
-  top: 10px;
   display: flex;
   align-items: center;
+  justify-content: flex-end;
+  padding: 5px 10px 10px;
   gap: 8px;
   z-index: 5;
 `;
@@ -166,6 +176,7 @@ const FileThumb = styled.div` // Оновлено для підтримки ві
   border: 1px solid orange;
 
   img { width: 100%; height: 100%; object-fit: cover; border-radius: 5px; }
+  video { width: 100%; height: 100%; object-fit: cover; border-radius: 5px; }
   span { font-size: 24px; color: orange; } // Для іконки відео
 `;
 
@@ -212,6 +223,9 @@ const Aihelp = ({ isDarkMode }) => {
   const [status, setStatus] = useState("");
   const [aiMode, setAiMode] = useState("gemini"); 
   const [streamingText, setStreamingText] = useState("");
+  // Зберігаємо останній промпт для повторних спроб при помилках
+  const lastPromptRef = useRef("");
+  const [totalFilesSize, setTotalFilesSize] = useState(0);
   const [error, setError] = useState(null);
   const [isListening, setIsListening] = useState(false);
   
@@ -302,16 +316,16 @@ const Aihelp = ({ isDarkMode }) => {
   };
 
   const clearFiles = () => {
-    objectURLs.current.forEach(url => URL.revokeObjectURL(url));
+    if (objectURLs.current.length > 0) {
+      objectURLs.current.forEach(url => URL.revokeObjectURL(url));
+    }
     objectURLs.current = [];
     setSelectedFiles([]);
+    setTotalFilesSize(0);
   };
 
   const verifyGroqKey = async (key) => {
-    if (!key || key.length < 10) {
-      setGroqKeyStatus("idle");
-      return;
-    }
+    if (!key || key.length < 10) { setGroqKeyStatus("idle"); return; }
     setGroqKeyStatus("loading");
     try {
       const res = await fetch("https://api.groq.com/openai/v1/models", {
@@ -345,11 +359,29 @@ const Aihelp = ({ isDarkMode }) => {
   };
 
   const handleFileSelect = (files) => {
-    const newFilesData = Array.from(files).map(file => {
+    const incomingFiles = Array.from(files);
+    const MAX_FILES = 15;
+    const MAX_TOTAL_SIZE = 100 * 1024 * 1024; // 100MB
+
+    if (selectedFiles.length + incomingFiles.length > MAX_FILES) {
+      alert(`Ви можете прикріпити максимум ${MAX_FILES} файлів.`);
+      return;
+    }
+
+    const currentTotalSize = selectedFiles.reduce((acc, f) => acc + f.file.size, 0);
+    const incomingTotalSize = incomingFiles.reduce((acc, f) => acc + f.size, 0);
+
+    if (currentTotalSize + incomingTotalSize > MAX_TOTAL_SIZE) {
+      alert("Загальний розмір вибраних файлів перевищує 100МБ.");
+      return;
+    }
+
+    const newFilesData = incomingFiles.map(file => {
       const url = URL.createObjectURL(file);
       objectURLs.current.push(url); // Додаємо URL до рефу для подальшого очищення
       return { file: file, objectURL: url };
     });
+    setTotalFilesSize(currentTotalSize + incomingTotalSize);
     setSelectedFiles(prev => [...prev, ...newFilesData]);
   };
 
@@ -358,7 +390,8 @@ const Aihelp = ({ isDarkMode }) => {
       const fileToRemove = prev[index];
       if (fileToRemove && fileToRemove.objectURL) {
         URL.revokeObjectURL(fileToRemove.objectURL); // Відкликаємо URL конкретного файлу
-        objectURLs.current = objectURLs.current.filter(url => url !== fileToRemove.objectURL); // Видаляємо з рефу
+        setTotalFilesSize(curr => Math.max(0, curr - fileToRemove.file.size));
+        objectURLs.current = objectURLs.current.filter(url => url !== fileToRemove.objectURL);
       }
       return prev.filter((_, i) => i !== index);
     });
@@ -374,6 +407,7 @@ const Aihelp = ({ isDarkMode }) => {
       objectURLs.current.forEach(url => URL.revokeObjectURL(url)); // Відкликаємо всі URL
       objectURLs.current = [];
       setMessages([]);
+      setTotalFilesSize(0);
       await localforage.removeItem("ai_help_history");
     }
   };
@@ -385,10 +419,11 @@ const Aihelp = ({ isDarkMode }) => {
     }
   };
 
-  const handleAsk = async () => {
-    const originalPrompt = prompt.trim();
-    if (!originalPrompt || loading) return;
-
+  const handleAsk = async (retryText = null) => {
+    const originalPrompt = retryText !== null ? retryText : prompt.trim();
+    if ((!originalPrompt && selectedFiles.length === 0) || loading) return;
+    
+    lastPromptRef.current = originalPrompt;
     const lowerQuery = originalPrompt.toLowerCase();
     if (BANNED_KEYWORDS.some((word) => lowerQuery.includes(word))) {
       setMessages(prev => [...prev, { text: "Запит містить заборонені слова.", isBot: true }]);
@@ -402,7 +437,10 @@ const Aihelp = ({ isDarkMode }) => {
     const newUserMessage = { text: originalPrompt, isBot: false };
     setMessages(prev => [...prev, newUserMessage]);
     setPrompt("");
-    if (textareaRef.current) textareaRef.current.style.height = "auto";
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "0px";
+      textareaRef.current.style.height = "auto";
+    }
 
     try {
       if (aiMode === "gemini") {
@@ -439,6 +477,7 @@ const Aihelp = ({ isDarkMode }) => {
           localforage.setItem("ai_help_history", updated.slice(-25));
           return updated;
         });
+        setStreamingText("");
         clearFiles();
 
       } else if (aiMode === "openai" || aiMode === "groq") {
@@ -455,11 +494,11 @@ const Aihelp = ({ isDarkMode }) => {
         }
         setStatus(`З'єднання з ${isOAI ? 'OpenAI' : 'Groq'}...`);
 
-        const conversation = messages.slice(-25).map(m => ({ // Обмежуємо контекст останніми 25 повідомленнями
+        // Формуємо актуальний контекст, включаючи нове повідомлення користувача
+        const conversation = [...messages.slice(-24), newUserMessage].map(m => ({
           role: m.isBot ? "assistant" : "user",
           content: m.text
         }));
-        conversation.push({ role: "user", content: originalPrompt }); // Додаємо поточний запит користувача
 
         const res = await fetch(endpoint, {
           method: "POST",
@@ -483,39 +522,79 @@ const Aihelp = ({ isDarkMode }) => {
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
         let accumulatedText = "";
+        let buffer = ""; // Буфер для неповних SSE-рядків
 
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          const chunk = decoder.decode(value);
-          const lines = chunk.split("\n");
-          for (const line of lines) {
-            if (line.startsWith("data: ") && line !== "data: [DONE]") {
-              try {
-                const data = JSON.parse(line.substring(6));
-                const content = data.choices[0]?.delta?.content || "";
-                accumulatedText += content;
-                setStreamingText(accumulatedText);
-              } catch (e) { /* Ігноруємо помилки парсингу неповних JSON-рядків */ }
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true }); // Додаємо новий фрагмент до буфера
+
+            // Обробляємо всі повні рядки в буфері
+            let newlineIndex;
+            while ((newlineIndex = buffer.indexOf('\n')) !== -1) {
+              const line = buffer.substring(0, newlineIndex).trim();
+              buffer = buffer.substring(newlineIndex + 1); // Видаляємо оброблений рядок з буфера
+
+              if (line === "data: [DONE]") {
+                buffer = ""; // Очищаємо залишок, щоб не намагатися парсити [DONE] поза циклом
+                break;
+              }
+
+              if (line.startsWith("data: ")) {
+                try {
+                  const data = JSON.parse(line.substring(6));
+                  const content = data.choices[0]?.delta?.content || "";
+                  accumulatedText += content;
+                  setStreamingText(accumulatedText);
+                } catch (e) { /* Неповний чанк JSON */ }
+              }
             }
           }
+        } finally {
+          // Гарантуємо скасування рідера, навіть якщо виникла помилка
+          reader.cancel().catch(e => console.error("Failed to cancel reader:", e));
         }
 
-        const finalBotMessage = { text: accumulatedText, isBot: true };
-        setMessages(prev => {
-          const updated = [...prev, finalBotMessage];
-          localforage.setItem("ai_help_history", updated.slice(-25));
-          return updated;
-        });
-        clearFiles();
+        // Після завершення стрімінгу або помилки, обробляємо залишок буфера, якщо він є
+        const finalLine = buffer.trim();
+        if (finalLine.startsWith("data: ") && finalLine !== "data: [DONE]") {
+          try {
+            const data = JSON.parse(finalLine.substring(6));
+            const content = data.choices[0]?.delta?.content || "";
+            accumulatedText += content;
+            setStreamingText(accumulatedText);
+          } catch (e) { /* Помилка формату */ }
+        }
+
+        // Оновлюємо повідомлення лише після повного завершення стрімінгу
+        if (accumulatedText) {
+          const finalBotMessage = { text: accumulatedText, isBot: true };
+          setMessages(prev => {
+            const updated = [...prev, finalBotMessage];
+            localforage.setItem("ai_help_history", updated.slice(-25));
+            return updated;
+          });
+        setStreamingText("");
+        } else {
+          // Якщо стрімінг завершився, але тексту немає (наприклад, порожня відповідь або помилка)
+          setMessages(prev => {
+            const updated = [...prev, { text: "Не вдалося отримати відповідь від AI.", isBot: true }];
+            localforage.setItem("ai_help_history", updated.slice(-25));
+            return updated;
+          });
+          setStreamingText("");
+        }
+        clearFiles(); // Очищаємо файли після обробки
         }
     } catch (err) {
+      setStreamingText("");
       setError(err.message); // Використовуємо стейт error для відображення помилок
       clearFiles();
     } finally {
       setLoading(false);
       setStatus("");
-      setStreamingText("");
     }
   };
 
@@ -647,7 +726,7 @@ const Aihelp = ({ isDarkMode }) => {
         {error && ( // Відображення помилок
           <ErrorBox>
             ⚠️ Помилка: {error}
-            <MiniButton $primary onClick={handleAsk}>Спробувати ще раз</MiniButton> {/* Виправлено на MiniButton */}
+            <MiniButton $primary onClick={() => handleAsk(lastPromptRef.current)}>Спробувати ще раз</MiniButton>
           </ErrorBox>
         )}
         <div ref={chatEndRef} />
@@ -659,28 +738,35 @@ const Aihelp = ({ isDarkMode }) => {
         </div>
       )}
 
-      <FilePreviewContainer>
+      <FilePreviewContainer> 
+        {selectedFiles.length > 0 && (
+          <div style={{ width: '100%', fontSize: '10px', color: 'orange', marginBottom: '5px' }}>
+            Загальний розмір: {(totalFilesSize / (1024 * 1024)).toFixed(2)} MB / 100 MB
+          </div>
+        )}
         {selectedFiles.map((f, i) => (
           <FileThumb key={i}>
-            <img src={f.objectURL} alt="preview" />
+            {f.file.type.startsWith('video/') ? (
+              <video src={f.objectURL} />
+            ) : (
+              <img src={f.objectURL} alt="preview" />
+            )}
             <RemoveFileBtn onClick={() => removeFile(i)}>✕</RemoveFileBtn>
           </FileThumb>
         ))}
       </FilePreviewContainer>
 
-      <div style={{ position: 'relative', width: '100%', maxWidth: '1200px' }}
+      <InputContainer $isDarkMode={isDarkMode}
            onDragOver={(e) => e.preventDefault()}
            onDrop={(e) => { e.preventDefault(); handleFileSelect(e.dataTransfer.files); }}>
         <TextArea
           ref={textareaRef}
           placeholder="Запитайте щось... (Enter - відправити, Shift+Enter - новий рядок)"
-          $isDarkMode={isDarkMode}
           value={prompt}
           onChange={handleTextChange}
           onKeyDown={handleKeyDown}
           rows={1}
         />
-        
         <ActionButtons>
           {aiMode === 'gemini' && (
             <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
@@ -691,7 +777,7 @@ const Aihelp = ({ isDarkMode }) => {
           <MiniButton onClick={clearHistory} title="Очистити чат">🗑️</MiniButton>
           <MiniButton 
             $primary 
-            disabled={loading || !prompt.trim()} 
+            disabled={loading || (!prompt.trim() && selectedFiles.length === 0)} 
             onClick={handleAsk}
             title="Запитати"
           >
@@ -706,7 +792,7 @@ const Aihelp = ({ isDarkMode }) => {
             {isListening ? "🛑" : "🎤"}
           </MiniButton>
         </ActionButtons>
-      </div>
+      </InputContainer>
     </AihelpDiv>
   );
 };

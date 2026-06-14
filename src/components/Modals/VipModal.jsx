@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import styled, { keyframes, css } from "styled-components";
 import { motion, AnimatePresence } from "framer-motion";
 // import localforage from "localforage";
@@ -11,15 +11,10 @@ import vip from "../../photos/hero-header/vip.webp";
 import ultra from "../../photos/vip-modal/realultra.webp";
 import stars from "../../photos/vip-images/stars.webp";
 import buton from "../../photos/vip-modal/buton.webp";
-import asium from "../../photos/vip-images/asium/asium.webp";
 import documentImg from "../../photos/fan-art/document.webp";
 import puzzle2 from "../../photos/fan-art/puzzle-2.webp";
 import puzzle3 from "../../photos/fan-art/puzzle-3.webp";
 //Prewiew
-import second from "../../photos/fan-art/theorytwo.webp";
-import seconds from "../../mp3/theoty-of-everything-ll.mp3";
-import tur from "../../photos/vip-images/turkeys/ultra-vip-turkeys.webp";
-import turs from "../../mp3/turkeys.mp3";
 const appearAndShrink = keyframes`
   0% { opacity: 0; transform: scale(1.3); filter: blur(10px); }
   50% { opacity: 0.5; transform: scale(1.1); filter: blur(2px); }
@@ -104,10 +99,6 @@ const VipModalDiv = styled.div`
   transition: border-color 0.5s ease;
   animation: ${(props) => (props.$isClosing ? slideOut : slideIn)} 0.5s ease-out
     forwards;
-
-  @media (max-width: 768px) {
-    padding-bottom: 90px;
-  }
 `;
 
 const ToggleContainer = styled.div`
@@ -314,13 +305,12 @@ const VipBlock = styled.div`
 
 const VipFixScroll = styled.div`
   flex: 1;
-  height: 420px;
+  height: 470px;
   min-width: 280px;
   overflow-y: auto;
   padding-right: 8px;
   @media (max-width: 768px) {
     width: 100%;
-    height: 300px;
   }
   &::-webkit-scrollbar {
     width: 4px;
@@ -334,12 +324,14 @@ const VipFixScroll = styled.div`
 const BenefitCard = styled.div`
   display: flex;
   align-items: center;
-  gap: 10px;
-  border-radius: 8px;
+  gap: 5px;
   opacity: 0;
   animation: ${appearAndShrink} 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   margin-bottom: 8px;
-  transition: transform 1s;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: 1.5px solid ${props => props.$isSelected ? (props.$isUltra ? "#710097" : "#ffb36c") : "transparent"};
+  background: ${props => props.$isSelected ? (props.$isUltra ? "rgba(113, 0, 151, 0.15)" : "rgba(255, 179, 108, 0.15)") : "transparent"};
   ${({ $index }) => css`
     animation-delay: ${0.1 + $index * 0.05}s;
   `}
@@ -564,6 +556,30 @@ const VipText = styled.p`
   justify-content: flex-end;
   color: #ffb36c;
 `;
+
+const SelectionControls = styled.div`
+  display: flex;
+  gap: 3px;
+  justify-content: center;
+  margin-top: 2px;
+  z-index: 10;
+`;
+
+const SelectionButton = styled.button`
+  background: transparent;
+  border: 1px solid ${props => props.$color || "#ffb36c"};
+  color: ${props => props.$color || "#ffb36c"};
+  padding: 3px 7px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+  &:hover {
+    background: ${props => props.$color || "#ffb36c"};
+    color: #3e2723;
+  }
+`;
 const RedLine = styled.div`
   background: #ff8a80;
   width: 100%;
@@ -581,9 +597,8 @@ const VipWarning = styled.p`
 const NavContainer = styled.div`
   display: flex;
   justify-content: center;
-  gap: 15px;
-  margin-top: 15px;
-  margin-bottom: 5px;
+  gap: 5px;
+  margin-top: 5px;
   width: 100%;
   flex-wrap: wrap;
   @media (max-width: 768px) {
@@ -592,12 +607,9 @@ const NavContainer = styled.div`
 `;
 
 const NavButton = styled.button`
-  background: rgba(255, 179, 108, 0.1);
-  border: 1px solid #ffb36c;
-  color: #ffb36c;
   border-radius: 12px;
-  width: 40px;
-  height: 40px;
+  width: 20px;
+  height: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -610,12 +622,6 @@ const NavButton = styled.button`
     color: #3e2723;
     transform: translateY(-3px);
     box-shadow: 0 5px 15px rgba(255, 179, 108, 0.3);
-  }
-
-  @media (min-width: 1900px) {
-    width: 60px;
-    height: 60px;
-    font-size: 30px;
   }
 `;
 
@@ -811,29 +817,6 @@ const TimeIndicator = styled.div`
   pointer-events: none;
 `;
 
-const VolumeControlContainer = styled.div`
-  position: absolute;
-  top: 10px;
-  left: 50px; /* Right of fullscreen button */
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  z-index: 50;
-  background: rgba(0, 0, 0, 0.5);
-  padding: 5px 10px;
-  border-radius: 20px;
-  opacity: 0;
-  transition: opacity 0.3s;
-
-  ${UltraPlayerContainer}:hover & {
-    opacity: 1;
-  }
-
-  @media (hover: none) {
-    opacity: 1;
-  }
-`;
-
 const LoadingContainer = styled.div`
   position: absolute;
   z-index: 100;
@@ -869,22 +852,15 @@ const ProgressBarFill = styled.div`
 
 const ULTRA_CARDS_LIST = [
   {
-    image: tur,
-    audio: turs,
+    image: "../../photos/vip-images/turkeys/ultra-vip-turkeys.webp",
   },
   {
-    image: second,
-    audio: seconds,
+    image: "../../photos/fan-art/theorytwo.webp",
   },
 ];
 
 const SEQUENCE = [
-  { type: "thematic", duration: 3000, text: "" },
-  {
-    type: "black",
-    duration: 10000,
-    text: "Стихія дає надійну погоду, красиву оселю, з вашим принтером із нашими, пошуковими або власними фанартами.",
-  },
+  { type: "thematic", duration: 3000, text: "Стихія дає надійну погоду, красиву оселю, з вашим принтером із нашими, пошуковими або власними фанартами." },
   {
     type: "card",
     imgIdx: 1,
@@ -919,17 +895,15 @@ const SEQUENCE = [
   },
 ];
 
-const UltraPlayer = ({ volume, setVolume, onPlayerClose }) => {
+const UltraPlayer = ({ onPlayerClose, isClosing }) => {
   const containerRef = useRef(null);
   const videoRef = useRef(null);
-  const audioRef = useRef(null);
   const [stepIndex, setStepIndex] = useState(0);
   const [text, setText] = useState("");
   const [showText, setShowText] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const step = SEQUENCE[stepIndex];
   const [timeLeft, setTimeLeft] = useState(0);
-  const volumeRef = useRef(volume);
   const isPausedRef = useRef(isPaused);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
@@ -983,15 +957,20 @@ const UltraPlayer = ({ volume, setVolume, onPlayerClose }) => {
   useEffect(() => {
     isPausedRef.current = isPaused;
     if (videoRef.current) {
-      if (isPaused) videoRef.current.pause();
-      else if (step.type === "video" || step.type === "black")
+      if (isPaused || isClosing) videoRef.current.pause();
+      else if (!isClosing && (step.type === "video" || step.type === "black"))
         videoRef.current.play().catch(() => {});
     }
-    if (audioRef.current) {
-      if (isPaused) audioRef.current.pause();
-      else if (step.type === "card") audioRef.current.play().catch(() => {});
-    }
-  }, [isPaused, step.type]);
+  }, [isPaused, step.type, isClosing]);
+
+  useEffect(() => {
+    const videoElem = videoRef.current;
+    return () => {
+      if (videoElem) {
+        videoElem.pause();
+      }
+    };
+  }, []);
 
   const togglePause = (e) => {
     if (
@@ -1028,7 +1007,7 @@ const UltraPlayer = ({ volume, setVolume, onPlayerClose }) => {
   };
 
   useEffect(() => {
-    if (!isAssetsLoaded || isPaused) return;
+    if (!isAssetsLoaded || isPaused || isClosing) return;
 
     let nextStepTimer;
     let textOutTimer;
@@ -1051,23 +1030,15 @@ const UltraPlayer = ({ volume, setVolume, onPlayerClose }) => {
 
     if (step.type === "thematic") {
       if (videoRef.current) videoRef.current.pause();
-      if (audioRef.current) audioRef.current.pause();
       nextStepTimer = setTimeout(() => {
         setStepIndex((prev) => (prev + 1) % SEQUENCE.length);
       }, step.duration);
     } else if (step.type === "card") {
       if (videoRef.current) videoRef.current.pause();
-      if (audioRef.current) {
-        audioRef.current.volume = volumeRef.current;
-        audioRef.current.src = ULTRA_CARDS_LIST[step.imgIdx].audio;
-        audioRef.current.currentTime = 0;
-        audioRef.current.play().catch(() => {});
-      }
       nextStepTimer = setTimeout(() => {
         setStepIndex((prev) => (prev + 1) % SEQUENCE.length);
       }, step.duration);
     } else if (step.type === "video" || step.type === "black") {
-      if (audioRef.current) audioRef.current.pause();
       if (videoRef.current) {
         const start = step.type === "black" ? 0 : step.start;
         if (Math.abs(videoRef.current.currentTime - start) > 0.2) {
@@ -1095,6 +1066,7 @@ const UltraPlayer = ({ volume, setVolume, onPlayerClose }) => {
       clearInterval(countdownInterval);
     };
   }, [
+    isClosing,
     stepIndex,
     step.duration,
     step.text,
@@ -1105,12 +1077,6 @@ const UltraPlayer = ({ volume, setVolume, onPlayerClose }) => {
     isPaused,
     isAssetsLoaded,
   ]);
-
-  useEffect(() => {
-    volumeRef.current = volume;
-    if (videoRef.current) videoRef.current.volume = volume;
-    if (audioRef.current) audioRef.current.volume = volume;
-  }, [volume]);
 
   useEffect(() => {
     if ("mediaSession" in navigator) {
@@ -1126,12 +1092,10 @@ const UltraPlayer = ({ volume, setVolume, onPlayerClose }) => {
           (step.type === "video" || step.type === "black")
         )
           videoRef.current.play();
-        if (audioRef.current && step.type === "card") audioRef.current.play();
         setIsPaused(false);
       });
       navigator.mediaSession.setActionHandler("pause", () => {
         videoRef.current?.pause();
-        audioRef.current?.pause();
         setIsPaused(true);
       });
     }
@@ -1198,29 +1162,9 @@ const UltraPlayer = ({ volume, setVolume, onPlayerClose }) => {
       )}
 
       {!isPaused && (
-        <>
-          <FullscreenBtn onClick={toggleFullscreen}>
-            {isFullscreen ? "❌" : "⛶"}
-          </FullscreenBtn>
-
-          <VolumeControlContainer>
-            <span style={{ fontSize: "14px" }}>🔊</span>
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.05"
-              value={volume}
-              onChange={(e) => setVolume(parseFloat(e.target.value))}
-              style={{
-                width: "80px",
-                accentColor: "#710097",
-                cursor: "pointer",
-                height: "4px",
-              }}
-            />
-          </VolumeControlContainer>
-        </>
+        <FullscreenBtn onClick={toggleFullscreen}>
+          {isFullscreen ? "❌" : "⛶"}
+        </FullscreenBtn>
       )}
 
       <AnimatePresence>
@@ -1258,12 +1202,10 @@ const UltraPlayer = ({ volume, setVolume, onPlayerClose }) => {
         onEnded={handleVideoEnded}
         onTimeUpdate={handleTimeUpdate}
         playsInline
+        muted
       />
       {step.type === "card" && (
-        <>
-          <StyledImage src={ULTRA_CARDS_LIST[step.imgIdx].image} $show={true} />
-          <audio ref={audioRef} />
-        </>
+        <StyledImage src={ULTRA_CARDS_LIST[step.imgIdx].image} $show={true} />
       )}
       <OverlayText $show={showText} $isFullscreen={isFullscreen}>
         {text}
@@ -1272,36 +1214,10 @@ const UltraPlayer = ({ volume, setVolume, onPlayerClose }) => {
   );
 };
 
-const PlusPlayer = ({ volume, setVolume }) => {
-  const audioRef = useRef(null);
-
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = volume;
-    }
-  }, [volume]);
-
+const PlusPlayer = () => {
   return (
     <div style={{ width: "100%", height: "100%", position: "relative" }}>
       <VipImage src={turkeys} $isUltra={false} />
-      <audio ref={audioRef} src={turs} autoPlay loop />
-      <VolumeControlContainer style={{ opacity: 1, left: "10px" }}>
-        <span style={{ fontSize: "14px" }}>🔊</span>
-        <input
-          type="range"
-          min="0"
-          max="1"
-          step="0.05"
-          value={volume}
-          onChange={(e) => setVolume(parseFloat(e.target.value))}
-          style={{
-            width: "80px",
-            accentColor: "#ffb36c",
-            cursor: "pointer",
-            height: "4px",
-          }}
-        />
-      </VolumeControlContainer>
     </div>
   );
 };
@@ -1311,8 +1227,14 @@ const VipModal = ({ onClose }) => {
   const [tier, setTier] = useState("plus");
   const [showContent, setShowContent] = useState(true);
   const [billingCycle, setBillingCycle] = useState("monthly"); // "monthly" or "yearly"
-  const [volume, setVolume] = useState(0.5);
   const [isCaching, setIsCaching] = useState(false);
+  const [selectedBenefits, setSelectedBenefits] = useState(new Set());
+
+  // Скидаємо вибір при зміні тарифу
+  useEffect(() => {
+    setSelectedBenefits(new Set());
+  }, [tier]);
+
 
   const aiRef = useRef(null);
   const musicRef = useRef(null);
@@ -1345,6 +1267,29 @@ const VipModal = ({ onClose }) => {
     }, 100);
   };
 
+  const toggleBenefit = (id) => {
+    const newSelected = new Set(selectedBenefits);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedBenefits(newSelected);
+  };
+
+  const selectAllBenefits = () => {
+    const newSelected = new Set();
+    if (current.ai) current.ai.forEach((_, i) => newSelected.add(`ai-${tier}-${i}`));
+    if (current.music) current.music.forEach((_, i) => newSelected.add(`mu-${tier}-${i}`));
+    if (current.economics) current.economics.forEach((_, i) => newSelected.add(`eco-${tier}-${i}`));
+    if (current.interface) current.interface.forEach((_, i) => newSelected.add(`int-${tier}-${i}`));
+    setSelectedBenefits(newSelected);
+  };
+
+  const clearAllBenefits = () => {
+    setSelectedBenefits(new Set());
+  };
+
   const plusBenefits = {
     ai: [
       {
@@ -1353,10 +1298,6 @@ const VipModal = ({ onClose }) => {
       },
     ],
     music: [
-      {
-        src: asium,
-        text: "Ви отримуєте 250балів, не 100. Назавжди(вони необхідні, щоб музика, декор головного фону, питання у начанні та гри головоломок, підтягувалися вище інших)",
-      },
       {
         src: dinofroz,
         text: "Доступ до відео аватарів",
@@ -1399,12 +1340,7 @@ const VipModal = ({ onClose }) => {
         text: "Пам'ять доки діє підписка(якщо на телефоні є місце)! Пам'ять запитів 100. Ліміт паралельних чатів 10.",
       },
     ],
-    music: [
-      {
-        src: asium,
-        text: "Отримайте 500 балів. Назавжди!",
-      }
-    ],
+    music: [], // Додаємо порожній масив для консистентності рендеру
     economics: [
       {
         src: dragons,
@@ -1468,6 +1404,30 @@ const VipModal = ({ onClose }) => {
   };
 
   const current = tier === "plus" ? plusBenefits : ultraBenefits;
+  const allCurrentBenefitsList = useMemo(() => Object.values(current).flat(), [current]);
+
+  const calculatedPrice = useMemo(() => {
+    const basePrices = {
+      plus: { monthly: 49.99, yearly: 549.99 },
+      ultra: { monthly: 89.99, yearly: 899.99 }
+    };
+    
+    const base = basePrices[tier][billingCycle];
+    const totalCount = allCurrentBenefitsList.length;
+    const selectedCount = selectedBenefits.size;
+    
+    if (totalCount === 0) return 0;
+    // Чим більше вибрав - тим ближче ціна до повної вартості
+    return ((selectedCount / totalCount) * base).toFixed(2);
+  }, [tier, billingCycle, selectedBenefits, allCurrentBenefitsList]);
+
+  const handleBuyClick = () => {
+    if (selectedBenefits.size === 0) {
+      alert("Ви ще нічого не обрали!");
+      return;
+    }
+    alert(`Оформлення підписки: ${calculatedPrice}грн за ${selectedBenefits.size} переваг.`);
+  };
 
   return (
     <Overlay onClick={handleClose}>
@@ -1513,12 +1473,11 @@ const VipModal = ({ onClose }) => {
           >
             <ImageContainer $isUltra={tier === "ultra"}>
               {tier === "plus" ? (
-                <PlusPlayer volume={volume} setVolume={setVolume} />
+                <PlusPlayer />
               ) : (
                 <UltraPlayer
-                  volume={volume}
-                  setVolume={setVolume}
                   onPlayerClose={handleClose}
+                  isClosing={isClosing}
                 />
               )}
             </ImageContainer>
@@ -1543,16 +1502,20 @@ const VipModal = ({ onClose }) => {
                 </SavingsBadge>
               </ToggleOption>
             </ToggleContainer>
-
-            <VipButton>
-              {tier === "plus"
-                ? billingCycle === "monthly"
-                  ? "29,99грн / 30 днів"
-                  : "299,99грн / 360днів"
-                : billingCycle === "monthly"
-                  ? "49,99грн / 30 днів"
-                  : "549,99грн / 360 днів"}
+            <VipButton onClick={handleBuyClick}>
+              {calculatedPrice}грн / {billingCycle === "monthly" ? "30 днів" : "360 днів"}
             </VipButton>
+            <SelectionControls>
+               <SelectionButton onClick={selectAllBenefits}>
+                 Вибрати все
+               </SelectionButton>
+               <SelectionButton onClick={clearAllBenefits} $color="#ff8a80">
+                 Очистити
+               </SelectionButton>
+                <VipText style={{ textAlign: 'center', color: '#ffb36c', fontWeight: 'bold' }}>
+              Обрано: {selectedBenefits.size} / {allCurrentBenefitsList.length}
+            </VipText>
+            </SelectionControls>
             <NavContainer>
               <NavButton
                 onClick={() => scrollToSection(aiRef)}
@@ -1580,9 +1543,8 @@ const VipModal = ({ onClose }) => {
               </NavButton>
             </NavContainer>
             <VipText>
-              Підтримуючи проект підпискою або наборами 🧧, ви допомагаєте
-              'Стихії' розвиватися. Ми тримаємо ціни доступними, щоб кожен міг
-              отримати максимум можливостей, розвиваючи проект разом із нами.
+              Підтримуючи проект підпискою або сезонними наборами, ви допомагаєте
+              'Стихії' розвиватися. Розвивайте проект разом із нами!
             </VipText>
           </div>
           <VipFixScroll key={`scroll-area-${tier}`}>
@@ -1591,43 +1553,76 @@ const VipModal = ({ onClose }) => {
                 <SectionTitle ref={aiRef} $delay="0.1s">
                   🤖 ШІ
                 </SectionTitle>
-                {current.ai.map((item, i) => (
-                  <BenefitCard key={`ai-${tier}-${i}`} $index={i}>
-                    <BenefitImage src={item.src} />
-                    <VipBonus>{item.text}</VipBonus>
-                  </BenefitCard>
-                ))}
+                {current.ai.map((item, i) => {
+                  const id = `ai-${tier}-${i}`;
+                  return (
+                    <BenefitCard 
+                      key={id} 
+                      $index={i} 
+                      $isSelected={selectedBenefits.has(id)}
+                      $isUltra={tier === "ultra"}
+                      onClick={() => toggleBenefit(id)}
+                    >
+                      <BenefitImage src={item.src} />
+                      <VipBonus>{item.text}</VipBonus>
+                    </BenefitCard>
+                  );
+                })}
 
                 <SectionTitle ref={musicRef} $delay="0.3s">
                   🎨 Музика та Арт
                 </SectionTitle>
-                {current.music.map((item, i) => (
-                  <BenefitCard key={`mu-${tier}-${i}`} $index={i + 4}>
-                    <BenefitImage src={item.src} />
-                    <VipBonus>{item.text}</VipBonus>
-                  </BenefitCard>
-                ))}
+                {current.music && current.music.map((item, i) => {
+                  const id = `mu-${tier}-${i}`;
+                  return (
+                    <BenefitCard 
+                      key={id} 
+                      $index={i + 4} 
+                      $isSelected={selectedBenefits.has(id)}
+                      $isUltra={tier === "ultra"}
+                      onClick={() => toggleBenefit(id)}
+                    >
+                      <BenefitImage src={item.src} />
+                      <VipBonus>{item.text}</VipBonus>
+                    </BenefitCard>
+                  );
+                })}
                 <SectionTitle ref={economicsRef} $delay="0.5s">
                   🧧 Економіка та ресурси
                 </SectionTitle>
-                {current.economics.map((item, i) => (
-                  <BenefitCard key={`eco-${tier}-${i}`} $index={i + 10}>
-                    <BenefitImage src={item.src} />
-                    <VipBonus>{item.text}</VipBonus>
-                  </BenefitCard>
-                ))}
+                {current.economics.map((item, i) => {
+                  const id = `eco-${tier}-${i}`;
+                  return (
+                    <BenefitCard 
+                      key={id} 
+                      $index={i + 10} 
+                      $isSelected={selectedBenefits.has(id)}
+                      $isUltra={tier === "ultra"}
+                      onClick={() => toggleBenefit(id)}
+                    >
+                      <BenefitImage src={item.src} />
+                      <VipBonus>{item.text}</VipBonus>
+                    </BenefitCard>
+                  );
+                })}
                 <SectionTitle ref={interfaceRef} $delay="0.7s">
                   📱 Інтерфейс і функціонал
                 </SectionTitle>
-                {current.interface.map((item, i) => (
-                  <BenefitCard
-                    key={`int-${tier}-${i}`}
-                    $index={i + 10 + current.economics.length}
-                  >
-                    <BenefitImage src={item.src} />
-                    <VipBonus>{item.text}</VipBonus>
-                  </BenefitCard>
-                ))}
+                {current.interface.map((item, i) => {
+                  const id = `int-${tier}-${i}`;
+                  return (
+                    <BenefitCard
+                      key={id}
+                      $index={i + 10 + current.economics.length}
+                      $isSelected={selectedBenefits.has(id)}
+                      $isUltra={tier === "ultra"}
+                      onClick={() => toggleBenefit(id)}
+                    >
+                      <BenefitImage src={item.src} />
+                      <VipBonus>{item.text}</VipBonus>
+                    </BenefitCard>
+                  );
+                })}
                 <div ref={bottomRef} style={{ height: "40px" }} />
               </>
             )}

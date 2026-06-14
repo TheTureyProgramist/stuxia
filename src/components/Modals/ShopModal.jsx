@@ -336,16 +336,6 @@ const BuyButton = styled.button`
   &:active {
     transform: scale(0.95);
   }
-
-  @media (min-width: 1900px) {
-    padding: 6px;
-    span {
-      font-size: 18px;
-    }
-    .old-price {
-      font-size: 13px;
-    }
-  }
 `;
 
 const InfoSection = styled.div`
@@ -354,11 +344,6 @@ const InfoSection = styled.div`
   background: rgba(0, 0, 0, 0.3);
   border-radius: 15px;
   border: 1px dashed #ff6c6c;
-
-  @media (min-width: 1900px) {
-    margin-top: 10px;
-    padding: 10px;
-  }
 `;
 
 const InfoTitle = styled.h3`
@@ -370,11 +355,6 @@ const InfoTitle = styled.h3`
   display: flex;
   align-items: center;
   gap: 10px;
-
-  @media (min-width: 1900px) {
-    font-size: 24px;
-    margin-bottom: 25px;
-  }
 `;
 
 const InfoGrid = styled.div`
@@ -383,9 +363,6 @@ const InfoGrid = styled.div`
   gap: 25px;
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
-  }
-  @media (min-width: 1900px) {
-    gap: 50px;
   }
 `;
 
@@ -414,14 +391,6 @@ const InfoItem = styled.li`
     border-radius: 6px;
     white-space: nowrap;
     align-self: flex-start;
-  }
-
-  @media (min-width: 1900px) {
-    font-size: 16px;
-    margin-bottom: 20px;
-    .price {
-      font-size: 15px;
-    }
   }
 `;
 

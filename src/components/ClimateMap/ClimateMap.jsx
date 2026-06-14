@@ -1,5 +1,14 @@
-import React, { useState } from "react";
-import styled from "styled-components";
+import React, { useState, useMemo } from "react";
+import styled, { keyframes } from "styled-components";
+
+const LAT = 48.379;
+const LON = 31.165;
+const ZOOM = 5;
+
+const spin = keyframes`
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+`;
 
 const OuterContainer = styled.div`
   width: 100%;
@@ -45,6 +54,13 @@ const Loader = styled.div`
   font-family: var(--font-family);
   text-align: center;
   z-index: 1;
+
+  .spinner {
+    display: inline-block;
+    animation: ${spin} 2s linear infinite;
+    font-size: 30px;
+    margin-bottom: 10px;
+  }
 `;
 
 const Controls = styled.div`
@@ -91,44 +107,50 @@ const ClimateMap = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [overlay, setOverlay] = useState("wind");
   const [isMapActive, setIsMapActive] = useState(false);
-  const lat = 48.379;
-  const lon = 31.165;
-  const zoom = 5;
 
-  const embedUrl = `https://embed.windy.com/embed2.html?lat=${lat}&lon=${lon}&zoom=${zoom}&level=surface&overlay=${overlay}&menu=&message=true&marker=&calendar=now&pressure=&type=map&location=coordinates&detail=&metricWind=default&metricTemp=default&radarRange=-1`;
+  const embedUrl = useMemo(() => {
+    return `https://embed.windy.com/embed2.html?lat=${LAT}&lon=${LON}&zoom=${ZOOM}&level=surface&overlay=${overlay}&menu=&message=true&marker=&calendar=now&pressure=&type=map&location=coordinates&detail=&metricWind=default&metricTemp=default&radarRange=-1`;
+  }, [overlay]);
+
+  const handleOverlayChange = (newOverlay) => {
+    if (newOverlay !== overlay) {
+      setIsLoading(true);
+      setOverlay(newOverlay);
+    }
+  };
 
   return (
     <OuterContainer>
       <Controls>
         <ActionButton
           $active={overlay === "wind"}
-          onClick={() => setOverlay("wind")}
+          onClick={() => handleOverlayChange("wind")}
         >
           Вітер
         </ActionButton>
         <ActionButton
           $active={overlay === "rain"}
-          onClick={() => setOverlay("rain")}
+          onClick={() => handleOverlayChange("rain")}
         >
           Дощ
         </ActionButton>
         <ActionButton
           $active={overlay === "temp"}
-          onClick={() => setOverlay("temp")}
+          onClick={() => handleOverlayChange("temp")}
         >
           Температура
         </ActionButton>
-        {!isMapActive && (
-          <ActionButton
-            onClick={() => setIsMapActive(true)}
-            style={{ border: "1px solid skyblue" }}
-          >
-            Активувати карту 🖱️
-          </ActionButton>
-        )}
+        <ActionButton
+          onClick={() => setIsMapActive(!isMapActive)}
+          style={{ 
+            border: isMapActive ? "1px solid #ff4d4d" : "1px solid skyblue" 
+          }}
+        >
+          {isMapActive ? "Деактивувати карту 🔒" : "Активувати карту 🖱️"}
+        </ActionButton>
       </Controls>
 
-      <MapWrapper onClick={() => setIsMapActive(true)}>
+      <MapWrapper onClick={() => !isMapActive && setIsMapActive(true)}>
         {isLoading && (
           <Loader>
             <div className="spinner">🌀</div>

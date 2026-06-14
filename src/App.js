@@ -100,6 +100,10 @@ const AVAILABLE_AVATARS = [
   flame,
 ];
 
+// Дані для музичної бібліотеки (мають бути заповнені інформацією про треки)
+const songAiKnowledge = [];
+const assetMap = {};
+
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -967,7 +971,7 @@ const App = () => {
     }
     
     // Знаходимо кількість повторів: спочатку в кастомних, потім у бібліотеці сайту
-    const currentTrack = customBgTracks.find(t => t.file === bgMusicSource);
+    const currentTrack = (customBgTracks || []).find(t => t && t.file === bgMusicSource);
     let maxRepeats = 1;
     if (currentTrack) {
       maxRepeats = currentTrack.repeats || 1;
@@ -984,28 +988,33 @@ const App = () => {
       } else {
         // Шукаємо наступний доступний трек (enabled: true) в режимі "order"
         if (bgMusicMode === "order") {
-          const enabledCustomTracks = customBgTracks.filter(t => t.enabled !== false);
+          const libPool = songAiKnowledge.map(s => ({
+            id: s.id,
+            file: assetMap[s.audio] || turkeysAudio,
+            enabled: libraryBgSettings[s.id]?.enabled !== false
+          })).filter(t => t.enabled);
+
+          const customPool = (customBgTracks || []).filter(t => t && t.enabled !== false);
           
-          // Спочатку перевіримо, чи поточний трек - це кастомний
-          const isCurrentCustom = customBgTracks.some(t => t.file === bgMusicSource);
-          
-          if (isCurrentCustom && enabledCustomTracks.length > 0) {
-            // Переходимо до наступного кастомного треку
+          const fullPool = [
+            ...libPool.map(t => ({ id: t.id, file: t.file, isCustom: false })),
+            ...customPool.map(t => ({ id: t.id, file: t.file, isCustom: true }))
+          ];
+
+          if (fullPool.length > 0) {
+            const currentIndex = fullPool.findIndex(t => t.file === bgMusicSource);
+            
             if (bgMusicShuffle) {
-              const otherTracks = enabledCustomTracks.filter(t => t.file !== bgMusicSource);
-              const randomTrack = otherTracks.length > 0 
-                ? otherTracks[Math.floor(Math.random() * otherTracks.length)]
-                : enabledCustomTracks[0];
-              setBgMusicSource(randomTrack.file);
+              const otherTracks = fullPool.filter(t => t.file !== bgMusicSource);
+              const next = otherTracks.length > 0 ? otherTracks[Math.floor(Math.random() * otherTracks.length)] : fullPool[0];
+              setBgMusicSource(next.file);
+              setActiveBgTrackId(next.isCustom ? null : next.id);
             } else {
-              const currentIdx = enabledCustomTracks.findIndex(t => t.file === bgMusicSource);
-              const nextIdx = (currentIdx + 1) % enabledCustomTracks.length;
-              setBgMusicSource(enabledCustomTracks[nextIdx].file);
+              const nextIdx = (currentIndex + 1) % fullPool.length;
+              const next = fullPool[nextIdx];
+              setBgMusicSource(next.file);
+              setActiveBgTrackId(next.isCustom ? null : next.id);
             }
-          } else if (enabledCustomTracks.length > 0) {
-            // Якщо поточний трек з бібліотеки, то переходимо на кастомні
-            const randomIdx = Math.floor(Math.random() * enabledCustomTracks.length);
-            setBgMusicSource(enabledCustomTracks[randomIdx].file);
           }
         }
         return 0;
