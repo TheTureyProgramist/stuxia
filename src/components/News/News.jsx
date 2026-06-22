@@ -39,7 +39,7 @@ const translateText = async (text) => {
 
 const NewsDiv = styled.div`
   margin-top: 15px;
-  padding: 0 20px;
+  padding: 0 10px;
   position: relative;
   @media (min-width: 768px) {
     margin-top: 30px;
@@ -62,7 +62,7 @@ const AihelpTitle = styled.div`
 const Grid = styled.div`
   display: grid;
   grid-template-columns: repeat(1, 1fr);
-  gap: 25px;
+  gap: 5px;
   max-width: 1400px;
   margin: 0 auto;
   @media (min-width: 576px) {

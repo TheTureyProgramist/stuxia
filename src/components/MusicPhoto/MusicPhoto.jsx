@@ -947,6 +947,26 @@ const SpeedSlider = styled.input`
     cursor: pointer;
   }
 `;
+const UnlockContainer = styled.div`
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 3000;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: white;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 5px 9px;
+  border-radius: 30px;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  font-size: 14px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  transition: all 0.2s ease;
+  &:hover { background: rgba(0, 0, 0, 0.8); transform: scale(1.02); }
+`;
 
 const SeekAmountSlider = styled.input`
   flex-grow: 1;
@@ -3165,6 +3185,7 @@ const FullScreenPlayer = ({
   const [videoFrames, setVideoFrames] = useState([]);
   const [isGeneratingFrames, setIsGeneratingFrames] = useState(false);
   const [showFramesGallery, setShowFramesGallery] = useState(false);
+  const [isLocked, setIsLocked] = useState(false);
   const [framesCount, setFramesCount] = useState(60);
 
   const [duration, setDuration] = useState(0);
@@ -3266,6 +3287,7 @@ const FullScreenPlayer = ({
   const longPressTimerRef = useRef(null);
   const originalSpeedRef = useRef(null);
   const lastClickRef = useRef({ time: 0, side: null });
+  const currentInteractionSideRef = useRef(null); // Додано для зберігання сторони взаємодії
 
   useEffect(() => {
     const loadSeekSettings = async () => {
@@ -3966,6 +3988,7 @@ const FullScreenPlayer = ({
       if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") {
         return;
       }
+      if (isLocked && e.code !== "Escape") return;
 
       resetControlsTimeout();
       if (e.code === "Escape") handleClose();
@@ -4000,6 +4023,7 @@ const FullScreenPlayer = ({
     handleClose,
     togglePlay,
     resetControlsTimeout,
+    isLocked,
     canPerformAction,
     seekForwardAmount,
     seekBackwardAmount,
@@ -4313,6 +4337,7 @@ const FullScreenPlayer = ({
       if (side !== "center") {
         if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
         longPressTimerRef.current = setTimeout(() => {
+          currentInteractionSideRef.current = side; // Зберігаємо сторону для довгого натискання
           if (!originalSpeedRef.current) {
             originalSpeedRef.current = speed;
           }
@@ -4321,30 +4346,33 @@ const FullScreenPlayer = ({
           setLongPressSpeedIndicator(side === "right" ? "2x >>" : "<< 0.5x");
         }, 2000);
       }
+      currentInteractionSideRef.current = side; // Зберігаємо сторону для будь-якої взаємодії
     },
     [speed, seekBackwardAmount, seekForwardAmount, triggerIndicator],
   );
 
   const handleInteractionEnd = useCallback(
-    (side) => {
+    () => { // Тепер не приймає 'side' як параметр, а використовує ref
       if (longPressTimerRef.current) {
         clearTimeout(longPressTimerRef.current);
         longPressTimerRef.current = null;
       }
 
-      // Повертаємо оригінальну швидкість
+      // Якщо було активне довге натискання, скидаємо швидкість та індикатор
       if (longPressSpeedIndicator) {
         if (originalSpeedRef.current !== null) {
           setSpeed(originalSpeedRef.current);
           originalSpeedRef.current = null;
         }
         setLongPressSpeedIndicator(null);
-      } else if (side === "center" && !longPressSpeedIndicator) {
-        // Якщо це був просто короткий клік по центру - toggle play
+      } else { // Це означає, що це було коротке натискання (не довге)
+        // Якщо це не було подвійне натискання для перемотування (бо handleInteractionStart повернув би раніше),
+        // і не довге натискання, то це простий клік. Перемикаємо відтворення/паузу.
         togglePlay();
       }
+      currentInteractionSideRef.current = null; // Очищаємо після завершення взаємодії
     },
-    [longPressSpeedIndicator, togglePlay],
+    [longPressSpeedIndicator, togglePlay, setSpeed], // Додано setSpeed до залежностей
   );
 
   useEffect(() => {
@@ -4398,7 +4426,11 @@ const FullScreenPlayer = ({
         style={{ display: "none" }}
       />
 
-      <FSHeader style={{ opacity: showControls ? 1 : 0, transition: "opacity 0.3s" }}>
+      <FSHeader style={{ 
+        opacity: (showControls && !isLocked) ? 1 : 0, 
+        transition: "opacity 0.3s",
+        pointerEvents: isLocked ? "none" : "auto" 
+      }}>
         <div style={{ display: "flex", gap: "0px", alignItems: "center" }}> {/* Changed for dark mode */}
           <ActionButton
             style={{ fontSize: "26px" }}
@@ -4446,13 +4478,6 @@ const FullScreenPlayer = ({
           </ActionButton>
           <div style={{ display: "flex", flexDirection: "column" }}>
             <FSTitle>{track.author} - {track.text}</FSTitle>
-            {track.category !== "мультфільми" && (
-              <span
-                style={{ color: isDarkMode ? '#ccc' : '#666', fontSize: "12px", textAlign: "start" }}
-              >
-                Музика • {track.category}
-              </span>
-            )}
           </div>
         </div>
         <div style={{ display: "flex", gap: "8px" }}>
@@ -4474,6 +4499,12 @@ const FullScreenPlayer = ({
                 : rating === -1
                   ? "👎"
                   : "🤍"}
+          </ActionButton>
+          <ActionButton
+            onClick={() => setIsLocked(true)}
+            title="Заблокувати екран"
+          >
+            🔓
           </ActionButton>
           <ActionButton
             onClick={() =>
@@ -4528,18 +4559,20 @@ const FullScreenPlayer = ({
       <FSContent
         ref={containerRef}
         onMouseDown={(e) =>
-          handleInteractionStart(e.clientX, containerRef.current.clientWidth)
+          !isLocked && handleInteractionStart(e.clientX, containerRef.current.clientWidth)
         }
-        onMouseUp={() => handleInteractionEnd()}
+        onMouseUp={() => !isLocked && handleInteractionEnd()}
         onMouseLeave={() => handleInteractionEnd()}
         onTouchStart={(e) => {
-          resetControlsTimeout();
-          handleInteractionStart(
-            e.touches[0].clientX,
-            containerRef.current.clientWidth,
-          );
+          if (!isLocked) {
+            resetControlsTimeout();
+            handleInteractionStart(
+              e.touches[0].clientX,
+              containerRef.current.clientWidth,
+            );
+          }
         }}
-        onTouchEnd={() => handleInteractionEnd()}
+        onTouchEnd={() => !isLocked && handleInteractionEnd()} // Тепер handleInteractionEnd використовує ref
       >
         <FSVisualWrapper style={{ position: "relative" }}>
           {longPressSpeedIndicator && (
@@ -4624,7 +4657,13 @@ const FullScreenPlayer = ({
           )}
         </FSVisualWrapper>
 
-        {!isPlaying && (
+        {isLocked && (
+          <UnlockContainer onClick={(e) => { e.stopPropagation(); setIsLocked(false); }}>
+            <span style={{ fontSize: "18px" }}>🔒</span> Натисніть для доступу
+          </UnlockContainer>
+        )}
+
+        {!isPlaying && !isLocked && (
           <div
             style={{
               position: "absolute",
@@ -4648,12 +4687,12 @@ const FullScreenPlayer = ({
           </div>
         )}
       </FSContent>
-      <SubtitleOverlay $show={!!currentLyric} $controlsVisible={showControls}>
+      <SubtitleOverlay $show={!!currentLyric && !isLocked} $controlsVisible={showControls}>
         {currentLyric}
       </SubtitleOverlay>
       {!isDinofroz && <audio ref={mediaRef} src={track.audio} loop={loop} />}
       <FSControls
-        $visible={showControls}
+        $visible={showControls && !isLocked}
         onClick={(e) => e.stopPropagation()}
         onMouseEnter={() => setShowControls(true)}
         onMouseLeave={() => setShowControls(false)}
@@ -7105,23 +7144,6 @@ const PlaylistModal = ({
           ) : (
             // Показуємо пісні обраного автора /* Changed for dark mode */
             <>
-              <button
-                onClick={() => setSelectedAuthor(null)}
-                style={{
-                  width: "80px",
-                  padding: "5px",
-                  marginBottom: "15px",
-                  background: "#00bdb3",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "8px",
-                  cursor: "pointer",
-                  fontWeight: "bold",
-                  fontSize: "14px",
-                }}
-              >
-                ← Автори
-              </button>
               {getAuthorGroupedCards
                 .find((a) => a.author === selectedAuthor)
                 ?.tracks.slice(0, visibleCount)
