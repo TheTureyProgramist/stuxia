@@ -37,13 +37,8 @@ const translateText = async (text) => {
   }
 };
 
-const NewsDiv = styled.div`
-  margin-top: 15px;
-  padding: 0 10px;
+const NewsDiv = styled.div`  
   position: relative;
-  @media (min-width: 768px) {
-    margin-top: 30px;
-  }
 `;
 
 const AihelpTitle = styled.div`
@@ -52,10 +47,9 @@ const AihelpTitle = styled.div`
   font-family: var(--font-family);
   font-weight: 600;
   color: ${(props) => (props.$isDarkMode ? "black" : "white")};
-  margin-bottom: 35px;
+  margin-bottom: 15px;
   @media (min-width: 768px) {
     font-size: 24px;
-    margin-bottom: 50px;
   }
 `;
 
@@ -63,13 +57,13 @@ const Grid = styled.div`
   display: grid;
   grid-template-columns: repeat(1, 1fr);
   gap: 5px;
-  max-width: 1400px;
+  max-width: 1100px;
   margin: 0 auto;
   @media (min-width: 576px) {
     grid-template-columns: repeat(2, 1fr);
   }
-  @media (min-width: 992px) {
-    grid-template-columns: repeat(4, 1fr);
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(3, 1fr);
   }
 `;
 
@@ -92,9 +86,13 @@ const Card = styled.a`
 
 const NewsImg = styled.img`
   width: 100%;
-  height: 220px;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
   object-fit: cover;
   display: block;
+  z-index: 1;
 `;
 
 const SourceFlag = styled.span`
@@ -203,7 +201,7 @@ const NewsCard = ({ item, $isDarkMode, showImage, showTitle, showDescription }) 
       rel="noopener noreferrer"
       $isDarkMode={$isDarkMode}
     >
-      <div style={{ position: "relative" }}>
+      <div style={{ position: "relative", display: "flex", flexDirection: "column", flexGrow: 1, minHeight: showImage ? "260px" : "auto" }}>
         {isVisible && <NewBadge>Нове</NewBadge>}
         <SourceFlag 
           onClick={(e) => {
@@ -225,21 +223,21 @@ const NewsCard = ({ item, $isDarkMode, showImage, showTitle, showDescription }) 
             }}
           />
         )}
+        {(showTitle || showDescription) && (
+          <CardContent $overlay={showImage}>
+            {showTitle && (
+              <h4 style={{ margin: "0 0 8px 0", fontSize: "16px", fontWeight: "700", lineHeight: "1.3" }}>
+                {item.title}
+              </h4>
+            )}
+            {showDescription && (
+              <p style={{ fontSize: "13px", opacity: 0.9, margin: 0, lineHeight: "1.4" }}>
+                {item.description}
+              </p>
+            )}
+          </CardContent>
+        )}
       </div>
-      {(showTitle || showDescription) && (
-        <CardContent>
-          {showTitle && (
-            <h4 style={{ margin: "0 0 10px 0", fontSize: "18px", fontWeight: "700", lineHeight: "1.3" }}>
-              {item.title}
-            </h4>
-          )}
-          {showDescription && (
-            <p style={{ fontSize: "14px", opacity: 0.7, margin: 0, lineHeight: "1.5" }}>
-              {item.description}
-            </p>
-          )}
-        </CardContent>
-      )}
     </Card>
   );
 };
@@ -249,7 +247,16 @@ const CardContent = styled.div`
   font-family: var(--font-family);
   display: flex;
   flex-direction: column;
+  justify-content: flex-end;
   flex-grow: 1;
+  z-index: 2;
+  ${(props) => props.$overlay ? `
+    background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 60%, transparent 100%);
+    color: #ffffff;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+  ` : `
+    color: inherit;
+  `}
 `;
 
 const FilterContainer = styled.div`

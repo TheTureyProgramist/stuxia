@@ -1,765 +1,24 @@
-import styled, { keyframes, css } from "styled-components";
+import { musicCards, songAiKnowledge, dinofrozVideo } from "./MusicPhoto.assets";
+import authorsData from "./authors.json";
+import { SeekIndicator, LongPressBadge, MusicPhotoDiv, ActButton, MusicPhotoFix, ControlsContainer, SearchInput, SortSelect, AuthorCardWrapper, AuthorInfoOverlay, CardWrapper, LyricsModalImage, MusicImageContainer, MusicImage, HeartButton, MusicText, SliderRow, VolumeSlider, LoadMoreButton, FilterOverlay, StyledSymbol, SeekBar, StereoSeekBar, StereoChannel, SpeedSlider, UnlockContainer, SeekAmountSlider, LoopButton, ActionButtonsContainer, ActionButton, ModalOverlay, LyricsModalContent, PlaylistModalContent, LyricsCloseButton, FullScreenOverlay, MiniPlayerContainer, MiniPlayerHeader, MiniControlBtn, MiniResizeHandle, AudioBarContainer, AudioBarBtn, FSHeader, FSContent, FSVisualWrapper, FSVideo, FSImage, FSControls, FSSliderContainer, FSSliderImage, FSTitle, GearModal, SubtitleOverlay, DownloadModal, PlaylistCloseButton, LyricsContainer, LyricsLine, InputGroup, StorageIndicatorContainer, StorageBar, StorageBarFill, SliderItemWrapper, CheckpointBadge, CheckpointMarker, SliderOverlay, SliderBtn, PlaylistOverlay, SeekBarWrapper, SeekTooltip, LoadingContainer, ProgressBar, ProgressBarFill, AiChatContainer, MessageList, Message, ChatInputRow, AuthorPreviewCard, AuthorPreviewImage, AuthorPreviewName, AuthorPreviewBody, AuthorPreviewSection, AuthorPreviewActions, AuthorPreviewBtn } from "./MusicPhoto.styled";
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import localforage from "localforage";
 import { motion, AnimatePresence } from "framer-motion";
 import { pipeline } from "@huggingface/transformers";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import faded from "../../photos/fan-art/faded.webp";
-import songAiKnowledge from "./songAiKnowledge.json";
-import fadedAudio from "../../mp3/alan-walker-faded.mp3";
-import dinofrozVideo from "../../mp3/dinofroz.mp4";
-import soloveyko from "../../photos/vip-images/vip-soloveyko.webp";
-import harmony from "../../photos/vip-images/asium/asium.webp";
-import horse from "../../photos/vip-images/horse/horse.webp";
-import theorytwo from "../../photos/fan-art/theorytwo.webp";
-import fingerdash from "../../photos/vip-images/dinofroz/fingerdash.webp";
-import humorVideo from "../../mp3/humor.mp4";
-import humorAudio from "../../mp3/humor.mp3";
-import electrodynamix from "../../photos/vip-images/electrodynamix.webp";
 //Desert
-import desert from "../../photos/vip-images/desert/vip-desert.webp";
-import deserttwo from "../../photos/vip-images/desert/deserttwo.webp";
-import desertthree from "../../photos/vip-images/desert/desertthree.webp";
-import desertfour from "../../photos/vip-images/desert/desertfour.webp";
-import desertone from "../../photos/vip-images/desert/desertone.webp";
-import unity from "../../photos/fan-art/unity.webp";
-import mecha from "../../photos/vip-images/mechannic.webp";
-import monody from "../../photos/fan-art/monody.webp";
 // import christmas from "../../photos/vip-images/christmas.webp";
-import clubstep from "../../photos/fan-art/clubstep.webp";
-import turkeys from "../../photos/vip-images/turkeys/ultra-vip-turkeys.webp";
 //Horses
-import horsethree from "../../photos/vip-images/horse/horsethree.webp";
-import horsetwo from "../../photos/vip-images/horse/horsetwo.webp";
-import chess from "../../photos/vip-images/horse/chess.webp";
 //Turkeys
-import turkeytwo from "../../photos/vip-images/turkeys/turkeytwo.webp";
-import turkeythree from "../../photos/vip-images/turkeys/turkeysthree.webp";
-import turkeyfour from "../../photos/vip-images/turkeys/turkeysfour.webp";
-import turkeyfive from "../../photos/vip-images/turkeys/turkeysfive.webp";
-import turkeysix from "../../photos/vip-images/turkeys/turkeyssix.webp";
-import turkeysone from "../../photos/vip-images/turkeys/turkeysone.webp";
-import turkeyseven from "../../photos/vip-images/turkeys/turkeysseven.webp";
 //Asium
-import asiumnine from "../../photos/vip-images/asium/vip-forest.webp";
-import asiumone from "../../photos/vip-images/asium/asiumone.webp";
-import asiumtwo from "../../photos/vip-images/asium/asiuntwo.webp";
-import asiumthree from "../../photos/vip-images/asium/asiumthree.webp";
-import asiumfour from "../../photos/vip-images/asium/asiumfour.webp";
-import asiumfive from "../../photos/vip-images/asium/asiumfive.webp";
-import asiumsix from "../../photos/vip-images/asium/asiumsix.webp";
-import asiumten from "../../photos/vip-images/asium/asiumeleven.webp";
-import asiumeleven from "../../photos/vip-images/asium/asiumtwelve.webp";
-import asiumseven from "../../photos/vip-images/asium/asiumseven.webp";
 //Swamp
-import swamptwo from "../../photos/vip-images/swamp/swamptwo.webp";
-import swampthree from "../../photos/vip-images/swamp/swampthree.webp";
-import swampfour from "../../photos/vip-images/swamp/swampfour.webp";
-import swampfive from "../../photos/vip-images/swamp/swampfive.webp";
-import swampsix from "../../photos/vip-images/swamp/swampsix.webp";
-import swampseven from "../../photos/vip-images/swamp/seampseven.webp";
-import swampeight from "../../photos/vip-images/swamp/swampeight.webp";
-import swampnine from "../../photos/vip-images/swamp/swampnine.webp";
-import theory from "../../photos/fan-art/theory.webp";
-import deadlocked from "../../photos/vip-images/swamp/deadlocked.webp";
 //Horror
-import horrortwo from "../../photos/vip-images/horror/horrortwo.webp";
-import horrorthree from "../../photos/vip-images/horror/horrorthree.webp";
-import horrorfour from "../../photos/vip-images/horror/horrorfour.webp";
-import horrorfive from "../../photos/vip-images/horror/horrorfive.webp";
-import horror from "../../photos/vip-images/horror/horror.webp";
-import horrorsix from "../../photos/vip-images/horror/horrorsix.webp";
-import horrorseven from "../../photos/vip-images/horror/horrorseven.webp";
-import horroreight from "../../photos/vip-images/horror/horroreight.webp";
 //Динофроз
-import dinofrozone from "../../photos/vip-images/dinofroz/vip-dinofroz.webp";
-import dinofrozthree from "../../photos/vip-images/dinofroz/dinofrozthree.webp";
-import dinofrozfour from "../../photos/vip-images/dinofroz/dinofrozfour.webp";
-import dinofrozfive from "../../photos/vip-images/dinofroz/dinofrozfive.webp";
-import dinofrozsix from "../../photos/vip-images/dinofroz/dinofrozsix.webp";
-import dinofrozseven from "../../photos/vip-images/dinofroz/dinofrozseven.webp";
-import dinofrozeight from "../../photos/vip-images/dinofroz/dinofrozeight.webp";
-import dinofroztwo from "../../photos/vip-images/dinofroz/vip-dragons.webp";
-import dinofroznine from "../../photos/vip-images/dinofroz/dinofroznine.webp";
 //Mia and me
-import domino from "../../mp3/dominos-shop.mp3";
-import hunger from "../../photos/hero-header/hunger.webp";
-import mia from "../../photos/vip-images/mia/miaandme.webp";
 //import christmasAudio from "../../mp3/kolada.mp3";
-import dinofrozAudio from "../../mp3/dinofroz.mp3";
-import turkeyAudio from "../../mp3/turkeys.mp3";
-import monodyAudio from "../../mp3/thefatrat-monody.mp3";
-import windAudio from "../../mp3/kolada.mp3";
-import unityAudio from "../../mp3/unity.mp3";
-import horseAudio from "../../mp3/horse.mp3";
-import hungerAudio from "../../mp3/thefatrat-hunger.mp3";
-import dragonoraAudio from "../../mp3/dragon.mp3";
-import soloveykoAudio from "../../mp3/soloveyko.mp3";
-import harmonyAudio from "../../mp3/harmonic-japan.mp3";
-import electrodynamixAudio from "../../mp3/electrodynamix.mp3";
-import clubstepAudio from "../../mp3/clubstep.mp3";
-import fingerbang from "../../mp3/mdk-fingerbang-full.mp3";
-import theorytwoAudio from "../../mp3/theoty-of-everything-ll.mp3";
-import theoryAudio from "../../mp3/theory-of-everyting.mp3";
-import deadlockedAudio from "../../mp3/deadlocked.mp3";
-import mechaAudio from "../../mp3/mechanik-kindom.mp3";
-import miaAudio from "../../mp3/mia-and-me.mp3";
 // ... решта стилів ... (без змін)
-
-const assetMap = {
-  faded, fadedAudio, dinofrozVideo, soloveyko, harmony, horse, theorytwo, fingerdash, humorVideo,
-  humorAudio, electrodynamix, desert, deserttwo, desertthree, desertfour, desertone, unity,
-  mecha, monody, clubstep, turkeys, horsethree, horsetwo, chess, turkeytwo, turkeythree,
-  turkeyfour, turkeyfive, turkeysix, turkeysone, turkeyseven, asiumnine, asiumone, asiumtwo,
-  asiumthree, asiumfour, asiumfive, asiumsix, asiumten, asiumeleven, asiumseven, swamptwo,
-  swampthree, swampfour, swampfive, swampsix, swampseven, swampeight, swampnine, theory,
-  deadlocked, horrortwo, horrorthree, horrorfour, horrorfive, horror, horrorsix, horrorseven,
-  horroreight, dinofrozone, dinofrozthree, dinofrozfour, dinofrozfive, dinofrozsix, dinofrozseven,
-  dinofrozeight, dinofroztwo, dinofroznine, domino, hunger, mia, dinofrozAudio, turkeyAudio,
-  monodyAudio, windAudio, unityAudio, horseAudio, hungerAudio, dragonoraAudio, soloveykoAudio,
-  harmonyAudio, electrodynamixAudio, clubstepAudio, fingerbang, theorytwoAudio, theoryAudio,
-  deadlockedAudio, mechaAudio, miaAudio
-};
-const musicCards = songAiKnowledge.map(card => ({
-  ...card,
-  image: assetMap[card.image] || card.image,
-  audio: assetMap[card.audio] || card.audio,
-  video: assetMap[card.video] || card.video,
-  images: Array.isArray(card.images) ? card.images.map(img => assetMap[img] || img) : card.images,
-  filters: Array.isArray(card.filters) ? card.filters.map(f => ({
-    ...f,
-    imageUrl: assetMap[f.imageUrl] || f.imageUrl
-  })) : card.filters
-}));
-
-const slideIn = keyframes`
-  0% { 
-    transform: translateY(100%) scale(0.5);
-    opacity: 0; 
-  }
-  100% { 
-    transform: translateY(0%) scale(1);
-    opacity: 1; 
-  }
-`;
-const slideOut = keyframes`
-  0% { 
-    transform: translateY(0%) scale(1);
-    opacity: 1; 
-  }
-  100% { 
-    transform: translateY(100%) scale(0.5);
-    opacity: 0; 
-  }
-`;
-const fadeOut = keyframes`
-  0% { opacity: 1; }
-  100% { opacity: 0; }
-`;
-const pulseRedBorder = keyframes`
-  0% { border-color: #ff0000; box-shadow: 0 0 5px #ff0000; }
-  50% { border-color: #ff4d4d; box-shadow: 0 0 15px #ff0000; }
-  100% { border-color: #ff0000; box-shadow: 0 0 5px #ff0000; }
-`;
-const flickerAnimation = keyframes`
-  0% { opacity: 0.4; }
-  100% { opacity: 1; }
-`;
-const chaosAnimation = keyframes`
-  0% { background-color: rgba(255, 0, 0, var(--chaos-opacity)); }      /* червоний */
-  10% { background-color: rgba(255, 255, 0, var(--chaos-opacity)); }    /* жовтий */
-  20% { background-color: rgba(255, 165, 0, var(--chaos-opacity)); }    /* оранжевий */
-  30% { background-color: rgba(139, 69, 19, var(--chaos-opacity)); }    /* коричневий */
-  40% { background-color: rgba(0, 255, 0, var(--chaos-opacity)); }      /* зелений */
-  50% { background-color: rgba(0, 255, 255, var(--chaos-opacity)); }    /* голубий */
-  60% { background-color: rgba(0, 0, 255, var(--chaos-opacity)); }      /* синій */
-  70% { background-color: rgba(255, 255, 255, var(--chaos-opacity)); }    /* білий */
-  80% { background-color: rgba(128, 0, 128, var(--chaos-opacity)); }    /* фіолетовий */
-  90% { background-color: rgba(128, 128, 128, var(--chaos-opacity)); }  /* чорнобілий (сірий) */
-  100% { background-color: rgba(255, 0, 0, var(--chaos-opacity)); }
-`;
-const ultrachaosAnimation = keyframes`
-  0% { background-position: 0% 0%; filter: hue-rotate(0deg) contrast(1.2); }
-  25% { background-position: 100% 0%; filter: hue-rotate(90deg) contrast(1.4); }
-  50% { background-position: 100% 100%; filter: hue-rotate(180deg) contrast(1.2); }
-  75% { background-position: 0% 100%; filter: hue-rotate(270deg) contrast(1.4); }
-  100% { background-position: 0% 0%; filter: hue-rotate(360deg) contrast(1.2); }
-`;
-const oldFilmNoise = keyframes`
-  0% { background-position: 0% 0%; }
-  100% { background-position: 100% 100%; }
-`;
-const oldFilmShake = keyframes`
-  0% { transform: translate(0, 0); }
-  20% { transform: translate(-1px, 1px); }
-  40% { transform: translate(-1px, -1px); }
-  60% { transform: translate(1px, 1px); }
-  80% { transform: translate(1px, -1px); }
-  100% { transform: translate(0, 0); }
-`;
-const cinemascopeTop = keyframes`
-  from { height: 0; }
-  to { height: 12%; }
-`;
-const cinemascopeBottom = keyframes`
-  from { height: 0; }
-  to { height: 12%; }
-`;
-const symbolAnimation = keyframes`
-  0% { transform: translate(-50%, -50%) scale(0.7); opacity: 0; }
-  20% { opacity: 0.5; }
-  50% { transform: translate(calc(-50% + var(--end-x, 0px)), calc(-50% + var(--end-y, 0px))) scale(var(--pulse-scale, 1)); }
-  80% { opacity: 0.5; }
-  100% { transform: translate(-50%, -50%) scale(1.2); opacity: 0; }
-`;
-const fireworkAnimation = keyframes`
-  0% { 
-    transform: translate(-50%, -50%) scale(0.1); 
-    opacity: 1; 
-  }
-  40% { 
-    transform: translate(calc(-50% + var(--end-x)), calc(-50% + var(--end-y))) scale(1); 
-    opacity: 1;
-  }
-  70% {
-    transform: translate(calc(-50% + var(--end-x)), calc(-50% + var(--end-y) + 30px)) scale(1);
-    opacity: 1;
-  }
-  100% { 
-    transform: translate(calc(-50% + var(--end-x)), calc(-50% + var(--end-y) + 120px)) scale(0); 
-    opacity: 0;
-  }
-`;
-const seekAnimation = keyframes`
-  0% { opacity: 0; background-color: rgba(255, 255, 255, 0); }
-  30% { opacity: 1; background-color: rgba(255, 255, 255, 0.1); }
-  100% { opacity: 0; background-color: rgba(255, 255, 255, 0); }
-`;
-const SeekIndicator = styled.div`
-  position: absolute;
-  top: 0;
-  ${(props) => (props.$side === "left" ? "left: 0;" : "right: 0;")}
-  width: 40%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 2015;
-  pointer-events: none;
-  animation: ${seekAnimation} 0.8s ease-out forwards;
-  color: white;
-  .icon {
-    font-size: 36px;
-    margin-bottom: 5px;
-  }
-  .text {
-    font-size: 18px;
-    font-weight: bold;
-  }
-`;
-const LongPressBadge = styled.div`
-  position: absolute;
-  top: 70px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.6);
-  color: white;
-  padding: 8px 20px;
-  border-radius: 20px;
-  font-size: 14px;
-  font-weight: bold;
-  z-index: 2020;
-  pointer-events: none;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-`;
-const blinkAnimation = keyframes`
-  0% { opacity: var(--initial-opacity); }
-  10% { opacity: 0.05; }
-  20% { opacity: var(--initial-opacity); }
-  30% { opacity: 0.05; }
-  40% { opacity: var(--initial-opacity); }
-  50% { opacity: 0.05; }
-  60% { opacity: var(--initial-opacity); }
-  70% { opacity: 0.05; }
-  80% { opacity: var(--initial-opacity); }
-  90% { opacity: 0.05; }
-  100% { opacity: var(--initial-opacity); }
-`;
-const MusicPhotoDiv = styled.div`
-  background: #e8e8e8;
-  border-radius: 20px;
-  margin-top: 15px;
-  padding: 5px;
-  text-align: center;
-  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-
-  ${(props) =>
-    props.$isAudioBarActive &&
-    css`
-      height: 55vh;
-      max-height: 420px;
-      overflow-y: auto;
-      width: 98%;
-      margin: 10px auto 90px auto;
-      border: 3px solid orange;
-      box-shadow: 0 15px 50px rgba(0, 0, 0, 0.6);
-      &::-webkit-scrollbar {
-        width: 8px;
-      }
-      &::-webkit-scrollbar-thumb { /* Changed for dark mode */
-        background: ${props.$isDarkMode ? '#ffb36c' : 'orange'};
-        border-radius: 10px;
-        border: 2px solid ${props.$isDarkMode ? '#1a1a1a' : 'transparent'};
-        background-clip: content-box;
-      }
-    `}
-
-  @media (min-width: 768px) {
-    margin-top: 20px;
-  }
-`;
-const MusicPhotoFix = styled.div`
-  display: flex;
-  gap: 9px;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: flex-start;
-`;
-const ControlsContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  gap: 15px;
-  margin-bottom: 30px;
-  width: 100%;
-  padding: 0 10px;
-`;
-const SearchInput = styled.input`
-  width: 100%;
-  max-width: 250px;
-  padding: 6px 10px;
-  border-radius: 25px; /* Changed for dark mode */
-  border: 2px solid ${props => props.$isDarkMode ? '#555' : '#ccc'};
-  font-size: 13px;
-  outline: none;
-  transition: border-color 0.3s;
-  background: ${props => props.$isDarkMode ? '#333' : '#fff'};
-  color: ${props => props.$isDarkMode ? '#fff' : '#333'};
-  &:focus {
-    border-color: ${props => props.$isDarkMode ? '#ffb36c' : 'orange'};
-  }
-`;
-const SortSelect = styled.select`
-  padding: 6px 10px;
-  border-radius: 25px;
-  border: 2px solid #ccc;
-  font-size: 13px;
-  background: ${props => props.$isDarkMode ? '#333' : '#fff'};
-  color: ${props => props.$isDarkMode ? '#fff' : '#333'};
-  font-family: var(--font-family);
-  outline: none;
-  cursor: pointer; /* Changed for dark mode */
-  transition: border-color 0.3s;
-  &:focus {
-    border-color: orange;
-  }
-`;
-
-const AuthorCardWrapper = styled.div`
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  width: 305px;
-  height: 156px;
-  border-radius: 15px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  overflow: hidden;
-  cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  
-  &:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
-  }
-
-  img {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    opacity: 0.5;
-  }
-`;
-
-const AuthorInfoOverlay = styled.div`
-  position: relative;
-  z-index: 2;
-  text-align: center;
-  padding: 10px;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
-  width: 100%;
-  color: white;
-
-  h3 {
-    margin: 0;
-    font-size: 15px;
-    font-weight: bold;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-  }
-
-  p {
-    margin: 5px 0 0 0;
-    font-size: 13px;
-    opacity: 0.9;
-  }
-`;
-
-const CardWrapper = styled.div`
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 308px;
-  height: 326px;
-  background: #fff;
-  border-radius: 15px;
-  padding-bottom: 15px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s;
-  opacity: ${(props) => (props.$rating === -1 ? 0.6 : 1)}; /* Changed for dark mode */
-  border: ${(props) =>
-    props.$rating === 2
-      ? "2px solid #ff0000"
-      : props.$rating === 1
-        ? "2px solid orange"
-        : "none"};
-  animation: ${(props) =>
-    props.$rating === 2
-      ? css`
-          ${pulseRedBorder} 2s infinite
-        `
-      : "none"};
-  &:hover { /* Changed for dark mode */
-    transform: translateY(-5px);
-  }
-`;
-const LyricsModalImage = styled.img`
-  width: calc(100% + 20px);
-  margin: -10px -10px 15px -10px;
-  border-radius: 15px 15px 0 0;
-  position: sticky;
-  top: -10px;
-  z-index: 10;
-  background: white;
-  display: block; /* Changed for dark mode */
-  object-fit: cover;
-  max-height: 250px;
-`;
-const MusicImageContainer = styled.div`
-  position: relative;
-  width: 308px;
-  height: 183px;
-  border-radius: 15px 15px 0 0;
-  background-color: ${props => props.$isDarkMode ? '#444' : '#a5a5a5'};
-  overflow: hidden;
-  flex-shrink: 0;
-`;
-const MusicImage = styled.img`
-  width: 308px;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 15px 15px 0 0; /* Changed for dark mode */
-  cursor: pointer;
-  transition: transform 0.3s ease;
-  &:hover {
-    transform: scale(1.02);
-  }
-  &::after {
-    content: "▶";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 40px;
-    color: rgba(255, 255, 255, 0.8);
-    opacity: 0.7;
-  }
-`;
-const HeartButton = styled.button`
-  position: absolute;
-  top: 10px;
-  right: 10px; /* Changed for dark mode */
-  background: rgba(255, 255, 255, 0.8);
-  border: none;
-  border-radius: 50%;
-  width: 35px;
-  height: 35px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 10;
-  padding: 0;
-  font-size: 20px;
-  color: ${(props) => {
-    if (props.$rating === 2) return "gold";
-    if (props.$rating === 1) return "red";
-    if (props.$rating === -1) return "#555";
-    return "#ccc";
-  }};
-  transition: all 0.2s;
-  &:hover {
-    transform: scale(1.1);
-    background: white;
-  }
-`;
 /* Changed for dark mode */
-const MusicText = styled.div`
-  color: #333;
-  text-align: center;
-  font-family: var(--font-family);
-  font-size: 10px;
-  font-weight: 500;
-  width: 100%;
-  margin-top: 10px;
-  padding: 0 8px;
-  line-height: 1.4;
-  height: 108px;
-  overflow: hidden;
-  box-sizing: border-box;
-`;
-const SliderRow = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 4px;
-  width: 100%;
-  margin-bottom: 5px;
-  padding: 0 0px;
-  span {
-    font-size: 10px;
-    color: rgb(119, 119, 119);
-    display: inline-block;
-  }
-  .icon {
-    min-width: 15px;
-  }
-  .value {
-    min-width: 28px;
-    text-align: right;
-    font-weight: bold;
-  }
-`;
 /* Changed for dark mode */
-const VolumeSlider = styled.input`
-  flex-grow: 1;
-  height: 3px;
-  -webkit-appearance: none;
-  background: linear-gradient(
-    to right,
-    ${(props) => props.$activeColor || "orange"} 0%,
-    ${(props) => props.$activeColor || "orange"}
-      ${(props) => props.value * 100 || 0}%,
-    #444 ${(props) => props.value * 100 || 0}%,
-    #444 100%
-  );
-  border-radius: 2px;
-  outline: none;
-  cursor: pointer;
-  &::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: #fff;
-    cursor: pointer;
-    transition: transform 0.1s;
-  }
-  &:hover::-webkit-slider-thumb {
-    transform: scale(1.2);
-  }
-`;
-
-const LoadMoreButton = styled.button`
-  background-color: #333;
-  color: white;
-  border: none;
-  border-radius: 20px; /* Changed for dark mode */
-  padding: 10px 110px;
-  font-size: 19px;
-  cursor: pointer;
-  margin-top: 15px;
-`;
-const FilterOverlay = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 10;
-  transition: /* Changed for dark mode */
-    background-color ${(props) => (props.$type === "flash" ? "0.05s" : "0.5s")}
-      ease,
-    opacity 0.5s ease,
-    backdrop-filter 0.5s ease,
-    -webkit-backdrop-filter 0.5s ease;
-  background-color: rgba(0, 0, 0, 0);
-  background-image: none;
-  opacity: 1;
-   backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-
-  ${(props) =>
-    props.$active &&
-    css`
-      ${props.$type === "red" && `background: linear-gradient(to right, rgba(255, 0, 0, ${props.$opacity}), rgba(255, 69, 0, ${props.$opacity}));`}
-      ${props.$type === "purple" && `background: linear-gradient(to right, rgba(128, 0, 128, ${props.$opacity}), rgba(218, 112, 214, ${props.$opacity}));`}
-      ${props.$type === "green" && `background: linear-gradient(to right, rgba(0, 255, 0, ${props.$opacity}), rgba(50, 205, 50, ${props.$opacity}));`}
-      ${props.$type === "blue" && `background: linear-gradient(to right, rgba(0, 0, 255, ${props.$opacity}), rgba(65, 105, 225, ${props.$opacity}));`}
-      ${props.$type === "black" && `background: linear-gradient(to right, rgba(0, 0, 0, ${props.$opacity}), rgba(50, 50, 50, ${props.$opacity}));`}
-      ${props.$type === "orange" && `background: linear-gradient(to right, rgba(230, 149, 0, ${props.$opacity}), rgba(255, 165, 0, ${props.$opacity}));`}
-      ${props.$type === "cyan" && `background: linear-gradient(to right, rgba(0, 255, 255, ${props.$opacity}), rgba(0, 206, 209, ${props.$opacity}));`}
-      ${props.$type === "brown" && `background: linear-gradient(to right, rgba(139, 69, 19, ${props.$opacity}), rgba(160, 82, 45, ${props.$opacity}));`}
-      ${props.$type === "white" && `background: linear-gradient(to right, rgba(255, 255, 255, ${props.$opacity}), rgba(240, 240, 240, ${props.$opacity}));`}
-      ${props.$type === "image" &&
-      css`
-        background-image: url(${props.$imageUrl});
-        background-size: cover;
-        background-position: center;
-        background: transparent;
-        opacity: ${props.$opacity || 1};
-      `}
-      ${(props.$type === "flash" ||
-        props.$type === "flicker" ||
-        props.$flicker) &&
-      css`
-        background: rgba(255, 255, 255, ${props.$opacity});
-      `}
-      ${props.$type === "vignette" &&
-      css`
-        background: radial-gradient(
-          circle,
-          transparent 40%,
-          rgba(0, 0, 0, ${props.$opacity || 0.8}) 100%
-        );
-      `}
-      ${props.$type === "cinemascope" &&
-      css`
-        &::before,
-        &::after {
-          content: "";
-          position: absolute;
-          left: 0;
-          width: 100%;
-          background: black;
-          z-index: 100;
-        }
-        &::before {
-          top: 0;
-          animation: ${cinemascopeTop} 1s ease forwards;
-        }
-        &::after {
-          bottom: 0;
-          animation: ${cinemascopeBottom} 1s ease forwards;
-        }
-      `}
-      ${props.$type === "vintage" &&
-      css`
-        animation: ${oldFilmShake} 0.15s infinite;
-
-        /* Вертикальні лінії (шум) */
-        &::before {
-          content: "";
-          position: absolute;
-          inset: 0;
-          background-image: repeating-linear-gradient(
-            90deg,
-            transparent,
-            transparent 150px,
-            rgba(255, 255, 255, 0.05) 150px,
-            rgba(255, 255, 255, 0.05) 151px,
-            transparent 151px,
-            transparent 300px,
-            rgba(0, 0, 0, 0.05) 300px,
-            rgba(0, 0, 0, 0.05) 301px
-          );
-          background-size: 200% 100%;
-          animation: ${oldFilmNoise} 0.2s steps(5) infinite;
-          pointer-events: none;
-          z-index: 5;
-        }
-      `}
-      ${props.$type === "chaos" &&
-      css`
-        --chaos-opacity: ${props.$opacity || 0.4};
-        animation: ${chaosAnimation} 1.5s linear infinite;
-      `}
-      ${props.$type === "ultrachaos" &&
-      css`
-        background: radial-gradient(
-          circle at center,
-          rgba(255, 0, 150, ${props.$opacity || 0.5}),
-          rgba(0, 204, 255, ${props.$opacity || 0.5}),
-          rgba(255, 255, 0, ${props.$opacity || 0.5}),
-          rgba(0, 255, 0, ${props.$opacity || 0.5})
-        );
-        background-size: 300% 300%;
-        animation: ${ultrachaosAnimation} 6s ease-in-out infinite;
-        backdrop-filter: blur(2px) saturate(1.5);
-      `}
-      ${props.$type === "grayscale" &&
-      css`
-        background: rgba(119, 119, 119, ${props.$opacity * 0.2});
-      `}
-      ${props.$type === "flicker" &&
-      css`
-        animation: ${flickerAnimation} 0.1s infinite alternate;
-      `}
-    `}
-`;
-
-const StyledSymbol = styled.span`
-  position: absolute;
-  color: rgba(255, 255, 255, 0.91);
-  pointer-events: none;
-  user-select: none;
-  will-change: transform, opacity;
-  backface-visibility: hidden;
-  transform: translateZ(0);
-  animation: ${(props) =>
-    props.$variation === "firework"
-      ? css`
-          ${fireworkAnimation} ${props.$duration}s ease-out forwards
-        `
-      : css`
-          ${symbolAnimation} ${props.$duration}s ease-in-out infinite, ${blinkAnimation} 3s ease-in-out ${Math.max(
-            0,
-            props.$duration - 3,
-          )}s infinite
-        `};
-
-  top: ${(props) => props.$top}%;
-  left: ${(props) => props.$left}%;
-  font-size: ${(props) => props.$size}px;
-  opacity: ${(props) => props.$opacity};
-  --initial-opacity: ${(props) => props.$opacity};
-
-  --end-x: ${(props) => props.$moveX || 0}px;
-  --end-y: ${(props) => props.$moveY || 0}px;
-  --pulse-scale: ${(props) => 1 + props.$volume * 0.4};
-
-  filter: blur(${(props) => props.$blur || 0}px);
-  text-shadow: 0 0 8px rgba(0, 0, 0, 0.6); /* Стійкість до світлих фонів */
-`;
-
 const musicSymbols = ["♫"];
 
 const SymbolOverlay = ({
@@ -865,367 +124,6 @@ const SymbolOverlay = ({
     </div>
   );
 };
-const SeekBar = styled.input`
-  flex-grow: 1;
-  height: 5px;
-  -webkit-appearance: none;
-  background: linear-gradient(
-    to right, /* Changed for dark mode */
-    orange 0%,
-    orange ${(props) => (props.value / props.max) * 100 || 0}%,
-    rgba(255, 255, 255, 0.3) ${(props) => (props.value / props.max) * 100 || 0}%,
-    rgba(255, 255, 255, 0.3)
-      ${(props) => ((props.$buffered || 0) / props.max) * 100}%,
-    rgba(255, 255, 255, 0.1)
-      ${(props) => ((props.$buffered || 0) / props.max) * 100}%,
-    rgba(255, 255, 255, 0.1) 100%
-  );
-  border-radius: 2px;
-  outline: none;
-  cursor: pointer;
-  transition: height 0.1s;
-
-  &::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: red;
-    cursor: pointer;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
-  }
-  &:hover {
-    height: 8px;
-  }
-`;
-
-const StereoSeekBar = styled.div`
-  flex-grow: 1;
-  height: 40px;
-  background: ${props => props.$isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.2)'};
-  position: relative;
-  cursor: pointer;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 1.5px;
-  overflow: hidden;
-  border-radius: 4px;
-  padding: 0 4px;
-`;
-
-const StereoChannel = styled.div`
-  flex: 1;
-  height: ${(props) => Math.max(15, props.$height * 100)}%;
-  background: ${(props) => /* Changed for dark mode */
-    props.$active ? "orange" : "rgba(255, 255, 255, 0.25)"};
-  border-radius: 1px;
-  transition: background 0.2s ease;
-`;
-
-const SpeedSlider = styled.input`
-  flex-grow: 1;
-  height: 3px;
-  -webkit-appearance: none;
-  background: linear-gradient( /* Changed for dark mode */
-    to right,
-    ${(props) => props.$activeColor || "orange"} 0%,
-    ${(props) => props.$activeColor || "orange"}
-      ${(props) => ((props.value - 0.2) / 1.8) * 100 || 0}%,
-    #ccc ${(props) => ((props.value - 0.2) / 1.8) * 100 || 0}%,
-    #ccc 100%
-  );
-  border-radius: 2px;
-  outline: none;
-  &::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 10px; /* Changed for dark mode */
-    height: 10px;
-    border-radius: 50%;
-    background: #333;
-    cursor: pointer;
-  }
-`;
-const UnlockContainer = styled.div`
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  z-index: 3000;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: white;
-  background: rgba(0, 0, 0, 0.6);
-  padding: 5px 9px;
-  border-radius: 30px;
-  cursor: pointer;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  font-size: 14px;
-  backdrop-filter: blur(8px);
-  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-  transition: all 0.2s ease;
-  &:hover { background: rgba(0, 0, 0, 0.8); transform: scale(1.02); }
-`;
-
-const SeekAmountSlider = styled.input`
-  flex-grow: 1;
-  height: 3px;
-  -webkit-appearance: none;
-  background: linear-gradient( /* Changed for dark mode */
-    to right,
-    orange 0%,
-    orange ${(props) => ((props.value - 5) / 15) * 100}%,
-    #ccc ${(props) => ((props.value - 5) / 15) * 100}%,
-    #ccc 100%
-  );
-  &::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: orange;
-    cursor: pointer;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
-    transform: scale(1.2);
-  }
-`;
-
-const LoopButton = styled.button`
-  background: transparent;
-  border: none;
-  color: ${(props) => (props.$active ? "skyblue" : 'orange')};
-  font-size: 20px;
-  cursor: pointer;
-  margin-bottom: 5px;
-  width: 40px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-const ActionButtonsContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  margin-top: auto;
-  padding: 0 8px;
-`;
-const ActionButton = styled.button`
-  background: transparent;
-  border: none;
-  border-radius: 5px;
-  transition: color 0.6s;
-  color: skyblue; /* Changed for dark mode */
-  width: 34px;
-  padding: 3px 9px;
-  font-size: 19px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  &:hover {
-    color: #ff4000;
-  }
-  svg {
-    width: 20px;
-    height: 20px;
-    fill: #333;
-  }
-`;
-
-const ModalOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  backdrop-filter: blur(3px);
-  width: 100vw; /* Changed for z-index */
-  height: 100vh;
-  background: hsla(0, 0%, 0%, 0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  z-index: 2005; /* Increased z-index to be above FullScreenOverlay */
-  animation: ${(props) => (props.$isClosing ? fadeOut : "none")} forwards; /* Changed for z-index */
-`;
-
-const LyricsModalContent = styled.div`
-  background: ${props => props.$isDarkMode ? '#1a1a1a' : 'white'};
-  padding: 10px;
-  width: 100%;
-  max-width: 320px;
-  max-height: 85vh;
-  overflow-y: auto;
-  position: relative;
-  animation: ${(props) => (props.$isClosing ? slideOut : slideIn)} forwards;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-  &::-webkit-scrollbar { /* Changed for dark mode */
-    width: 6px;
-  }
-  &::-webkit-scrollbar-thumb { /* Changed for dark mode */
-    background: ${props => props.$isDarkMode ? '#ffb36c' : '#ffb36c'};
-    border-radius: 3px;
-  }
-  &::-webkit-scrollbar-track { /* Changed for dark mode */
-    background: ${props => props.$isDarkMode ? '#333' : '#f0f0f0'};
-  }
-`;
-
-const PlaylistModalContent = styled.div`
-  background: #e8e8e8;
-  padding: 10px;
-  border-radius: 15px;
-  width: 95%; /* Changed for dark mode */
-  max-width: 1800px;
-  max-height: 90vh;
-  overflow-y: auto;
-  position: relative;
-  animation: ${(props) => (props.$isClosing ? slideOut : slideIn)} 0.5s ease-out
-    forwards;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-  &::-webkit-scrollbar { /* Changed for dark mode */
-    width: 8px;
-  }
-  &::-webkit-scrollbar-thumb { /* Changed for dark mode */
-    background: ${props => props.$isDarkMode ? '#ffb36c' : '#ffb36c'};
-    border-radius: 4px;
-  }
-  &::-webkit-scrollbar-track { /* Changed for dark mode */
-    background: ${props => props.$isDarkMode ? '#333' : '#dcdcdc'};
-  }
-`;
-
-const LyricsCloseButton = styled.button`
-  position: absolute;
-  top: 8px;
-  right: 10px;
-  background: none;
-  border: none;
-  font-size: 20px;
-  cursor: pointer;
-  color: ${props => props.$isDarkMode ? '#fff' : '#333'};
-  &:hover {
-    color: #ffb36c;
-  }
-`;
-
-const FullScreenOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: black;
-  z-index: 2000;
-  display: ${(props) => (props.$closing ? "none" : "flex")};
-  flex-direction: column;
-  animation: ${(props) => (props.$closing ? slideOut : slideIn)} 0.3s ease-out
-    forwards;
-
-  @media screen and (orientation: portrait) {
-    width: 100vh;
-    height: 100vw;
-    transform: rotate(90deg);
-    top: 50%;
-    left: 50%;
-    transform-origin: center;
-    translate: -50% -50%;
-    animation: none;
-  }
-`;
-
-const MiniPlayerContainer = styled.div`
-  position: fixed;
-  z-index: 3500;
-  background: black;
-  border: 2px solid orange;
-  border-radius: 12px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
-  min-width: 100px;
-  min-height: 80px;
-  touch-action: none;
-`;
-
-const MiniPlayerHeader = styled.div`
-  height: 24px;
-  background: #1a1a1a;
-  cursor: move;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding: 0 8px;
-  gap: 8px;
-`;
-
-const MiniControlBtn = styled.button`
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
-  font-size: 12px;
-  padding: 1px;
-  display: flex;
-  align-items: center;
-  opacity: 0.7;
-  &:hover {
-    opacity: 1;
-    color: orange;
-  }
-`;
-
-const MiniResizeHandle = styled.div`
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 16px;
-  height: 16px;
-  cursor: nwse-resize;
-  background: linear-gradient(135deg, transparent 50%, orange 50%);
-  z-index: 3010;
-`;
-
-const AudioBarContainer = styled(motion.div)`
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 80px;
-  background: #111;
-  border-top: 2px solid orange;
-  z-index: 5000;
-  display: flex;
-  align-items: center;
-  padding: 0 8px;
-  gap: 5px;
-  box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.5);
-  color: white;
-  font-family: sans-serif;
-  @media (max-width: 768px) {
-    height: auto;
-    flex-wrap: wrap;
-  }
-`;
-
-const AudioBarBtn = styled.button`
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
-  font-size: 18px;
-  display: flex;
-  align-items: center;
-  opacity: 0.8;
-  transition: all 0.2s;
-  &:hover {
-    opacity: 1;
-    color: orange;
-  }
-`;
-
 const AudioBar = ({
   track,
   initialTime,
@@ -2064,535 +962,6 @@ const MiniPlayer = ({
     </MiniPlayerContainer>
   ) : null;
 };
-
-const FSHeader = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  padding: 5px;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  z-index: 2010;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7), transparent);
-`;
-
-const FSContent = styled.div`
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  position: relative; /* Ensure stacking context for children */
-  align-items: center;
-  position: relative;
-  background: #000;
-  width: 100%;
-  height: 100%;
-`;
-
-const FSVisualWrapper = styled.div`
-  width: 100%;
-  position: relative; /* Establish stacking context for FilterOverlay */
-  z-index: 1; /* Ensure it's below controls but above media */
-  height: 100%;
-  overflow: hidden;
-`;
-
-const FSVideo = styled.video`
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transform: none;
-`;
-
-const FSImage = styled.img`
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  animation: ${(props) =>
-    props.$animate
-      ? css`
-          ${appearKeyframe} 1s ease
-        `
-      : "none"};
-`;
-
-const appearKeyframe = keyframes`
-  from { opacity: 0; transform: scale(1.05); }
-  to { opacity: 1; transform: scale(1); }
-`;
-
-const FSControls = styled.div`
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
-  padding: 0px 33px 3px 2px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  z-index: 2010;
-  opacity: ${(props) => (props.$visible ? 1 : 0)};
-  transform: translateY(${(props) => (props.$visible ? 0 : "20px")});
-  transition:
-    opacity 0.5s ease,
-    transform 0.5s ease;
-`;
-
-const FSSliderContainer = styled.div`
-  display: flex;
-  gap: 7px;
-  overflow-x: auto;
-  padding: 5px 11px;
-  &::-webkit-scrollbar {
-    height: 2px;
-  }
-  &::-webkit-scrollbar-thumb {
-    background: orange;
-  }
-`;
-
-const FSSliderImage = styled.img`
-  height: 40px;
-  width: 80px;
-  object-fit: cover;
-  border-radius: 6px;
-  opacity: ${(props) => (props.$active ? 1 : 0.5)};
-  border: ${(props) => (props.$active ? "2px solid orange" : "none")};
-  cursor: pointer;
-  transition: all 0.3s;
-  &:hover {
-    opacity: 1;
-  }
-`;
-
-const FSTitle = styled.h2`
-  color: white;
-  margin: 0;
-  font-size: 14px;
-  max-width: 60vw;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
-`;
-
-const GearModal = styled.div`
-  position: absolute;
-  bottom: 80px;
-  right: 20px;
-  background: rgba(30, 30, 30, 0.95);
-  padding: 2px;
-  border-radius: 12px;
-  color: white;
-  width: 250px;
-  z-index: 2020;
-  border: 1px solid #444;
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-`;
-
-const SubtitleOverlay = styled.div`
-  position: absolute;
-  bottom: ${(props) =>
-    props.$show ? (props.$controlsVisible ? "22%" : "0.5%") : "22%"};
-  left: 50%;
-  transform: translateX(-50%);
-  color: #fff;
-  text-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.8),
-    0 0 10px rgba(0, 0, 0, 0.5);
-  font-size: 13.5px;
-  font-weight: bold;
-  text-align: center;
-  width: 80%;
-  z-index: 2005;
-  pointer-events: none;
-  background: rgba(0, 0, 0, 0.3);
-  padding: 10px 10px;
-  border-radius: 20px;
-  opacity: ${(props) => (props.$show ? 1 : 0)};
-  transition:
-    opacity 0.3s,
-    bottom 0.3s ease;
-`;
-
-const DownloadModal = styled.div`
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: #fff;
-  padding: 20px;
-  border-radius: 12px;
-  z-index: 2030;
-  width: 300px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-  text-align: center;
-`;
-
-const PlaylistCloseButton = styled.button`
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  background: none;
-  border: none;
-  font-size: 30px;
-  cursor: pointer;
-  color: #333;
-  z-index: 10;
-  &:hover {
-    color: #ffb36c;
-  }
-`;
-
-const LyricsContainer = styled.div`
-  background: #f9f9f9;
-  padding: 10px;
-  border-radius: 8px;
-  font-size: 14px;
-  line-height: 1.8;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  border: 1px solid #e0e0e0;
-  text-align: left;
-  color: #333;
-  max-height: 900px;
-  overflow-y: auto;
-`;
-
-const LyricsLine = styled.p`
-  margin: 5px 0;
-  transition:
-    color 0.3s,
-    font-weight 0.3s;
-  color: ${(props) => (props.$active ? "orange" : (props.$isDarkMode ? '#eee' : '#333'))};
-  font-weight: ${(props) => (props.$active ? "bold" : "normal")};
-`;
-
-const InputGroup = styled.div`
-  margin-bottom: 15px;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  label {
-    font-weight: bold;
-    font-size: 12px; /* Changed for dark mode */
-    color: ${props => props.$isDarkMode ? '#eee' : 'black'};
-  }
-  input { /* Changed for dark mode */
-    padding: 8px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    color: black;
-  }
-`;
-
-const StorageIndicatorContainer = styled.div`
-  margin: 10px 0 20px 0;
-  padding: 10px;
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 10px; /* Changed for dark mode */
-  font-size: 11px;
-  color: ${props => props.$isDarkMode ? '#aaa' : '#555'};
-  text-align: left; /* Changed for dark mode */
-`;
-
-const StorageBar = styled.div`
-  width: 100%;
-  height: 6px;
-  background: #ddd;
-  border-radius: 3px;
-  margin-top: 5px; /* Changed for dark mode */
-  overflow: hidden;
-`;
-
-const StorageBarFill = styled.div`
-  height: 100%;
-  background: ${(props) => (props.$percent > 80 ? "#ff4d4d" : "#00bdb3")};
-  width: ${(props) => props.$percent}%;
-  transition: width 0.5s ease; /* Changed for dark mode */
-`;
-
-const SliderItemWrapper = styled.div`
-  position: relative;
-  flex-shrink: 0;
-  border-radius: 6px;
-  overflow: hidden;
-  &:hover .slider-overlay {
-    opacity: 1;
-  }
-`;
-
-const CheckpointBadge = styled.div`
-  position: absolute;
-  bottom: 8px;
-  right: 8px;
-  background: rgba(0, 0, 0, 0.7);
-  color: #ffb36c;
-  padding: 2px 6px;
-  border-radius: 6px;
-  font-size: 10px;
-  font-weight: bold;
-  z-index: 10;
-  border: 1px solid #ffb36c;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  user-select: none;
-
-  &::before {
-    content: "Ви зупинилися тут";
-    position: absolute;
-    bottom: 130%;
-    right: 50%;
-    transform: translateX(50%) translateY(10px);
-    background: #222;
-    color: #ffb36c;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 9px;
-    white-space: nowrap;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.2s ease-out;
-    border: 1px solid #ffb36c;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-    pointer-events: none;
-  }
-
-  &:hover {
-    transform: scale(1.1);
-    background: rgba(255, 179, 108, 0.2);
-    box-shadow: 0 0 12px rgba(255, 179, 108, 0.6);
-    color: #fff;
-
-    &::before {
-      opacity: 1;
-      visibility: visible;
-      transform: translateX(50%) translateY(0);
-    }
-  }
-
-  &:active {
-    transform: scale(0.95);
-  }
-`;
-
-const CheckpointMarker = styled.div`
-  position: absolute;
-  bottom: 100%;
-  left: ${(props) => props.$left}%;
-  transform: translateX(-50%);
-  font-size: 14px;
-  z-index: 10;
-  pointer-events: none;
-  /* Styles for better visibility in stereogram */
-  background: rgba(255, 255, 255, 0.7); /* Semi-transparent white background */
-  border-radius: 3px;
-  padding: 2px 4px;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
-`;
-
-const SliderOverlay = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 5px;
-  opacity: 0;
-  transition: opacity 0.2s;
-`;
-
-const SliderBtn = styled.button`
-  background: #006eff;
-  color: white;
-  border: none;
-  font-size: 10px;
-  padding: 1px 4px;
-  border-radius: 4px;
-  cursor: pointer;
-  width: 90%;
-  &:hover {
-    background: #d46000;
-  }
-`;
-
-const PlaylistOverlay = styled.div`
-  position: absolute;
-  bottom: 80px;
-  right: 20px;
-  background: rgba(30, 30, 30, 0.95);
-  padding: 15px;
-  border-radius: 12px;
-  color: white;
-  width: 300px;
-  max-height: 60vh;
-  overflow-y: auto;
-  z-index: 2020;
-  border: 1px solid #444;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-  &::-webkit-scrollbar-thumb {
-    background: orange;
-    border-radius: 3px;
-  }
-  &::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1);
-  }
-`;
-
-const SeekBarWrapper = styled.div`
-  position: relative;
-  flex-grow: 1;
-  display: flex;
-  align-items: center;
-  &:hover .seek-tooltip {
-    opacity: 1;
-    visibility: visible;
-  }
-`;
-
-const SeekTooltip = styled.div`
-  position: absolute;
-  bottom: 25px;
-  left: ${(props) => props.$left}%;
-  transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.8);
-  border: 1px solid #444;
-  padding: 5px;
-  border-radius: 5px;
-  pointer-events: none;
-  opacity: 0;
-  visibility: hidden;
-  transition:
-    opacity 0.2s,
-    visibility 0.2s;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  z-index: 2025;
-  white-space: nowrap;
-
-  img {
-    width: 100px;
-    height: 60px;
-    object-fit: cover;
-    margin-bottom: 4px;
-    border-radius: 4px;
-    background: #000;
-  }
-  video {
-    width: 100px;
-    height: 60px;
-    object-fit: cover;
-    margin-bottom: 4px;
-    border-radius: 4px;
-    background: #000;
-    display: block;
-  }
-  span {
-    font-size: 12px;
-    color: white;
-    font-weight: bold;
-  }
-`;
-
-const LoadingContainer = styled.div`
-  position: absolute;
-  z-index: 2050;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.7);
-  padding: 20px;
-  border-radius: 10px;
-  backdrop-filter: blur(5px);
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-`;
-
-const ProgressBar = styled.div`
-  width: 200px;
-  height: 6px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 3px;
-  margin-top: 10px;
-  overflow: hidden;
-`;
-
-const ProgressBarFill = styled.div`
-  height: 100%;
-  background: #94fffa;
-  width: ${(props) => props.$progress}%;
-  transition: width 0.3s ease;
-  box-shadow: 0 0 10px #94fffa;
-`;
-
-const AiChatContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 400px;
-  width: 100%;
-  color: ${props => props.$isDarkMode ? 'white' : '#333'};
-  background: ${props => props.$isDarkMode ? '#1e1e1e' : '#fff'};
-`;
-
-const MessageList = styled.div`
-  flex: 1;
-  overflow-y: auto;
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  background: ${props => props.$isDarkMode ? '#121212' : '#f7f7f7'};
-`;
-
-const Message = styled.div`
-  max-width: 80%;
-  padding: 8px 14px;
-  border-radius: 15px;
-  font-size: 13.5px;
-  background: ${(props) => (props.$isUser ? "orange" : (props.$isDarkMode ? "#333" : "#e0e0e0"))};
-  color: ${(props) => (props.$isUser ? "white" : (props.$isDarkMode ? "#ddd" : "#222"))};
-  align-self: ${(props) => (props.$isUser ? "flex-end" : "flex-start")};
-`;
-
-const ChatInputRow = styled.div`
-  display: flex;
-  padding: 10px;
-  border-top: 1px solid ${props => props.$isDarkMode ? '#333' : '#eee'};
-  gap: 8px;
-  input {
-    flex: 1;
-    padding: 8px 12px;
-    border-radius: 20px;
-    border: 1px solid ${props => props.$isDarkMode ? '#444' : '#ccc'};
-    background: ${props => props.$isDarkMode ? '#2c2c2c' : '#fff'};
-    color: ${props => props.$isDarkMode ? '#fff' : '#000'};
-    outline: none;
-  }
-  button {
-    background: orange;
-    border: none;
-    border-radius: 20px;
-    padding: 0 15px;
-    color: white;
-    cursor: pointer;
-  }
-`;
-
 const SongAiModal = ({ track, onClose, isDarkMode }) => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -4432,15 +2801,15 @@ const FullScreenPlayer = ({
         pointerEvents: isLocked ? "none" : "auto" 
       }}>
         <div style={{ display: "flex", gap: "0px", alignItems: "center" }}> {/* Changed for dark mode */}
-          <ActionButton
+          <ActButton
             style={{ fontSize: "26px" }}
             onClick={() => {
               if (canPerformAction()) handleClose();
             }}
           >
             &times;
-          </ActionButton>
-          <ActionButton
+          </ActButton>
+          <ActButton
             onClick={() => {
               if (canPerformAction())
                 onMiniPlayer(progress, isPlaying, volume, speed);
@@ -4448,8 +2817,8 @@ const FullScreenPlayer = ({
             title="Згорнути в міні-плеєр"
           >
             🗗
-          </ActionButton>
-          <ActionButton
+          </ActButton>
+          <ActButton
             onClick={() => {
               if (canPerformAction())
                 onAudioBar(progress, isPlaying, volume, speed);
@@ -4457,16 +2826,16 @@ const FullScreenPlayer = ({
             title="Згорнути в аудіосмугу"
           >
             ▬
-          </ActionButton>
-          <ActionButton
+          </ActButton>
+          <ActButton
             onClick={() => {
               if (canPerformAction()) togglePiP();
             }}
             title="Режим картинка в картинці"
           >
             🖼️
-          </ActionButton>
-          <ActionButton
+          </ActButton>
+          <ActButton
             onClick={() => {
               if (canPerformAction()) toggleFullscreen();
             }}
@@ -4475,13 +2844,13 @@ const FullScreenPlayer = ({
             }
           >
             {isFullscreenNative ? "⏹" : "⛶"}
-          </ActionButton>
+          </ActButton>
           <div style={{ display: "flex", flexDirection: "column" }}>
             <FSTitle>{track.author} - {track.text}</FSTitle>
           </div>
         </div>
         <div style={{ display: "flex", gap: "8px" }}>
-          <ActionButton
+          <ActButton
             onClick={() => {
               if (canPerformAction()) onRate(track.id);
             }}
@@ -4499,14 +2868,14 @@ const FullScreenPlayer = ({
                 : rating === -1
                   ? "👎"
                   : "🤍"}
-          </ActionButton>
-          <ActionButton
+          </ActButton>
+          <ActButton
             onClick={() => setIsLocked(true)}
             title="Заблокувати екран"
           >
             🔓
-          </ActionButton>
-          <ActionButton
+          </ActButton>
+          <ActButton
             onClick={() =>
               mainFilter
                 ? setPendingScreenshotAction("menu")
@@ -4515,31 +2884,31 @@ const FullScreenPlayer = ({
             title="Скріншот"
           >
             📸
-          </ActionButton>
-          <ActionButton onClick={handlePrint} title="Друк">
+          </ActButton>
+          <ActButton onClick={handlePrint} title="Друк">
             🖨️
-          </ActionButton>
-          <ActionButton
+          </ActButton>
+          <ActButton
             onClick={() => setShowDownload(true)}
             title="Завантажити"
           >
             ⇩
-          </ActionButton>
-          <ActionButton
+          </ActButton>
+          <ActButton
             onClick={() => setShowPlaylist(!showPlaylist)}
             title="Список відтворення"
           >
             📑
-          </ActionButton>
-          <ActionButton onClick={() => onOpenAi(track)} title="ШІ Помічник">
+          </ActButton>
+          <ActButton onClick={() => onOpenAi(track)} title="ШІ Помічник">
             ✨
-          </ActionButton>
-          <ActionButton
+          </ActButton>
+          <ActButton
             onClick={() => setShowSettings(!showSettings)}
             title="Налаштування"
           >
             ⚙️
-          </ActionButton>
+          </ActButton>
         </div>
       </FSHeader>
 
@@ -4547,7 +2916,7 @@ const FullScreenPlayer = ({
         <LoadingContainer>
           <div
             style={{ color: "#94fffa", fontSize: "14px", marginBottom: "5px" }}
-          > {/* Changed for dark mode */}
+          >
             Завантаження... {loadingProgress}%
           </div>
           <ProgressBar>
@@ -4912,7 +3281,7 @@ const FullScreenPlayer = ({
         >
           <div style={{ display: "flex", gap: "1px" }}>
             {checkpointsEnabled && checkpoint > 0 && (
-              <ActionButton
+              <ActButton
                 onClick={() => {
                   if (mediaRef.current && canPerformAction()) {
                     mediaRef.current.currentTime = checkpoint;
@@ -4921,9 +3290,9 @@ const FullScreenPlayer = ({
                 title="Повернутись до чекпоінту"
               >
                 🚩
-              </ActionButton>
+              </ActButton>
             )}
-            <ActionButton
+            <ActButton
               onClick={() => {
                 if (mediaRef.current && canPerformAction()) {
                   mediaRef.current.currentTime = 0; /* Changed for dark mode */
@@ -4932,15 +3301,15 @@ const FullScreenPlayer = ({
               title="На початок"
             >
               ⇤
-            </ActionButton>
-            <ActionButton
+            </ActButton>
+            <ActButton
               onClick={() => {
                 if (canPerformAction()) onPrev();
               }}
             >
               ⏮
-            </ActionButton>
-            <ActionButton onClick={togglePlay}>
+            </ActButton>
+            <ActButton onClick={togglePlay}>
               {isPlaying ? (
                 <svg
                   viewBox="0 0 24 24"
@@ -4960,16 +3329,16 @@ const FullScreenPlayer = ({
                   <path d="M8 5v14l11-7z" />
                 </svg>
               )}
-            </ActionButton>
-            <ActionButton
+            </ActButton>
+            <ActButton
               onClick={() => {
                 if (canPerformAction()) onNext();
               }}
               title="Наступна пісня"
             >
               ⏭
-            </ActionButton>
-            <ActionButton
+            </ActButton>
+            <ActButton
               onClick={() => {
                 if (mediaRef.current && canPerformAction()) {
                   mediaRef.current.currentTime = duration - 1.5;
@@ -4978,11 +3347,11 @@ const FullScreenPlayer = ({
               title="В самий кінець (для перевірки зупинки)"
             >
               ⇥
-            </ActionButton>
+            </ActButton>
           </div>
 
           <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-            <ActionButton
+            <ActButton
               onClick={() => {
                 if (mediaRef.current && canPerformAction()) {
                   const amount = seekBackwardAmount;
@@ -4995,7 +3364,7 @@ const FullScreenPlayer = ({
               }}
             >
               -{seekBackwardAmount}s
-            </ActionButton>
+            </ActButton>
             <div
               style={{
                 display: "flex",
@@ -5027,7 +3396,7 @@ const FullScreenPlayer = ({
                 {speed.toFixed(1)}x
               </span>
             </div>
-            <ActionButton
+            <ActButton
               onClick={() => {
                 if (mediaRef.current && canPerformAction()) {
                   const amount = seekForwardAmount;
@@ -5040,7 +3409,7 @@ const FullScreenPlayer = ({
               }}
             >
               +{seekForwardAmount}s
-            </ActionButton>
+            </ActButton>
           </div>
 
           <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
@@ -5064,8 +3433,6 @@ const FullScreenPlayer = ({
                 📽️
               </LoopButton>
             )}
-
-            {/* Вибір інтервалу слайд-шоу */}
             {!isDinofroz && isAutoSlideshow && sliderImages.length > 1 && (
               <div
                 style={{
@@ -6043,6 +4410,7 @@ const MusicCard = ({
       <MusicImageContainer>
         {checkpointsEnabled && checkpoint > 0 && (
           <CheckpointBadge
+            className="card-checkpoint-badge"
             title="Ви зупинилися тут"
             onClick={(e) => {
               e.stopPropagation();
@@ -6077,54 +4445,55 @@ const MusicCard = ({
                 : "🤍"}
         </HeartButton>
         <MusicImage src={image} alt="Music" onClick={() => onOpenPlayer(id)} />
-      </MusicImageContainer>
 
-      {text && <MusicText title={text}>{text}</MusicText>}
-      <ActionButtonsContainer>
-        {cardData.lyrics && (
-          <ActionButton
-            title="Текст пісні"
-            onClick={() => onOpenModal({ ...cardData })}
-          >
+        {text && <MusicText title={text}>{text}</MusicText>}
+
+        <ActionButtonsContainer className="card-overlay-buttons">
+          {cardData.lyrics && (
+            <ActionButton
+              title="Текст пісні"
+              onClick={(e) => { e.stopPropagation(); onOpenModal({ ...cardData }); }}
+            >
+              <svg viewBox="0 0 24 24">
+                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+              </svg>
+            </ActionButton>
+          )}
+          <ActionButton title="Відкрити плеєр" onClick={(e) => { e.stopPropagation(); onOpenPlayer(id); }}>
             <svg viewBox="0 0 24 24">
-              <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+              <path d="M8 5v14l11-7z" />
             </svg>
           </ActionButton>
-        )}
-        <ActionButton title="Відкрити плеєр" onClick={() => onOpenPlayer(id)}>
-          <svg viewBox="0 0 24 24">
-            <path d="M8 5v14l11-7z" />
-          </svg>
-        </ActionButton>
-        <ActionButton
-          title="Запитати ШІ"
-          onClick={(e) => {
-            e.stopPropagation();
-            onOpenAi && onOpenAi(cardData);
-          }}
-        >
-          ✨
-        </ActionButton>
-        <ActionButton title="Завантажити" onClick={handleDownloadTrack}>
-          ⇩
-        </ActionButton>
-        <ActionButton
-          title="Роздрукувати обкладинку"
-          onClick={handlePrintCover}
-        >
-          🖨️
-        </ActionButton>
-        {deezerLink && (
           <ActionButton
-            title="Слухати на Deezer"
-            onClick={() => window.open(deezerLink, "_blank")}
+            title="Запитати ШІ"
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenAi && onOpenAi(cardData);
+            }}
           >
-            <svg viewBox="0 0 24 24">
-              <path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z" />
-            </svg>
+            ✨
           </ActionButton>
-        )}
-      </ActionButtonsContainer>
+          <ActionButton title="Завантажити" onClick={handleDownloadTrack}>
+            ⇩
+          </ActionButton>
+          <ActionButton
+            title="Роздрукувати обкладинку"
+            onClick={handlePrintCover}
+          >
+            🖨️
+          </ActionButton>
+          {deezerLink && (
+            <ActionButton
+              title="Слухати на Deezer"
+              onClick={(e) => { e.stopPropagation(); window.open(deezerLink, "_blank"); }}
+            >
+              <svg viewBox="0 0 24 24">
+                <path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z" />
+              </svg>
+            </ActionButton>
+          )}
+        </ActionButtonsContainer>
+      </MusicImageContainer>
     </CardWrapper>
   );
 };
@@ -6805,6 +5174,7 @@ const PlaylistModal = ({
   const [isLyricsClosing, setIsLyricsClosing] = useState(false);
   const [backgroundMode, setBackgroundMode] = useState(true);
   const [selectedAuthor, setSelectedAuthor] = useState(null); // Стан для вибраного автора
+  const [authorModalInfo, setAuthorModalInfo] = useState(null);
 
   useEffect(() => {
     setSelectedAuthor(null);
@@ -7105,7 +5475,7 @@ const PlaylistModal = ({
               fontSize: "16px",
             }}
           >
-            Додати з dezzer
+            Стати творцем
           </button>
         </div>
         <ControlsContainer>
@@ -7144,6 +5514,60 @@ const PlaylistModal = ({
           ) : (
             // Показуємо пісні обраного автора /* Changed for dark mode */
             <>
+              {(() => {
+                const authorMeta = authorsData.find((a) => a.author === selectedAuthor);
+                if (authorMeta) {
+                  const links = parseAuthorLinks(authorMeta);
+                  const authorGroup = getAuthorGroupedCards.find((a) => a.author === selectedAuthor);
+                  const previewImage = authorGroup?.image;
+                  return (
+<AuthorPreviewCard>
+  <AuthorPreviewImage>
+    {previewImage && <img src={previewImage} alt={selectedAuthor} />}
+    <AuthorPreviewName>{selectedAuthor}</AuthorPreviewName>
+  </AuthorPreviewImage>
+  <AuthorPreviewBody>
+    {authorMeta.info && (
+      <AuthorPreviewSection 
+        $accent="#667eea"
+        onClick={() => setAuthorModalInfo({ title: "Про автора", text: authorMeta.info, accent: "#667eea" })}
+      >
+        <span className="section-label" style={{ fontWeight: 'bold' }}>ℹ️ Про автора: </span>
+        <span className="section-text">{authorMeta.info}</span>
+      </AuthorPreviewSection>
+    )}
+    {authorMeta["Замітка"] && (
+      <AuthorPreviewSection 
+        $accent="#f59e0b"
+        onClick={() => setAuthorModalInfo({ title: "Замітка", text: authorMeta["Замітка"], accent: "#f59e0b" })}
+      >
+        <span className="section-label" style={{ fontWeight: 'bold' }}>✍️ Замітка: </span>
+        <span className="section-text">{authorMeta["Замітка"]}</span>
+      </AuthorPreviewSection>
+    )}
+    {authorMeta["Примітка"] && (
+      <AuthorPreviewSection 
+        $accent="#10b981"
+        onClick={() => setAuthorModalInfo({ title: "Примітка", text: authorMeta["Примітка"], accent: "#10b981" })}
+      >
+        <span className="section-label" style={{ fontWeight: 'bold' }}>📌 Примітка: </span>
+        <span className="section-text">{authorMeta["Примітка"]}</span>
+      </AuthorPreviewSection>
+    )}
+    <AuthorPreviewActions>
+      <AuthorPreviewBtn $variant="back" onClick={() => setSelectedAuthor(null)}>
+        ← Назад до авторів
+      </AuthorPreviewBtn>
+      {links.map((linkObj, i) => (
+        <RotatingLinkButton key={i} href={linkObj.url} names={linkObj.names} />
+      ))}
+    </AuthorPreviewActions>
+  </AuthorPreviewBody>
+</AuthorPreviewCard>
+                  );
+                }
+                return null;
+              })()}
               {getAuthorGroupedCards
                 .find((a) => a.author === selectedAuthor)
                 ?.tracks.slice(0, visibleCount)
@@ -7581,7 +6005,98 @@ const PlaylistModal = ({
           onToggleBackgroundMode={handleToggleBackgroundMode}
         />
       )}
+
+      <AnimatePresence>
+        {authorModalInfo && (
+          <ModalOverlay 
+            onClick={() => setAuthorModalInfo(null)}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <PlaylistModalContent 
+              onClick={(e) => e.stopPropagation()}
+              initial={{ y: 50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 50, opacity: 0 }}
+              style={{
+                background: 'linear-gradient(145deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
+                color: 'white',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                padding: '24px',
+                borderRadius: '16px',
+                maxWidth: '600px',
+                width: '90%',
+                maxHeight: '80vh',
+                overflowY: 'auto',
+                zIndex: 1000
+              }}
+            >
+              <PlaylistCloseButton onClick={() => setAuthorModalInfo(null)} style={{ color: 'white' }}>
+                &times;
+              </PlaylistCloseButton>
+              <h3 style={{ color: authorModalInfo.accent, marginBottom: '15px', borderBottom: `2px solid ${authorModalInfo.accent}40`, paddingBottom: '10px' }}>
+                {authorModalInfo.title}
+              </h3>
+              <p style={{ lineHeight: '1.6', whiteSpace: 'pre-wrap', color: 'rgba(255, 255, 255, 0.9)', fontSize: '15px', wordBreak: 'break-word', margin: 0 }}>
+                {authorModalInfo.text}
+              </p>
+            </PlaylistModalContent>
+          </ModalOverlay>
+        )}
+      </AnimatePresence>
+
     </div>
+  );
+};
+
+const parseAuthorLinks = (authorMeta) => {
+  const links = [];
+  if (authorMeta.link) {
+    if (Array.isArray(authorMeta.link)) {
+      authorMeta.link.forEach((l, i) => links.push({ url: l, names: [`Посилання ${i + 1}`] }));
+    } else {
+      links.push({ url: authorMeta.link, names: ["Посилання"] });
+    }
+  }
+
+  const linkKeys = Object.keys(authorMeta).filter(k => k.startsWith('linkk'));
+  linkKeys.forEach(key => {
+    const suffix = key.replace('linkk', ''); 
+    const url = authorMeta[key];
+    const nameKeys = Object.keys(authorMeta).filter(k => k.startsWith(`linkname${suffix}`));
+    nameKeys.sort();
+    const names = nameKeys.map(nk => authorMeta[nk]);
+    if (names.length === 0) names.push("Посилання");
+    links.push({ url, names });
+  });
+
+  return links;
+};
+
+const RotatingLinkButton = ({ href, names }) => {
+  const [index, setIndex] = useState(0);
+  const namesStr = JSON.stringify(names);
+
+  useEffect(() => {
+    if (!names || names.length <= 1) return;
+    const interval = setInterval(() => {
+      setIndex((prev) => (prev + 1) % names.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [namesStr, names?.length, names]);
+
+  const currentName = names && names.length > 0 ? names[index] : "Посилання";
+
+  return (
+    <AuthorPreviewBtn
+      as="a"
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      🔗 {currentName}
+    </AuthorPreviewBtn>
   );
 };
 
@@ -7748,8 +6263,6 @@ const MusicPhoto = ({ user, onOpenRegister, isAnyModalOpen, onUpdateUser, onFsTo
             await localforage.setItem("checkpoints_enabled", val);
           }}
         />
-      )}
-
       <AnimatePresence>
         {miniPlayerTrack && (
           <MiniPlayer

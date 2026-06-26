@@ -22,18 +22,11 @@ const ModalContent = styled.div`
   max-width: 90vw;
   max-height: 90vh;
   overflow-y: auto;
-  padding: 20px;
+  padding: 4px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 
   @media (min-width: 768px) {
     max-width: 700px;
-    padding: 30px;
-  }
-
-  @media (min-width: 1920px) {
-    max-width: 1000px;
-    padding: 40px;
-    font-size: 18px;
   }
 `;
 
@@ -42,7 +35,7 @@ const CloseButton = styled.button`
   background: #ff6b6b;
   color: white;
   border: none;
-  padding: 8px 16px;
+  padding: 3px 6px;
   border-radius: 8px;
   cursor: pointer;
   font-weight: bold;
@@ -51,11 +44,6 @@ const CloseButton = styled.button`
   &:hover {
     background: #ff5252;
   }
-
-  @media (min-width: 1920px) {
-    padding: 12px 24px;
-    font-size: 18px;
-  }
 `;
 
 const Title = styled.h2`
@@ -63,15 +51,11 @@ const Title = styled.h2`
   color: #ffb36c;
   border-bottom: 2px solid #ffb36c;
   padding-bottom: 10px;
-
-  @media (min-width: 1920px) {
-    font-size: 28px;
-  }
 `;
 
 const Section = styled.div`
-  margin: 20px 0;
-  padding: 15px;
+  margin: 5px 0;
+  padding: 5px;
   background: ${(props) =>
     props.$isDarkMode ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.05)"};
   border-left: 4px solid #00bfff;
@@ -81,18 +65,14 @@ const Section = styled.div`
     margin-top: 0;
     color: #00bfff;
     font-size: 16px;
-
-    @media (min-width: 1920px) {
-      font-size: 20px;
-    }
   }
 `;
 
 const DataGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 15px;
-  margin-top: 10px;
+  gap: 5px;
+  margin-top: 5px;
 
   @media (min-width: 768px) {
     grid-template-columns: 1fr 1fr;
@@ -104,16 +84,11 @@ const DataGrid = styled.div`
 `;
 
 const DataItem = styled.div`
-  padding: 10px;
+  padding: 3px;
   background: ${(props) =>
     props.$isDarkMode ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)"};
   border-radius: 6px;
   font-size: 13px;
-
-  @media (min-width: 1920px) {
-    font-size: 16px;
-    padding: 15px;
-  }
 `;
 
 const Label = styled.span`
@@ -136,26 +111,17 @@ const DangerHighlight = styled.span`
 
 const HourlyTable = styled.div`
   overflow-x: auto;
-  margin-top: 10px;
+  margin-top: 4px;
 
   table {
     width: 100%;
     border-collapse: collapse;
     font-size: 12px;
-
-    @media (min-width: 1920px) {
-      font-size: 16px;
-    }
-
     th,
     td {
-      padding: 8px;
+      padding: 4px;
       text-align: center;
       border: 1px solid ${(props) => (props.$isDarkMode ? "#444" : "#ddd")};
-
-      @media (min-width: 1920px) {
-        padding: 12px;
-      }
     }
 
     th {
@@ -173,6 +139,7 @@ const HourlyTable = styled.div`
 
 const WeatherDetailsModal = ({ isOpen, onClose, card, isDarkMode }) => {
   const [activeTab, setActiveTab] = useState("current");
+  const [hourlyDayIndex, setHourlyDayIndex] = useState(0);
 
   if (!isOpen || !card) return null;
 
@@ -190,8 +157,8 @@ const WeatherDetailsModal = ({ isOpen, onClose, card, isDarkMode }) => {
 
   const TabButtons = styled.div`
     display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
+    gap: 3px;
+    margin-bottom: 10px;
     flex-wrap: wrap;
 
     button {
@@ -199,7 +166,7 @@ const WeatherDetailsModal = ({ isOpen, onClose, card, isDarkMode }) => {
         props.$isDarkMode ? "#333" : "rgba(0, 0, 0, 0.1)"};
       color: ${(props) => (props.$isDarkMode ? "#fff" : "#333")};
       border: 2px solid transparent;
-      padding: 8px 16px;
+      padding: 4px;
       border-radius: 8px;
       cursor: pointer;
       font-weight: bold;
@@ -213,11 +180,6 @@ const WeatherDetailsModal = ({ isOpen, onClose, card, isDarkMode }) => {
 
       &:hover {
         border-color: #ffb36c;
-      }
-
-      @media (min-width: 1920px) {
-        padding: 12px 24px;
-        font-size: 16px;
       }
     }
   `;
@@ -240,7 +202,7 @@ const WeatherDetailsModal = ({ isOpen, onClose, card, isDarkMode }) => {
             className={activeTab === "hourly" ? "active" : ""}
             onClick={() => setActiveTab("hourly")}
           >
-            По годинам (24г)
+            По годинам ({hourly.length}г)
           </button>
           <button
             className={activeTab === "daily" ? "active" : ""}
@@ -370,7 +332,22 @@ const WeatherDetailsModal = ({ isOpen, onClose, card, isDarkMode }) => {
 
         {activeTab === "hourly" && hourly.length > 0 && (
           <Section $isDarkMode={isDarkMode}>
-            <h3>📊 Погодинні дані (перших 24 години)</h3>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px", flexWrap: "wrap", gap: "5px" }}>
+              <h3 style={{ margin: 0 }}>📊 Погодинні дані</h3>
+              {hourly.length > 24 && (
+                <div style={{ display: "flex", gap: "5px", flexWrap: "wrap" }}>
+                  {Array.from({ length: Math.ceil(hourly.length / 24) }).map((_, i) => (
+                    <button 
+                      key={i}
+                      onClick={() => setHourlyDayIndex(i)} 
+                      style={{ background: hourlyDayIndex === i ? "#00bfff" : (isDarkMode ? "#333" : "#ddd"), color: hourlyDayIndex === i ? "#000" : (isDarkMode ? "#fff" : "#000"), border: "none", padding: "2px 8px", borderRadius: "4px", cursor: "pointer", fontSize: "12px", fontWeight: "bold" }}
+                    >
+                      {hourly[i * 24]?.date ? hourly[i * 24].date : `${i + 1} доба`}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             <HourlyTable $isDarkMode={isDarkMode}>
               <table>
                 <thead>
@@ -386,7 +363,7 @@ const WeatherDetailsModal = ({ isOpen, onClose, card, isDarkMode }) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {hourly.slice(0, 24).map((h, idx) => (
+                  {hourly.slice(hourlyDayIndex * 24, (hourlyDayIndex + 1) * 24).map((h, idx) => (
                     <tr key={idx}>
                       <td>{h.time}</td>
                       <td>

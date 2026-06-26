@@ -2062,6 +2062,7 @@ const App = () => {
               onUpdateLayout={setWeatherCardLayout}
               showUpdateTimer={showUpdateTimer}
               setShowUpdateTimer={setShowUpdateTimer}
+              isDarkMode={isDarkMode}
             />
           )}
           {isVipModalOpen && (

@@ -987,7 +987,7 @@ const WeatherCardComponent = ({
                     borderRadius: "4px",
                     cursor: "pointer",
                     fontSize: "12px",
-                    padding: "2px 8px",
+                    padding: "2px 4px",
                   }}
                 >
                   ✕

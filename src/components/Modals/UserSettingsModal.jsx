@@ -77,31 +77,69 @@ const ModalOverlay = styled.div`
 `;
 
 const ModalContent = styled.div`
-  background: white;
-  padding: 30px;
-  border-radius: 20px;
+  background: ${(props) => (props.$isDarkMode ? "#2e1d30" : "#d3b0d3")};
+  color: ${(props) => (props.$isDarkMode ? "#ffffff" : "inherit")};
+  padding: 4px 30px 10px 10px;
+  border-radius: 10px;
   width: 90%;
   max-width: 450px;
   position: relative;
   display: flex;
   flex-direction: column;
   gap: 15px;
-  background: #d3b0d3;
   max-height: 90vh;
   overflow-y: auto;
   animation: ${(props) => (props.$isClosing ? slideOut : slideIn)} 0.5s ease-out
     forwards;
+
+  @media (min-width: 768px) {
+    max-width: 750px;
+  }
+  @media (min-width: 1024px) {
+    max-width: 900px;
+  }
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: ${(props) => (props.$isDarkMode ? "#5e3e61" : "#a981a9")};
+    border-radius: 10px;
+  }
+`;
+
+const SectionsContainer = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 15px;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+`;
+
+const OrderContainer = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
 `;
 
 const CloseButton = styled.button`
   position: absolute;
-  top: 10px;
-  right: 15px;
+  top: -3px;
+  right: 5px;
   background: none;
   border: none;
   font-size: 34px;
   cursor: pointer;
-  color: #000000;
+  color: ${(props) => (props.$isDarkMode ? "#ffffff" : "#000000")};
   &:hover {
     color: #00e1ff;
   }
@@ -110,18 +148,30 @@ const CloseButton = styled.button`
 const Section = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid #000000;
+  padding: 5px;
+  background: ${(props) => (props.$isDarkMode ? "rgba(255, 255, 255, 0.1)" : "rgba(255, 255, 255, 0.4)")};
+  border-radius: 12px;
+  border: 1px solid ${(props) => (props.$isDarkMode ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.5)")};
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  min-width: 0;
+  color: ${(props) => (props.$isDarkMode ? "#ffffff" : "inherit")};
 `;
 
 const Input = styled.input`
-  padding: 12px;
-  border: 1px solid #000000;
+  padding: 4px;
+  border: 1px solid ${(props) => (props.$isDarkMode ? "rgba(255, 255, 255, 0.3)" : "#000000")};
   border-radius: 10px;
+  font-size: 14px; 
   width: 100%;
   background: transparent;
+  color: ${(props) => (props.$isDarkMode ? "#ffffff" : "black")};
   box-sizing: border-box;
+  &::placeholder {
+    color: ${(props) => (props.$isDarkMode ? "rgba(255, 255, 255, 0.6)" : "#000000")};
+    font-style: italic;
+    font-size: 14px;
+    opacity: 1; 
+  }
 `;
 const NameInput = styled(Input)`
   caret-color: black;
@@ -154,11 +204,11 @@ const NameInput = styled(Input)`
 `;
 const Select = styled.select`
   padding: 12px;
-  border: 1px solid #000000;
-  background: transparent;
+  border: 1px solid ${(props) => (props.$isDarkMode ? "rgba(255, 255, 255, 0.3)" : "#000000")};
+  background: ${(props) => (props.$isDarkMode ? "#4a3b4c" : "white")};
+  color: ${(props) => (props.$isDarkMode ? "#ffffff" : "black")};
   border-radius: 10px;
   flex: 1;
-  background: white;
   font-size: 14px;
   cursor: pointer;
   &:focus {
@@ -176,9 +226,9 @@ const DateRow = styled.div`
 const CheckboxRow = styled.div`
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 3px;
   font-size: 14px;
-  color: #5a5a5a;
+  color: ${(props) => (props.$isDarkMode ? "#ffffff" : "black")};
 `;
 
 const TermsBtn = styled.span`
@@ -189,7 +239,7 @@ const TermsBtn = styled.span`
   font-size: 14px;
 `;
 const AvatarOption = styled.div`
-  width: 60px;
+  width: 50px;
   height: 60px;
   min-width: 60px;
   border-radius: 50%;
@@ -216,7 +266,7 @@ const AvatarOption = styled.div`
 `;
 const AvatarSlider = styled.div`
   display: flex;
-  gap: 15px;
+  gap: 5px;
   overflow-x: auto;
   padding: 10px 0;
   &::-webkit-scrollbar {
@@ -230,7 +280,7 @@ const AvatarSlider = styled.div`
 
 const ColorContainer = styled.div`
   display: flex;
-  gap: 10px;
+  gap: 3px;
   overflow-x: auto;
   padding: 5px 0;
   &::-webkit-scrollbar {
@@ -261,8 +311,9 @@ const ColorCircle = styled.div`
 const SaveButton = styled.button`
   background: #ffb36c;
   height: 45px;
-  border: 2px solid black;
+  border: 2px solid ${(props) => (props.$isDarkMode ? "transparent" : "black")};
   flex: 1;
+  color: black;
   border-radius: 10px;
   font-weight: bold;
   cursor: pointer;
@@ -275,15 +326,16 @@ const SaveButton = styled.button`
 const CancelButton = styled.button`
   background: transparent;
   height: 45px;
+  color: ${(props) => (props.$isDarkMode ? "#ffffff" : "black")};
   flex: 1;
   border-radius: 10px;
   font-weight: bold;
-  border: 2px solid black;
+  border: 2px solid ${(props) => (props.$isDarkMode ? "rgba(255,255,255,0.5)" : "black")};
   cursor: pointer;
 `;
 const Title = styled.h3`
   font-weight: 900;
-  color: black;
+  color: ${(props) => (props.$isDarkMode ? "#ffffff" : "black")};
 `;
 const PasswordStrengthContainer = styled.div`
   background: rgba(0, 0, 0, 0.1);
@@ -321,47 +373,53 @@ const OrderButton = styled.button`
   height: 26px;
   font-size: 14px;
   border-radius: 6px;
-  border: 1px solid #000;
-  background: ${(props) => (props.disabled ? "transparent" : "#fff")};
-  color: ${(props) => (props.disabled ? "#aaa" : "#000")};
-  border-color: ${(props) => (props.disabled ? "#aaa" : "#000")};
+  border: 1px solid ${(props) => (props.disabled ? (props.$isDarkMode ? "#555" : "#aaa") : (props.$isDarkMode ? "rgba(255, 255, 255, 0.3)" : "#000"))};
+  background: ${(props) => (props.disabled ? "transparent" : (props.$isDarkMode ? "#3e2b42" : "#fff"))};
+  color: ${(props) => (props.disabled ? (props.$isDarkMode ? "#555" : "#aaa") : (props.$isDarkMode ? "#fff" : "#000"))};
   margin-left: 6px;
   cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
   transition: all 0.2s;
-  box-shadow: ${(props) => (props.disabled ? "none" : "0 2px 0 #000")};
+  box-shadow: ${(props) => (props.disabled ? "none" : (props.$isDarkMode ? "0 2px 0 rgba(255,255,255,0.2)" : "0 2px 0 #000"))};
 
   &:hover:not(:disabled) {
     background: #ffb36c;
+    color: #000;
     transform: translateY(-1px);
-    box-shadow: 0 3px 0 #000;
+    box-shadow: 0 3px 0 ${(props) => (props.$isDarkMode ? "rgba(255,255,255,0.3)" : "#000")};
   }
 
   &:active:not(:disabled) {
     transform: translateY(1px);
-    box-shadow: 0 0 0 #000;
+    box-shadow: 0 0 0 ${(props) => (props.$isDarkMode ? "rgba(255,255,255,0.3)" : "#000")};
   }
 `;
-
+const Label = styled.label`
+  font-size: 13px;
+  font-weight: bold;
+  color: ${(props) => (props.$isDarkMode ? "#ffffff" : "black")};
+`;
 const ResetOrderButton = styled.button`
   margin-top: 10px;
   padding: 8px 18px;
   border-radius: 8px;
-  border: 2px solid #000;
+  border: 2px solid ${(props) => (props.$isDarkMode ? "rgba(255, 255, 255, 0.5)" : "#000")};
   background: transparent;
+  color: ${(props) => (props.$isDarkMode ? "#ffffff" : "black")};
   font-weight: bold;
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: 0 2px 0 #000;
+  box-shadow: 0 2px 0 ${(props) => (props.$isDarkMode ? "rgba(255, 255, 255, 0.5)" : "#000")};
 
   &:hover {
     background: #ffe0b2;
+    color: #000;
     transform: translateY(-1px);
-    box-shadow: 0 3px 0 #000;
+    box-shadow: 0 3px 0 ${(props) => (props.$isDarkMode ? "rgba(255, 255, 255, 0.7)" : "#000")};
   }
 
   &:active {
     transform: translateY(1px);
-    box-shadow: 0 0 0 #000;
+    box-shadow: 0 0 0 ${(props) => (props.$isDarkMode ? "rgba(255, 255, 255, 0.7)" : "#000")};
   }
 `;
 
@@ -666,14 +724,17 @@ const UserSettingsModal = ({
           onClick={(e) => e.stopPropagation()}
         >
           <CloseButton onClick={handleCancel}>&times;</CloseButton>
-          <Title style={{ textAlign: "center" }}>Налаштування</Title>
           <div
             style={{
               display: "flex",
-              justifyContent: "flex-end",
-              marginBottom: 10,
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginBottom: "10px",
+              flexWrap: "wrap",
+              gap: "10px",
             }}
           >
+            <Title style={{ margin: 0 }}>Налаштування</Title>
             <button
               style={{
                 background: "#ffb36c",
@@ -682,10 +743,9 @@ const UserSettingsModal = ({
                 borderRadius: 8,
                 fontWeight: 600,
                 fontSize: 14,
-                padding: "6px 18px",
+                padding: "8px 16px",
                 cursor: "pointer",
                 boxShadow: "0 2px 8px #0002",
-                marginRight: 0,
               }}
               onClick={() => setShowKatScene(true)}
             >
@@ -693,14 +753,15 @@ const UserSettingsModal = ({
             </button>
           </div>
           {/* ВСІ секції */}
+          <SectionsContainer>
           {sectionsOrder.map((section) => {
             let content = null;
             if (section === "name") {
               content = (
                 <Section key="name">
-                  <label style={{ fontSize: "13px", fontWeight: "bold" }}>
+                  <Label style={{ fontSize: "13px", fontWeight: "bold" }}>
                     Ім'я
-                  </label>
+                  </Label>
                   <NameInput
                     $textColor={formData.textColor}
                     value={formData.name}
@@ -713,9 +774,9 @@ const UserSettingsModal = ({
             } else if (section === "birthDate") {
               content = (
                 <Section key="birthDate">
-                  <label style={{ fontSize: "13px", fontWeight: "bold" }}>
+                  <Label>
                     Дата народження
-                  </label>
+                  </Label>
                   <DateRow>
                     <Select
                       value={formData.day}
@@ -767,9 +828,9 @@ const UserSettingsModal = ({
             } else if (section === "security") {
               content = (
                 <Section key="security">
-                  <label style={{ fontSize: "13px", fontWeight: "bold" }}>
+                  <Label>
                     Безпека
-                  </label>
+                  </Label>
                   <Input
                     type="password"
                     placeholder="Поточний пароль"
@@ -820,9 +881,9 @@ const UserSettingsModal = ({
             } else if (section === "textColor") {
               content = (
                 <Section key="textColor">
-                  <label style={{ fontSize: "13px", fontWeight: "bold" }}>
+                  <Label>
                     Колір тексту
-                  </label>
+                  </Label>
                   <ColorContainer>
                     {COLORS.map((color, i) => (
                       <ColorCircle
@@ -841,9 +902,9 @@ const UserSettingsModal = ({
             } else if (section === "borderColor") {
               content = (
                 <Section key="borderColor">
-                  <label style={{ fontSize: "13px", fontWeight: "bold" }}>
+                  <Label>
                     Колір рамки аватара
-                  </label>
+                  </Label>
                   <ColorContainer>
                     {COLORS.map((color, i) => (
                       <ColorCircle
@@ -866,7 +927,7 @@ const UserSettingsModal = ({
                     style={{
                       fontSize: "12px",
                       fontWeight: "bold",
-                      color: "grey",
+                      color: "black",
                     }}
                   >
                     Аватар оберіть. Активуйте
@@ -891,9 +952,9 @@ const UserSettingsModal = ({
             } else if (section === "dateDisplay") {
               content = (
                 <Section key="dateDisplay">
-                  <label style={{ fontSize: "13px", fontWeight: "bold" }}>
+                  <Label style={{ fontSize: "13px", fontWeight: "bold" }}>
                     Налаштування годинника
-                  </label>
+                  </Label>
                   <CheckboxRow>
                     <input
                       type="checkbox"
@@ -1140,44 +1201,60 @@ const UserSettingsModal = ({
             }
             return content;
           })}
-          {/* Порядок секцій */}
-          <div style={{ marginTop: 30, marginBottom: 10 }}>
-            <h4 style={{ fontWeight: 700, fontSize: 16, marginBottom: 10 }}>
+          </SectionsContainer>
+          <div
+            style={{
+              marginTop: 5,
+              marginBottom: 5,
+              padding: "5px",
+              background: "rgba(255,255,255,0.4)",
+              borderRadius: "12px",
+              border: "1px solid rgba(255, 255, 255, 0.5)",
+              boxShadow: "0 4px 15px rgba(0, 0, 0, 0.05)",
+            }}
+          >
+            <h4 style={{ fontWeight: 700, fontSize: 16, marginBottom: 5, marginTop: 0, color: "black" }}>
               Порядок секцій:
             </h4>
-            {sectionsOrder.map((section, idx) => (
-              <div
-                key={section}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  marginBottom: 6,
-                }}
-              >
-                <span style={{ minWidth: 120, fontWeight: 500 }}>
-                  {SECTION_LABELS[section]}
-                </span>
-                <OrderButton
-                  disabled={idx === 0}
-                  onClick={() => moveSection(idx, -1)}
-                  title="Вище"
+            <OrderContainer>
+              {sectionsOrder.map((section, idx) => (
+                <div
+                  key={section}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    background: "rgba(255,255,255,0.6)",
+                    padding: "3px 4px",
+                    borderRadius: "8px",
+                  }}
                 >
-                  ↑
-                </OrderButton>
-                <OrderButton
-                  disabled={idx === sectionsOrder.length - 1}
-                  onClick={() => moveSection(idx, 1)}
-                  title="Нижче"
-                >
-                  ↓
-                </OrderButton>
-              </div>
-            ))}
+                  <span style={{ fontWeight: 500, fontSize: "13px", color: "black" }}>
+                    {SECTION_LABELS[section]}
+                  </span>
+                  <div style={{ display: "flex" }}>
+                    <OrderButton
+                      disabled={idx === 0}
+                      onClick={() => moveSection(idx, -1)}
+                      title="Вище"
+                    >
+                      ↑
+                    </OrderButton>
+                    <OrderButton
+                      disabled={idx === sectionsOrder.length - 1}
+                      onClick={() => moveSection(idx, 1)}
+                      title="Нижче"
+                    >
+                      ↓
+                    </OrderButton>
+                  </div>
+                </div>
+              ))}
+            </OrderContainer>
             <ResetOrderButton onClick={resetSectionsOrder}>
               Скинути порядок
             </ResetOrderButton>
           </div>
-          {/* Чекбокс та кнопки */}
           <CheckboxRow>
             <input
               type="checkbox"
@@ -1196,7 +1273,7 @@ const UserSettingsModal = ({
               </TermsBtn>
             </label>
           </CheckboxRow>
-          <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
+          <div style={{ display: "flex", gap: "4px", marginTop: "3px" }}>
             <CancelButton onClick={handleCancel}>Скасувати</CancelButton>
             <SaveButton onClick={handleSubmit} disabled={isInvalidDate}>
               Зберегти
