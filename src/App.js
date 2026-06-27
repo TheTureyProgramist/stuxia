@@ -212,15 +212,15 @@ const ParticleSymbol = styled.span`
 
 const UpdateTimerBadge = styled.div`
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  bottom: 10px;
+  right: 10px;
   background: ${(props) => (props.$isDarkMode ? "rgba(30, 30, 30, 0.85)" : "rgba(255, 255, 255, 0.85)")};
   color: ${(props) => (props.$isDarkMode ? "#00eaff" : "#004cff")};
-  padding: 8px 15px;
+  padding: 4px 7px;
   border-radius: 30px;
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 800;
-  z-index: 9999;
+  z-index: 499;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
   display: flex;
   align-items: center;
@@ -2135,7 +2135,7 @@ const App = () => {
               onClick={handleManualBulkRefresh}
               title="Натисніть, щоб оновити всі картки зараз"
             >
-              🕒 Оновлення через: {Math.floor(secondsUntilUpdate / 60)}:
+            Оновлення погоди через: {Math.floor(secondsUntilUpdate / 60)}:
               {(secondsUntilUpdate % 60).toString().padStart(2, '0')}
             </UpdateTimerBadge>
           )}
