@@ -103,15 +103,26 @@ const InfoText = styled.div`
   color: #fff;
   font-family: "Inter", sans-serif;
 `;
-
-const VersionText = styled.p`
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  opacity: 0.9;
-  margin-bottom: 8px;
+const TopLeftInfo = styled.div`
+  position: absolute;
+  top: -9px;
+  left: -7px;
+  z-index: 3;
+  color: #fff;
+  text-align: left;
 `;
 
+const VersionText = styled.p`
+  font-size: 12px;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 15px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  border-radius: 20px;
+  opacity: 0.9;
+  margin: 0;
+  font-family: "Inter", sans-serif;
+`;
 const PhraseText = styled.p`
   font-size: 13px;
   color: #00c6ff;
@@ -120,7 +131,6 @@ const PhraseText = styled.p`
   font-style: italic;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 `;
-
 export default function Loader({ isLoading, isFadingOut, randomPhrase }) {
   const [showSecondImage, setShowSecondImage] = useState(false);
 
@@ -135,6 +145,11 @@ export default function Loader({ isLoading, isFadingOut, randomPhrase }) {
 
   return (
     <LoaderWrapper $isFadingOut={isFadingOut}>
+      {/* Переміщена версія в лівий верхній кут */}
+      <TopLeftInfo>
+        <VersionText>Версія 0.9.9 Конотоп-Україна</VersionText>
+      </TopLeftInfo>
+
       <LoaderContent>
         <ImageContainer>
           <LoaderImage
@@ -155,7 +170,7 @@ export default function Loader({ isLoading, isFadingOut, randomPhrase }) {
           </ProgressContainer>
 
           <InfoText>
-            <VersionText>Версія 0.9.9. Конотоп-Україна</VersionText>
+            {/* PhraseText залишився внизу, як ви і хотіли */}
             <PhraseText>{randomPhrase}</PhraseText>
           </InfoText>
         </UIOverlay>

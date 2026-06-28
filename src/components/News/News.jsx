@@ -124,7 +124,7 @@ const PaginationSide = styled.div`
   align-items: center;
   gap: 12px;
   background: ${(props) => (props.$isDarkMode ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.4)")};
-  padding: 15px 8px;
+  padding: 8px 8px;
   border-radius: 30px;
   backdrop-filter: blur(10px);
   border: 1px solid #ffb36c;
@@ -409,7 +409,7 @@ const News = ({ $isDarkMode, user }) => {
           const cleanDesc = (item.description || "")
             .replace(/<[^>]*>?/gm, "")
             .trim()
-            .substring(0, 80);
+            .substring(0, 220);
 
           toTranslateIndices.push(i);
           stringsToTranslate.push(item.title);
@@ -569,7 +569,7 @@ const News = ({ $isDarkMode, user }) => {
   return (
     <NewsDiv>
       <AihelpTitle $isDarkMode={$isDarkMode}>
-        Світ природи
+        Новини та реклама
         {lastUpdated && (
           <span style={{ fontSize: '0.55em', opacity: 0.6, marginLeft: '12px', fontWeight: '400', verticalAlign: 'middle' }}>
             (Оновлено: {lastUpdated.toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' })})
@@ -581,7 +581,7 @@ const News = ({ $isDarkMode, user }) => {
           disabled={loading || cooldown > 0}
           title={cooldown > 0 ? `Повторне оновлення буде доступне через ${cooldown} сек.` : "Оновити новини"}
         >
-          {loading ? "⌛ Оновлення..." : cooldown > 0 ? `⏳ ${cooldown}с` : "🔄 Оновити зараз"}
+          {loading ? "⌛ Оновлення..." : cooldown > 0 ? `⏳ ${cooldown}с` : "🔄 Оновити"}
         </RefreshBtn>
       </AihelpTitle>
 

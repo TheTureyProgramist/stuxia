@@ -53,7 +53,7 @@ const FanArt = lazy(() => import("./components/FanArt/FanArt.jsx"));
 const ShopModal = lazy(() => import("./components/Modals/ShopModal.jsx"));
 const News = lazy(() => import("./components/News/News.jsx"));
 const AchivmentsModal = lazy(() => import("./components/Modals/AchivmentsModal.jsx"));
-const Puzzles = lazy(() => import("./components/Puzzles/Puzzles.jsx"));
+//const Puzzles = lazy(() => import("./components/Puzzles/Puzzles.jsx"));
 const ClimateMap = lazy(() => import("./components/ClimateMap/ClimateMap.jsx"));
 const MusicPhoto = lazy(() => import("./components/MusicPhoto/MusicPhoto.jsx"));
 const Modal = lazy(() => import("./components/Modals/Modal.jsx"));
@@ -74,12 +74,11 @@ const GlobalFilterLock = createGlobalStyle`
 `;
 
 const StyledSectionContainer = styled.div`
-  background-color: ${(props) => (props.$isDarkMode ? "#1a1a1a" : "#ffffff")};
-  color: ${(props) => (props.$isDarkMode ? "#ffffff" : "#1a1a1a")};
+  background-color: ${(props) => (props.$isDarkMode ? "#000000" : "#ffffff")};
+  color: ${(props) => (props.$isDarkMode ? "#ffffff" : "#000000")};
   transition: all 0.3s ease;
   border-radius: 20px;
-  padding: 10px;
-  margin: 20px 0;
+  margin: 10px 0;
   display: ${(props) => (props.$isHidden ? "none" : "block")};
 `;
 
@@ -129,37 +128,32 @@ const getWeatherIcon = (code) => {
 
 const ThemeWrapper = styled.div`
   background-color: ${(props) =>
-    props.$isDarkMode ? "#121212" : "transparent"};
+    props.$isDarkMode ? "#000000" : "transparent"};
   color: ${(props) => (props.$isDarkMode ? "#ffffff" : "inherit")};
   min-height: 100vh;
   transition: background-color 0.3s ease;
-  padding-bottom: 20px;
 `;
 
 const WeatherCardsContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
+  gap: 5px;
   justify-content: center;
-  margin: 30px 0;
-  @media (min-width: 1920px) {
-    gap: 40px;
-  }
 `;
 const LOADING_PHRASES = [
   "Підпішіться на мій фейсбук і ютуб, щоб знати, що буде в наступній версії! TheTurkeyStudio.",
   "Доміно, хоче вже продавати!",
-  "Головоломки та сюжет в розробці🧩",
-  "Зворотній зв'язок: фейсбук або акаунт theturkeystudio@gmail.com, на випадок помилок або якщо ви правовласник, і хочете обговорити умови розміщення треку на сайті.",
-  "Питання по навігації можете задати до нашого ШІ✨",
+  "Далі буде...",
+  "Зворотній зв'язок: фейсбук, ютуб або акаунт theturkeystudio@gmail.com, на випадок помилок, розміщення реклами або якщо ви правовласник, і хочете обговорити умови розміщення треку на сайті.",
+  "ШІ вже готовий відповідати✨",
   "Фан-арти безкоштовні, для роздрукування! 🎨",
-  "Розблокуйте переваги з Стихія+ та Стихія+ Ультра!",
+  "Розблокуйте переваги з Стихія+ та Стихія Ультра!",
   "Ви знаєте, що за рандомний текст, можна отримати досягнення? Треба побачити кожний :)",
   "Скиньте мені в фейсбук, картинки до треків деяких",
-  "СлівкіШоу та Дизель шоу, це легенди.",
+  "СлівкіШоу та Дизель шоу(2015-2020), це легенди.",
   "Лише по секрету, 5bn games, одні з накращих, у створення сюжетів і загадок(Спадщина і Темрява та Полум'я найвдаліше!)",
   "Ми вас здивуємо, багато чим :)",
-  "Пробачте за рекламу, при переході на новини, я просто хочу, щоб ви мене морально підтримали.",
+  "Морально підтримайте підписою, рекламою і побажаннями.",
   "Навчання, оцінювання та коментування",
   "Тут написано, про випуск, нової детективної гри.",
   "Помилка 404, це жарт :)",
@@ -173,20 +167,20 @@ const LOADING_PHRASES = [
   "Багато змін клімату, мультиплікації, моди, життя. І мене теж. Не знаю який обрати :( чи :)",
   "Хто знає, той у нас шукає",
   "Місія неможлива, ніде не помилитись",
-  "Досягнення 99: Хто я, якщо нас менше 70?. ",
+  "Досягнення 99: Хто я, якщо нас менше 30?. ",
   "Давайте поради щодо дизайну, Стихії",
   "Правило 20: Дивіться на все під різними кутами.",
   "A new day! A new adventure! A new update!",
   "A new day! A new adventure! A new update!",
-  "Радіо: З загадкового туману, вилазять ...перешкоди... Кейт: Знайди мене!",
+  "Ви: Цей сайт дивний, тут погода, і відсилки, і старі хіти, зате прикольний індик в магазині.",
   "Оксану Самойлову, з 'Україна має талант' хто пам'ятає?",
-  "Страху немає, упевненим робиться рух!", // Corrected typo: "упевненим" -> "упевнений"
+  "Страху немає, упевненим робиться рух!", 
   "У мене, важкі дні, а у вас?",
-  "#Індики #Стихія #Сценотвір #Погода #Ненавиджу_казино #Динофроз #Ніцерон #Люблю_Дизель_шоу",
-  "Новини - для біологів та акторів, погода - для георафів, головоломки - для гравців, Динофроз і Індики - для музики любителів",
+  "#Індики #Стихія #Погода #Ностальгія #Динофроз #Ніцерон",
+  "Новини - для біологів та акторів, погода - для географів, індики - для музики любителів,",
   "Mondo TV - Thanks for legendary cartoons.",
   "Раз два, раз два, три. Погоду нам скажи!",
-  "Тепер ви можете встановити відео як шпалери! Спробуйте завантажити своє (перші 8 секунд).",
+  "Це початок початку, чи початок кінця відсилкам.",
 ];
 
 const phraseFlyOut = keyframes`
@@ -333,10 +327,10 @@ const SectionContent = memo(
         </div>
       );
     }
+      //{section.key === "puzzles" && <Puzzles />}
     return (
       <div id={section.key}>
         {section.key === "map" && <ClimateMap />}
-        {section.key === "puzzles" && <Puzzles />}
         {section.key === "aihelp" && <Aihelp isDarkMode={isDarkMode} />}
         {section.key === "news" && <News />}
         {section.key === "music" && (
@@ -654,7 +648,7 @@ const App = () => {
     import("./components/Modals/ShopModal.jsx");
     import("./components/News/News.jsx");
     import("./components/Modals/AchivmentsModal.jsx");
-    import("./components/Puzzles/Puzzles.jsx");
+   // import("./components/Puzzles/Puzzles.jsx");
     import("./components/ClimateMap/ClimateMap.jsx");
     import("./components/MusicPhoto/MusicPhoto.jsx");
     import("./components/Modals/Modal.jsx");

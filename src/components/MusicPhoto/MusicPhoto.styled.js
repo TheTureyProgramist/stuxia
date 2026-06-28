@@ -173,7 +173,7 @@ export const blinkAnimation = keyframes`
 `;
 
 export const MusicPhotoDiv = styled.div`
-  background: #e8e8e8;
+  background: ${(props) => (props.$isDarkMode ? "white" : "black")};
   border-radius: 20px;
   margin-top: 5px;
   text-align: center;

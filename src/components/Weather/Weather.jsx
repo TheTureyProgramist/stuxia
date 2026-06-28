@@ -12,10 +12,22 @@ import {
 
 const fadeIn = keyframes`from { opacity: 0; } to { opacity: 1; }`;
 
+const AihelpTitle = styled.div`
+  font-size: 14px;
+  text-align: center;
+  font-family: var(--font-family);
+  font-weight: 600;
+  color: ${(props) => (props.$isDarkMode ? "black" : "white")};
+  margin-bottom: 15px;
+  @media (min-width: 768px) {
+    font-size: 24px;
+  }
+`;
+
 const WeatherCard = styled.div`
-  background: ${(props) => (props.$isDarkMode ? "#1e1e1e" : "#f5f5f5")};
+  background: ${(props) => (props.$isDarkMode ? "#000000" : "#f5f5f5")};
   position: relative;
-  color: ${(props) => (props.$isDarkMode ? "#fff" : "#333")};
+  color: ${(props) => (props.$isDarkMode ? "#fff" : "#000000")};
   border-radius: 15px;
   padding: 8px;
   width: 100%;
@@ -56,15 +68,6 @@ const ActionButtons = styled.div`
     font-size: 15px;
     &:hover {
       background: #555;
-    }
-  }
-
-  @media (min-width: 1920px) {
-    gap: 15px;
-    button {
-      font-size: 20px;
-      padding: 10px 20px;
-      border-radius: 10px;
     }
   }
 `;
@@ -114,12 +117,6 @@ const ImagePlaceholder = styled.div`
   border-radius: 10px;
   font-size: ${(props) => props.fontSize || "24px"};
   color: #fff;
-
-  @media (min-width: 1920px) {
-    width: ${(props) => parseInt(props.size) * 1.5}px;
-    height: ${(props) => parseInt(props.size) * 1.5}px;
-    font-size: 45px !important;
-  }
 `;
 
 const ChartScrollWrapper = styled.div`
@@ -151,13 +148,6 @@ const AiSummaryBox = styled(motion.div)`
   line-height: 1.5;
   color: ${(props) => (props.$isDarkMode ? "#efefff" : "#4a4a4a")};
   animation: ${fadeIn} 0.5s ease-out;
-
-  @media (min-width: 1920px) {
-    font-size: 18px;
-    padding: 20px;
-    .ai-header-text { font-size: 14px !important; }
-    .ai-edit-btn { font-size: 14px !important; }
-  }
 `;
 
 const SummaryText = styled.div`
@@ -241,19 +231,6 @@ const DailyDetailOverlay = styled.div`
     cursor: pointer;
     &:hover {
       background: #ff9800;
-    }
-  }
-
-  @media (min-width: 1920px) {
-    h3 {
-      font-size: 2.2rem;
-    }
-    p {
-      font-size: 20px;
-    }
-    button {
-      font-size: 20px;
-      padding: 12px 30px;
     }
   }
 `;
@@ -487,36 +464,37 @@ const WeatherCardComponent = ({
   // Реєстр свят 2026
   const HOLIDAYS_2026 = {
     "01.01": "Вітаю з Новим роком!",
-    "06.01": "Богоявлення (Водохреще)",
+    "06.01": "Богоявлення (Водохреща)",
     "07.01": "Різдво Христове (старий стиль)",
+    "12.01": "1 серія 'Реальної містики'",
     "02.02": "Стрітення Господнє",
-    14.02: "З Днем святого Валентина!",
+    "14.02": "З Днем святого Валентина!",
     "08.03": "Жінки, всіх вас вітаю з вашим днем!",
-    25.03: "Благовіщення",
+    "25.03": "Благовіщення",
     "01.04": "Сьогодні день дурня, не святого лежня. Нікому не вірте!",
-    12.04: "З Великоднем (Пасха). Бажаю всім всього найкращого.",
+    "12.04": "З Великоднем (Пасха). Бажаю всім всього найкращого.",
     "01.05": "День праці",
     "08.05":
-      "День пам'яті та перемоги. В цей день ми(наші прадіди) перемогли фашизм",
-    10.05:
+      "День пам'яті та перемоги. В цей день наші прадіди перемогли фашизм.",
+    "10.05":
       "День матері. Подякуйте їм, за те що вони підтримували вас у тяжкі дні. А радісні робили, ще кращими.",
-    21.05: "Вознесіння Господнє",
-    31.05: "Трійця (П'ятдесятниця). ",
-    21.06: "День батька",
-    28.06: "День Конституції України",
+    "21.05": "Вознесіння Господнє",
+    "27.05": "Випуск Dragon Village 3",
+    "31.05": "Трійця (П'ятдесятниця). ",
+    "28.06": "День Конституції України",
     "01.08": "День Малятко ТВ. Ще раз особиста подяка.",
     "06.08": "Преображення (Спас)",
-    15.08: "Успіння Пресвятої Богородиці",
-    24.08: "День Незалежності України",
+    "15.08": "Успіння Пресвятої Богородиці",
+    "24.08": "День Незалежності України",
     "01.09":
       "День знань. Цей день усі ненавидять, бо термін відпустки закінчився.",
-    11.09: "Випуск 1шої серії м/с Динофроз. Легенда.",
+    "11.09": "Випуск 1шої серії м/с Динофроз. Легенда.",
     "01.10": "Покрова і день Козацтва (Новий стиль)",
     "14.10": "Покрова і день Козацтва (Старий стиль)",
     "27.10": "День писемності та мови",
-    19.11: "Міжнародний чоловічий день. Наш день :)",
-    21.11: "Введення в храм Пресвятої Богородиці",
-    25.12: "Різдво Христове (новий стиль)",
+    "19.11": "Міжнародний чоловічий день. Наш день :)",
+    "21.11": "Введення в храм Пресвятої Богородиці",
+    "25.12": "Різдво Христове (новий стиль)",
   };
 
   const isWeekend = (dayName) => {
@@ -809,6 +787,7 @@ const WeatherCardComponent = ({
     <div
       style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
     >
+      <AihelpTitle>Погода</AihelpTitle>
       <OrderControls $isDarkMode={isDarkMode}>
         <button
           disabled={index === 0}

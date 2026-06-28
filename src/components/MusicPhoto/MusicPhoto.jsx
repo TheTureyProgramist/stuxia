@@ -5461,24 +5461,22 @@ const PlaylistModal = ({
           position: "relative",
         }}
       >
-        <div style={{ textAlign: "center", marginBottom: "20px" }}>
-          <button /* Changed for dark mode */
+        <ControlsContainer>
+                    <button 
             onClick={() => onEdit && onEdit()}
             style={{
               background: "black",
               color: "white",
               border: "none",
               borderRadius: "20px",
-              padding: "10px 20px",
+              padding: "5px 10px",
               fontWeight: "bold",
               cursor: "pointer",
-              fontSize: "16px",
+              fontSize: "13px",
             }}
           >
             Стати творцем
           </button>
-        </div>
-        <ControlsContainer>
           <SearchInput $isDarkMode={isDarkMode}
             type="text"
             placeholder="Пошук пісні за описом..."

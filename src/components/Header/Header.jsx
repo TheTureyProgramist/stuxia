@@ -54,12 +54,7 @@ const NotificationCard = styled.div`
   animation:
     ${fadeShowHide} 3s forwards,
     ${vibrate} 0.2s infinite;
-  @media (min-width: 1920px) {
-    top: 140px;
-    max-width: 600px;
-    padding: 20px;
-    gap: 30px;
-  }
+
 `;
 
 const CardImg = styled.img`
@@ -68,10 +63,6 @@ const CardImg = styled.img`
   border-radius: 8px;
   object-fit: cover;
   border: 1px solid #2eb813;
-  @media (min-width: 1920px) {
-    width: 100px;
-    height: 70px;
-  }
 `;
 
 const CardText = styled.div`
@@ -83,18 +74,12 @@ const CardName = styled.h3`
   margin: 0;
   font-size: 12px;
   color: #ffb36c;
-  @media (min-width: 1920px) {
-    font-size: 24px;
-  }
 `;
 
 const CardGoal = styled.p`
   margin: 2px 0 0;
   font-size: 10px;
   color: #a2ff6c;
-  @media (min-width: 1920px) {
-    font-size: 20px;
-  }
 `;
 
 const CardReward = styled.div`
@@ -110,11 +95,6 @@ const CardReward = styled.div`
   border: 1px dashed #ffb36c;
   color: #ffb36c;
   flex-shrink: 0;
-  @media (min-width: 1920px) {
-    width: 80px;
-    height: 45px;
-    font-size: 18px;
-  }
 `;
 
 const HeaderDiv = styled.div`
@@ -125,8 +105,8 @@ const HeaderDiv = styled.div`
   width: 100%;
   border-bottom: 2px solid #8f8f8f;
   position: fixed;
-  background: ${(props) => (props.$isDarkMode ? "#1a1a1a" : "white")};
-  color: ${(props) => (props.$isDarkMode ? "white" : "#1a1a1a")};
+  background: ${(props) => (props.$isDarkMode ? "#000000" : "white")};
+  color: ${(props) => (props.$isDarkMode ? "white" : "#000000")};
   top: 0;
   left: 0;
   z-index: 1000;

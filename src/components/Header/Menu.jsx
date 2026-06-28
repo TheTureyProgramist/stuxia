@@ -6,7 +6,7 @@ export const DEFAULT_SITE_SECTIONS = [
   { key: "hero", label: "🏠 Головна", path: "hero" },
   { key: "weather", label: "🌤️ Погода", path: "weather" },
   { key: "map", label: "🗺️ Кліматична мапа", path: "map" },
-  { key: "puzzles", label: "🧩 Пазли", path: "puzzles" },
+ // { key: "puzzles", label: "🧩 Пазли", path: "puzzles" },
   { key: "aihelp", label: "🤖 AI-допомога", path: "aihelp" },
   { key: "news", label: "📰 Новини", path: "news" },
   { key: "music", label: "🎵 Музика", path: "music" },

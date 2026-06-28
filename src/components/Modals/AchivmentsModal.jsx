@@ -2,9 +2,7 @@ import React, { useState, useEffect } from "react";
 import styled, { keyframes, css } from "styled-components";
 import localforage from "localforage";
 import horse from "../../photos/vip-images/horse/horse.webp";
-import time from "../../photos/vip-images/mechannic.webp";
 import puzzle1 from "../../photos/fan-art/puzzle-1.webp";
-import puzzle3 from "../../photos/fan-art/puzzle-3.webp";
 import puzzle4 from "../../photos/fan-art/puzzle-4.webp";
 import niceron from "../../photos/vip-images/dinofroz/vip-dinofroz.webp";
 import christmas from "../../photos/vip-images/christmas.webp";
@@ -13,13 +11,10 @@ import clip from "../../photos/vip-images/clip.webp";
 import stars from "../../photos/vip-images/stars.webp";
 import macduck from "../../photos/fan-art/macduck.webp";
 import matrix from "../../photos/fan-art/matrix.webp";
-import impossible from "../../photos/fan-art/impossible.webp";
 import matrix2 from "../../photos/fan-art/matrix2.webp";
 import parol from "../../photos/fan-art/parol.webp";
 import password from "../../photos/fan-art/password.webp";
 import money from "../../photos/fan-art/money.webp";
-import marks from "../../photos/fan-art/marks.webp";
-import grafity from "../../photos/fan-art/grafiti.webp";
 import text from "../../photos/vip-modal/texts.webp";
 import rooster from "../../photos/vip-images/vip-rooster.webp";
 import turkeys from "../../photos/vip-images/collectors-edition.webp";
@@ -259,31 +254,26 @@ const AchivmentsModal = ({ onClose }) => {
   const categories = React.useMemo(() => {
     const categoriesRaw = [
       {
-        title: "🎮 Ігрові Майстри",
+        title: "🎮 Секрети",
         items: [
           {
-            name: "Джуманджу",
-            goal: "Ціль: пройти за 40с головоломку.",
+            name: "Натяки прийняті",
+            goal: "Ціль: Відкрийти 3 розділи колекції.",
             img: horse,
           },
-          {
-            name: "Крик",
-            goal: "Ціль: закінчіть головоломку в останні 3,7с.",
-            img: time,
+                    {
+            name: "Індики винні!",
+            goal: "Ціль: За 1хв змініть світлу-темну тему 8разів. Під звуки індиків!",
+            img: turkeys,
           },
           {
-            name: "Речдок",
-            goal: "Ціль: пройдіть головоломку менш ніж за 22 ходи.",
+            name: "Здогадка",
+            goal: "Ціль: Вирішіть 30 загадок колекціонерії",
             img: puzzle1,
           },
           {
-            name: "Поціновувач 5bn games",
-            goal: "Ціль: пройдіть з І спроби головоломку (раз на добу).",
-            img: puzzle3,
-          },
-          {
-            name: "Хата на тата",
-            goal: "Ціль: пройдіть за 30хв одну й ту саму головоломку 3 рази поспіль.",
+            name: "Дивно",
+            goal: "Ціль: Оцініть нас. По 4 бальній зірковій системі.",
             img: puzzle4,
           },
         ],
@@ -293,29 +283,24 @@ const AchivmentsModal = ({ onClose }) => {
         items: [
           {
             name: "Дюна",
-            goal: "Ціль: Послухайте звуки дощу, у пустельному стилі.",
+            goal: "Ціль: Послухайте звуки дощу.",
             img: telegram,
           },
           {
             name: "Бог любить трійцю!",
-            goal: "Ціль: заходьте до нас після реєстрації 3 дні підряд.",
+            goal: "Ціль: Чекай 3с, і користуйся сайтом!",
             img: christmas,
           },
           {
             name: "TheTurkeyStudio",
-            goal: "Ціль: підпишіться на мій ютуб канал.",
+            goal: "Ціль: Підпишіться на мій ютуб канал.",
             img: money,
           },
           {
-            name: "Атака вірусів",
-            goal: "Ціль: зберіть усі кольори імені(що отримуються з часом, конвертами, досягненнями), а також автари(відеоаватари) і т.д. по профілю.",
-            img: grafity,
-          },
-          {
-            name: "",
-            goal: "Ціль: зберіть усі аватари(що отримуються з часом або конвертами).",
-            img: marks,
-          },
+            name: "Мінливий характер!",
+            goal: "Ціль: Змініть 10разів аватар.",
+            img: cloud,
+          }
         ],
       },
       {
@@ -323,28 +308,23 @@ const AchivmentsModal = ({ onClose }) => {
         items: [
           {
             name: "Ви зараз виконуєте це afk :(  ?",
-            goal: "Читайте угоду користувача(навчання) більше 2хв!",
+            goal: "Ціль: Читайте угоду користувача(навчання) більше 2хв!",
             img: text,
           },
           {
             name: "Lorem impusm",
-            goal: "Перейдіть на сайт де ми взяли новину!",
+            goal: "Ціль:Перейдіть на сайт де ми взяли новину!",
             img: text,
           },
           {
             name: "Краще перестрахуюсь!",
-            goal: "Ціль: змініть пароль у нашому сайті.",
+            goal: "Ціль: Змініть пароль у нашому сайті.",
             img: parol,
           },
           {
             name: "Хм дай подумаю ні!",
-            goal: "Ціль: зробіть пароль перед застосуванням ШІ.",
+            goal: "Ціль: Зробіть пароль перед застосуванням ШІ.",
             img: password,
-          },
-          {
-            name: "Мінливий характер!",
-            goal: "Змініть 10разів аватар за 40с.",
-            img: cloud,
           },
         ],
       },
@@ -353,12 +333,12 @@ const AchivmentsModal = ({ onClose }) => {
         items: [
           {
             name: "Дубль 2",
-            goal: "Ціль: прослухайте двічі мелодію, через автоповтор.",
+            goal: "Ціль: Прослухайте двічі мелодію, через автоповтор.",
             img: clip,
           },
           {
             name: "Тестувальник",
-            goal: "Ціль: Випробуйте режим відео(Динофроз, виступ Оксани Самойлової).",
+            goal: "Ціль: Випробуйте режим відео.",
             img: matrix,
           },
           {
@@ -368,13 +348,8 @@ const AchivmentsModal = ({ onClose }) => {
           },
           {
             name: "Слід",
-            goal: "Виберіть 3 пісні в обране, за 38с.",
+            goal: "Ціль: Виберіть 3 пісні в обране.",
             img: stars,
-          },
-                    {
-            name: "Індики винні!",
-            goal: "Ціль: за 1хв змініть світлу-темну тему 28разів. Під звуки індиків!",
-            img: turkeys,
           },
         ],
       },
@@ -382,13 +357,13 @@ const AchivmentsModal = ({ onClose }) => {
         title: "🕵️ Секретні та Особливі",
         items: [
           {
-            name: "Обхід",
-            goal: "Знадіть у першому етапі Сценотовору, зорю пропуску і пропустіть його.",
+            name: "Кінець божевілля",
+            goal: "Ціль: Покиньте астральну частину(Знайдіть аномалію в мелодіях)",
             img: matrix2,
           },
           {
             name: "Незвичні варіанти",
-            goal: "Змініть ім'я на .ре....., .е..р. чи ...ер..(пов'язано з драконами, 3 варіанти!)",
+            goal: "Ціль: Змініть ім'я на .ре....., .е..р. чи ...ер..(пов'язано з драконами, 3 варіанти!)",
             img: macduck,
           },
           {
@@ -397,13 +372,8 @@ const AchivmentsModal = ({ onClose }) => {
             img: macduck,
           },
           {
-            name: "Я тебе спіймав! Але?",
-            goal: "Ціль: Програйте і виграйте в 32 епізоді Сценотвору.",
-            img: impossible,
-          },
-          {
             name: "Віч-на-віч",
-            goal: "Ви його, зустрінете рано чи пізно. Якщо вас не впіймають раніше...",
+            goal: "Ціль: Ви його, зустрінете рано чи пізно.",
             img: niceron,
           },
         ],

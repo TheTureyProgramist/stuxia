@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import styled from "styled-components";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import localforage from "localforage";
-import { motion, AnimatePresence } from "framer-motion";
+// import { motion } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 
 const BANNED_KEYWORDS = [
@@ -32,8 +32,83 @@ const AihelpTitle = styled.div`
   font-family: var(--font-family);
   font-weight: 600;
   color: ${(props) => (props.$isDarkMode ? "white" : "black")};
+  margin-bottom: 10px;
   @media (min-width: 768px) {
     font-size: 25px;
+  }
+`;
+
+// НОВИЙ БЛОК НАЛАШТУВАНЬ
+const SettingsPanel = styled.div`
+  width: 100%;
+  max-width: 1200px;
+  padding: 15px;
+  background: ${(props) => (props.$isDarkMode ? "rgba(255,255,255,0.05)" : "#fff9e6")};
+  border: 1px solid orange;
+  border-radius: 8px;
+  color: ${(props) => (props.$isDarkMode ? "white" : "black")};
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+
+const ProviderRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+
+  label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 13px;
+    min-width: 160px;
+  }
+
+  input[type="radio"] {
+    margin-right: 8px;
+    accent-color: orange;
+  }
+
+  input[type="password"] {
+    flex: 1;
+    min-width: 200px;
+    padding: 6px 10px;
+    border-radius: 4px;
+    border: 1px solid ${(props) => (props.$hasError ? "red" : "#ccc")};
+    background: ${(props) => (props.$isDarkMode ? "#222" : "#fff")};
+    color: ${(props) => (props.$isDarkMode ? "white" : "black")};
+    font-size: 12px;
+  }
+`;
+
+const GetKeyLink = styled.a`
+  font-size: 11px;
+  color: orange;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
+const LengthSettings = styled.div`
+  display: flex;
+  gap: 15px;
+  margin-top: 5px;
+  border-top: 1px dashed rgba(128, 128, 128, 0.3);
+  padding-top: 10px;
+
+  label {
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
   }
 `;
 
@@ -43,9 +118,9 @@ const InputContainer = styled.div`
   max-width: 1200px;
   display: flex;
   flex-direction: column;
-  border: 1px solid ${props => props.$isDarkMode ? '#444' : '#ccc'};
+  border: 1px solid ${props => props.$isDarkMode ? '#ffffff' : '#000000'};
   border-radius: 8px;
-  background: ${props => props.$isDarkMode ? '#2c2c2c' : 'white'};
+  background: ${props => props.$isDarkMode ? '#000000' : 'white'};
   transition: border-color 0.2s;
   &:focus-within { border-color: orange; }
 `;
@@ -56,11 +131,11 @@ const TextArea = styled.textarea`
   background: transparent;
   padding: 12px;
   border-radius: 8px 8px 0 0;
-  color: ${props => props.$isDarkMode ? 'white' : 'black'};
+  color: ${props => props.$isDarkMode ? 'black' : 'white'};
   font-size: 14px;
   outline: none;
-  resize: none; /* Заборона ручної зміни розміру */
-  overflow-y: auto; /* Дозволити прокрутку, якщо текст перевищує висоту */
+  resize: none; 
+  overflow-y: auto; 
   min-height: 50px;
 `;
 
@@ -69,11 +144,11 @@ const ChatHistory = styled.div`
   max-width: 1200px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-bottom: 20px;
+  gap:2px;
+  margin-bottom: 5px;
   max-height: 500px;
   overflow-y: auto;
-  padding: 10px;
+  padding: 3px;
   &::-webkit-scrollbar { width: 6px; }
   &::-webkit-scrollbar-thumb { background: orange; border-radius: 10px; }
 `;
@@ -82,10 +157,11 @@ const Message = styled.div`
   align-self: ${props => props.$isBot ? 'flex-start' : 'flex-end'};
   max-width: 80%;
   background: ${props => props.$isBot 
-    ? (props.$isDarkMode ? 'rgba(255,255,255,0.1)' : '#f0f0f0') 
-    : 'orange'};
+    ? (props.$isDarkMode ? 'rgba(0, 0, 0, 0.1)' : '#f0f0f0') 
+    : '#000000'};
   color: ${props => props.$isBot ? (props.$isDarkMode ? 'white' : 'black') : 'white'};
-  padding: 15px;
+  border: 1px solid ${props => props.$isBot ? (props.$isDarkMode ? 'white' : 'black') : 'white'};
+  padding: 4px;
   border-radius: 10px;
   position: relative;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
@@ -101,36 +177,17 @@ const Message = styled.div`
 const CopyButton = styled.button`
   position: absolute;
   top: 5px;
-  right: 5px;
+  right: -35px;
   background: rgba(0,0,0,0.1);
   border: none;
   color: inherit;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 16px;
   padding: 2px 5px;
   border-radius: 4px;
   opacity: 0.6;
   &:hover { opacity: 1; }
 `;
-
-const ModeSelector = styled.div`
-  display: flex;
-  gap: 10px;
-  margin-bottom: 10px;
-  color: ${(props) => (props.$isDarkMode ? "black" : "white")};
-  font-size: 14px;
-
-  label {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-  }
-
-  input[type="radio"] {
-    margin-right: 5px;
-    accent-color: orange;
-  }
-`
 
 const ActionButtons = styled.div`
   display: flex;
@@ -157,14 +214,14 @@ const MiniButton = styled.button`
   &:hover:not(:disabled) { transform: scale(1.1); }
 `;
 
-const FilePreviewContainer = styled.div` // Додано для відображення кількох файлів
+const FilePreviewContainer = styled.div`
   display: flex;
   gap: 10px;
   margin-bottom: 5px;
   flex-wrap: wrap;
 `;
 
-const FileThumb = styled.div` // Оновлено для підтримки відео
+const FileThumb = styled.div`
   position: relative;
   width: 60px;
   height: 60px;
@@ -177,7 +234,6 @@ const FileThumb = styled.div` // Оновлено для підтримки ві
 
   img { width: 100%; height: 100%; object-fit: cover; border-radius: 5px; }
   video { width: 100%; height: 100%; object-fit: cover; border-radius: 5px; }
-  span { font-size: 24px; color: orange; } // Для іконки відео
 `;
 
 const RemoveFileBtn = styled.button`
@@ -208,28 +264,30 @@ const ErrorBox = styled.div`
   gap: 10px;
 `;
 
+
 const Aihelp = ({ isDarkMode }) => {
   const [prompt, setPrompt] = useState("");
   const [messages, setMessages] = useState([]);
+  
   const [personalApiKey, setPersonalApiKey] = useState("");
   const [openaiApiKey, setOpenaiApiKey] = useState("");
   const [groqApiKey, setGroqApiKey] = useState("");
   const [groqKeyStatus, setGroqKeyStatus] = useState("idle");
   const [geminiModel, setGeminiModel] = useState("gemini-2.5-flash");
-  const [showKeyInput, setShowKeyInput] = useState(false);
-  const [responseLength, setResponseLength] = useState("concise"); // 'concise' або 'detailed'
+  
+  const [responseLength, setResponseLength] = useState("concise");
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState("");
   const [aiMode, setAiMode] = useState("gemini"); 
   const [streamingText, setStreamingText] = useState("");
-  // Зберігаємо останній промпт для повторних спроб при помилках
+  
   const lastPromptRef = useRef("");
   const [totalFilesSize, setTotalFilesSize] = useState(0);
   const [error, setError] = useState(null);
   const [isListening, setIsListening] = useState(false);
   
-  const objectURLs = useRef([]); // Для відкликання URL.createObjectURL
+  const objectURLs = useRef([]);
   const textareaRef = useRef(null);
   const chatEndRef = useRef(null);
 
@@ -299,13 +357,13 @@ const Aihelp = ({ isDarkMode }) => {
     loadKey();
   }, []);
 
-  // Очищення Object URLs при розмонтуванні компонента
   useEffect(() => {
     return () => {
       objectURLs.current.forEach(url => URL.revokeObjectURL(url));
       objectURLs.current = [];
     };
   }, []);
+
   const fileToGenerativePart = async (file) => {
     const base64 = await new Promise((resolve) => {
       const reader = new FileReader();
@@ -343,13 +401,11 @@ const Aihelp = ({ isDarkMode }) => {
       await localforage.setItem("gemini_api_key", val);
       return;
     }
-
     if (type === "openai") {
       setOpenaiApiKey(val);
       await localforage.setItem("openai_api_key", val);
       return;
     }
-
     if (type === "groq") {
       setGroqApiKey(val);
       await localforage.setItem("groq_api_key", val);
@@ -361,7 +417,7 @@ const Aihelp = ({ isDarkMode }) => {
   const handleFileSelect = (files) => {
     const incomingFiles = Array.from(files);
     const MAX_FILES = 15;
-    const MAX_TOTAL_SIZE = 100 * 1024 * 1024; // 100MB
+    const MAX_TOTAL_SIZE = 100 * 1024 * 1024;
 
     if (selectedFiles.length + incomingFiles.length > MAX_FILES) {
       alert(`Ви можете прикріпити максимум ${MAX_FILES} файлів.`);
@@ -378,7 +434,7 @@ const Aihelp = ({ isDarkMode }) => {
 
     const newFilesData = incomingFiles.map(file => {
       const url = URL.createObjectURL(file);
-      objectURLs.current.push(url); // Додаємо URL до рефу для подальшого очищення
+      objectURLs.current.push(url); 
       return { file: file, objectURL: url };
     });
     setTotalFilesSize(currentTotalSize + incomingTotalSize);
@@ -389,7 +445,7 @@ const Aihelp = ({ isDarkMode }) => {
     setSelectedFiles(prev => {
       const fileToRemove = prev[index];
       if (fileToRemove && fileToRemove.objectURL) {
-        URL.revokeObjectURL(fileToRemove.objectURL); // Відкликаємо URL конкретного файлу
+        URL.revokeObjectURL(fileToRemove.objectURL); 
         setTotalFilesSize(curr => Math.max(0, curr - fileToRemove.file.size));
         objectURLs.current = objectURLs.current.filter(url => url !== fileToRemove.objectURL);
       }
@@ -404,7 +460,7 @@ const Aihelp = ({ isDarkMode }) => {
 
   const clearHistory = async () => {
     if(window.confirm("Очистити історію чату?")) {
-      objectURLs.current.forEach(url => URL.revokeObjectURL(url)); // Відкликаємо всі URL
+      objectURLs.current.forEach(url => URL.revokeObjectURL(url)); 
       objectURLs.current = [];
       setMessages([]);
       setTotalFilesSize(0);
@@ -419,24 +475,38 @@ const Aihelp = ({ isDarkMode }) => {
     }
   };
 
-  const handleAsk = async (retryText = null) => {
-    const originalPrompt = retryText !== null ? retryText : prompt.trim();
-    if ((!originalPrompt && selectedFiles.length === 0) || loading) return;
+  const handleAsk = async (eventOrText = null) => {
+    const isRetry = typeof eventOrText === 'string';
+    const originalPrompt = isRetry ? eventOrText : prompt.trim();
     
-    lastPromptRef.current = originalPrompt;
-    const lowerQuery = originalPrompt.toLowerCase();
-    if (BANNED_KEYWORDS.some((word) => lowerQuery.includes(word))) {
-      setMessages(prev => [...prev, { text: "Запит містить заборонені слова.", isBot: true }]);
-      return; // Вихід, якщо є заборонені слова
+    if ((!originalPrompt && selectedFiles.length === 0) || loading) return;
+
+    const currentKey = aiMode === "gemini" 
+      ? personalApiKey 
+      : (aiMode === "openai" ? openaiApiKey : groqApiKey);
+      
+    if (!currentKey) {
+      setMessages(prev => [...prev, { text: `⚠️ Будь ласка, введіть API-ключ ${aiMode.toUpperCase()} у панелі налаштувань.`, isBot: true }]);
+      return; 
     }
 
+    if (originalPrompt) {
+      const lowerQuery = originalPrompt.toLowerCase();
+      if (BANNED_KEYWORDS.some((word) => lowerQuery.includes(word))) {
+        setMessages(prev => [...prev, { text: "Запит містить заборонені слова.", isBot: true }]);
+        return;
+      }
+    }
+
+    lastPromptRef.current = originalPrompt;
     setError(null);
     setLoading(true);
     setStreamingText("");
     
     const newUserMessage = { text: originalPrompt, isBot: false };
     setMessages(prev => [...prev, newUserMessage]);
-    setPrompt("");
+    setPrompt(""); 
+    
     if (textareaRef.current) {
       textareaRef.current.style.height = "0px";
       textareaRef.current.style.height = "auto";
@@ -444,12 +514,6 @@ const Aihelp = ({ isDarkMode }) => {
 
     try {
       if (aiMode === "gemini") {
-        if (!personalApiKey) {
-          setMessages(prev => [...prev, { text: "Введіть API-ключ Gemini.", isBot: true }]);
-          setLoading(false); // Зупиняємо завантаження
-          return;
-        }
-        
         setStatus("З'єднання з Google Gemini...");
         const genAI = new GoogleGenerativeAI(personalApiKey);
         const model = genAI.getGenerativeModel({ model: geminiModel });
@@ -457,7 +521,7 @@ const Aihelp = ({ isDarkMode }) => {
         const lengthInstr = responseLength === "detailed" ? "Докладно." : "Коротко.";
         const fullPrompt = `${lengthInstr} Запитання: ${originalPrompt}`;
 
-        let parts = [{ text: fullPrompt }]; // Gemini API очікує об'єкт { text: ... }
+        let parts = [{ text: fullPrompt }];
         for (const fileObj of selectedFiles) {
           parts.push(await fileToGenerativePart(fileObj.file));
         }
@@ -481,20 +545,13 @@ const Aihelp = ({ isDarkMode }) => {
         clearFiles();
 
       } else if (aiMode === "openai" || aiMode === "groq") {
-        // Оновлена логіка для OpenAI/Groq з використанням стрімінгу та контексту
         const isOAI = aiMode === "openai";
         const key = isOAI ? openaiApiKey : groqApiKey;
         const endpoint = isOAI ? "https://api.openai.com/v1/chat/completions" : "https://api.groq.com/openai/v1/chat/completions";
         const modelName = isOAI ? "gpt-4o-mini" : "llama-3.3-70b-versatile";
 
-        if (!key) {
-          setMessages(prev => [...prev, { text: `Введіть API-ключ ${isOAI ? 'OpenAI' : 'Groq'}.`, isBot: true }]);
-          setLoading(false);
-          return;
-        }
         setStatus(`З'єднання з ${isOAI ? 'OpenAI' : 'Groq'}...`);
 
-        // Формуємо актуальний контекст, включаючи нове повідомлення користувача
         const conversation = [...messages.slice(-24), newUserMessage].map(m => ({
           role: m.isBot ? "assistant" : "user",
           content: m.text
@@ -522,23 +579,22 @@ const Aihelp = ({ isDarkMode }) => {
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
         let accumulatedText = "";
-        let buffer = ""; // Буфер для неповних SSE-рядків
+        let buffer = "";
 
         try {
           while (true) {
             const { done, value } = await reader.read();
             if (done) break;
 
-            buffer += decoder.decode(value, { stream: true }); // Додаємо новий фрагмент до буфера
+            buffer += decoder.decode(value, { stream: true });
 
-            // Обробляємо всі повні рядки в буфері
             let newlineIndex;
             while ((newlineIndex = buffer.indexOf('\n')) !== -1) {
               const line = buffer.substring(0, newlineIndex).trim();
-              buffer = buffer.substring(newlineIndex + 1); // Видаляємо оброблений рядок з буфера
+              buffer = buffer.substring(newlineIndex + 1);
 
               if (line === "data: [DONE]") {
-                buffer = ""; // Очищаємо залишок, щоб не намагатися парсити [DONE] поза циклом
+                buffer = "";
                 break;
               }
 
@@ -548,16 +604,14 @@ const Aihelp = ({ isDarkMode }) => {
                   const content = data.choices[0]?.delta?.content || "";
                   accumulatedText += content;
                   setStreamingText(accumulatedText);
-                } catch (e) { /* Неповний чанк JSON */ }
+                } catch (e) { }
               }
             }
           }
         } finally {
-          // Гарантуємо скасування рідера, навіть якщо виникла помилка
           reader.cancel().catch(e => console.error("Failed to cancel reader:", e));
         }
 
-        // Після завершення стрімінгу або помилки, обробляємо залишок буфера, якщо він є
         const finalLine = buffer.trim();
         if (finalLine.startsWith("data: ") && finalLine !== "data: [DONE]") {
           try {
@@ -565,10 +619,9 @@ const Aihelp = ({ isDarkMode }) => {
             const content = data.choices[0]?.delta?.content || "";
             accumulatedText += content;
             setStreamingText(accumulatedText);
-          } catch (e) { /* Помилка формату */ }
+          } catch (e) { }
         }
 
-        // Оновлюємо повідомлення лише після повного завершення стрімінгу
         if (accumulatedText) {
           const finalBotMessage = { text: accumulatedText, isBot: true };
           setMessages(prev => {
@@ -576,9 +629,8 @@ const Aihelp = ({ isDarkMode }) => {
             localforage.setItem("ai_help_history", updated.slice(-25));
             return updated;
           });
-        setStreamingText("");
+          setStreamingText("");
         } else {
-          // Якщо стрімінг завершився, але тексту немає (наприклад, порожня відповідь або помилка)
           setMessages(prev => {
             const updated = [...prev, { text: "Не вдалося отримати відповідь від AI.", isBot: true }];
             localforage.setItem("ai_help_history", updated.slice(-25));
@@ -586,11 +638,11 @@ const Aihelp = ({ isDarkMode }) => {
           });
           setStreamingText("");
         }
-        clearFiles(); // Очищаємо файли після обробки
-        }
+        clearFiles();
+      }
     } catch (err) {
       setStreamingText("");
-      setError(err.message); // Використовуємо стейт error для відображення помилок
+      setError(err.message); 
       clearFiles();
     } finally {
       setLoading(false);
@@ -602,119 +654,106 @@ const Aihelp = ({ isDarkMode }) => {
     <AihelpDiv>
       <AihelpTitle $isDarkMode={isDarkMode}>Допомога ШІ</AihelpTitle>
 
-      <ModeSelector $isDarkMode={isDarkMode}>
-        <label>
-          <input
-            type="radio"
-            value="groq"
-            checked={aiMode === "groq"}
-            onChange={(e) => setAiMode(e.target.value)}
-            disabled={loading}
-          />
-          Groq (Free & Fast)
-        </label>
-        <label>
-          <input
-            type="radio"
-            value="openai"
-            checked={aiMode === "openai"}
-            onChange={(e) => setAiMode(e.target.value)}
-            disabled={loading}
-          />
-          OpenAI (GPT-4o)
-        </label>
-        <label>
-          <input
-            type="radio"
-            value="gemini"
-            checked={aiMode === "gemini"}
-            onChange={(e) => setAiMode(e.target.value)}
-            disabled={loading}
-          />
-          Gemini (Мій ключ)
-        </label>
-        <button 
-          onClick={() => setShowKeyInput(!showKeyInput)}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '16px' }}
-          title="Налаштування ключа"
-        >
-          🔑
-        </button>
-      </ModeSelector>
-
-      <AnimatePresence>
-      {showKeyInput && (
-        <motion.div
-          initial={{ height: 0, opacity: 0 }}
-          animate={{ height: 'auto', opacity: 1 }}
-          exit={{ height: 0, opacity: 0 }}
-          style={{
-            width: '100%',
-            maxWidth: '500px',
-            padding: '15px',
-            background: isDarkMode ? 'rgba(255,255,255,0.05)' : '#fff9e6',
-            borderRadius: '8px',
-            border: '1px solid orange',
-            color: isDarkMode ? 'white' : 'black',
-            overflow: 'hidden'
-          }}
-        >
-          <div style={{ marginBottom: '10px' }}>
-            <label style={{ display: 'block', fontSize: '11px' }}>Google Gemini Key:</label>
+      {/* НОВА ПАНЕЛЬ НАЛАШТУВАНЬ */}
+      <SettingsPanel $isDarkMode={isDarkMode}>
+        <ProviderRow $isDarkMode={isDarkMode}>
+          <label>
             <input
-              type="password"
-              value={personalApiKey}
-              onChange={(e) => saveKeys("gemini", e.target.value)}
-              style={{ width: '100%', padding: '6px' }}
+              type="radio"
+              value="gemini"
+              checked={aiMode === "gemini"}
+              onChange={(e) => setAiMode(e.target.value)}
+              disabled={loading}
             />
-          </div>
+            Gemini (Мій ключ)
+          </label>
+          <input
+            type="password"
+            placeholder="Gemini API Key"
+            value={personalApiKey}
+            onChange={(e) => saveKeys("gemini", e.target.value)}
+          />
+          {!personalApiKey && (
+            <GetKeyLink href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer">
+              🔗 Отримати ключ
+            </GetKeyLink>
+          )}
+        </ProviderRow>
 
-          <div style={{ marginBottom: '10px' }}>
-            <label style={{ display: 'block', fontSize: '11px' }}>OpenAI API Key:</label>
+        <ProviderRow $isDarkMode={isDarkMode}>
+          <label>
             <input
-              type="password"
-              value={openaiApiKey}
-              onChange={(e) => saveKeys("openai", e.target.value)}
-              style={{ width: '100%', padding: '6px' }}
+              type="radio"
+              value="openai"
+              checked={aiMode === "openai"}
+              onChange={(e) => setAiMode(e.target.value)}
+              disabled={loading}
             />
-          </div>
+            OpenAI (GPT-4o)
+          </label>
+          <input
+            type="password"
+            placeholder="OpenAI API Key"
+            value={openaiApiKey}
+            onChange={(e) => saveKeys("openai", e.target.value)}
+          />
+          {!openaiApiKey && (
+            <GetKeyLink href="https://platform.openai.com/api-keys" target="_blank" rel="noreferrer">
+              🔗 Отримати ключ
+            </GetKeyLink>
+          )}
+        </ProviderRow>
 
-          <div style={{ marginBottom: '10px' }}>
-            <label style={{ display: 'block', fontSize: '11px' }}>
-              Groq API Key:
-            </label>
+        <ProviderRow $isDarkMode={isDarkMode} $hasError={groqKeyStatus === 'invalid'}>
+          <label>
             <input
-              type="password"
-              value={groqApiKey}
-              onChange={(e) => saveKeys("groq", e.target.value)}
-              style={{
-                width: '100%',
-                  padding: '6px', borderRadius: '4px',
-                border: groqKeyStatus === 'invalid' ? '1px solid red' : '1px solid #ccc'
-              }}
+              type="radio"
+              value="groq"
+              checked={aiMode === "groq"}
+              onChange={(e) => setAiMode(e.target.value)}
+              disabled={loading}
             />
-          </div>
-          <div style={{ display: 'flex', gap: '15px', marginTop: '10px' }}>
-            <label style={{ fontSize: '11px', display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer' }}>
-              <input type="radio" name="len" checked={responseLength === 'concise'} onChange={() => setResponseLength('concise')} />
-              Стисла відповідь
-            </label>
-            <label style={{ fontSize: '11px', display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer' }}>
-              <input type="radio" name="len" checked={responseLength === 'detailed'} onChange={() => setResponseLength('detailed')} />
-              Докладна відповідь
-            </label>
-          </div>
-            <p style={{ fontSize: '9px', opacity: 0.7, marginTop: '5px' }}>
-              Ключі зберігаються локально. Якщо вам менше 18 років, попросіть батьків допомогти.
-            </p>
-        </motion.div>
-        )}
-      </AnimatePresence>
+            Groq (Free & Fast)
+          </label>
+          <input
+            type="password"
+            placeholder="Groq API Key"
+            value={groqApiKey}
+            onChange={(e) => saveKeys("groq", e.target.value)}
+          />
+          {!groqApiKey && (
+            <GetKeyLink href="https://console.groq.com/keys" target="_blank" rel="noreferrer">
+              🔗 Отримати ключ
+            </GetKeyLink>
+          )}
+        </ProviderRow>
 
-      <ChatHistory> {/* Відображення історії чату */}
+        <LengthSettings>
+          <label>
+            <input 
+              type="radio" 
+              name="len" 
+              checked={responseLength === 'concise'} 
+              onChange={() => setResponseLength('concise')} 
+            />
+            Стисла відповідь
+          </label>
+          <label>
+            <input 
+              type="radio" 
+              name="len" 
+              checked={responseLength === 'detailed'} 
+              onChange={() => setResponseLength('detailed')} 
+            />
+            Докладна відповідь
+          </label>
+        </LengthSettings>
+      </SettingsPanel>
+
+      <ChatHistory>
         {messages.map((m, i) => (
           <Message key={i} $isBot={m.isBot} $isDarkMode={isDarkMode}>
-            {m.isBot && <CopyButton onClick={() => copyToClipboard(m.text)}>📋</CopyButton>} {/* Кнопка копіювання */}
+            {m.isBot && <CopyButton onClick={() => copyToClipboard(m.text)}>📋</CopyButton>}
             <ReactMarkdown>{m.text}</ReactMarkdown>
           </Message>
         ))}
@@ -723,7 +762,7 @@ const Aihelp = ({ isDarkMode }) => {
             <ReactMarkdown>{streamingText}</ReactMarkdown>
           </Message>
         )}
-        {error && ( // Відображення помилок
+        {error && (
           <ErrorBox>
             ⚠️ Помилка: {error}
             <MiniButton $primary onClick={() => handleAsk(lastPromptRef.current)}>Спробувати ще раз</MiniButton>
@@ -745,7 +784,7 @@ const Aihelp = ({ isDarkMode }) => {
           </div>
         )}
         {selectedFiles.map((f, i) => (
-          <FileThumb key={i}>
+          <FileThumb key={i} $isDarkMode={isDarkMode}>
             {f.file.type.startsWith('video/') ? (
               <video src={f.objectURL} />
             ) : (
@@ -766,6 +805,7 @@ const Aihelp = ({ isDarkMode }) => {
           onChange={handleTextChange}
           onKeyDown={handleKeyDown}
           rows={1}
+          $isDarkMode={isDarkMode}
         />
         <ActionButtons>
           {aiMode === 'gemini' && (
@@ -774,7 +814,7 @@ const Aihelp = ({ isDarkMode }) => {
               <input type="file" accept="image/*" multiple hidden onChange={(e) => handleFileSelect(e.target.files)} />
             </label>
           )}
-          <MiniButton onClick={clearHistory} title="Очистити чат">🗑️</MiniButton>
+          <MiniButton onClick={clearHistory} title="Очистити чат" $isDarkMode={isDarkMode}>🗑️</MiniButton>
           <MiniButton 
             $primary 
             disabled={loading || (!prompt.trim() && selectedFiles.length === 0)} 
