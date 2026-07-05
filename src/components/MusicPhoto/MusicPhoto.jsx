@@ -29,6 +29,9 @@ import {
   MAX_TOTAL_COMMENTS,
   MAX_VISIBLE_COMMENTS,
   normalizeLikeValue,
+  toSocialTarget,
+  getAvatarSrc,
+  canCommentUser,
 } from "./socialUtils";
 //Desert
 // import christmas from "../../photos/vip-images/christmas.webp";

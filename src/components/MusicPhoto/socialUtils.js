@@ -53,3 +53,24 @@ export const getInitialCommentStats = () => ({
   dislikes: 0,
   comments: 0,
 });
+
+export const toSocialTarget = (track) => {
+  if (!track) return null;
+  return {
+    id: track.id,
+    text: track.text || track.title || "",
+    isGeneral: track.isGeneral || false,
+    author: track.author || "",
+  };
+};
+
+export const getAvatarSrc = (avatar) => {
+  return avatar || "";
+};
+
+export const canCommentUser = (user) => {
+  if (!user) return false;
+  if (user.isBanned || user.banned) return false;
+  return true;
+};
+
