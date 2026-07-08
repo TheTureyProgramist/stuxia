@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/react-weather-music-project/static/css/main.d785f274.css",
-    "main.js": "/react-weather-music-project/static/js/main.cb180f3e.js",
+    "main.js": "/react-weather-music-project/static/js/main.f90e735c.js",
     "static/js/200.9faae9d5.chunk.js": "/react-weather-music-project/static/js/200.9faae9d5.chunk.js",
     "static/js/987.1f537d7d.chunk.js": "/react-weather-music-project/static/js/987.1f537d7d.chunk.js",
     "static/js/981.8822c3c8.chunk.js": "/react-weather-music-project/static/js/981.8822c3c8.chunk.js",
@@ -9,7 +9,7 @@
     "static/js/645.ac8ef537.chunk.js": "/react-weather-music-project/static/js/645.ac8ef537.chunk.js",
     "static/js/208.62be51ab.chunk.js": "/react-weather-music-project/static/js/208.62be51ab.chunk.js",
     "static/js/963.e5b025e4.chunk.js": "/react-weather-music-project/static/js/963.e5b025e4.chunk.js",
-    "static/js/669.26a108cf.chunk.js": "/react-weather-music-project/static/js/669.26a108cf.chunk.js",
+    "static/js/669.5a5162a2.chunk.js": "/react-weather-music-project/static/js/669.5a5162a2.chunk.js",
     "static/js/316.be7a4c2a.chunk.js": "/react-weather-music-project/static/js/316.be7a4c2a.chunk.js",
     "static/js/873.ef29cb5d.chunk.js": "/react-weather-music-project/static/js/873.ef29cb5d.chunk.js",
     "static/js/754.33ac279d.chunk.js": "/react-weather-music-project/static/js/754.33ac279d.chunk.js",
@@ -17,9 +17,9 @@
     "static/js/194.b00e47b2.chunk.js": "/react-weather-music-project/static/js/194.b00e47b2.chunk.js",
     "static/js/471.d90da9dc.chunk.js": "/react-weather-music-project/static/js/471.d90da9dc.chunk.js",
     "static/js/317.a59095de.chunk.js": "/react-weather-music-project/static/js/317.a59095de.chunk.js",
-    "static/js/647.bd515fb5.chunk.js": "/react-weather-music-project/static/js/647.bd515fb5.chunk.js",
+    "static/js/647.c415e9e1.chunk.js": "/react-weather-music-project/static/js/647.c415e9e1.chunk.js",
     "static/js/838.7d3de582.chunk.js": "/react-weather-music-project/static/js/838.7d3de582.chunk.js",
-    "static/js/417.19f84d80.chunk.js": "/react-weather-music-project/static/js/417.19f84d80.chunk.js",
+    "static/js/417.5b315782.chunk.js": "/react-weather-music-project/static/js/417.5b315782.chunk.js",
     "static/js/599.218852c4.chunk.js": "/react-weather-music-project/static/js/599.218852c4.chunk.js",
     "static/js/809.0067e674.chunk.js": "/react-weather-music-project/static/js/809.0067e674.chunk.js",
     "static/js/904.567099f8.chunk.js": "/react-weather-music-project/static/js/904.567099f8.chunk.js",
@@ -175,6 +175,6 @@
   },
   "entrypoints": [
     "static/css/main.d785f274.css",
-    "static/js/main.cb180f3e.js"
+    "static/js/main.f90e735c.js"
   ]
 }
