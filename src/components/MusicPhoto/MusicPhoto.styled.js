@@ -518,7 +518,7 @@ export const FilterOverlay = styled.div`
     props.$active &&
     css`
       ${props.$type === "red" && `background: linear-gradient(to right, rgba(255, 0, 0, ${props.$opacity}), rgba(255, 69, 0, ${props.$opacity}));`}
-      ${props.$type === "purple" && `background: linear-gradient(to right, rgba(128, 0, 128, ${props.$opacity}), rgba(218, 112, 214, ${props.$opacity}));`}
+${props.$type === "purple" && `background: linear-gradient(to right, rgba(255, 20, 147, ${props.$opacity}), rgba(255, 182, 193, ${props.$opacity}));`}
       ${props.$type === "green" && `background: linear-gradient(to right, rgba(0, 255, 0, ${props.$opacity}), rgba(50, 205, 50, ${props.$opacity}));`}
       ${props.$type === "blue" && `background: linear-gradient(to right, rgba(0, 0, 255, ${props.$opacity}), rgba(65, 105, 225, ${props.$opacity}));`}
       ${props.$type === "black" && `background: linear-gradient(to right, rgba(0, 0, 0, ${props.$opacity}), rgba(50, 50, 50, ${props.$opacity}));`}

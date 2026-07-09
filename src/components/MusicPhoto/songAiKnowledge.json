@@ -777,10 +777,8 @@
     "symbols": ["✧"],
     "filters": [
       { "start": 70, "end": 90, "type": "flicker", "opacity": 0.3 },
-      { "start": 52, "end": 66.5, "type": "symbols", "intensity": 60, "speed": 1, "blur": 1.3 },
-      { "start": 2, "end": 3, "type": "green", "opacity": 0.1 },
-      { "start": 5, "end": 7, "type": "orange", "opacity": 0.2 },
-      { "start": 7, "end": 10, "type": "red", "opacity": 0.3 },
+      { "start": 52, "end": 66.5, "symbols": "⬣", "type": "symbols", "intensity": 60, "speed": 1, "blur": 1.3 },
+      { "start": 0, "end": 10, "symbols": "⬣", "type": "symbols", "intensity": 20, "speed": 0.1, "blur": 1.3 },
       { "start": 10, "end": 18, "type": "purple", "opacity": 0.4 },
       { "start": 18, "end": 23, "type": "blue", "opacity": 0.3 },
       { "start": 23, "end": 25, "type": "grayscale", "opacity": 1 },
