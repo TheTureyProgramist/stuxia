@@ -1,7 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import styled, { keyframes, css } from "styled-components";
 import logo from "../../photos/hero-header/logo.webp";
+import { BsMoonStarsFill } from "react-icons/bs";
 import BurgerMenu from "./Menu.jsx";
+import { IoIosEye } from "react-icons/io";
+import { GiShop, GiExitDoor, GiAchievement } from "react-icons/gi";
+import { FaSun } from "react-icons/fa";
+import { MdSettingsSuggest, MdMore  } from "react-icons/md";
 import bell from "../../mp3/modals/bell.mp3";
 import logofix from "../../photos/hero-header/logo-fix.webp";
 import { useVisualFilters } from "./useVisualFilters";
@@ -508,7 +513,7 @@ const Header = ({
                   onClick={handleThemeToggle}
                   $isDarkMode={isDarkMode}
                 >
-                  <EmojiWrapper>{isDarkMode ? "☀️" : "🌑"}</EmojiWrapper>
+                  <EmojiWrapper>{isDarkMode ? <FaSun /> : <BsMoonStarsFill />}</EmojiWrapper>
                 </IconButton>
 
                 <IconButton
@@ -516,7 +521,7 @@ const Header = ({
                   $isDarkMode={isDarkMode}
                   title="Налаштування вигляду"
                 >
-                  <EmojiWrapper>👁️</EmojiWrapper>
+                  <EmojiWrapper><IoIosEye /></EmojiWrapper>
                 </IconButton>
 
                 <IconButton onClick={onOpenHelp} $isDarkMode={isDarkMode}>
@@ -524,14 +529,14 @@ const Header = ({
                 </IconButton>
 
                 <IconButton onClick={onOpenShop} $isDarkMode={isDarkMode}>
-                    <Spa>🛒</Spa>
+                    <Spa><GiShop /></Spa>
                 </IconButton>
 
                 <IconButton
                   onClick={onOpenAchievements}
                   $isDarkMode={isDarkMode}
                 >
-                  🏆
+                  <GiAchievement />
                 </IconButton>
 
                 <IconButton 
@@ -539,15 +544,15 @@ const Header = ({
                   $isDarkMode={isDarkMode}
                   title="Інші опції"
                 >
-                  <EmojiWrapper>⋯</EmojiWrapper>
+                  <EmojiWrapper><MdMore /></EmojiWrapper>
                 </IconButton>
 
                 <IconButton onClick={onOpenSettings} $isDarkMode={isDarkMode}>
-                  ⚙️
+                  <MdSettingsSuggest />
                 </IconButton>
 
                 <IconButton onClick={onLogout} $isDarkMode={isDarkMode}>
-                  🚪
+                  <GiExitDoor />
                 </IconButton>
 
                 <IconButton
@@ -563,14 +568,14 @@ const Header = ({
           ) : (
             <>
               <IconButton onClick={handleThemeToggle} $isDarkMode={isDarkMode}>
-                <EmojiWrapper>{isDarkMode ? "☀️" : "🌑"}</EmojiWrapper>
+                <EmojiWrapper>{isDarkMode ? <FaSun /> : <BsMoonStarsFill />}</EmojiWrapper>
               </IconButton>
               <IconButton
                 onClick={() => setShowVisualSettings(!showVisualSettings)}
                 $isDarkMode={isDarkMode}
                 title="Налаштування вигляду"
               >
-                <EmojiWrapper>👁️</EmojiWrapper>
+                <EmojiWrapper><IoIosEye /></EmojiWrapper>
               </IconButton>
               <IconButton
                 onClick={onOpenHelp}
@@ -584,7 +589,7 @@ const Header = ({
                 $isDarkMode={isDarkMode}
                 title="Інші опції"
               >
-                <EmojiWrapper>⋯</EmojiWrapper>
+                <EmojiWrapper><MdMore /></EmojiWrapper>
               </IconButton>
 
               <button

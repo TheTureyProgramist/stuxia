@@ -7,13 +7,13 @@ import songAiKnowledge from "../MusicPhoto/songAiKnowledge.json";
 import hills from "../../photos/hero-header/fog.webp";
 import texts from "../../photos/vip-modal/texts.webp";
 import logofix from "../../photos/hero-header/logo-fix.webp";
+import { IoHeartDislikeSharp } from "react-icons/io5";
 import preview from "../../photos/hero-header/prewiew.webp";
 import info from "../../photos/hero-header/what.webp";
 import one from "../../photos/hero-header/my/myone.webp";
 import two from "../../photos/hero-header/my/mytwo.webp";
 import soon from "../../photos/hero-header/my/soon.webp";
 import might from "../../photos/hero-header/my/myone.webp";
-import puzzle from "../../photos/vip-modal/puzzle.webp";
 import three from "../../photos/hero-header/my/mythree.webp";
 const slideIn = keyframes`
   0% { transform: translateY(100%) scale(0.9); opacity: 0; }
@@ -924,7 +924,7 @@ Clubstep: рандомні фільтри.
                           }}
                           title="Не корисно"
                         >
-                          {rating === DISLIKE ? "👎" : "👎🏻"}
+                          {rating === DISLIKE ? <IoHeartDislikeSharp /> : <IoHeartDislikeSharp />}
                         </LikeButton>
                         <Arrow $isOpen={activeIndex === originalIndex}>▼</Arrow>
                       </ArrowContainer>

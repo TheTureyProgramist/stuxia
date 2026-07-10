@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import styled from "styled-components";
+import { MdPrint } from "react-icons/md";
 import { motion, AnimatePresence } from "framer-motion";
 import localforage from "localforage";
+import { LuWallpaper } from "react-icons/lu";
 import * as fabric from "fabric";
 import monody from "../../photos/vip-images/asium/vip-forest.webp";
 import { DEFAULT_BGS } from "../Hero/Hero";
-
+import { ImFolderDownload } from "react-icons/im";
 const isVideoSource = (src) => {
   if (typeof src !== "string") return false;
   return src.includes(".mp4") || src.startsWith("data:video/");
@@ -220,7 +222,7 @@ const ActionButton = styled.button`
   background: #000000;
   border: none;
   border-radius: 8px;
-  padding: 4px 5px;
+  padding: 4px 15px;
   width: 50px;
   cursor: pointer;
   font-size: 20px;
@@ -1292,13 +1294,13 @@ const FanArt = ({
                             onClick={() => handleDownload(imgData.src)}
                             title="Скачати"
                           >
-                            ⇩
+                            <ImFolderDownload />
                           </ActionButton>
                           <ActionButton
                             onClick={() => handlePrint(imgData.src)}
                             title="Роздрукувати"
                           >
-                            ⎙
+                            <MdPrint />
                           </ActionButton>
                           <ActionButton
                             onClick={() => {
@@ -1316,9 +1318,9 @@ const FanArt = ({
                               });
                             }}
                             title="Встановити на шпалери"
-                            style={{ background: "#4caf50", color: "white" }}
+                            style={{color: "white" }}
                           >
-                            🖼️
+                            <LuWallpaper/>
                           </ActionButton>
                           {selectedPlaylist === "ваші картинки" && (
                             <ActionButton

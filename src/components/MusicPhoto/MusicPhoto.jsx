@@ -4,8 +4,13 @@ import { SeekIndicator, LongPressBadge, AihelpTitle, MusicPhotoDiv, ActButton, M
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import localforage from "localforage";
 import { motion, AnimatePresence } from "framer-motion";
+import { MdSettingsSuggest } from "react-icons/md";
 import { pipeline } from "@huggingface/transformers";
+import { BsWechat } from "react-icons/bs";
+import { TbMusicStar } from "react-icons/tb";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { BiSolidLockOpen, BiSolidLock } from "react-icons/bi";
+
 import {
   collection,
   doc,
@@ -3145,7 +3150,7 @@ const FullScreenPlayer = ({
             onClick={() => setIsLocked(true)}
             title="Заблокувати екран"
           >
-            🔓
+            <BiSolidLockOpen />
           </ActButton>
           <ActButton
             onClick={() =>
@@ -3173,16 +3178,16 @@ const FullScreenPlayer = ({
             📑
           </ActButton>
           <ActButton onClick={() => { setSocialTargetTrack(toSocialTarget(track)); setShowSocialModal(true); }} title="Чат та статистика">
-            💬
+            <BsWechat />
           </ActButton>
           <ActButton onClick={() => onOpenAi(track)} title="ШІ Помічник">
-            ✨
+            <TbMusicStar />
           </ActButton>
           <ActButton
             onClick={() => setShowSettings(!showSettings)}
             title="Налаштування"
           >
-            ⚙️
+             <MdSettingsSuggest />
           </ActButton>
         </div>
       </FSHeader>
@@ -3303,7 +3308,7 @@ const FullScreenPlayer = ({
 
         {isLocked && (
           <UnlockContainer onClick={(e) => { e.stopPropagation(); setIsLocked(false); }}>
-            <span style={{ fontSize: "18px" }}>🔒</span> Натисніть для доступу
+            <span style={{ fontSize: "18px" }}><BiSolidLock /></span> Натисніть для доступу
           </UnlockContainer>
         )}
 
@@ -3688,9 +3693,6 @@ const FullScreenPlayer = ({
           </div>
 
           <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-            <ActButton onClick={() => onOpenSocial && onOpenSocial()} title="Чат і статистика">
-              💬
-            </ActButton>
             <LoopButton
               $active={isCached}
               onClick={() => {
@@ -4859,7 +4861,7 @@ const MusicCard = ({
               onOpenSocial && onOpenSocial(cardData);
             }}
           >
-            💬
+            <BsWechat />
           </ActionButton>
           <ActionButton title="Завантажити" onClick={handleDownloadTrack}>
             ⇩
@@ -6100,7 +6102,7 @@ const PlaylistModal = ({
               marginLeft: "10px",
             }}
           >
-            Загальний Чат 💬
+            Загальний Чат 
           </button>
           <SearchInput $isDarkMode={isDarkMode}
             type="text"
@@ -6259,8 +6261,8 @@ const PlaylistModal = ({
                             setShowSocialModal(true);
                           }}
                         >
-                          💬
-</button>
+                          <BsWechat />
+                         </button>
                       </div>
                     )}
                   </div>
@@ -6663,7 +6665,7 @@ const PlaylistModal = ({
             </div>
             {socialTargetTrack?.isGeneral && (
               <div style={{ background: "rgba(76,120,255,0.12)", borderRadius: 12, padding: "8px 14px", fontSize: 13, color: isDarkMode ? "#aac4ff" : "#2244aa", border: "1px solid rgba(76,120,255,0.25)", marginBottom: 8 }}>
-                💬 Повідомлення будуть видимі всім у загальному чаті
+                 Повідомлення будуть видимі всім у загальному чаті
               </div>
             )}
             <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
