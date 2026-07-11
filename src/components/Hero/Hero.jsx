@@ -302,7 +302,7 @@ const BgLayerStyled = styled.div`
 
 const BgLayer = (props) => {
   const { $image, $active, $focalX, $focalY } = props;
-  const [url, setUrl] = useState(typeof $image === 'string' ? $image : "");
+  const [url, setUrl] = useState(typeof $image === "string" ? $image : "");
   const videoRef = useRef(null);
   const isPixelated = props.$blurType === "pixelated";
   useEffect(() => {
@@ -349,7 +349,7 @@ const BgLayer = (props) => {
             height: "100%",
             objectFit: "cover",
             objectPosition: `${$focalX}% ${$focalY}%`,
-            imageRendering: isPixelated ? 'pixelated' : 'auto',
+            imageRendering: isPixelated ? "pixelated" : "auto",
           }}
         />
       ) : (
@@ -361,7 +361,7 @@ const BgLayer = (props) => {
             backgroundSize: "cover",
             backgroundPosition: `${$focalX}% ${$focalY}%`,
             backgroundRepeat: "no-repeat",
-            imageRendering: isPixelated ? 'pixelated' : 'auto',
+            imageRendering: isPixelated ? "pixelated" : "auto",
           }}
         />
       )}
@@ -1713,14 +1713,18 @@ const Hero = ({
         canvas.height = img.height * scale;
         const ctx = canvas.getContext("2d");
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        
-        canvas.toBlob((blob) => {
-          setCustomHeroBgs((prev) => [
-            { src: blob, name: file.name, category: "Ваші картинки" },
-            ...prev,
-          ]);
-          setHeroBg(blob);
-        }, "image/jpeg", 0.7);
+
+        canvas.toBlob(
+          (blob) => {
+            setCustomHeroBgs((prev) => [
+              { src: blob, name: file.name, category: "Ваші картинки" },
+              ...prev,
+            ]);
+            setHeroBg(blob);
+          },
+          "image/jpeg",
+          0.7,
+        );
       };
     };
   };
@@ -1990,13 +1994,21 @@ const Hero = ({
   return (
     <HeroDiv>
       {/* SVG Фільтр для пікселізації */}
-      <svg width="0" height="0" style={{ position: "absolute", pointerEvents: "none", visibility: "hidden" }}>
+      <svg
+        width="0"
+        height="0"
+        style={{
+          position: "absolute",
+          pointerEvents: "none",
+          visibility: "hidden",
+        }}
+      >
         <filter id="pixelate-hero" x="0" y="0" width="100%" height="100%">
           {/* Ефект Minecraft: створюємо сітку точок і розтягуємо їх у блоки без змішування */}
           <feFlood x="0" y="0" height="1" width="1" />
-          <feComposite 
-            width={Math.max(1, heroBgPixelation * 2)} 
-            height={Math.max(1, heroBgPixelation * 2)} 
+          <feComposite
+            width={Math.max(1, heroBgPixelation * 2)}
+            height={Math.max(1, heroBgPixelation * 2)}
           />
           <feTile result="tiles" />
           <feComposite in="SourceGraphic" in2="tiles" operator="in" />
@@ -2596,17 +2608,24 @@ const Hero = ({
               </ConfigRow>
               <ConfigRow>
                 <label>🎭 Ефект фокусу:</label>
-                <div style={{ display: 'flex', gap: '10px' }}>
-                  <ModeButton 
-                    $active={heroBgBlurType === "smooth"} 
-                    onClick={() => { setHeroBgBlurType("smooth"); setHeroBgPixelation(0); }}
-                    style={{ flex: 1, fontSize: '10px', padding: '5px' }}
-                  >Плавне</ModeButton>
-                  <ModeButton 
-                    $active={heroBgBlurType === "pixelated"} 
+                <div style={{ display: "flex", gap: "10px" }}>
+                  <ModeButton
+                    $active={heroBgBlurType === "smooth"}
+                    onClick={() => {
+                      setHeroBgBlurType("smooth");
+                      setHeroBgPixelation(0);
+                    }}
+                    style={{ flex: 1, fontSize: "10px", padding: "5px" }}
+                  >
+                    Плавне
+                  </ModeButton>
+                  <ModeButton
+                    $active={heroBgBlurType === "pixelated"}
                     onClick={() => setHeroBgBlurType("pixelated")}
-                    style={{ flex: 1, fontSize: '10px', padding: '5px' }}
-                  >Піксельне</ModeButton>
+                    style={{ flex: 1, fontSize: "10px", padding: "5px" }}
+                  >
+                    Піксельне
+                  </ModeButton>
                 </div>
               </ConfigRow>
               <ConfigRow>
@@ -2631,8 +2650,12 @@ const Hero = ({
                   onChange={(e) => setHeroBgBlur(parseFloat(e.target.value))}
                 />
               </ConfigRow>
-              <ConfigRow style={{ opacity: heroBgBlurType === "pixelated" ? 1 : 0.4 }}>
-                <label>👾 Пікселізація (сила): {heroBgPixelation.toFixed(1)}</label>
+              <ConfigRow
+                style={{ opacity: heroBgBlurType === "pixelated" ? 1 : 0.4 }}
+              >
+                <label>
+                  👾 Пікселізація (сила): {heroBgPixelation.toFixed(1)}
+                </label>
                 <input
                   type="range"
                   min="0"
@@ -2640,10 +2663,14 @@ const Hero = ({
                   step="0.2"
                   value={heroBgPixelation}
                   disabled={heroBgBlurType !== "pixelated"}
-                  onChange={(e) => setHeroBgPixelation(parseFloat(e.target.value))}
+                  onChange={(e) =>
+                    setHeroBgPixelation(parseFloat(e.target.value))
+                  }
                 />
                 {heroBgBlurType !== "pixelated" && (
-                  <span style={{ fontSize: '8px', color: '#aaa' }}>Увімкніть тип "Піксельне" вище</span>
+                  <span style={{ fontSize: "8px", color: "#aaa" }}>
+                    Увімкніть тип "Піксельне" вище
+                  </span>
                 )}
               </ConfigRow>
             </ModalConfigGrid>

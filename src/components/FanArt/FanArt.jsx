@@ -137,7 +137,7 @@ const ModalTitle = styled.h2`
   color: ${(props) => (props.$isDarkMode ? "white" : "black")};
   text-align: center;
   font-size: 20px;
-  margin-bottom:5px;
+  margin-bottom: 5px;
   text-transform: capitalize;
 `;
 
@@ -164,7 +164,9 @@ const BenefitImage = styled.img`
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    opacity 0.3s ease;
 `;
 
 const FanArtImageContainer = styled.div`
@@ -265,7 +267,7 @@ const SearchInput = styled.input`
 const SearchButton = styled(ActionButton)`
   padding: 6px 12px;
   width: auto;
-    background: "#ffffff00";
+  background: "#ffffff00";
 `;
 
 const SearchResultsGrid = styled.div`
@@ -1070,9 +1072,7 @@ const FanArt = ({
 
   return (
     <FanArtDiv>
-      <FanArtTitle $isDarkMode={isDarkMode}>
-        Друкарня
-      </FanArtTitle>
+      <FanArtTitle $isDarkMode={isDarkMode}>Друкарня</FanArtTitle>
       <PlaylistContainer>
         {playlists.map((category) => {
           const catImages = combinedImages.filter(
@@ -1085,8 +1085,11 @@ const FanArt = ({
               ? catImages
               : [{ src: monody, category: "ваші картинки" }];
 
-          const thumbnailImages = displayImages.filter(img => !isVideoSource(img.src));
-          const finalThumbnails = thumbnailImages.length > 0 ? thumbnailImages : displayImages;
+          const thumbnailImages = displayImages.filter(
+            (img) => !isVideoSource(img.src),
+          );
+          const finalThumbnails =
+            thumbnailImages.length > 0 ? thumbnailImages : displayImages;
 
           return (
             <PlaylistItem
@@ -1174,23 +1177,23 @@ const FanArt = ({
                         🎬 TVMaze (Кіно)
                       </SourceButton>
                     </SourceSelector>
-<SourceSelector>
-                    <SearchInput
-                      $isDarkMode={isDarkMode}
-                      type="text"
-                      placeholder="Пошук зображень. Англійською вводьте."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                    />
-                    <SearchButton
-                      type="button"
-                      onClick={handleSearch}
-                      disabled={isCooldown}
-                    >
-                      {isCooldown ? `Зачекайте ${cooldownTime}с` : "Знайти"}
-                    </SearchButton>
-</SourceSelector>
+                    <SourceSelector>
+                      <SearchInput
+                        $isDarkMode={isDarkMode}
+                        type="text"
+                        placeholder="Пошук зображень. Англійською вводьте."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                      />
+                      <SearchButton
+                        type="button"
+                        onClick={handleSearch}
+                        disabled={isCooldown}
+                      >
+                        {isCooldown ? `Зачекайте ${cooldownTime}с` : "Знайти"}
+                      </SearchButton>
+                    </SourceSelector>
                     {searchStatus === "loading" && (
                       <SearchStatusText $isDarkMode={isDarkMode}>
                         Завантаження...
@@ -1318,13 +1321,15 @@ const FanArt = ({
                               });
                             }}
                             title="Встановити на шпалери"
-                            style={{color: "white" }}
+                            style={{ color: "white" }}
                           >
-                            <LuWallpaper/>
+                            <LuWallpaper />
                           </ActionButton>
                           {selectedPlaylist === "ваші картинки" && (
                             <ActionButton
-                              onClick={() => handleRemoveCustomImage(imgData.id)}
+                              onClick={() =>
+                                handleRemoveCustomImage(imgData.id)
+                              }
                               title="Видалити"
                               style={{ background: "#ff6961" }}
                             >

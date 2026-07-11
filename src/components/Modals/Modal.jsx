@@ -98,11 +98,11 @@ const ModalContent = styled.div`
     forwards;
   @media (min-width: 768px) {
     padding: 10px 10px;
-    max-width: 700px; 
-    flex-direction: row; 
-    flex-wrap: wrap; 
+    max-width: 700px;
+    flex-direction: row;
+    flex-wrap: wrap;
     justify-content: space-between;
-    gap: 10px; 
+    gap: 10px;
   }
 `;
 
@@ -110,10 +110,10 @@ const FormColumn = styled.div`
   display: flex;
   flex-direction: column;
   gap: 5px;
-  flex: 1; 
-  min-width: 250px; 
+  flex: 1;
+  min-width: 250px;
   @media (min-width: 768px) {
-    flex: 1; 
+    flex: 1;
   }
 `;
 
@@ -166,15 +166,17 @@ const NameInput = styled(Input)`
       return css`
         background: ${props.$color};
         color: #fff;
-        ${isAnimated
-          ? css`
-              background-size: 400% 400%;
-              animation: ${flow} 5s ease infinite;
-            `
-          : css`
-              background-size: 100% 100%;
-              animation: none;
-            `}
+        ${
+          isAnimated
+            ? css`
+                background-size: 400% 400%;
+                animation: ${flow} 5s ease infinite;
+              `
+            : css`
+                background-size: 100% 100%;
+                animation: none;
+              `
+        }
       `;
     } else {
       return css`
@@ -419,7 +421,7 @@ const Modal = ({ onClose, onRegister, availableAvatars = [] }) => {
   const [error, setError] = useState("");
   const [isClosing, setIsClosing] = useState(false);
   const [showKatScene, setShowKatScene] = useState(false);
-  const { isDarkMode } = {isDarkMode: false};
+  const { isDarkMode } = { isDarkMode: false };
   const handleClose = (e) => {
     if (e) e.stopPropagation();
     setIsClosing(true);
@@ -512,19 +514,24 @@ const Modal = ({ onClose, onRegister, availableAvatars = [] }) => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const firebaseUser = result.user;
-      
+
       const registrationData = {
         uid: firebaseUser.uid,
         id: firebaseUser.uid,
         account: firebaseUser.email || "",
-        firstName: firebaseUser.displayName || firebaseUser.email || "Користувач",
+        firstName:
+          firebaseUser.displayName || firebaseUser.email || "Користувач",
         password: "", // Google auth uses OAuth
-        avatar: firebaseUser.photoURL || (availableAvatars.length ? availableAvatars[formData.avatarIndex] : ""),
+        avatar:
+          firebaseUser.photoURL ||
+          (availableAvatars.length
+            ? availableAvatars[formData.avatarIndex]
+            : ""),
         textColor: formData.textColor || "grey",
         borderColor: formData.borderColor || "grey",
         birthDate: "2000-01-01", // Default for Google users
       };
-      
+
       await localforage.setItem("registered_user", registrationData);
       onRegister(registrationData);
       handleClose(e);
@@ -703,7 +710,10 @@ const Modal = ({ onClose, onRegister, availableAvatars = [] }) => {
                   type="password"
                   placeholder="Підтвердіть пароль"
                   onChange={(e) =>
-                    setFormData({ ...formData, confirmPassword: e.target.value })
+                    setFormData({
+                      ...formData,
+                      confirmPassword: e.target.value,
+                    })
                   }
                   $isDarkMode={isDarkMode}
                 />
@@ -715,24 +725,41 @@ const Modal = ({ onClose, onRegister, availableAvatars = [] }) => {
                   />
                   <label>
                     Я погоджуюсь з{" "}
-                    <TermsBtn $isDarkMode={isDarkMode} onClick={() => setShowTerms(true)}>Угодою</TermsBtn>
+                    <TermsBtn
+                      $isDarkMode={isDarkMode}
+                      onClick={() => setShowTerms(true)}
+                    >
+                      Угодою
+                    </TermsBtn>
                   </label>
                 </CheckboxRow>
-              <SubmitButton
-                onClick={handleSubmit}
-                disabled={!accepted || isInvalidDate}
-                $isDarkMode={isDarkMode}
-              >
-                Зареєструватися
-              </SubmitButton>
-              <div style={{ textAlign: "center", marginTop: "10px", fontSize: "14px", fontWeight: "bold", color: isDarkMode ? "#ccc" : "#555" }}>АБО</div>
-              <GoogleButton type="button" onClick={handleGoogleAuth}>
-                🔑 Увійти через Google
-              </GoogleButton>
+                <SubmitButton
+                  onClick={handleSubmit}
+                  disabled={!accepted || isInvalidDate}
+                  $isDarkMode={isDarkMode}
+                >
+                  Зареєструватися
+                </SubmitButton>
+                <div
+                  style={{
+                    textAlign: "center",
+                    marginTop: "10px",
+                    fontSize: "14px",
+                    fontWeight: "bold",
+                    color: isDarkMode ? "#ccc" : "#555",
+                  }}
+                >
+                  АБО
+                </div>
+                <GoogleButton type="button" onClick={handleGoogleAuth}>
+                  🔑 Увійти через Google
+                </GoogleButton>
               </FormColumn>
               <FormColumn>
                 <ColorSection>
-                  <ColorLabel $isDarkMode={isDarkMode}>Оберіть колір тексту</ColorLabel>
+                  <ColorLabel $isDarkMode={isDarkMode}>
+                    Оберіть колір тексту
+                  </ColorLabel>
                   <ColorContainer>
                     {COLORS.map((color, index) => (
                       <ColorCircle
@@ -749,7 +776,9 @@ const Modal = ({ onClose, onRegister, availableAvatars = [] }) => {
                 </ColorSection>
 
                 <ColorSection>
-                  <ColorLabel $isDarkMode={isDarkMode}>Оберіть колір рамки аватара</ColorLabel>
+                  <ColorLabel $isDarkMode={isDarkMode}>
+                    Оберіть колір рамки аватара
+                  </ColorLabel>
                   <ColorContainer>
                     {COLORS.map((color, index) => (
                       <ColorCircle
@@ -765,10 +794,15 @@ const Modal = ({ onClose, onRegister, availableAvatars = [] }) => {
                   </ColorContainer>
                 </ColorSection>
                 <div
-                  style={{ fontSize: "11px", fontWeight: "bold", color: isDarkMode ? "#ccc" : "grey" }}
+                  style={{
+                    fontSize: "11px",
+                    fontWeight: "bold",
+                    color: isDarkMode ? "#ccc" : "grey",
+                  }}
                 >
                   Аватар оберіть. Активуйте
-                    <AnimatedText>Стихія+</AnimatedText> яка, дає доступ до відео аватарів. Отримуйте з магазину доміно, за сезонний пропуск
+                  <AnimatedText>Стихія+</AnimatedText> яка, дає доступ до відео
+                  аватарів. Отримуйте з магазину доміно, за сезонний пропуск
                 </div>
                 <ImageSelectionContainer>
                   {availableAvatars.map((imgSrc, index) => (

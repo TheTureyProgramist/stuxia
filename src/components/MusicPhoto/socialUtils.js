@@ -19,7 +19,10 @@ export const getLikeStateLabel = (value) => {
   return "none";
 };
 
-export const getDailyCommentQuotaLeft = (limit = MAX_DAILY_COMMENTS, used = 0) => {
+export const getDailyCommentQuotaLeft = (
+  limit = MAX_DAILY_COMMENTS,
+  used = 0,
+) => {
   return Math.max(0, limit - used);
 };
 
@@ -31,7 +34,10 @@ export const buildCommentPayload = ({
   color,
   supporterName,
 }) => ({
-  id: typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
+  id:
+    typeof crypto !== "undefined" && crypto.randomUUID
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random()}`,
   trackId,
   text: String(text || "").trim(),
   createdAt: Date.now(),
@@ -73,4 +79,3 @@ export const canCommentUser = (user) => {
   if (user.isBanned || user.banned) return false;
   return true;
 };
-

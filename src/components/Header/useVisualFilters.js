@@ -17,10 +17,26 @@ export const FILTERS = [
 ];
 
 export const PRESETS = [
-  { id: "cinema", label: "🎬 Кіно", config: { darkIntensity: 15, filterType: "sepia", filterIntensity: 20 } },
-  { id: "night", label: "🌙 Ніч", config: { darkIntensity: 70, filterType: "none", filterIntensity: 50 } },
-  { id: "retro", label: "📻 Ретро", config: { darkIntensity: 5, filterType: "grayscale", filterIntensity: 80 } },
-  { id: "acid", label: "🌈 Кислота", config: { darkIntensity: 0, filterType: "hue", filterIntensity: 60 } },
+  {
+    id: "cinema",
+    label: "🎬 Кіно",
+    config: { darkIntensity: 15, filterType: "sepia", filterIntensity: 20 },
+  },
+  {
+    id: "night",
+    label: "🌙 Ніч",
+    config: { darkIntensity: 70, filterType: "none", filterIntensity: 50 },
+  },
+  {
+    id: "retro",
+    label: "📻 Ретро",
+    config: { darkIntensity: 5, filterType: "grayscale", filterIntensity: 80 },
+  },
+  {
+    id: "acid",
+    label: "🌈 Кислота",
+    config: { darkIntensity: 0, filterType: "hue", filterIntensity: 60 },
+  },
 ];
 
 const DEFAULT_CONFIG = {
@@ -55,7 +71,8 @@ export const applyFilterEffect = (config) => {
   // Обробка спеціальних анімованих фільтрів
   if (filterType === "ultrachaos") {
     document.documentElement.style.setProperty("--v-bright", `${brightness}%`);
-    document.documentElement.style.animation = "ultrachaos-anim 4s infinite linear";
+    document.documentElement.style.animation =
+      "ultrachaos-anim 4s infinite linear";
     return;
   }
 
@@ -94,8 +111,12 @@ export const useVisualFilters = (user) => {
   const [visualConfig, setVisualConfigState] = useState(DEFAULT_CONFIG);
   const [customPresets, setCustomPresets] = useState([]);
 
-  const storageKey = user?.account ? `visualConfig_${user.account}` : "visualConfig_guest";
-  const presetsKey = user?.account ? `customPresets_${user.account}` : "customPresets_guest";
+  const storageKey = user?.account
+    ? `visualConfig_${user.account}`
+    : "visualConfig_guest";
+  const presetsKey = user?.account
+    ? `customPresets_${user.account}`
+    : "customPresets_guest";
 
   useEffect(() => {
     localforage.getItem(storageKey).then((saved) => {
@@ -112,70 +133,94 @@ export const useVisualFilters = (user) => {
     let interval;
     if (visualConfig.filterType === "chaos") {
       const triggerChaos = () => {
-        const pool = FILTERS.filter(f => !["none", "chaos", "ultrachaos"].includes(f.id));
+        const pool = FILTERS.filter(
+          (f) => !["none", "chaos", "ultrachaos"].includes(f.id),
+        );
         const randomFilter = pool[Math.floor(Math.random() * pool.length)];
         const randomIntensity = Math.floor(Math.random() * 80) + 20;
-        applyFilterEffect({ ...visualConfig, filterType: randomFilter.id, filterIntensity: randomIntensity });
+        applyFilterEffect({
+          ...visualConfig,
+          filterType: randomFilter.id,
+          filterIntensity: randomIntensity,
+        });
       };
       triggerChaos();
       // Встановлюємо випадковий інтервал від 1с до 3с
-      interval = setInterval(triggerChaos, Math.floor(Math.random() * 2000) + 1000);
+      interval = setInterval(
+        triggerChaos,
+        Math.floor(Math.random() * 2000) + 1000,
+      );
     } else {
       applyFilterEffect(visualConfig);
     }
     return () => clearInterval(interval);
   }, [visualConfig]);
 
-  const setVisualConfig = useCallback((updater) => {
-    setVisualConfigState((prev) => {
-      const next = typeof updater === "function" ? updater(prev) : updater;
-      localforage.setItem(storageKey, next);
-      return next;
-    });
-  }, [storageKey]);
+  const setVisualConfig = useCallback(
+    (updater) => {
+      setVisualConfigState((prev) => {
+        const next = typeof updater === "function" ? updater(prev) : updater;
+        localforage.setItem(storageKey, next);
+        return next;
+      });
+    },
+    [storageKey],
+  );
 
   const resetFilters = useCallback(() => {
     setVisualConfig(DEFAULT_CONFIG);
     localforage.setItem(storageKey, DEFAULT_CONFIG);
   }, [storageKey, setVisualConfig]);
 
-  const saveCustomPreset = useCallback((name) => {
-    if (!name.trim()) return;
-    const newPreset = {
-      id: `custom_${Date.now()}`,
-      label: `✨ ${name}`,
-      config: { ...visualConfig },
-    };
-    setCustomPresets((prev) => {
-      const next = [...prev, newPreset];
-      localforage.setItem(presetsKey, next);
-      return next;
-    });
-  }, [presetsKey, visualConfig]);
+  const saveCustomPreset = useCallback(
+    (name) => {
+      if (!name.trim()) return;
+      const newPreset = {
+        id: `custom_${Date.now()}`,
+        label: `✨ ${name}`,
+        config: { ...visualConfig },
+      };
+      setCustomPresets((prev) => {
+        const next = [...prev, newPreset];
+        localforage.setItem(presetsKey, next);
+        return next;
+      });
+    },
+    [presetsKey, visualConfig],
+  );
 
-  const deleteCustomPreset = useCallback((id) => {
-    setCustomPresets((prev) => {
-      const next = prev.filter((p) => p.id !== id);
-      localforage.setItem(presetsKey, next);
-      return next;
-    });
-  }, [presetsKey]);
+  const deleteCustomPreset = useCallback(
+    (id) => {
+      setCustomPresets((prev) => {
+        const next = prev.filter((p) => p.id !== id);
+        localforage.setItem(presetsKey, next);
+        return next;
+      });
+    },
+    [presetsKey],
+  );
 
-  const updateCustomPresetName = useCallback((id, newName) => {
-    if (!newName.trim()) return;
-    setCustomPresets((prev) => {
-      const next = prev.map((p) =>
-        p.id === id ? { ...p, label: `✨ ${newName}` } : p
-      );
-      localforage.setItem(presetsKey, next);
-      return next;
-    });
-  }, [presetsKey]);
+  const updateCustomPresetName = useCallback(
+    (id, newName) => {
+      if (!newName.trim()) return;
+      setCustomPresets((prev) => {
+        const next = prev.map((p) =>
+          p.id === id ? { ...p, label: `✨ ${newName}` } : p,
+        );
+        localforage.setItem(presetsKey, next);
+        return next;
+      });
+    },
+    [presetsKey],
+  );
 
-  const reorderCustomPresets = useCallback((newPresets) => {
-    setCustomPresets(newPresets);
-    localforage.setItem(presetsKey, newPresets);
-  }, [presetsKey]);
+  const reorderCustomPresets = useCallback(
+    (newPresets) => {
+      setCustomPresets(newPresets);
+      localforage.setItem(presetsKey, newPresets);
+    },
+    [presetsKey],
+  );
 
   return {
     visualConfig,

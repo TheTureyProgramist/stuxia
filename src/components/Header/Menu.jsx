@@ -6,7 +6,7 @@ export const DEFAULT_SITE_SECTIONS = [
   { key: "hero", label: "🏠 Головна", path: "hero" },
   { key: "weather", label: "🌤️ Погода", path: "weather" },
   { key: "map", label: "🗺️ Кліматична мапа", path: "map" },
- // { key: "puzzles", label: "🧩 Пазли", path: "puzzles" },
+  // { key: "puzzles", label: "🧩 Пазли", path: "puzzles" },
   { key: "aihelp", label: "🤖 AI-допомога", path: "aihelp" },
   { key: "news", label: "📰 Новини", path: "news" },
   { key: "music", label: "🎵 Музика", path: "music" },
@@ -219,7 +219,9 @@ const BurgerMenuPanel = styled.div`
   animation: ${(props) => (props.$isOpen ? slideDown : slideUp)} 0.4s
     cubic-bezier(0.16, 1, 0.3, 1) forwards;
 
-  &::-webkit-scrollbar { width: 8px; }
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
   &::-webkit-scrollbar-thumb {
     background-color: ${(props) => (props.$isDarkMode ? "rgba(255, 179, 108, 0.5)" : "rgba(255, 0, 93, 0.5)")};
     border-radius: 10px;
@@ -227,7 +229,8 @@ const BurgerMenuPanel = styled.div`
     background-clip: content-box;
   }
   scrollbar-width: thin;
-  scrollbar-color: ${(props) => (props.$isDarkMode ? "#ffb36c" : "#ff005d")} transparent;
+  scrollbar-color: ${(props) => (props.$isDarkMode ? "#ffb36c" : "#ff005d")}
+    transparent;
 
   @media (min-width: 768px) {
     padding: 40px;
@@ -393,7 +396,9 @@ const PresetInput = styled.input`
   color: ${(props) => (props.$isDarkMode ? "#fff" : "#333")};
   font-size: 12px;
   outline: none;
-  &::placeholder { color: #888; }
+  &::placeholder {
+    color: #888;
+  }
 `;
 
 const AddPresetBtn = styled.button`
@@ -406,7 +411,9 @@ const AddPresetBtn = styled.button`
   font-size: 12px;
   cursor: pointer;
   transition: background 0.2s;
-  &:hover { background: #ffa04d; }
+  &:hover {
+    background: #ffa04d;
+  }
 `;
 
 const PresetButton = styled.button`
@@ -430,7 +437,9 @@ const CustomPresetWrapper = styled.div`
   align-items: center;
   gap: 3px;
   width: 100%;
-  button:first-child { flex: 1; }
+  button:first-child {
+    flex: 1;
+  }
   animation: ${appearScale} 0.3s ease-out forwards;
 `;
 
@@ -442,7 +451,9 @@ const EditPresetBtn = styled.button`
   font-size: 14px;
   padding: 0 5px;
   transition: transform 0.2s;
-  &:hover { transform: scale(1.2); }
+  &:hover {
+    transform: scale(1.2);
+  }
 `;
 
 const DeletePresetBtn = styled.button`
@@ -452,7 +463,10 @@ const DeletePresetBtn = styled.button`
   cursor: pointer;
   font-size: 16px;
   padding: 0 5px;
-  &:hover { color: #ff1a1a; transform: scale(1.1); }
+  &:hover {
+    color: #ff1a1a;
+    transform: scale(1.1);
+  }
 `;
 
 const DragHandle = styled.div`
@@ -614,8 +628,16 @@ const Menu = ({
                       <OrderButton
                         $isDarkMode={isDarkMode}
                         onClick={() => onToggleSectionVisibility?.(section.key)}
-                        title={hiddenSections?.includes(section.key) ? "Показати" : "Приховати"}
-                        disabled={!hiddenSections?.includes(section.key) && (siteSections.length - (hiddenSections?.length || 0) <= 2)}
+                        title={
+                          hiddenSections?.includes(section.key)
+                            ? "Показати"
+                            : "Приховати"
+                        }
+                        disabled={
+                          !hiddenSections?.includes(section.key) &&
+                          siteSections.length - (hiddenSections?.length || 0) <=
+                            2
+                        }
                       >
                         {hiddenSections?.includes(section.key) ? "👁️‍🗨️" : "👁️"}
                       </OrderButton>
@@ -626,7 +648,9 @@ const Menu = ({
                         onClick={() => onToggleSectionTheme?.(section.key)}
                         title="Змінити тему секції"
                       >
-                        {(sectionThemes?.[section.key] ?? isDarkMode) ? "🌙" : "☀️"}
+                        {(sectionThemes?.[section.key] ?? isDarkMode)
+                          ? "🌙"
+                          : "☀️"}
                       </OrderButton>
                     </ControlButtons>
                     {section.key !== "hero" && (
@@ -686,15 +710,18 @@ const Menu = ({
               Скинути теми секцій
             </button>
 
-            {(hiddenSections?.length > 0) && (
-               <div style={{
-                 marginTop: "10px", 
-                 fontSize: "10px", 
-                 color: isDarkMode ? "#aaa" : "#666",
-                 fontStyle: "italic"
-               }}>
-                 💡 Приховані секції доступні через "Маршрутизацію". Щоб залишити лише одну секцію, увімкніть режим ракети 🚀.
-               </div>
+            {hiddenSections?.length > 0 && (
+              <div
+                style={{
+                  marginTop: "10px",
+                  fontSize: "10px",
+                  color: isDarkMode ? "#aaa" : "#666",
+                  fontStyle: "italic",
+                }}
+              >
+                💡 Приховані секції доступні через "Маршрутизацію". Щоб залишити
+                лише одну секцію, увімкніть режим ракети 🚀.
+              </div>
             )}
           </div>
 
@@ -804,28 +831,41 @@ const Menu = ({
               </li>
               <li>
                 <div style={{ marginTop: "15px", marginBottom: "10px" }}>
-                  <div style={{ fontSize: "14px", fontWeight: "bold", color: isDarkMode ? "#ffb36c" : "#ff005d", marginBottom: "5px" }}>
+                  <div
+                    style={{
+                      fontSize: "14px",
+                      fontWeight: "bold",
+                      color: isDarkMode ? "#ffb36c" : "#ff005d",
+                      marginBottom: "5px",
+                    }}
+                  >
                     🚀 Режим завантаження
                   </div>
-                  <div style={{ display: 'flex', gap: '5px' }}>
-                    <FilterButtonInMenu 
-                      $active={loadingStrategy === "eager"} 
-                      $isDarkMode={isDarkMode} 
+                  <div style={{ display: "flex", gap: "5px" }}>
+                    <FilterButtonInMenu
+                      $active={loadingStrategy === "eager"}
+                      $isDarkMode={isDarkMode}
                       onClick={() => onSetLoadingStrategy("eager")}
                       title="Завантажує все відразу при старті сайту"
-                    >Повна</FilterButtonInMenu>
-                    <FilterButtonInMenu 
-                      $active={loadingStrategy === "delayed"} 
-                      $isDarkMode={isDarkMode} 
+                    >
+                      Повна
+                    </FilterButtonInMenu>
+                    <FilterButtonInMenu
+                      $active={loadingStrategy === "delayed"}
+                      $isDarkMode={isDarkMode}
                       onClick={() => onSetLoadingStrategy("delayed")}
                       title="Завантажує важкі модулі через 8 секунд"
-                    >Оптим.</FilterButtonInMenu>
-                    <FilterButtonInMenu 
-                      $active={loadingStrategy === "lazy"} 
-                      $isDarkMode={isDarkMode} 
+                    >
+                      Оптим.
+                    </FilterButtonInMenu>
+                    <FilterButtonInMenu
+                      $active={loadingStrategy === "lazy"}
+                      $isDarkMode={isDarkMode}
                       onClick={() => onSetLoadingStrategy("lazy")}
                       title="Завантажує тільки при натисканні (економія)"
-                    >Економ.</FilterButtonInMenu>
+                    >
+                      Економ.
+                    </FilterButtonInMenu>
                   </div>
                 </div>
               </li>
@@ -951,7 +991,7 @@ const Menu = ({
                       </PresetButton>
                     ))}
                     {customPresets.map((preset, idx) => (
-                      <CustomPresetWrapper 
+                      <CustomPresetWrapper
                         key={preset.id}
                         draggable
                         onDragStart={(e) => handleDragStart(e, idx)}
@@ -959,25 +999,33 @@ const Menu = ({
                         onDragOver={(e) => e.preventDefault()}
                         onDrop={(e) => handleDrop(e, idx)}
                       >
-                        <DragHandle title="Перетягніть для сортування">⠿</DragHandle>
+                        <DragHandle title="Перетягніть для сортування">
+                          ⠿
+                        </DragHandle>
                         <PresetButton
                           $isDarkMode={isDarkMode}
-                          style={{ borderColor: "#7afcff", color: isDarkMode ? "#7afcff" : "#006666" }}
+                          style={{
+                            borderColor: "#7afcff",
+                            color: isDarkMode ? "#7afcff" : "#006666",
+                          }}
                           onClick={() => setVisualConfig(preset.config)}
                         >
                           {preset.label}
                         </PresetButton>
-                        <EditPresetBtn 
+                        <EditPresetBtn
                           onClick={() => {
                             const currentName = preset.label.replace("✨ ", "");
-                            const n = window.prompt("Введіть нову назву пресета:", currentName);
+                            const n = window.prompt(
+                              "Введіть нову назву пресета:",
+                              currentName,
+                            );
                             if (n) onUpdatePresetName(preset.id, n);
                           }}
                           title="Редагувати назву"
                         >
                           ✎
                         </EditPresetBtn>
-                        <DeletePresetBtn 
+                        <DeletePresetBtn
                           onClick={() => onDeletePreset(preset.id)}
                           title="Видалити пресет"
                         >
@@ -987,16 +1035,16 @@ const Menu = ({
                     ))}
                   </PresetGrid>
                   <PresetActionRow>
-                    <PresetInput 
+                    <PresetInput
                       $isDarkMode={isDarkMode}
                       placeholder="Назва пресета..."
                       value={newPresetName}
                       onChange={(e) => setNewPresetName(e.target.value)}
                       maxLength={15}
                     />
-                    <AddPresetBtn 
+                    <AddPresetBtn
                       onClick={() => {
-                        if(newPresetName.trim()) {
+                        if (newPresetName.trim()) {
                           onSavePreset(newPresetName);
                           setNewPresetName("");
                         }
@@ -1026,7 +1074,10 @@ const Menu = ({
               <li>
                 <ActionButton
                   $isDarkMode={isDarkMode}
-                  onClick={() => { onOpenOtherOptions(); onClose(); }}
+                  onClick={() => {
+                    onOpenOtherOptions();
+                    onClose();
+                  }}
                 >
                   <span className="icon">⋯</span> Інші опції
                 </ActionButton>

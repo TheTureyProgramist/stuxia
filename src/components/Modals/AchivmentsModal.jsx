@@ -205,7 +205,7 @@ const MainTitle = styled.h2`
   margin-bottom: 10px;
   font-size: 22px;
   letter-spacing: 2px;
-   color: #a2ff6c;
+  color: #a2ff6c;
 `;
 
 const NavContainer = styled.div`
@@ -261,7 +261,7 @@ const AchivmentsModal = ({ onClose }) => {
             goal: "Ціль: Відкрийти 3 розділи колекції.",
             img: horse,
           },
-                    {
+          {
             name: "Індики винні!",
             goal: "Ціль: За 1хв змініть світлу-темну тему 8разів. Під звуки індиків!",
             img: turkeys,
@@ -300,7 +300,7 @@ const AchivmentsModal = ({ onClose }) => {
             name: "Мінливий характер!",
             goal: "Ціль: Змініть 10разів аватар.",
             img: cloud,
-          }
+          },
         ],
       },
       {

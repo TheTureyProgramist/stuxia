@@ -1,4 +1,8 @@
-import { normalizeLikeValue, getLikeStateLabel, getDailyCommentQuotaLeft } from "./socialUtils";
+import {
+  normalizeLikeValue,
+  getLikeStateLabel,
+  getDailyCommentQuotaLeft,
+} from "./socialUtils";
 
 describe("social utils", () => {
   it("normalizes like values to the intended social state", () => {

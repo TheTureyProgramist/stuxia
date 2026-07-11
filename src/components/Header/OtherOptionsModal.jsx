@@ -56,7 +56,8 @@ const ModalOverlay = styled.div`
   align-items: center;
   z-index: 9999;
   backdrop-filter: blur(4px);
-  animation: ${(props) => (props.$isClosing ? fadeOut : "none")} 0.5s ease-out forwards;
+  animation: ${(props) => (props.$isClosing ? fadeOut : "none")} 0.5s ease-out
+    forwards;
 `;
 
 const ModalContent = styled.div`
@@ -71,7 +72,8 @@ const ModalContent = styled.div`
   display: flex;
   flex-direction: column;
   gap: 15px;
-  animation: ${(props) => (props.$isClosing ? slideOut : slideIn)} 0.5s ease-out forwards;
+  animation: ${(props) => (props.$isClosing ? slideOut : slideIn)} 0.5s ease-out
+    forwards;
 `;
 
 const CloseButton = styled.button`
@@ -83,7 +85,9 @@ const CloseButton = styled.button`
   font-size: 30px;
   cursor: pointer;
   color: #ffb36c;
-  &:hover { color: ${(props) => (props.$isDarkMode ? "#fff" : "#000")}; }
+  &:hover {
+    color: ${(props) => (props.$isDarkMode ? "#fff" : "#000")};
+  }
 `;
 
 const ModalBody = styled.div`
@@ -126,8 +130,9 @@ const OptionRow = styled.div`
   padding: 8px 12px;
   background: ${(props) => (props.$isDarkMode ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.05)")};
   border-radius: 12px;
-  label { font-size: 13px; 
-  color: ${(props) => (props.$isDarkMode ? "rgb(255, 255, 255)" : "rgb(0, 0, 0)")};
+  label {
+    font-size: 13px;
+    color: ${(props) => (props.$isDarkMode ? "rgb(255, 255, 255)" : "rgb(0, 0, 0)")};
   }
 `;
 
@@ -139,8 +144,13 @@ const ScrollSection = styled.div`
   gap: 5px;
   margin-top: 3px;
   padding-right: 5px;
-  &::-webkit-scrollbar { width: 4px; }
-  &::-webkit-scrollbar-thumb { background: #ffb36c; border-radius: 10px; }
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #ffb36c;
+    border-radius: 10px;
+  }
 `;
 
 const TrackRow = styled.div`
@@ -149,8 +159,11 @@ const TrackRow = styled.div`
   gap: 8px;
   flex-wrap: wrap; /* Дозволяє контроли переносити на новий рядок на малих екранах */
   padding: 4px 0;
-  border-bottom: 1px solid ${(props) => (props.$isDarkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)")};
-  &:last-child { border-bottom: none; }
+  border-bottom: 1px solid
+    ${(props) => (props.$isDarkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)")};
+  &:last-child {
+    border-bottom: none;
+  }
 `;
 
 const eqBarAnim = keyframes`
@@ -170,8 +183,8 @@ const EqBar = styled.div`
   width: 2px;
   background: #ffb36c;
   border-radius: 1px;
-  animation: ${eqBarAnim} ${props => props.$dur}s ease-in-out infinite;
-  animation-delay: ${props => props.$delay}s;
+  animation: ${eqBarAnim} ${(props) => props.$dur}s ease-in-out infinite;
+  animation-delay: ${(props) => props.$delay}s;
 `;
 
 const Equalizer = () => (
@@ -184,7 +197,7 @@ const Equalizer = () => (
 
 const WordCounter = styled.span`
   font-size: 9px;
-  color: ${props => props.$error ? "#ff4d4d" : (props.$isDarkMode ? "#aaa" : "#777")};
+  color: ${(props) => (props.$error ? "#ff4d4d" : props.$isDarkMode ? "#aaa" : "#777")};
   min-width: 30px;
   text-align: right;
 `;
@@ -211,8 +224,8 @@ const Switch = styled.div`
 `;
 
 const ListButton = styled.button`
-  background: ${props => props.$active ? "#ffb36c" : (props.$isDarkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)")};
-  color: ${props => props.$active ? "#2a2a2a" : (props.$isDarkMode ? "white" : "#2a2a2a")};
+  background: ${(props) => (props.$active ? "#ffb36c" : props.$isDarkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)")};
+  color: ${(props) => (props.$active ? "#2a2a2a" : props.$isDarkMode ? "white" : "#2a2a2a")};
   border: none;
   padding: 8px;
   border-radius: 6px;
@@ -221,8 +234,12 @@ const ListButton = styled.button`
   min-width: 120px;
   font-size: 11px;
   animation: ${itemFadeIn} 0.4s ease-out both;
-  animation-delay: ${props => (props.$index % 10) * 0.05}s;
-  &:hover { background: #ffb36c; color: #2a2a2a; opacity: 0.9; }
+  animation-delay: ${(props) => (props.$index % 10) * 0.05}s;
+  &:hover {
+    background: #ffb36c;
+    color: #2a2a2a;
+    opacity: 0.9;
+  }
 `;
 
 const FileInput = styled.input`
@@ -238,7 +255,9 @@ const ActionButton = styled.button`
   font-weight: bold;
   cursor: pointer;
   font-size: 12px;
-  &:hover { background: #ffa04d; }
+  &:hover {
+    background: #ffa04d;
+  }
 `;
 
 const SmallInput = styled.input`
@@ -274,8 +293,8 @@ const SearchBox = styled.input`
   padding: 6px 10px;
   border-radius: 8px;
   border: 1px solid #ffb36c;
-  background: ${props => props.$isDarkMode ? "rgba(0,0,0,0.3)" : "#fff"};
-  color: ${props => props.$isDarkMode ? "#fff" : "#333"};
+  background: ${(props) => (props.$isDarkMode ? "rgba(0,0,0,0.3)" : "#fff")};
+  color: ${(props) => (props.$isDarkMode ? "#fff" : "#333")};
   font-size: 12px;
   margin-bottom: 10px;
   outline: none;
@@ -286,8 +305,8 @@ const SortSelect = styled.select`
   padding: 6px 10px;
   border-radius: 8px;
   border: 1px solid #ffb36c;
-  background: ${props => props.$isDarkMode ? "rgba(0,0,0,0.3)" : "#fff"};
-  color: ${props => props.$isDarkMode ? "#fff" : "#333"};
+  background: ${(props) => (props.$isDarkMode ? "rgba(0,0,0,0.3)" : "#fff")};
+  color: ${(props) => (props.$isDarkMode ? "#fff" : "#333")};
   font-size: 12px;
   margin-bottom: 10px;
   outline: none;
@@ -295,19 +314,36 @@ const SortSelect = styled.select`
 `;
 
 const assetMap = {
-  turkeyAudio: turkeysAudio, dinofrozAudio, monodyAudio, windAudio, unityAudio,
-  horseAudio, hungerAudio, dragonoraAudio, soloveykoAudio, harmonyAudio,
-  electrodynamixAudio, clubstepAudio, fingerbang, theorytwoAudio, theoryAudio,
-  deadlockedAudio, mechaAudio, miaAudio, humorAudio, fadedAudio, domino: dominoAudio
+  turkeyAudio: turkeysAudio,
+  dinofrozAudio,
+  monodyAudio,
+  windAudio,
+  unityAudio,
+  horseAudio,
+  hungerAudio,
+  dragonoraAudio,
+  soloveykoAudio,
+  harmonyAudio,
+  electrodynamixAudio,
+  clubstepAudio,
+  fingerbang,
+  theorytwoAudio,
+  theoryAudio,
+  deadlockedAudio,
+  mechaAudio,
+  miaAudio,
+  humorAudio,
+  fadedAudio,
+  domino: dominoAudio,
 };
 
-const OtherOptionsModal = ({ 
-  onClose, 
-  bgMusicEnabled, 
-  setBgMusicEnabled, 
-  autoMuteBgMusic, 
-  setAutoMuteBgMusic, 
-  lockFiltersInFs, 
+const OtherOptionsModal = ({
+  onClose,
+  bgMusicEnabled,
+  setBgMusicEnabled,
+  autoMuteBgMusic,
+  setAutoMuteBgMusic,
+  lockFiltersInFs,
   setLockFiltersInFs,
   bgMusicSource,
   setBgMusicSource,
@@ -325,7 +361,7 @@ const OtherOptionsModal = ({
   setLibraryBgSettings = () => {},
   setActiveBgTrackId = () => {},
   onResetBgPosition = () => {},
-  isDarkMode
+  isDarkMode,
 }) => {
   const [isClosing, setIsClosing] = useState(false);
   const fileInputRef = useRef(null);
@@ -334,20 +370,22 @@ const OtherOptionsModal = ({
   const [sortOrder, setSortOrder] = useState("default");
 
   const libraryTracks = useMemo(() => {
-    let tracks = songAiKnowledge.map(s => ({
+    let tracks = songAiKnowledge.map((s) => ({
       id: s.id,
       name: s.author,
-      file: assetMap[s.audio] || turkeysAudio
+      file: assetMap[s.audio] || turkeysAudio,
     }));
 
     if (libSearch) {
-      tracks = tracks.filter(t => t.name.toLowerCase().includes(libSearch.toLowerCase()));
+      tracks = tracks.filter((t) =>
+        t.name.toLowerCase().includes(libSearch.toLowerCase()),
+      );
     }
 
     if (sortOrder === "az") {
-      tracks.sort((a, b) => a.name.localeCompare(b.name, 'uk'));
+      tracks.sort((a, b) => a.name.localeCompare(b.name, "uk"));
     } else if (sortOrder === "za") {
-      tracks.sort((a, b) => b.name.localeCompare(a.name, 'uk'));
+      tracks.sort((a, b) => b.name.localeCompare(a.name, "uk"));
     }
 
     return tracks.slice(0, 24);
@@ -369,7 +407,10 @@ const OtherOptionsModal = ({
     setCustomBgTracks(updatedTracks);
   };
 
-  const handleClose = () => { setIsClosing(true); setTimeout(onClose, 500); };
+  const handleClose = () => {
+    setIsClosing(true);
+    setTimeout(onClose, 500);
+  };
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -386,14 +427,17 @@ const OtherOptionsModal = ({
           URL.revokeObjectURL(audio.src);
           return;
         }
-        
+
         // Ініціалізуємо масив з 3 пустими слотами якщо він не готовий
-        const updatedTracks = Array.from({ length: 3 }, (_, i) => (customBgTracks || [])[i] || null);
-        updatedTracks[activeSlotRef.current] = { 
-          name: file.name.split('.')[0].substring(0, 30), 
+        const updatedTracks = Array.from(
+          { length: 3 },
+          (_, i) => (customBgTracks || [])[i] || null,
+        );
+        updatedTracks[activeSlotRef.current] = {
+          name: file.name.split(".")[0].substring(0, 30),
           file: file,
           repeats: 1,
-          enabled: true
+          enabled: true,
         };
         setCustomBgTracks(updatedTracks);
         setBgMusicSource(file);
@@ -428,7 +472,10 @@ const OtherOptionsModal = ({
   const updateRepeats = (index, delta) => {
     if (!customBgTracks[index]) return;
     const newTracks = [...customBgTracks];
-    const newVal = Math.max(1, Math.min(3, (newTracks[index].repeats || 1) + delta));
+    const newVal = Math.max(
+      1,
+      Math.min(3, (newTracks[index].repeats || 1) + delta),
+    );
     newTracks[index] = { ...newTracks[index], repeats: newVal };
     setCustomBgTracks(newTracks);
   };
@@ -436,17 +483,23 @@ const OtherOptionsModal = ({
   const toggleTrackEnabled = (index) => {
     const newTracks = [...customBgTracks];
     if (newTracks[index]) {
-      newTracks[index] = { ...newTracks[index], enabled: !newTracks[index].enabled };
+      newTracks[index] = {
+        ...newTracks[index],
+        enabled: !newTracks[index].enabled,
+      };
       setCustomBgTracks(newTracks);
     }
   };
 
   const updateLibSetting = (id, field, value) => {
     if (!setLibraryBgSettings) return;
-    const current = (libraryBgSettings && libraryBgSettings[id]) || { repeats: 1, enabled: true };
+    const current = (libraryBgSettings && libraryBgSettings[id]) || {
+      repeats: 1,
+      enabled: true,
+    };
     const newSettings = {
       ...libraryBgSettings,
-      [id]: { ...current, [field]: value }
+      [id]: { ...current, [field]: value },
     };
     setLibraryBgSettings(newSettings);
   };
@@ -455,90 +508,161 @@ const OtherOptionsModal = ({
     const nextMode = bgMusicMode === "loop" ? "order" : "loop";
     setBgMusicMode(nextMode);
     if (nextMode === "loop") {
-      const resetTracks = customBgTracks.map(t => ({ ...t, repeats: 1, enabled: true }));
+      const resetTracks = customBgTracks.map((t) => ({
+        ...t,
+        repeats: 1,
+        enabled: true,
+      }));
       setCustomBgTracks(resetTracks);
     }
   };
 
   return (
-    <ModalOverlay $isClosing={isClosing} onClick={handleClose} $isDarkMode={isDarkMode}>
-      <ModalContent $isClosing={isClosing} onClick={(e) => e.stopPropagation()} $isDarkMode={isDarkMode}>
-        <CloseButton onClick={handleClose} $isDarkMode={isDarkMode}>&times;</CloseButton>
-        <h3 style={{ textAlign: "center", color: "#ffb36c", margin: "0 0 10px 0" }}>Інші опції</h3>
-        
+    <ModalOverlay
+      $isClosing={isClosing}
+      onClick={handleClose}
+      $isDarkMode={isDarkMode}
+    >
+      <ModalContent
+        $isClosing={isClosing}
+        onClick={(e) => e.stopPropagation()}
+        $isDarkMode={isDarkMode}
+      >
+        <CloseButton onClick={handleClose} $isDarkMode={isDarkMode}>
+          &times;
+        </CloseButton>
+        <h3
+          style={{
+            textAlign: "center",
+            color: "#ffb36c",
+            margin: "0 0 10px 0",
+          }}
+        >
+          Інші опції
+        </h3>
+
         <ModalBody>
           <Column>
             <SectionContainer $isDarkMode={isDarkMode}>
               <SectionLabel>🎵 Моя бібліотека (3 слоти)</SectionLabel>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {[0, 1, 2].map(i => (
+              <div
+                style={{ display: "flex", flexDirection: "column", gap: "8px" }}
+              >
+                {[0, 1, 2].map((i) => (
                   <TrackRow key={i} $isDarkMode={isDarkMode}>
-                    <SmallInput 
+                    <SmallInput
                       $isDarkMode={isDarkMode}
-                      placeholder="Назва..." 
-                      value={customBgTracks[i]?.name || ""} 
+                      placeholder="Назва..."
+                      value={customBgTracks[i]?.name || ""}
                       onChange={(e) => updateCustomName(i, e.target.value)}
                     />
-                    <WordCounter $error={countWords(customBgTracks[i]?.name) > 30} $isDarkMode={isDarkMode}>
+                    <WordCounter
+                      $error={countWords(customBgTracks[i]?.name) > 30}
+                      $isDarkMode={isDarkMode}
+                    >
                       {countWords(customBgTracks[i]?.name)}/30
                     </WordCounter>
                     <ActionButton onClick={() => handleUploadClick(i)}>
                       {customBgTracks[i] ? "↻" : "📁"}
                     </ActionButton>
                     {customBgTracks[i] && (
-                      <ActionButton onClick={() => handleRemoveTrack(i)} style={{ padding: '2px 8px', fontSize: '11px' }}>✕</ActionButton>
+                      <ActionButton
+                        onClick={() => handleRemoveTrack(i)}
+                        style={{ padding: "2px 8px", fontSize: "11px" }}
+                      >
+                        ✕
+                      </ActionButton>
                     )}
                     {bgMusicMode === "order" && customBgTracks?.[i] && (
-                      <div style={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        gap: '4px', 
-                        background: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)', 
-                        padding: '2px 5px', 
-                        borderRadius: '6px' 
-                      }}>
-                        <ActionButton onClick={() => updateRepeats(i, -1)} style={{ padding: '2px 5px', minWidth: '20px' }}>◀</ActionButton>
-                        <RepeatValue $isDarkMode={isDarkMode}>{customBgTracks[i]?.repeats || 1}</RepeatValue>
-                        <ActionButton onClick={() => updateRepeats(i, 1)} style={{ padding: '2px 5px', minWidth: '20px' }}>▶</ActionButton>
-                        <input 
-                          type="checkbox" 
-                          checked={customBgTracks[i]?.enabled !== false} 
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "4px",
+                          background: isDarkMode
+                            ? "rgba(255,255,255,0.1)"
+                            : "rgba(0,0,0,0.05)",
+                          padding: "2px 5px",
+                          borderRadius: "6px",
+                        }}
+                      >
+                        <ActionButton
+                          onClick={() => updateRepeats(i, -1)}
+                          style={{ padding: "2px 5px", minWidth: "20px" }}
+                        >
+                          ◀
+                        </ActionButton>
+                        <RepeatValue $isDarkMode={isDarkMode}>
+                          {customBgTracks[i]?.repeats || 1}
+                        </RepeatValue>
+                        <ActionButton
+                          onClick={() => updateRepeats(i, 1)}
+                          style={{ padding: "2px 5px", minWidth: "20px" }}
+                        >
+                          ▶
+                        </ActionButton>
+                        <input
+                          type="checkbox"
+                          checked={customBgTracks[i]?.enabled !== false}
                           onChange={() => toggleTrackEnabled(i)}
                           title="Включити в чергу"
                         />
                       </div>
                     )}
                     {customBgTracks?.[i] && (
-                      <div style={{ display: 'flex', gap: '2px' }}>
-                        <ActionButton onClick={() => moveCustomTrack(i, -1)} style={{ padding: '4px', fontSize: '10px' }}>↑</ActionButton>
-                        <ActionButton onClick={() => moveCustomTrack(i, 1)} style={{ padding: '4px', fontSize: '10px' }}>↓</ActionButton>
+                      <div style={{ display: "flex", gap: "2px" }}>
+                        <ActionButton
+                          onClick={() => moveCustomTrack(i, -1)}
+                          style={{ padding: "4px", fontSize: "10px" }}
+                        >
+                          ↑
+                        </ActionButton>
+                        <ActionButton
+                          onClick={() => moveCustomTrack(i, 1)}
+                          style={{ padding: "4px", fontSize: "10px" }}
+                        >
+                          ↓
+                        </ActionButton>
                       </div>
                     )}
                     {customBgTracks[i] && (
-                      <ListButton 
-                        $active={bgMusicSource === customBgTracks[i].file} 
+                      <ListButton
+                        $active={bgMusicSource === customBgTracks[i].file}
                         onClick={() => setBgMusicSource(customBgTracks[i].file)}
                         $isDarkMode={isDarkMode}
                         $index={i}
                       >
-                        {bgMusicSource === customBgTracks[i].file ? (bgMusicEnabled ? <Equalizer /> : "⏸") : "▶"}
+                        {bgMusicSource === customBgTracks[i].file ? (
+                          bgMusicEnabled ? (
+                            <Equalizer />
+                          ) : (
+                            "⏸"
+                          )
+                        ) : (
+                          "▶"
+                        )}
                       </ListButton>
                     )}
                   </TrackRow>
                 ))}
               </div>
-              <FileInput type="file" ref={fileInputRef} accept="audio/*" onChange={handleFileChange} />
+              <FileInput
+                type="file"
+                ref={fileInputRef}
+                accept="audio/*"
+                onChange={handleFileChange}
+              />
             </SectionContainer>
 
             <SectionContainer $isDarkMode={isDarkMode}>
               <SectionLabel>📻 Бібліотека сайту (24 треки)</SectionLabel>
-              <SearchBox 
-                $isDarkMode={isDarkMode} 
-                placeholder="Пошук у бібліотеці..." 
+              <SearchBox
+                $isDarkMode={isDarkMode}
+                placeholder="Пошук у бібліотеці..."
                 value={libSearch}
                 onChange={(e) => setLibSearch(e.target.value)}
               />
-              <SortSelect 
+              <SortSelect
                 $isDarkMode={isDarkMode}
                 value={sortOrder}
                 onChange={(e) => setSortOrder(e.target.value)}
@@ -549,12 +673,13 @@ const OtherOptionsModal = ({
               </SortSelect>
               <ScrollSection>
                 {libraryTracks.map((t, idx) => {
-                  const settings = (libraryBgSettings && libraryBgSettings[t.id]) || { repeats: 1, enabled: true };
+                  const settings = (libraryBgSettings &&
+                    libraryBgSettings[t.id]) || { repeats: 1, enabled: true };
                   return (
                     <TrackRow key={t.id} $isDarkMode={isDarkMode}>
-                      <ListButton 
+                      <ListButton
                         $isDarkMode={isDarkMode}
-                        $active={bgMusicSource === t.file} 
+                        $active={bgMusicSource === t.file}
                         onClick={() => {
                           setBgMusicSource(t.file);
                           setActiveBgTrackId(t.id);
@@ -563,24 +688,50 @@ const OtherOptionsModal = ({
                         style={{ opacity: settings.enabled ? 1 : 0.5 }}
                       >
                         {t.name}
-                        {bgMusicSource === t.file && bgMusicEnabled && <Equalizer />}
+                        {bgMusicSource === t.file && bgMusicEnabled && (
+                          <Equalizer />
+                        )}
                       </ListButton>
-                      
+
                       {bgMusicMode === "order" && (
                         <ControlGroup $isDarkMode={isDarkMode}>
-                          <ActionButton 
-                            onClick={() => updateLibSetting(t.id, 'repeats', Math.max(1, settings.repeats - 1))} 
-                            style={{ padding: '1px 4px', minWidth: '16px' }}
-                          >◀</ActionButton>
-                          <RepeatValue $isDarkMode={isDarkMode}>{settings.repeats}</RepeatValue>
-                          <ActionButton 
-                            onClick={() => updateLibSetting(t.id, 'repeats', Math.min(3, settings.repeats + 1))} 
-                            style={{ padding: '1px 4px', minWidth: '16px' }}
-                          >▶</ActionButton>
-                          <input 
-                            type="checkbox" 
-                            checked={settings.enabled} 
-                            onChange={(e) => updateLibSetting(t.id, 'enabled', e.target.checked)}
+                          <ActionButton
+                            onClick={() =>
+                              updateLibSetting(
+                                t.id,
+                                "repeats",
+                                Math.max(1, settings.repeats - 1),
+                              )
+                            }
+                            style={{ padding: "1px 4px", minWidth: "16px" }}
+                          >
+                            ◀
+                          </ActionButton>
+                          <RepeatValue $isDarkMode={isDarkMode}>
+                            {settings.repeats}
+                          </RepeatValue>
+                          <ActionButton
+                            onClick={() =>
+                              updateLibSetting(
+                                t.id,
+                                "repeats",
+                                Math.min(3, settings.repeats + 1),
+                              )
+                            }
+                            style={{ padding: "1px 4px", minWidth: "16px" }}
+                          >
+                            ▶
+                          </ActionButton>
+                          <input
+                            type="checkbox"
+                            checked={settings.enabled}
+                            onChange={(e) =>
+                              updateLibSetting(
+                                t.id,
+                                "enabled",
+                                e.target.checked,
+                              )
+                            }
                             title="Включити в чергу"
                           />
                         </ControlGroup>
@@ -593,51 +744,96 @@ const OtherOptionsModal = ({
           </Column>
 
           <Column>
-            <OptionRow $isDarkMode={isDarkMode}><label>Фонова музика сайту</label><Switch $active={bgMusicEnabled} onClick={() => setBgMusicEnabled(!bgMusicEnabled)} /></OptionRow>
-            
+            <OptionRow $isDarkMode={isDarkMode}>
+              <label>Фонова музика сайту</label>
+              <Switch
+                $active={bgMusicEnabled}
+                onClick={() => setBgMusicEnabled(!bgMusicEnabled)}
+              />
+            </OptionRow>
+
             <OptionRow $isDarkMode={isDarkMode}>
               <label>Режим відтворення</label>
-              <div style={{ display: 'flex', gap: '5px' }}>
-                <ActionButton 
-                  $active={bgMusicMode === "loop"} 
+              <div style={{ display: "flex", gap: "5px" }}>
+                <ActionButton
+                  $active={bgMusicMode === "loop"}
                   onClick={handleModeChange}
-                  style={{ background: bgMusicMode === "loop" ? "#ffb36c" : "#555", width: '80px' }}
-                >{bgMusicMode === "loop" ? "Повтор" : "По черзі"}</ActionButton>
+                  style={{
+                    background: bgMusicMode === "loop" ? "#ffb36c" : "#555",
+                    width: "80px",
+                  }}
+                >
+                  {bgMusicMode === "loop" ? "Повтор" : "По черзі"}
+                </ActionButton>
               </div>
             </OptionRow>
 
             <OptionRow $isDarkMode={isDarkMode}>
               <label>Випадковий порядок (Shuffle)</label>
-              <Switch $active={bgMusicShuffle} onClick={() => setBgMusicShuffle(!bgMusicShuffle)} />
+              <Switch
+                $active={bgMusicShuffle}
+                onClick={() => setBgMusicShuffle(!bgMusicShuffle)}
+              />
             </OptionRow>
 
             <OptionRow $isDarkMode={isDarkMode}>
               <label>Гучність: {Math.round(bgMusicVolume * 100)}%</label>
-              <input 
-                type="range" min="0" max="1" step="0.05" 
-                value={bgMusicVolume} 
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.05"
+                value={bgMusicVolume}
                 onChange={(e) => setBgMusicVolume(parseFloat(e.target.value))}
-                style={{ cursor: 'pointer', accentColor: '#ffb36c', width: '100px' }}
+                style={{
+                  cursor: "pointer",
+                  accentColor: "#ffb36c",
+                  width: "100px",
+                }}
               />
             </OptionRow>
 
             <OptionRow $isDarkMode={isDarkMode}>
               <label>Швидкість: {bgMusicSpeed}x</label>
-              <input 
-                type="range" min="0.5" max="2" step="0.1" 
-                value={bgMusicSpeed} 
+              <input
+                type="range"
+                min="0.5"
+                max="2"
+                step="0.1"
+                value={bgMusicSpeed}
                 onChange={(e) => setBgMusicSpeed(parseFloat(e.target.value))}
-                style={{ cursor: 'pointer', accentColor: '#ffb36c', width: '100px' }}
+                style={{
+                  cursor: "pointer",
+                  accentColor: "#ffb36c",
+                  width: "100px",
+                }}
               />
             </OptionRow>
 
             <OptionRow $isDarkMode={isDarkMode}>
               <label>Позиція музики</label>
-              <ActionButton onClick={onResetBgPosition} style={{ fontSize: '11px', padding: '5px 10px' }}>⏮ Почати спочатку</ActionButton>
+              <ActionButton
+                onClick={onResetBgPosition}
+                style={{ fontSize: "11px", padding: "5px 10px" }}
+              >
+                ⏮ Почати спочатку
+              </ActionButton>
             </OptionRow>
 
-            <OptionRow $isDarkMode={isDarkMode}><label>Авто-тиша в плеєрі</label><Switch $active={autoMuteBgMusic} onClick={() => setAutoMuteBgMusic(!autoMuteBgMusic)} /></OptionRow>
-            <OptionRow $isDarkMode={isDarkMode}><label>Блокувати фільтри в FS</label><Switch $active={lockFiltersInFs} onClick={() => setLockFiltersInFs(!lockFiltersInFs)} /></OptionRow>
+            <OptionRow $isDarkMode={isDarkMode}>
+              <label>Авто-тиша в плеєрі</label>
+              <Switch
+                $active={autoMuteBgMusic}
+                onClick={() => setAutoMuteBgMusic(!autoMuteBgMusic)}
+              />
+            </OptionRow>
+            <OptionRow $isDarkMode={isDarkMode}>
+              <label>Блокувати фільтри в FS</label>
+              <Switch
+                $active={lockFiltersInFs}
+                onClick={() => setLockFiltersInFs(!lockFiltersInFs)}
+              />
+            </OptionRow>
           </Column>
         </ModalBody>
       </ModalContent>

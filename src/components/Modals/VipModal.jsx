@@ -169,7 +169,7 @@ const SavingsBadge = styled.span`
     max-width: 430px;
     max-height: 40vh;
     animation: ${(props) =>
-        props.$isClosing ? slideOutUltraLarge : slideInUltraLarge}
+      props.$isClosing ? slideOutUltraLarge : slideInUltraLarge}
       0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
     padding: 20px;
   }
@@ -330,8 +330,9 @@ const BenefitCard = styled.div`
   margin-bottom: 8px;
   transition: all 0.3s ease;
   cursor: pointer;
-  border: 1.5px solid ${props => props.$isSelected ? (props.$isUltra ? "#710097" : "#ffb36c") : "transparent"};
-  background: ${props => props.$isSelected ? (props.$isUltra ? "rgba(113, 0, 151, 0.15)" : "rgba(255, 179, 108, 0.15)") : "transparent"};
+  border: 1.5px solid
+    ${(props) => (props.$isSelected ? (props.$isUltra ? "#710097" : "#ffb36c") : "transparent")};
+  background: ${(props) => (props.$isSelected ? (props.$isUltra ? "rgba(113, 0, 151, 0.15)" : "rgba(255, 179, 108, 0.15)") : "transparent")};
   ${({ $index }) => css`
     animation-delay: ${0.1 + $index * 0.05}s;
   `}
@@ -396,75 +397,75 @@ const ImageContainer = styled.div`
       from 0deg,
       transparent 0deg 8deg,
       ${(props) =>
-          props.$isUltra
-            ? "rgba(122, 252, 255, 0.75)"
-            : "rgba(255, 179, 108, 0.5)"}
+        props.$isUltra
+          ? "rgba(122, 252, 255, 0.75)"
+          : "rgba(255, 179, 108, 0.5)"}
         8deg 18deg,
       transparent 18deg 30deg,
       ${(props) =>
-          props.$isUltra
-            ? "rgba(122, 252, 255, 0.75)"
-            : "rgba(255, 179, 108, 0.5)"}
+        props.$isUltra
+          ? "rgba(122, 252, 255, 0.75)"
+          : "rgba(255, 179, 108, 0.5)"}
         38deg 48deg,
       transparent 48deg 60deg,
       ${(props) =>
-          props.$isUltra
-            ? "rgba(122, 252, 255, 0.75)"
-            : "rgba(255, 179, 108, 0.5)"}
+        props.$isUltra
+          ? "rgba(122, 252, 255, 0.75)"
+          : "rgba(255, 179, 108, 0.5)"}
         68deg 78deg,
       transparent 78deg 90deg,
       ${(props) =>
-          props.$isUltra
-            ? "rgba(122, 252, 255, 0.75)"
-            : "rgba(255, 179, 108, 0.5)"}
+        props.$isUltra
+          ? "rgba(122, 252, 255, 0.75)"
+          : "rgba(255, 179, 108, 0.5)"}
         98deg 108deg,
       transparent 108deg 120deg,
       ${(props) =>
-          props.$isUltra
-            ? "rgba(122, 252, 255, 0.75)"
-            : "rgba(255, 179, 108, 0.5)"}
+        props.$isUltra
+          ? "rgba(122, 252, 255, 0.75)"
+          : "rgba(255, 179, 108, 0.5)"}
         128deg 138deg,
       transparent 138deg 150deg,
       ${(props) =>
-          props.$isUltra
-            ? "rgba(122, 252, 255, 0.75)"
-            : "rgba(255, 179, 108, 0.5)"}
+        props.$isUltra
+          ? "rgba(122, 252, 255, 0.75)"
+          : "rgba(255, 179, 108, 0.5)"}
         158deg 168deg,
       transparent 168deg 180deg,
       ${(props) =>
-          props.$isUltra
-            ? "rgba(122, 252, 255, 0.75)"
-            : "rgba(255, 179, 108, 0.5)"}
+        props.$isUltra
+          ? "rgba(122, 252, 255, 0.75)"
+          : "rgba(255, 179, 108, 0.5)"}
         188deg 198deg,
       transparent 198deg 210deg,
       ${(props) =>
-          props.$isUltra
-            ? "rgba(122, 252, 255, 0.75)"
-            : "rgba(255, 179, 108, 0.5)"}
+        props.$isUltra
+          ? "rgba(122, 252, 255, 0.75)"
+          : "rgba(255, 179, 108, 0.5)"}
         218deg 228deg,
       transparent 228deg 240deg,
       ${(props) =>
-          props.$isUltra
-            ? "rgba(122, 252, 255, 0.75)"
-            : "rgba(255, 179, 108, 0.5)"}
+        props.$isUltra
+          ? "rgba(122, 252, 255, 0.75)"
+          : "rgba(255, 179, 108, 0.5)"}
         248deg 258deg,
       transparent 258deg 270deg,
       ${(props) =>
-          props.$isUltra
-            ? "rgba(122, 252, 255, 0.75)"
-            : "rgba(255, 179, 108, 0.5)"}
+        props.$isUltra
+          ? "rgba(122, 252, 255, 0.75)"
+          : "rgba(255, 179, 108, 0.5)"}
         278deg 288deg,
       transparent 288deg 300deg,
       ${(props) =>
-          props.$isUltra
-            ? "rgba(122, 252, 255, 0.75)"
-            : "rgba(255, 179, 108, 0.5)"}
+        props.$isUltra
+          ? "rgba(122, 252, 255, 0.75)"
+          : "rgba(255, 179, 108, 0.5)"}
         308deg 318deg,
       transparent 318deg 330deg,
       ${(props) =>
-          props.$isUltra
-            ? "rgba(122, 252, 255, 0.75)"
-            : "rgba(255, 179, 108, 0.5)"}
+        props.$isUltra
+          ? "rgba(122, 252, 255, 0.75)"
+          : "rgba(255, 179, 108, 0.5)"}
         338deg 348deg,
       transparent 348deg 360deg
     );
@@ -567,8 +568,8 @@ const SelectionControls = styled.div`
 
 const SelectionButton = styled.button`
   background: transparent;
-  border: 1px solid ${props => props.$color || "#ffb36c"};
-  color: ${props => props.$color || "#ffb36c"};
+  border: 1px solid ${(props) => props.$color || "#ffb36c"};
+  color: ${(props) => props.$color || "#ffb36c"};
   padding: 3px 7px;
   border-radius: 6px;
   font-size: 11px;
@@ -576,7 +577,7 @@ const SelectionButton = styled.button`
   cursor: pointer;
   transition: all 0.2s;
   &:hover {
-    background: ${props => props.$color || "#ffb36c"};
+    background: ${(props) => props.$color || "#ffb36c"};
     color: #3e2723;
   }
 `;
@@ -860,7 +861,11 @@ const ULTRA_CARDS_LIST = [
 ];
 
 const SEQUENCE = [
-  { type: "thematic", duration: 3000, text: "Стихія дає надійну погоду, красиву оселю, з вашим принтером із нашими, пошуковими або власними фанартами." },
+  {
+    type: "thematic",
+    duration: 3000,
+    text: "Стихія дає надійну погоду, красиву оселю, з вашим принтером із нашими, пошуковими або власними фанартами.",
+  },
   {
     type: "card",
     imgIdx: 1,
@@ -1180,13 +1185,13 @@ const UltraPlayer = ({ onPlayerClose, isClosing }) => {
               <PausedButton onClick={handleScreenshot}>
                 📸 Скріншот
               </PausedButton>
-                <PausedButton
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onPlayerClose();
-                  }}
-                >
-                  Закрити
+              <PausedButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onPlayerClose();
+                }}
+              >
+                Закрити
               </PausedButton>
             </PausedButtonsRow>
           </PausedOverlay>
@@ -1235,7 +1240,6 @@ const VipModal = ({ onClose }) => {
     setSelectedBenefits(new Set());
   }, [tier]);
 
-
   const aiRef = useRef(null);
   const musicRef = useRef(null);
   const economicsRef = useRef(null);
@@ -1279,10 +1283,14 @@ const VipModal = ({ onClose }) => {
 
   const selectAllBenefits = () => {
     const newSelected = new Set();
-    if (current.ai) current.ai.forEach((_, i) => newSelected.add(`ai-${tier}-${i}`));
-    if (current.music) current.music.forEach((_, i) => newSelected.add(`mu-${tier}-${i}`));
-    if (current.economics) current.economics.forEach((_, i) => newSelected.add(`eco-${tier}-${i}`));
-    if (current.interface) current.interface.forEach((_, i) => newSelected.add(`int-${tier}-${i}`));
+    if (current.ai)
+      current.ai.forEach((_, i) => newSelected.add(`ai-${tier}-${i}`));
+    if (current.music)
+      current.music.forEach((_, i) => newSelected.add(`mu-${tier}-${i}`));
+    if (current.economics)
+      current.economics.forEach((_, i) => newSelected.add(`eco-${tier}-${i}`));
+    if (current.interface)
+      current.interface.forEach((_, i) => newSelected.add(`int-${tier}-${i}`));
     setSelectedBenefits(newSelected);
   };
 
@@ -1404,18 +1412,21 @@ const VipModal = ({ onClose }) => {
   };
 
   const current = tier === "plus" ? plusBenefits : ultraBenefits;
-  const allCurrentBenefitsList = useMemo(() => Object.values(current).flat(), [current]);
+  const allCurrentBenefitsList = useMemo(
+    () => Object.values(current).flat(),
+    [current],
+  );
 
   const calculatedPrice = useMemo(() => {
     const basePrices = {
       plus: { monthly: 49.99, yearly: 549.99 },
-      ultra: { monthly: 89.99, yearly: 899.99 }
+      ultra: { monthly: 89.99, yearly: 899.99 },
     };
-    
+
     const base = basePrices[tier][billingCycle];
     const totalCount = allCurrentBenefitsList.length;
     const selectedCount = selectedBenefits.size;
-    
+
     if (totalCount === 0) return 0;
     // Чим більше вибрав - тим ближче ціна до повної вартості
     return ((selectedCount / totalCount) * base).toFixed(2);
@@ -1426,7 +1437,9 @@ const VipModal = ({ onClose }) => {
       alert("Ви ще нічого не обрали!");
       return;
     }
-    alert(`Оформлення підписки: ${calculatedPrice}грн за ${selectedBenefits.size} переваг.`);
+    alert(
+      `Оформлення підписки: ${calculatedPrice}грн за ${selectedBenefits.size} переваг.`,
+    );
   };
 
   return (
@@ -1503,18 +1516,26 @@ const VipModal = ({ onClose }) => {
               </ToggleOption>
             </ToggleContainer>
             <VipButton onClick={handleBuyClick}>
-              {calculatedPrice}грн / {billingCycle === "monthly" ? "30 днів" : "360 днів"}
+              {calculatedPrice}грн /{" "}
+              {billingCycle === "monthly" ? "30 днів" : "360 днів"}
             </VipButton>
             <SelectionControls>
-               <SelectionButton onClick={selectAllBenefits}>
-                 Вибрати все
-               </SelectionButton>
-               <SelectionButton onClick={clearAllBenefits} $color="#ff8a80">
-                 Очистити
-               </SelectionButton>
-                <VipText style={{ textAlign: 'center', color: '#ffb36c', fontWeight: 'bold' }}>
-              Обрано: {selectedBenefits.size} / {allCurrentBenefitsList.length}
-            </VipText>
+              <SelectionButton onClick={selectAllBenefits}>
+                Вибрати все
+              </SelectionButton>
+              <SelectionButton onClick={clearAllBenefits} $color="#ff8a80">
+                Очистити
+              </SelectionButton>
+              <VipText
+                style={{
+                  textAlign: "center",
+                  color: "#ffb36c",
+                  fontWeight: "bold",
+                }}
+              >
+                Обрано: {selectedBenefits.size} /{" "}
+                {allCurrentBenefitsList.length}
+              </VipText>
             </SelectionControls>
             <NavContainer>
               <NavButton
@@ -1543,8 +1564,8 @@ const VipModal = ({ onClose }) => {
               </NavButton>
             </NavContainer>
             <VipText>
-              Підтримуючи проект підпискою або сезонними наборами, ви допомагаєте
-              'Стихії' розвиватися. Розвивайте проект разом із нами!
+              Підтримуючи проект підпискою або сезонними наборами, ви
+              допомагаєте 'Стихії' розвиватися. Розвивайте проект разом із нами!
             </VipText>
           </div>
           <VipFixScroll key={`scroll-area-${tier}`}>
@@ -1556,9 +1577,9 @@ const VipModal = ({ onClose }) => {
                 {current.ai.map((item, i) => {
                   const id = `ai-${tier}-${i}`;
                   return (
-                    <BenefitCard 
-                      key={id} 
-                      $index={i} 
+                    <BenefitCard
+                      key={id}
+                      $index={i}
                       $isSelected={selectedBenefits.has(id)}
                       $isUltra={tier === "ultra"}
                       onClick={() => toggleBenefit(id)}
@@ -1572,30 +1593,31 @@ const VipModal = ({ onClose }) => {
                 <SectionTitle ref={musicRef} $delay="0.3s">
                   🎨 Музика та Арт
                 </SectionTitle>
-                {current.music && current.music.map((item, i) => {
-                  const id = `mu-${tier}-${i}`;
-                  return (
-                    <BenefitCard 
-                      key={id} 
-                      $index={i + 4} 
-                      $isSelected={selectedBenefits.has(id)}
-                      $isUltra={tier === "ultra"}
-                      onClick={() => toggleBenefit(id)}
-                    >
-                      <BenefitImage src={item.src} />
-                      <VipBonus>{item.text}</VipBonus>
-                    </BenefitCard>
-                  );
-                })}
+                {current.music &&
+                  current.music.map((item, i) => {
+                    const id = `mu-${tier}-${i}`;
+                    return (
+                      <BenefitCard
+                        key={id}
+                        $index={i + 4}
+                        $isSelected={selectedBenefits.has(id)}
+                        $isUltra={tier === "ultra"}
+                        onClick={() => toggleBenefit(id)}
+                      >
+                        <BenefitImage src={item.src} />
+                        <VipBonus>{item.text}</VipBonus>
+                      </BenefitCard>
+                    );
+                  })}
                 <SectionTitle ref={economicsRef} $delay="0.5s">
                   🧧 Економіка та ресурси
                 </SectionTitle>
                 {current.economics.map((item, i) => {
                   const id = `eco-${tier}-${i}`;
                   return (
-                    <BenefitCard 
-                      key={id} 
-                      $index={i + 10} 
+                    <BenefitCard
+                      key={id}
+                      $index={i + 10}
                       $isSelected={selectedBenefits.has(id)}
                       $isUltra={tier === "ultra"}
                       onClick={() => toggleBenefit(id)}

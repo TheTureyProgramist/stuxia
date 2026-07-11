@@ -201,7 +201,8 @@ const BloodIcon = styled.div`
     /* pulse effect for blood */
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.1); }
-  `} 0.6s ease-in-out infinite;
+  `}
+    0.6s ease-in-out infinite;
 `;
 
 const FloatingText = styled.div`

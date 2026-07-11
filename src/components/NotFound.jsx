@@ -14,7 +14,7 @@ const Container = styled.div`
       ? `url(${turkeys}) center/cover no-repeat, linear-gradient(135deg, #000000 0%, #000000 100%)`
       : `url(${turkeys}) center/cover no-repeat, linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)`};
   color: ${(props) => (props.$isDarkMode ? "#ffffff" : "#333333")};
-  font-family: var(--font-family, 'Inter', sans-serif);
+  font-family: var(--font-family, "Inter", sans-serif);
   text-align: center;
   padding: 20px;
   overflow: hidden;
@@ -26,8 +26,8 @@ const GlitchText = styled(motion.h1)`
   background: ${(props) => (props.$isDarkMode ? "linear-gradient(90deg, #ffb36c, #94fffa)" : "linear-gradient(90deg, #ff7e5f, #feb47b)")};
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0px 10px 20px rgba(0,0,0,0.3));
-  
+  filter: drop-shadow(0px 10px 20px rgba(0, 0, 0, 0.3));
+
   @media (max-width: 768px) {
     font-size: 5rem;
   }
@@ -50,14 +50,14 @@ const HomeButton = styled(Link)`
   border: 1px solid ${(props) => (props.$isDarkMode ? "transparent" : "#333")};
   border-radius: 30px;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-  
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+
   &:hover {
     background: ${(props) => (props.$isDarkMode ? "#ffa149" : "#555")};
     transform: translateY(-3px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
   }
-  
+
   &:active {
     transform: translateY(1px);
   }
@@ -66,7 +66,7 @@ const HomeButton = styled(Link)`
 const NotFound = ({ isDarkMode = true }) => {
   return (
     <Container $isDarkMode={isDarkMode}>
-      <GlitchText 
+      <GlitchText
         $isDarkMode={isDarkMode}
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
@@ -79,7 +79,9 @@ const NotFound = ({ isDarkMode = true }) => {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.6 }}
       >
-       Уведіть правильну назву сторінки! Треба було Доміно поставити на фото, чи Ніцерона. А хоча воно ніби наказує що ти маєш не залишатися тут довго.
+        Уведіть правильну назву сторінки! Треба було Доміно поставити на фото,
+        чи Ніцерона. А хоча воно ніби наказує що ти маєш не залишатися тут
+        довго.
       </Description>
       <motion.div
         initial={{ opacity: 0, y: 20 }}

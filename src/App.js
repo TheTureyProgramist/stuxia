@@ -1,5 +1,14 @@
 // Міста для тесту: Дубай (>30°C), Якутськ (<-30°C), Кейптаун (вітер >10 м/с). Графік have погодинну перевірку вітру та деталізовані причини небезпеки в підказках.
-import { useState, useEffect, useCallback, memo, Suspense, useMemo, useRef, lazy } from "react";
+import {
+  useState,
+  useEffect,
+  useCallback,
+  memo,
+  Suspense,
+  useMemo,
+  useRef,
+  lazy,
+} from "react";
 import styled, { keyframes, css, createGlobalStyle } from "styled-components";
 
 import localforage from "localforage";
@@ -52,25 +61,40 @@ const Aihelp = lazy(() => import("./components/Aihelp/Aihelp.jsx"));
 const FanArt = lazy(() => import("./components/FanArt/FanArt.jsx"));
 const ShopModal = lazy(() => import("./components/Modals/ShopModal.jsx"));
 const News = lazy(() => import("./components/News/News.jsx"));
-const AchivmentsModal = lazy(() => import("./components/Modals/AchivmentsModal.jsx"));
+const AchivmentsModal = lazy(
+  () => import("./components/Modals/AchivmentsModal.jsx"),
+);
 //const Puzzles = lazy(() => import("./components/Puzzles/Puzzles.jsx"));
 const ClimateMap = lazy(() => import("./components/ClimateMap/ClimateMap.jsx"));
 const MusicPhoto = lazy(() => import("./components/MusicPhoto/MusicPhoto.jsx"));
 const Modal = lazy(() => import("./components/Modals/Modal.jsx"));
 const LoginModal = lazy(() => import("./components/Modals/LoginModal.jsx"));
-const UserSettingsModal = lazy(() => import("./components/Modals/UserSettingsModal.jsx"));
+const UserSettingsModal = lazy(
+  () => import("./components/Modals/UserSettingsModal.jsx"),
+);
 const VipModal = lazy(() => import("./components/Modals/VipModal.jsx"));
-const WeatherDetailsModal = lazy(() => import("./components/Modals/WeatherDetailsModal.jsx"));
-const TermsModal = lazy(() => import("./components/Modals/UserSearchModal.jsx"));
-const OtherOptionsModal = lazy(() => import("./components/Header/OtherOptionsModal.jsx"));
+const WeatherDetailsModal = lazy(
+  () => import("./components/Modals/WeatherDetailsModal.jsx"),
+);
+const TermsModal = lazy(
+  () => import("./components/Modals/UserSearchModal.jsx"),
+);
+const OtherOptionsModal = lazy(
+  () => import("./components/Header/OtherOptionsModal.jsx"),
+);
 
 const GlobalFilterLock = createGlobalStyle`
-  ${props => props.$locked && css`
-    html, body, #root, .App {
-      filter: none !important;
-      backdrop-filter: none !important;
-    }
-  `}
+  ${(props) =>
+    props.$locked &&
+    css`
+      html,
+      body,
+      #root,
+      .App {
+        filter: none !important;
+        backdrop-filter: none !important;
+      }
+    `}
 `;
 
 const StyledSectionContainer = styled.div`
@@ -174,7 +198,7 @@ const LOADING_PHRASES = [
   "A new day! A new adventure! A new update!",
   "Ви: Цей сайт дивний, тут погода, і відсилки, і старі хіти, зате прикольний індик в магазині.",
   "Оксану Самойлову, з 'Україна має талант' хто пам'ятає?",
-  "Страху немає, упевненим робиться рух!", 
+  "Страху немає, упевненим робиться рух!",
   "У мене, важкі дні, а у вас?",
   "#Індики #Стихія #Погода #Ностальгія #Динофроз #Ніцерон",
   "Новини - для біологів та акторів, погода - для географів, індики - для музики любителів,",
@@ -195,13 +219,13 @@ const ParticleSymbol = styled.span`
   top: 50%;
   left: 50%;
   pointer-events: none;
-  color: ${props => props.$isNew ? '#94fffa' : '#ffb36c'};
+  color: ${(props) => (props.$isNew ? "#94fffa" : "#ffb36c")};
   font-size: 14px;
   z-index: 10001;
   animation: ${phraseFlyOut} 3s ease-out infinite;
-  animation-delay: ${props => props.$delay}s;
-  --x: ${props => props.$x}px;
-  --y: ${props => props.$y}px;
+  animation-delay: ${(props) => props.$delay}s;
+  --x: ${(props) => props.$x}px;
+  --y: ${(props) => props.$y}px;
 `;
 
 const UpdateTimerBadge = styled.div`
@@ -220,7 +244,8 @@ const UpdateTimerBadge = styled.div`
   align-items: center;
   gap: 8px;
   backdrop-filter: blur(6px);
-  border: 1px solid ${(props) => (props.$isDarkMode ? "rgba(0, 234, 255, 0.4)" : "rgba(0, 76, 255, 0.4)")};
+  border: 1px solid
+    ${(props) => (props.$isDarkMode ? "rgba(0, 234, 255, 0.4)" : "rgba(0, 76, 255, 0.4)")};
   pointer-events: auto;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -242,16 +267,18 @@ const LoadingPhraseWrapper = styled.div`
   position: relative;
   display: inline-block;
   transition: all 0.5s ease;
-  ${props => props.$isNew && css`
-    color: #94fffa;
-    text-shadow: 0 0 12px rgba(148, 255, 250, 0.9);
-    font-weight: bold;
-    &::before {
-      content: 'Нове: ';
-      font-size: 0.8em;
-      color: orange;
-    }
-  `}
+  ${(props) =>
+    props.$isNew &&
+    css`
+      color: #94fffa;
+      text-shadow: 0 0 12px rgba(148, 255, 250, 0.9);
+      font-weight: bold;
+      &::before {
+        content: "Нове: ";
+        font-size: 0.8em;
+        color: orange;
+      }
+    `}
 `;
 
 const SECTION_ORDER_STORAGE_KEY = "siteSectionsOrder";
@@ -319,7 +346,7 @@ const SectionContent = memo(
                     setSelectedWeatherCard(card);
                     setIsWeatherDetailsOpen(true);
                   }}
-                currentTimeString={heroDateString}
+                  currentTimeString={heroDateString}
                 />
               );
             })}
@@ -327,7 +354,7 @@ const SectionContent = memo(
         </div>
       );
     }
-      //{section.key === "puzzles" && <Puzzles />}
+    //{section.key === "puzzles" && <Puzzles />}
     return (
       <div id={section.key}>
         {section.key === "map" && <ClimateMap />}
@@ -435,7 +462,9 @@ const App = () => {
     return secondsRemaining <= 0 ? 3600 : secondsRemaining;
   }, []);
 
-  const [secondsUntilUpdate, setSecondsUntilUpdate] = useState(calculateSecondsUntilNextHour());
+  const [secondsUntilUpdate, setSecondsUntilUpdate] = useState(
+    calculateSecondsUntilNextHour(),
+  );
   const weatherCardsRef = useRef([]);
   const bgAudioRef = useRef(null);
   const bgAudioRef2 = useRef(null); // Для Crossfade
@@ -478,7 +507,8 @@ const App = () => {
         if (savedBgMusic !== null) setBgMusicEnabled(savedBgMusic);
         const savedAutoMute = await localforage.getItem("auto_mute_bg_music");
         if (savedAutoMute !== null) setAutoMuteBgMusic(savedAutoMute);
-        const savedLockFilters = await localforage.getItem("lock_filters_in_fs");
+        const savedLockFilters =
+          await localforage.getItem("lock_filters_in_fs");
         if (savedLockFilters !== null) setLockFiltersInFs(savedLockFilters);
         const savedBgSource = await localforage.getItem("bg_music_source");
         if (savedBgSource) setBgMusicSource(savedBgSource);
@@ -496,7 +526,9 @@ const App = () => {
         if (savedShuffle !== null) setBgMusicShuffle(savedShuffle);
         const savedActiveId = await localforage.getItem("active_bg_track_id");
         if (savedActiveId) setActiveBgTrackId(savedActiveId);
-        const savedLibSettings = await localforage.getItem("library_bg_settings");
+        const savedLibSettings = await localforage.getItem(
+          "library_bg_settings",
+        );
         if (savedLibSettings) setLibraryBgSettings(savedLibSettings);
 
         const savedCards = await localforage.getItem("weather_cards");
@@ -580,10 +612,14 @@ const App = () => {
         const savedLayout = await localforage.getItem("weather_card_layout");
         if (savedLayout) setWeatherCardLayout(savedLayout);
 
-        const savedShowUpdateTimer = await localforage.getItem("show_update_timer");
-        if (savedShowUpdateTimer !== null) setShowUpdateTimer(savedShowUpdateTimer);
+        const savedShowUpdateTimer =
+          await localforage.getItem("show_update_timer");
+        if (savedShowUpdateTimer !== null)
+          setShowUpdateTimer(savedShowUpdateTimer);
 
-        const savedStrategy = await localforage.getItem("modal_loading_strategy");
+        const savedStrategy = await localforage.getItem(
+          "modal_loading_strategy",
+        );
         if (savedStrategy) setLoadingStrategy(savedStrategy);
 
         const deployId = process.env.REACT_APP_DEPLOY_ID;
@@ -616,7 +652,20 @@ const App = () => {
       localforage.setItem("active_bg_track_id", activeBgTrackId); // This should be activeBgTrackId, not bgMusicSource
       localforage.setItem("library_bg_settings", libraryBgSettings);
     }
-  }, [bgMusicEnabled, autoMuteBgMusic, lockFiltersInFs, bgMusicSource, customBgTracks, libraryBgSettings, bgMusicVolume, bgMusicSpeed, bgMusicMode, bgMusicShuffle, activeBgTrackId, isHydrated]);
+  }, [
+    bgMusicEnabled,
+    autoMuteBgMusic,
+    lockFiltersInFs,
+    bgMusicSource,
+    customBgTracks,
+    libraryBgSettings,
+    bgMusicVolume,
+    bgMusicSpeed,
+    bgMusicMode,
+    bgMusicShuffle,
+    activeBgTrackId,
+    isHydrated,
+  ]);
 
   // Логіка вибору фрази та перевірки на новизну
   useEffect(() => {
@@ -648,7 +697,7 @@ const App = () => {
     import("./components/Modals/ShopModal.jsx");
     import("./components/News/News.jsx");
     import("./components/Modals/AchivmentsModal.jsx");
-   // import("./components/Puzzles/Puzzles.jsx");
+    // import("./components/Puzzles/Puzzles.jsx");
     import("./components/ClimateMap/ClimateMap.jsx");
     import("./components/MusicPhoto/MusicPhoto.jsx");
     import("./components/Modals/Modal.jsx");
@@ -791,12 +840,15 @@ const App = () => {
     const fadeStep = 0.02;
 
     // Визначаємо, який плеєр зараз активний за джерелом
-    const currentSource = bgMusicSource instanceof Blob ? URL.createObjectURL(bgMusicSource) : bgMusicSource;
-    
+    const currentSource =
+      bgMusicSource instanceof Blob
+        ? URL.createObjectURL(bgMusicSource)
+        : bgMusicSource;
+
     // Виправлена логіка: якщо жоден плеєр не містить поточне джерело, використовуємо перший плеєр
     let activeAudio = a1;
     let inactiveAudio = a2;
-    
+
     if (a1.src && a1.src.includes(currentSource)) {
       activeAudio = a1;
       inactiveAudio = a2;
@@ -805,12 +857,16 @@ const App = () => {
       inactiveAudio = a1;
     } else {
       // Якщо жоден не містить джерело, використовуємо перший вільний (паузований) плеєр
-      activeAudio = (a1.paused || a1.volume === 0) ? a1 : a2;
+      activeAudio = a1.paused || a1.volume === 0 ? a1 : a2;
       inactiveAudio = activeAudio === a1 ? a2 : a1;
     }
 
     if (shouldPlay) {
-      if (activeAudio.paused || activeAudio.src === "" || !activeAudio.src.includes(currentSource)) {
+      if (
+        activeAudio.paused ||
+        activeAudio.src === "" ||
+        !activeAudio.src.includes(currentSource)
+      ) {
         activeAudio.src = currentSource;
         activeAudio.currentTime = 0;
         activeAudio.volume = 0;
@@ -829,7 +885,10 @@ const App = () => {
     const crossfadeInterval = setInterval(() => {
       // Плавне наростання активного
       if (activeAudio.volume < targetVolume) {
-        activeAudio.volume = Math.min(targetVolume, activeAudio.volume + fadeStep);
+        activeAudio.volume = Math.min(
+          targetVolume,
+          activeAudio.volume + fadeStep,
+        );
       } else {
         activeAudio.volume = targetVolume;
       }
@@ -847,7 +906,15 @@ const App = () => {
     }, 50);
 
     return () => clearInterval(crossfadeInterval);
-  }, [bgMusicEnabled, isFsActive, autoMuteBgMusic, bgMusicSource, bgMusicVolume, bgMusicSpeed, initialBgPosition]);
+  }, [
+    bgMusicEnabled,
+    isFsActive,
+    autoMuteBgMusic,
+    bgMusicSource,
+    bgMusicVolume,
+    bgMusicSpeed,
+    initialBgPosition,
+  ]);
 
   // Збереження позиції фонової музики
   useEffect(() => {
@@ -855,8 +922,8 @@ const App = () => {
       const a1 = bgAudioRef.current;
       const a2 = bgAudioRef2.current;
       if (!a1 || !a2) return;
-      
-      const active = (a1 && !a1.paused) ? a1 : (a2 && !a2.paused ? a2 : null);
+
+      const active = a1 && !a1.paused ? a1 : a2 && !a2.paused ? a2 : null;
       if (active && active.currentTime > 0) {
         localforage.setItem("bg_music_position", active.currentTime);
       }
@@ -877,7 +944,7 @@ const App = () => {
 
   useEffect(() => {
     setTrackRepeatCounter(0);
-    
+
     // При зміні джерела, зупиняємо оба плеєри і скидаємо їх стан
     if (bgAudioRef.current && bgAudioRef2.current) {
       bgAudioRef.current.pause();
@@ -885,21 +952,24 @@ const App = () => {
       bgAudioRef.current.currentTime = 0;
       bgAudioRef2.current.currentTime = 0;
     }
-    
+
     // Запускаємо новий трек, якщо музика увімкнена
     if (bgMusicEnabled) {
       setTimeout(() => {
         const a1 = bgAudioRef.current;
         const a2 = bgAudioRef2.current;
         if (!a1 || !a2) return;
-        
-        const currentSource = bgMusicSource instanceof Blob ? URL.createObjectURL(bgMusicSource) : bgMusicSource;
-        const activeAudio = (a1.paused || a1.volume === 0) ? a1 : a2;
-        
+
+        const currentSource =
+          bgMusicSource instanceof Blob
+            ? URL.createObjectURL(bgMusicSource)
+            : bgMusicSource;
+        const activeAudio = a1.paused || a1.volume === 0 ? a1 : a2;
+
         if (activeAudio.src !== currentSource) {
           activeAudio.src = currentSource;
         }
-        
+
         // Застосовуємо збережену позицію тільки якщо це перша зміна джерела
         if (!bgPositionApplied.current && initialBgPosition > 0) {
           activeAudio.currentTime = initialBgPosition;
@@ -907,7 +977,7 @@ const App = () => {
         } else {
           activeAudio.currentTime = 0;
         }
-        
+
         activeAudio.volume = 0;
         activeAudio.playbackRate = bgMusicSpeed;
         activeAudio.play().catch(() => {});
@@ -924,8 +994,11 @@ const App = () => {
       const a2 = bgAudioRef2.current;
       if (!a1 || !a2) return;
 
-      const currentSource = bgMusicSource instanceof Blob ? URL.createObjectURL(bgMusicSource) : bgMusicSource;
-      const activeAudio = (a1.paused || a1.volume === 0) ? a1 : a2;
+      const currentSource =
+        bgMusicSource instanceof Blob
+          ? URL.createObjectURL(bgMusicSource)
+          : bgMusicSource;
+      const activeAudio = a1.paused || a1.volume === 0 ? a1 : a2;
 
       if (activeAudio.src !== currentSource) {
         activeAudio.src = currentSource;
@@ -943,29 +1016,40 @@ const App = () => {
       activeAudio.playbackRate = bgMusicSpeed;
       activeAudio.play().catch(() => {});
     }, 100);
-  }, [isHydrated, bgMusicEnabled, bgMusicSource, initialBgPosition, bgMusicSpeed]);
+  }, [
+    isHydrated,
+    bgMusicEnabled,
+    bgMusicSource,
+    initialBgPosition,
+    bgMusicSpeed,
+  ]);
 
   const handleBgMusicEnded = useCallback(() => {
     const a1 = bgAudioRef.current;
     const a2 = bgAudioRef2.current;
     if (!a1 || !a2) return;
-    
+
     // Визначаємо активний плеєр - той, що насправді грав
-    const currentSource = bgMusicSource instanceof Blob ? URL.createObjectURL(bgMusicSource) : bgMusicSource;
+    const currentSource =
+      bgMusicSource instanceof Blob
+        ? URL.createObjectURL(bgMusicSource)
+        : bgMusicSource;
     let activeAudio = a1;
     if (a2.src && a2.src.includes(currentSource)) {
       activeAudio = a2;
     }
-    
+
     if (bgMusicMode === "loop") {
       // В режимі автоповтору просто перемотуємо музику і продовжуємо відтворення
       activeAudio.currentTime = 0;
       activeAudio.play().catch(() => {});
       return;
     }
-    
+
     // Знаходимо кількість повторів: спочатку в кастомних, потім у бібліотеці сайту
-    const currentTrack = (customBgTracks || []).find(t => t && t.file === bgMusicSource);
+    const currentTrack = (customBgTracks || []).find(
+      (t) => t && t.file === bgMusicSource,
+    );
     let maxRepeats = 1;
     if (currentTrack) {
       maxRepeats = currentTrack.repeats || 1;
@@ -973,7 +1057,7 @@ const App = () => {
       maxRepeats = libraryBgSettings[activeBgTrackId]?.repeats || 1;
     }
 
-    setTrackRepeatCounter(prev => {
+    setTrackRepeatCounter((prev) => {
       const nextCount = prev + 1;
       if (nextCount < maxRepeats) {
         activeAudio.currentTime = 0;
@@ -982,25 +1066,44 @@ const App = () => {
       } else {
         // Шукаємо наступний доступний трек (enabled: true) в режимі "order"
         if (bgMusicMode === "order") {
-          const libPool = songAiKnowledge.map(s => ({
-            id: s.id,
-            file: assetMap[s.audio] || turkeysAudio,
-            enabled: libraryBgSettings[s.id]?.enabled !== false
-          })).filter(t => t.enabled);
+          const libPool = songAiKnowledge
+            .map((s) => ({
+              id: s.id,
+              file: assetMap[s.audio] || turkeysAudio,
+              enabled: libraryBgSettings[s.id]?.enabled !== false,
+            }))
+            .filter((t) => t.enabled);
 
-          const customPool = (customBgTracks || []).filter(t => t && t.enabled !== false);
-          
+          const customPool = (customBgTracks || []).filter(
+            (t) => t && t.enabled !== false,
+          );
+
           const fullPool = [
-            ...libPool.map(t => ({ id: t.id, file: t.file, isCustom: false })),
-            ...customPool.map(t => ({ id: t.id, file: t.file, isCustom: true }))
+            ...libPool.map((t) => ({
+              id: t.id,
+              file: t.file,
+              isCustom: false,
+            })),
+            ...customPool.map((t) => ({
+              id: t.id,
+              file: t.file,
+              isCustom: true,
+            })),
           ];
 
           if (fullPool.length > 0) {
-            const currentIndex = fullPool.findIndex(t => t.file === bgMusicSource);
-            
+            const currentIndex = fullPool.findIndex(
+              (t) => t.file === bgMusicSource,
+            );
+
             if (bgMusicShuffle) {
-              const otherTracks = fullPool.filter(t => t.file !== bgMusicSource);
-              const next = otherTracks.length > 0 ? otherTracks[Math.floor(Math.random() * otherTracks.length)] : fullPool[0];
+              const otherTracks = fullPool.filter(
+                (t) => t.file !== bgMusicSource,
+              );
+              const next =
+                otherTracks.length > 0
+                  ? otherTracks[Math.floor(Math.random() * otherTracks.length)]
+                  : fullPool[0];
               setBgMusicSource(next.file);
               setActiveBgTrackId(next.isCustom ? null : next.id);
             } else {
@@ -1014,16 +1117,33 @@ const App = () => {
         return 0;
       }
     });
-  }, [bgMusicMode, bgMusicSource, customBgTracks, bgMusicShuffle, activeBgTrackId, libraryBgSettings]);
+  }, [
+    bgMusicMode,
+    bgMusicSource,
+    customBgTracks,
+    bgMusicShuffle,
+    activeBgTrackId,
+    libraryBgSettings,
+  ]);
 
   // При зміні режиму перезапускаємо трек, щоб новий режим застосувався відразу
   useEffect(() => {
     if (bgMusicEnabled && bgAudioRef.current && !bgAudioRef.current.paused) {
       bgAudioRef.current.currentTime = 0;
-    } else if (bgMusicEnabled && bgAudioRef2.current && !bgAudioRef2.current.paused) {
+    } else if (
+      bgMusicEnabled &&
+      bgAudioRef2.current &&
+      !bgAudioRef2.current.paused
+    ) {
       bgAudioRef2.current.currentTime = 0;
     }
-  }, [bgMusicMode, bgMusicEnabled, bgMusicSource, bgMusicSpeed, initialBgPosition]);
+  }, [
+    bgMusicMode,
+    bgMusicEnabled,
+    bgMusicSource,
+    bgMusicSpeed,
+    initialBgPosition,
+  ]);
 
   useEffect(() => {
     if (isHydrated) {
@@ -1212,7 +1332,7 @@ const App = () => {
           if (extremeConditions.length > 0) {
             new Notification(`⚠️ Погода: ${displayName}`, {
               body: `Виявлено небезпечні умови: ${extremeConditions.join(", ")}. Будьте обережні!`,
-              icon: "/favicon.ico"
+              icon: "/favicon.ico",
             });
           }
         }
@@ -1220,7 +1340,9 @@ const App = () => {
         // Обчислюємо hStartIndex, щоб годинний графік починався з поточної години
         const nowLocal = new Date();
         const localHourStr = `${nowLocal.getFullYear()}-${String(nowLocal.getMonth() + 1).padStart(2, "0")}-${String(nowLocal.getDate()).padStart(2, "0")}T${String(nowLocal.getHours()).padStart(2, "0")}:00`;
-        let hStartIndex = (d.hourly?.time || []).findIndex((t) => t.startsWith(localHourStr));
+        let hStartIndex = (d.hourly?.time || []).findIndex((t) =>
+          t.startsWith(localHourStr),
+        );
         if (hStartIndex === -1) hStartIndex = 0;
 
         setWeatherCards((prev) => {
@@ -1237,7 +1359,12 @@ const App = () => {
           const newCardData = {
             id: id,
             isMain: isMain,
-            locationName: (isMain && !cityData?.fullName) ? "Ваша локація" : (existingCard ? existingCard.locationName : displayName),
+            locationName:
+              isMain && !cityData?.fullName
+                ? "Ваша локація"
+                : existingCard
+                  ? existingCard.locationName
+                  : displayName,
             lat: targetLat,
             lon: targetLon,
             current: {
@@ -1258,27 +1385,31 @@ const App = () => {
               description: "За кодом: " + d.current.weather_code,
               iconPlaceholder: getWeatherIcon(d.current.weather_code),
             },
-          hourly: (d.hourly?.time || [])
-            .slice(hStartIndex, hStartIndex + 24)
-            .map((t, i) => {
-              const dataIdx = hStartIndex + i;
-              return {
-                time: new Date(t).getHours() + ":00",
-                temp: `${Math.round(d.hourly?.temperature_2m?.[dataIdx] ?? 0)}°C`,
-                tempNum: Math.round(d.hourly?.temperature_2m?.[dataIdx] ?? 0),
-                feels_like: `${Math.round(d.hourly?.apparent_temperature?.[dataIdx] ?? 0)}°C`,
-                windNum: d.hourly?.wind_speed_10m?.[dataIdx] ?? 0,
-                wind_direction_10m: d.hourly?.wind_direction_10m?.[dataIdx] ?? 0,
-                relative_humidity_2m: d.hourly?.relative_humidity_2m?.[dataIdx] ?? null,
-                dew_point_2m: d.hourly?.dew_point_2m?.[dataIdx] ?? 0,
-                precipitation: d.hourly?.precipitation?.[dataIdx] ?? null,
-                rain: d.hourly?.rain?.[dataIdx] ?? null,
-                pressure_msl: d.hourly?.pressure_msl?.[dataIdx] ?? null,
-                cloud_cover: d.hourly?.cloud_cover?.[dataIdx] ?? null,
-                visibility: d.hourly?.visibility?.[dataIdx] ?? 0,
-                iconPlaceholder: getWeatherIcon(d.hourly?.weather_code?.[dataIdx] ?? 0),
-              };
-            }),
+            hourly: (d.hourly?.time || [])
+              .slice(hStartIndex, hStartIndex + 24)
+              .map((t, i) => {
+                const dataIdx = hStartIndex + i;
+                return {
+                  time: new Date(t).getHours() + ":00",
+                  temp: `${Math.round(d.hourly?.temperature_2m?.[dataIdx] ?? 0)}°C`,
+                  tempNum: Math.round(d.hourly?.temperature_2m?.[dataIdx] ?? 0),
+                  feels_like: `${Math.round(d.hourly?.apparent_temperature?.[dataIdx] ?? 0)}°C`,
+                  windNum: d.hourly?.wind_speed_10m?.[dataIdx] ?? 0,
+                  wind_direction_10m:
+                    d.hourly?.wind_direction_10m?.[dataIdx] ?? 0,
+                  relative_humidity_2m:
+                    d.hourly?.relative_humidity_2m?.[dataIdx] ?? null,
+                  dew_point_2m: d.hourly?.dew_point_2m?.[dataIdx] ?? 0,
+                  precipitation: d.hourly?.precipitation?.[dataIdx] ?? null,
+                  rain: d.hourly?.rain?.[dataIdx] ?? null,
+                  pressure_msl: d.hourly?.pressure_msl?.[dataIdx] ?? null,
+                  cloud_cover: d.hourly?.cloud_cover?.[dataIdx] ?? null,
+                  visibility: d.hourly?.visibility?.[dataIdx] ?? 0,
+                  iconPlaceholder: getWeatherIcon(
+                    d.hourly?.weather_code?.[dataIdx] ?? 0,
+                  ),
+                };
+              }),
             daily16: (d.daily?.time || []).map((t, i) => ({
               date: new Date(t).toLocaleDateString("uk", {
                 day: "numeric",
@@ -1290,7 +1421,8 @@ const App = () => {
               temp_night: `${Math.round(d.daily.temperature_2m_min[i] ?? 0)}°C`,
               uv_index: d.daily.uv_index_max?.[i] ?? 0,
               wind_speed: `${d.daily.wind_speed_10m_max?.[i] ?? 0} м/с`,
-              precipitation_probability_max: d.daily.precipitation_probability_max?.[i] ?? 0,
+              precipitation_probability_max:
+                d.daily.precipitation_probability_max?.[i] ?? 0,
               rain_sum: d.daily.rain_sum?.[i] ?? 0,
               precipitation_sum: d.daily.precipitation_sum?.[i] ?? 0,
               iconPlaceholder: getWeatherIcon(d.daily.weather_code[i] ?? 0),
@@ -1452,7 +1584,7 @@ const App = () => {
     if (!isHydrated) return;
 
     const timerId = setInterval(() => {
-      if (document.visibilityState === 'visible') {
+      if (document.visibilityState === "visible") {
         const remaining = calculateSecondsUntilNextHour();
         setSecondsUntilUpdate((prev) => {
           // Якщо ми перетнули межу години (було мало секунд, а стало знову близько 3600)
@@ -1877,7 +2009,11 @@ const App = () => {
       <ThemeWrapper $isDarkMode={isDarkMode}>
         <div className="App">
           <audio ref={bgAudioRef} onEnded={handleBgMusicEnded} preload="auto" />
-          <audio ref={bgAudioRef2} onEnded={handleBgMusicEnded} preload="auto" />
+          <audio
+            ref={bgAudioRef2}
+            onEnded={handleBgMusicEnded}
+            preload="auto"
+          />
           <div className="container">
             <Header
               onOpenRegister={() => setIsModalOpen(true)}
@@ -1915,166 +2051,174 @@ const App = () => {
             />
           </div>
           <main>
-            <Suspense fallback={null}><Routes>
-              <Route path="/" element={LandingPage} />
-              {siteSections.map((section) => (
-                <Route
-                  key={section.key}
-                  path={`/${section.path}`}
-                  element={
-                    section.key === "weather" ? (
-                      HeroAndWeather
-                    ) : (
-                      <div
-                        className="container"
-                        style={{ paddingTop: "40px", minHeight: "80vh" }}
-                      >
-                        {section.key === "hero" ? (
-                          <Hero
-                            heroDateString={heroDateString}
-                            onAddCity={handleAddCityFromHero}
-                            startAnimation={!isLoading}
-                            user={user}
-                            checkWeatherDanger={checkWeatherDanger}
-                            heroBg={heroBg}
-                            setHeroBg={setHeroBg}
-                            heroBg2={heroBg2}
-                            setHeroBg2={setHeroBg2}
-                            heroBg3={heroBg3}
-                            setHeroBg3={setHeroBg3}
-                            heroBg4={heroBg4}
-                            setHeroBg4={setHeroBg4}
-                            customHeroBgs={customHeroBgs}
-                            setCustomHeroBgs={setCustomHeroBgs}
-                            heroBgMode={heroBgMode}
-                            setHeroBgMode={setHeroBgMode}
-                            heroOverlayOpacity={heroOverlayOpacity}
-                            setHeroOverlayOpacity={setHeroOverlayOpacity}
-                            bgRatings={bgRatings}
-                            setBgRatings={setBgRatings}
-                            slideshowInterval={slideshowInterval}
-                            setSlideshowInterval={setSlideshowInterval}
-                            slideshowTransition={slideshowTransition}
-                            setSlideshowTransition={setSlideshowTransition}
-                            filterCategory={heroBgFilterCategory}
-                            setFilterCategory={setHeroBgFilterCategory}
-                            heroBgZoom={heroBgZoom}
-                            setHeroBgZoom={setHeroBgZoom}
-                            heroBgRotation={heroBgRotation}
-                            setHeroBgRotation={setHeroBgRotation}
-                            heroBgBlur={heroBgBlur}
-                            setHeroBgBlur={setHeroBgBlur}
-                            heroBgBlurType={heroBgBlurType}
-                            heroBgPixelation={heroBgPixelation}
-                            setHeroBgPixelation={setHeroBgPixelation}
-                            heroBgFocal1={heroBgFocal1}
-                            setHeroBgFocal1={setHeroBgFocal1}
-                            heroBgFocal2={heroBgFocal2}
-                            setHeroBgFocal2={setHeroBgFocal2}
-                            heroBgFocal3={heroBgFocal3}
-                            setHeroBgFocal3={setHeroBgFocal3}
-                            heroBgFocal4={heroBgFocal4}
-                            setHeroBgFocal4={setHeroBgFocal4}
-                            heroBgPanEnabled={heroBgPanEnabled}
-                            setHeroBgPanEnabled={setHeroBgPanEnabled}
-                            heroBgPanSpeed={heroBgPanSpeed}
-                            setHeroBgPanSpeed={setHeroBgPanSpeed}
-                            screenshots={screenshots}
-                            selectedTimezone={selectedTimezone}
-                            setSelectedTimezone={setSelectedTimezone}
-                            customHolidayName={customHolidayName}
-                            setCustomHolidayName={setCustomHolidayName}
-                          />
-                        ) : (
-                          <StyledSectionContainer
-                            $isDarkMode={sectionThemes[section.key] ?? isDarkMode}
-                            $isHidden={false} // Завжди показуємо в роутингу
-                          >
-                            <SectionContent
-                              section={section}
-                              weatherCards={weatherCards}
-                              isDarkMode={sectionThemes[section.key] ?? isDarkMode}
-                              isLocationEnabled={isLocationEnabled}
-                              handleRefreshCard={handleRefreshCard}
-                              handleDeleteCard={handleDeleteCard}
-                              handleRenameCard={handleRenameCard}
-                              moveWeatherCard={moveWeatherCard}
-                              setIsLocationEnabled={setIsLocationEnabled}
+            <Suspense fallback={null}>
+              <Routes>
+                <Route path="/" element={LandingPage} />
+                {siteSections.map((section) => (
+                  <Route
+                    key={section.key}
+                    path={`/${section.path}`}
+                    element={
+                      section.key === "weather" ? (
+                        HeroAndWeather
+                      ) : (
+                        <div
+                          className="container"
+                          style={{ paddingTop: "40px", minHeight: "80vh" }}
+                        >
+                          {section.key === "hero" ? (
+                            <Hero
+                              heroDateString={heroDateString}
+                              onAddCity={handleAddCityFromHero}
+                              startAnimation={!isLoading}
                               user={user}
-                              isAnyModalOpen={isAnyModalOpen}
-                              onUpdateUser={setUser}
+                              checkWeatherDanger={checkWeatherDanger}
+                              heroBg={heroBg}
                               setHeroBg={setHeroBg}
+                              heroBg2={heroBg2}
+                              setHeroBg2={setHeroBg2}
+                              heroBg3={heroBg3}
+                              setHeroBg3={setHeroBg3}
+                              heroBg4={heroBg4}
+                              setHeroBg4={setHeroBg4}
                               customHeroBgs={customHeroBgs}
                               setCustomHeroBgs={setCustomHeroBgs}
-                              handleOpenRegister={handleOpenRegister}
+                              heroBgMode={heroBgMode}
+                              setHeroBgMode={setHeroBgMode}
+                              heroOverlayOpacity={heroOverlayOpacity}
+                              setHeroOverlayOpacity={setHeroOverlayOpacity}
+                              bgRatings={bgRatings}
+                              setBgRatings={setBgRatings}
+                              slideshowInterval={slideshowInterval}
+                              setSlideshowInterval={setSlideshowInterval}
+                              slideshowTransition={slideshowTransition}
+                              setSlideshowTransition={setSlideshowTransition}
+                              filterCategory={heroBgFilterCategory}
+                              setFilterCategory={setHeroBgFilterCategory}
+                              heroBgZoom={heroBgZoom}
+                              setHeroBgZoom={setHeroBgZoom}
+                              heroBgRotation={heroBgRotation}
+                              setHeroBgRotation={setHeroBgRotation}
+                              heroBgBlur={heroBgBlur}
+                              setHeroBgBlur={setHeroBgBlur}
+                              heroBgBlurType={heroBgBlurType}
+                              heroBgPixelation={heroBgPixelation}
+                              setHeroBgPixelation={setHeroBgPixelation}
+                              heroBgFocal1={heroBgFocal1}
+                              setHeroBgFocal1={setHeroBgFocal1}
+                              heroBgFocal2={heroBgFocal2}
+                              setHeroBgFocal2={setHeroBgFocal2}
+                              heroBgFocal3={heroBgFocal3}
+                              setHeroBgFocal3={setHeroBgFocal3}
+                              heroBgFocal4={heroBgFocal4}
+                              setHeroBgFocal4={setHeroBgFocal4}
+                              heroBgPanEnabled={heroBgPanEnabled}
+                              setHeroBgPanEnabled={setHeroBgPanEnabled}
+                              heroBgPanSpeed={heroBgPanSpeed}
+                              setHeroBgPanSpeed={setHeroBgPanSpeed}
+                              screenshots={screenshots}
+                              selectedTimezone={selectedTimezone}
+                              setSelectedTimezone={setSelectedTimezone}
                               customHolidayName={customHolidayName}
                               setCustomHolidayName={setCustomHolidayName}
-                              isWeatherDetailsOpen={isWeatherDetailsOpen}
-                              setIsWeatherDetailsOpen={setIsWeatherDetailsOpen}
-                              selectedWeatherCard={selectedWeatherCard}
-                              setSelectedWeatherCard={setSelectedWeatherCard}
-                              setIsFsActive={setIsFsActive}
                             />
-                          </StyledSectionContainer>
-                        )}
-                      </div>
-                    )
-                  }
-                />
-              ))}
-              <Route path="*" element={<NotFound />} />
-            </Routes></Suspense>
+                          ) : (
+                            <StyledSectionContainer
+                              $isDarkMode={
+                                sectionThemes[section.key] ?? isDarkMode
+                              }
+                              $isHidden={false} // Завжди показуємо в роутингу
+                            >
+                              <SectionContent
+                                section={section}
+                                weatherCards={weatherCards}
+                                isDarkMode={
+                                  sectionThemes[section.key] ?? isDarkMode
+                                }
+                                isLocationEnabled={isLocationEnabled}
+                                handleRefreshCard={handleRefreshCard}
+                                handleDeleteCard={handleDeleteCard}
+                                handleRenameCard={handleRenameCard}
+                                moveWeatherCard={moveWeatherCard}
+                                setIsLocationEnabled={setIsLocationEnabled}
+                                user={user}
+                                isAnyModalOpen={isAnyModalOpen}
+                                onUpdateUser={setUser}
+                                setHeroBg={setHeroBg}
+                                customHeroBgs={customHeroBgs}
+                                setCustomHeroBgs={setCustomHeroBgs}
+                                handleOpenRegister={handleOpenRegister}
+                                customHolidayName={customHolidayName}
+                                setCustomHolidayName={setCustomHolidayName}
+                                isWeatherDetailsOpen={isWeatherDetailsOpen}
+                                setIsWeatherDetailsOpen={
+                                  setIsWeatherDetailsOpen
+                                }
+                                selectedWeatherCard={selectedWeatherCard}
+                                setSelectedWeatherCard={setSelectedWeatherCard}
+                                setIsFsActive={setIsFsActive}
+                              />
+                            </StyledSectionContainer>
+                          )}
+                        </div>
+                      )
+                    }
+                  />
+                ))}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
           </main>
           <Suspense fallback={null}>
-          {isModalOpen && (
-            <Modal
-              onClose={() => setIsModalOpen(false)}
-              onRegister={(data) => {
-                setUser(data);
-                setIsModalOpen(false);
-              }}
-              availableAvatars={AVAILABLE_AVATARS}
-              isDarkMode={isDarkMode}
-            />
-          )}
-          {isLoginOpen && (
-            <LoginModal
-              onClose={() => setIsLoginOpen(false)}
-              onLogin={(data) => {
-                setUser(data);
-                setIsLoginOpen(false);
-              }}
-            />
-          )}
-          {isSettingsModalOpen && user && (
-            <UserSettingsModal
-              onClose={() => setIsSettingsModalOpen(false)}
-              user={user}
-              availableAvatars={AVAILABLE_AVATARS}
-              onUpdate={setUser}
-              weatherCardLayout={weatherCardLayout}
-              onUpdateLayout={setWeatherCardLayout}
-              showUpdateTimer={showUpdateTimer}
-              setShowUpdateTimer={setShowUpdateTimer}
-              isDarkMode={isDarkMode}
-            />
-          )}
-          {isVipModalOpen && (
-            <VipModal onClose={() => setIsVipModalOpen(false)} />
-          )}
-          {isShopOpen && (
-            <ShopModal onClose={() => setIsShopOpen(false)} hasVip={!!user} />
-          )}
-          {isAchivmentsOpen && (
-            <AchivmentsModal
-              onClose={() => setIsAchivmentsOpen(false)}
-              isDarkMode={isDarkMode}
-            />
-          )}
+            {isModalOpen && (
+              <Modal
+                onClose={() => setIsModalOpen(false)}
+                onRegister={(data) => {
+                  setUser(data);
+                  setIsModalOpen(false);
+                }}
+                availableAvatars={AVAILABLE_AVATARS}
+                isDarkMode={isDarkMode}
+              />
+            )}
+            {isLoginOpen && (
+              <LoginModal
+                onClose={() => setIsLoginOpen(false)}
+                onLogin={(data) => {
+                  setUser(data);
+                  setIsLoginOpen(false);
+                }}
+              />
+            )}
+            {isSettingsModalOpen && user && (
+              <UserSettingsModal
+                onClose={() => setIsSettingsModalOpen(false)}
+                user={user}
+                availableAvatars={AVAILABLE_AVATARS}
+                onUpdate={setUser}
+                weatherCardLayout={weatherCardLayout}
+                onUpdateLayout={setWeatherCardLayout}
+                showUpdateTimer={showUpdateTimer}
+                setShowUpdateTimer={setShowUpdateTimer}
+                isDarkMode={isDarkMode}
+              />
+            )}
+            {isVipModalOpen && (
+              <VipModal onClose={() => setIsVipModalOpen(false)} />
+            )}
+            {isShopOpen && (
+              <ShopModal onClose={() => setIsShopOpen(false)} hasVip={!!user} />
+            )}
+            {isAchivmentsOpen && (
+              <AchivmentsModal
+                onClose={() => setIsAchivmentsOpen(false)}
+                isDarkMode={isDarkMode}
+              />
+            )}
             {isUserSearchOpen && (
               <TermsModal
                 isOpen={isUserSearchOpen}
-                onClose={() => setIsUserSearchOpen(false)} 
+                onClose={() => setIsUserSearchOpen(false)}
               />
             )}
             {isFirstTimeHelpOpen && (
@@ -2085,52 +2229,52 @@ const App = () => {
             )}
             {isInfoOpen && <TermsModal onClose={() => setIsInfoOpen(false)} />}
 
-          <WeatherDetailsModal
-            isOpen={isWeatherDetailsOpen}
-            onClose={() => setIsWeatherDetailsOpen(false)}
-            card={selectedWeatherCard}
-            isDarkMode={isDarkMode}
-          />
-
-          {isOtherOptionsOpen && (
-            <OtherOptionsModal
-              onClose={() => setIsOtherOptionsOpen(false)}
-              bgMusicEnabled={bgMusicEnabled}
-              setBgMusicEnabled={setBgMusicEnabled}
-              autoMuteBgMusic={autoMuteBgMusic}
-              setAutoMuteBgMusic={setAutoMuteBgMusic}
-              lockFiltersInFs={lockFiltersInFs}
-              setLockFiltersInFs={setLockFiltersInFs}
-              bgMusicSource={bgMusicSource}
-              setBgMusicSource={setBgMusicSource}
-              customBgTracks={customBgTracks}
-              setCustomBgTracks={setCustomBgTracks}
-              bgMusicVolume={bgMusicVolume}
-              setBgMusicVolume={setBgMusicVolume}
-              bgMusicSpeed={bgMusicSpeed}
-              setBgMusicSpeed={setBgMusicSpeed}
-              bgMusicMode={bgMusicMode}
-              setBgMusicMode={setBgMusicMode}
-              bgMusicShuffle={bgMusicShuffle}
-              setBgMusicShuffle={setBgMusicShuffle}
-              libraryBgSettings={libraryBgSettings}
-              setLibraryBgSettings={setLibraryBgSettings}
-              activeBgTrackId={activeBgTrackId}
-              setActiveBgTrackId={setActiveBgTrackId}
-              onResetBgPosition={handleResetBgPosition}
+            <WeatherDetailsModal
+              isOpen={isWeatherDetailsOpen}
+              onClose={() => setIsWeatherDetailsOpen(false)}
+              card={selectedWeatherCard}
               isDarkMode={isDarkMode}
             />
-          )}
+
+            {isOtherOptionsOpen && (
+              <OtherOptionsModal
+                onClose={() => setIsOtherOptionsOpen(false)}
+                bgMusicEnabled={bgMusicEnabled}
+                setBgMusicEnabled={setBgMusicEnabled}
+                autoMuteBgMusic={autoMuteBgMusic}
+                setAutoMuteBgMusic={setAutoMuteBgMusic}
+                lockFiltersInFs={lockFiltersInFs}
+                setLockFiltersInFs={setLockFiltersInFs}
+                bgMusicSource={bgMusicSource}
+                setBgMusicSource={setBgMusicSource}
+                customBgTracks={customBgTracks}
+                setCustomBgTracks={setCustomBgTracks}
+                bgMusicVolume={bgMusicVolume}
+                setBgMusicVolume={setBgMusicVolume}
+                bgMusicSpeed={bgMusicSpeed}
+                setBgMusicSpeed={setBgMusicSpeed}
+                bgMusicMode={bgMusicMode}
+                setBgMusicMode={setBgMusicMode}
+                bgMusicShuffle={bgMusicShuffle}
+                setBgMusicShuffle={setBgMusicShuffle}
+                libraryBgSettings={libraryBgSettings}
+                setLibraryBgSettings={setLibraryBgSettings}
+                activeBgTrackId={activeBgTrackId}
+                setActiveBgTrackId={setActiveBgTrackId}
+                onResetBgPosition={handleResetBgPosition}
+                isDarkMode={isDarkMode}
+              />
+            )}
           </Suspense>
 
           {showUpdateTimer && ( // Conditionally render the badge
-            <UpdateTimerBadge 
-              $isDarkMode={isDarkMode} 
+            <UpdateTimerBadge
+              $isDarkMode={isDarkMode}
               onClick={handleManualBulkRefresh}
               title="Натисніть, щоб оновити всі картки зараз"
             >
-            Оновлення погоди через: {Math.floor(secondsUntilUpdate / 60)}:
-              {(secondsUntilUpdate % 60).toString().padStart(2, '0')}
+              Оновлення погоди через: {Math.floor(secondsUntilUpdate / 60)}:
+              {(secondsUntilUpdate % 60).toString().padStart(2, "0")}
             </UpdateTimerBadge>
           )}
         </div>

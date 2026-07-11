@@ -426,8 +426,9 @@ const GridItem = styled.div`
         return css`
           border-color: ${config.color};
           box-shadow: ${config.shadow};
-          background: ${config.color +
-          "33"}; /* Напівпрозорий фон кольору рідкості */
+          background: ${
+            config.color + "33"
+          }; /* Напівпрозорий фон кольору рідкості */
         `;
       }}
     `}

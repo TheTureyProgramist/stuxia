@@ -6,7 +6,7 @@ import BurgerMenu from "./Menu.jsx";
 import { IoIosEye } from "react-icons/io";
 import { GiShop, GiExitDoor, GiAchievement } from "react-icons/gi";
 import { FaSun } from "react-icons/fa";
-import { MdSettingsSuggest, MdMore  } from "react-icons/md";
+import { MdSettingsSuggest, MdMore } from "react-icons/md";
 import bell from "../../mp3/modals/bell.mp3";
 import logofix from "../../photos/hero-header/logo-fix.webp";
 import { useVisualFilters } from "./useVisualFilters";
@@ -251,7 +251,6 @@ const ButtonsGroup = styled.div`
   @media (min-width: 768px) {
     gap: 12px;
   }
-
 `;
 
 const VisualSettingsPanel = styled.div`
@@ -513,7 +512,9 @@ const Header = ({
                   onClick={handleThemeToggle}
                   $isDarkMode={isDarkMode}
                 >
-                  <EmojiWrapper>{isDarkMode ? <FaSun /> : <BsMoonStarsFill />}</EmojiWrapper>
+                  <EmojiWrapper>
+                    {isDarkMode ? <FaSun /> : <BsMoonStarsFill />}
+                  </EmojiWrapper>
                 </IconButton>
 
                 <IconButton
@@ -521,7 +522,9 @@ const Header = ({
                   $isDarkMode={isDarkMode}
                   title="Налаштування вигляду"
                 >
-                  <EmojiWrapper><IoIosEye /></EmojiWrapper>
+                  <EmojiWrapper>
+                    <IoIosEye />
+                  </EmojiWrapper>
                 </IconButton>
 
                 <IconButton onClick={onOpenHelp} $isDarkMode={isDarkMode}>
@@ -529,7 +532,9 @@ const Header = ({
                 </IconButton>
 
                 <IconButton onClick={onOpenShop} $isDarkMode={isDarkMode}>
-                    <Spa><GiShop /></Spa>
+                  <Spa>
+                    <GiShop />
+                  </Spa>
                 </IconButton>
 
                 <IconButton
@@ -539,12 +544,14 @@ const Header = ({
                   <GiAchievement />
                 </IconButton>
 
-                <IconButton 
-                  onClick={onOpenOtherOptions} 
+                <IconButton
+                  onClick={onOpenOtherOptions}
                   $isDarkMode={isDarkMode}
                   title="Інші опції"
                 >
-                  <EmojiWrapper><MdMore /></EmojiWrapper>
+                  <EmojiWrapper>
+                    <MdMore />
+                  </EmojiWrapper>
                 </IconButton>
 
                 <IconButton onClick={onOpenSettings} $isDarkMode={isDarkMode}>
@@ -568,14 +575,18 @@ const Header = ({
           ) : (
             <>
               <IconButton onClick={handleThemeToggle} $isDarkMode={isDarkMode}>
-                <EmojiWrapper>{isDarkMode ? <FaSun /> : <BsMoonStarsFill />}</EmojiWrapper>
+                <EmojiWrapper>
+                  {isDarkMode ? <FaSun /> : <BsMoonStarsFill />}
+                </EmojiWrapper>
               </IconButton>
               <IconButton
                 onClick={() => setShowVisualSettings(!showVisualSettings)}
                 $isDarkMode={isDarkMode}
                 title="Налаштування вигляду"
               >
-                <EmojiWrapper><IoIosEye /></EmojiWrapper>
+                <EmojiWrapper>
+                  <IoIosEye />
+                </EmojiWrapper>
               </IconButton>
               <IconButton
                 onClick={onOpenHelp}
@@ -584,12 +595,14 @@ const Header = ({
               >
                 <EmojiWrapper style={{ fontWeight: 900 }}>?</EmojiWrapper>
               </IconButton>
-              <IconButton 
-                onClick={onOpenOtherOptions} 
+              <IconButton
+                onClick={onOpenOtherOptions}
                 $isDarkMode={isDarkMode}
                 title="Інші опції"
               >
-                <EmojiWrapper><MdMore /></EmojiWrapper>
+                <EmojiWrapper>
+                  <MdMore />
+                </EmojiWrapper>
               </IconButton>
 
               <button
@@ -679,10 +692,19 @@ const Header = ({
             )}
 
             <div style={{ marginTop: "5px" }}>
-              <VisualLabel $isDarkMode={isDarkMode} style={{ marginBottom: "8px" }}>
+              <VisualLabel
+                $isDarkMode={isDarkMode}
+                style={{ marginBottom: "8px" }}
+              >
                 Стилі
               </VisualLabel>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "5px" }}>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: "5px",
+                }}
+              >
                 {PRESETS.map((preset) => (
                   <button
                     key={preset.id}
@@ -694,7 +716,7 @@ const Header = ({
                       padding: "5px",
                       fontSize: "10px",
                       fontWeight: "bold",
-                      cursor: "pointer"
+                      cursor: "pointer",
                     }}
                     onClick={() => setVisualConfig(preset.config)}
                   >
@@ -714,7 +736,7 @@ const Header = ({
                       fontWeight: "bold",
                       cursor: "pointer",
                       overflow: "hidden",
-                      textOverflow: "ellipsis"
+                      textOverflow: "ellipsis",
                     }}
                     onClick={() => setVisualConfig(preset.config)}
                   >

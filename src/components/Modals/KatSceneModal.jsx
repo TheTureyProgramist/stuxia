@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import styled
-// { keyframes } 
-from "styled-components";
+import styled from // { keyframes }
+"styled-components";
 import { motion, AnimatePresence } from "framer-motion";
 //import localforage from "localforage";
 import dinofrozVideo from "../../mp3/dinofroz.mp4";
@@ -425,7 +424,8 @@ const KatSceneModal = ({ onClose }) => {
     setIsPaused((prev) => !prev);
   };
 
-  const handleSkipClick = () => { // Simplified
+  const handleSkipClick = () => {
+    // Simplified
     handleClose();
   };
 
@@ -721,7 +721,8 @@ const KatSceneModal = ({ onClose }) => {
           <>
             <SkipButton
               onClick={handleSkipClick} // Always callable
-            >Пропустити
+            >
+              Пропустити
             </SkipButton>
             <FullscreenButton onClick={toggleFullscreen}>
               ⛶ Bесь екран

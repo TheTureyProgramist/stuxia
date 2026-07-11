@@ -55,17 +55,17 @@ const ModalContent = styled.form`
   flex-direction: column;
   gap: 12px;
   position: relative;
-  box-shadow: 0 12px 30px rgba(0,0,0,0.15);
-  animation: ${(props) => (props.$isClosing ? slideOut : slideIn)} 0.45s cubic-bezier(.2,.9,.2,1)
-    forwards;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+  animation: ${(props) => (props.$isClosing ? slideOut : slideIn)} 0.45s
+    cubic-bezier(0.2, 0.9, 0.2, 1) forwards;
 `;
 const Input = styled.input`
   padding: 12px;
-  border: 1px solid rgba(0,0,0,0.12);
+  border: 1px solid rgba(0, 0, 0, 0.12);
   border-radius: 10px;
   width: 100%;
   box-sizing: border-box;
-  background: rgba(255,255,255,0.9);
+  background: rgba(255, 255, 255, 0.9);
   font-size: 14px;
 `;
 
@@ -81,9 +81,11 @@ const SubmitButton = styled.button`
   align-items: center;
   justify-content: center;
   gap: 8px;
-  box-shadow: 0 6px 12px rgba(255,179,108,0.18);
+  box-shadow: 0 6px 12px rgba(255, 179, 108, 0.18);
   width: 100%;
-  &:hover { transform: translateY(-1px); }
+  &:hover {
+    transform: translateY(-1px);
+  }
 `;
 
 const GoogleButton = styled.button`
@@ -100,8 +102,10 @@ const GoogleButton = styled.button`
   justify-content: center;
   gap: 10px;
   width: 100%;
-  box-shadow: 0 6px 12px rgba(66,133,244,0.18);
-  &:hover { transform: translateY(-1px); }
+  box-shadow: 0 6px 12px rgba(66, 133, 244, 0.18);
+  &:hover {
+    transform: translateY(-1px);
+  }
 `;
 
 const CloseButton = styled.button`
@@ -163,7 +167,8 @@ const LoginModal = ({ onClose, onLogin }) => {
         uid: firebaseUser.uid,
         id: firebaseUser.uid,
         account: firebaseUser.email || "",
-        firstName: firebaseUser.displayName || firebaseUser.email || "Користувач",
+        firstName:
+          firebaseUser.displayName || firebaseUser.email || "Користувач",
         avatar: firebaseUser.photoURL || "",
         email: firebaseUser.email || "",
       };
@@ -184,7 +189,16 @@ const LoginModal = ({ onClose, onLogin }) => {
       >
         <CloseButton onClick={handleClose}>&times;</CloseButton>
         <Title style={{ textAlign: "center" }}>Вхід</Title>
-        <div style={{ textAlign: 'center', fontSize: 13, color: '#444', marginTop: -6 }}>Використайте Gmail або натисніть «Увійти з Google»</div>
+        <div
+          style={{
+            textAlign: "center",
+            fontSize: 13,
+            color: "#444",
+            marginTop: -6,
+          }}
+        >
+          Використайте Gmail або натисніть «Увійти з Google»
+        </div>
         <Input
           name="email"
           type="email"
@@ -204,11 +218,33 @@ const LoginModal = ({ onClose, onLogin }) => {
           required
         />
         {error && (
-          <div style={{ color: "#9b2c2c", fontSize: "13px", textAlign: "center", background: 'rgba(255,77,77,0.06)', padding: '8px', borderRadius: 8 }}>{error}</div>
+          <div
+            style={{
+              color: "#9b2c2c",
+              fontSize: "13px",
+              textAlign: "center",
+              background: "rgba(255,77,77,0.06)",
+              padding: "8px",
+              borderRadius: 8,
+            }}
+          >
+            {error}
+          </div>
         )}
         <SubmitButton type="submit">🔒 Увійти</SubmitButton>
-        <div style={{ textAlign: "center", margin: "6px 0", fontSize: "13px", color: '#666' }}>АБО</div>
-        <GoogleButton type="button" onClick={handleGoogleLogin}>🔑 Увійти з Google</GoogleButton>
+        <div
+          style={{
+            textAlign: "center",
+            margin: "6px 0",
+            fontSize: "13px",
+            color: "#666",
+          }}
+        >
+          АБО
+        </div>
+        <GoogleButton type="button" onClick={handleGoogleLogin}>
+          🔑 Увійти з Google
+        </GoogleButton>
       </ModalContent>
     </ModalOverlay>
   );

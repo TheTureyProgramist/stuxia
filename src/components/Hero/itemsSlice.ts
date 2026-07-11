@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface Item {
   id: number;
@@ -8,7 +8,7 @@ export interface Item {
 const initialState: Item[] = [];
 
 const itemsSlice = createSlice({
-  name: 'items',
+  name: "items",
   initialState,
   reducers: {
     // Дія збереження (додавання)
@@ -17,11 +17,14 @@ const itemsSlice = createSlice({
     },
     // Дія видалення
     removeItem: (state, action: PayloadAction<number>) => {
-      return state.filter(item => item.id !== action.payload);
+      return state.filter((item) => item.id !== action.payload);
     },
     // Дія оновлення
-    updateItem: (state, action: PayloadAction<{ id: number; text: string }>) => {
-      const index = state.findIndex(item => item.id === action.payload.id);
+    updateItem: (
+      state,
+      action: PayloadAction<{ id: number; text: string }>,
+    ) => {
+      const index = state.findIndex((item) => item.id === action.payload.id);
       if (index !== -1) {
         state[index] = { ...state[index], ...action.payload };
       }

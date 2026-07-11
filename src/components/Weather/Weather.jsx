@@ -280,7 +280,8 @@ const WeatherCardComponent = ({
   useEffect(() => {
     // Перевіряємо на переповнення (якщо текст довший за 5 рядків)
     if (summaryRef.current && aiSummary && !isSummaryExpanded) {
-      const isOverflowing = summaryRef.current.scrollHeight > summaryRef.current.clientHeight;
+      const isOverflowing =
+        summaryRef.current.scrollHeight > summaryRef.current.clientHeight;
       if (isOverflowing) setHasOverflow(true);
     }
   }, [aiSummary, isSummaryExpanded]);
@@ -289,9 +290,13 @@ const WeatherCardComponent = ({
     const loadAiSetting = async () => {
       const saved = await localforage.getItem(`ai_enabled_${card.id}`);
       if (saved !== null) setIsAiEnabled(saved);
-      const savedPrompt = await localforage.getItem(`ai_custom_prompt_${card.id}`);
+      const savedPrompt = await localforage.getItem(
+        `ai_custom_prompt_${card.id}`,
+      );
       if (savedPrompt) setCustomAiPrompt(savedPrompt);
-      const savedLength = await localforage.getItem(`ai_response_length_${card.id}`);
+      const savedLength = await localforage.getItem(
+        `ai_response_length_${card.id}`,
+      );
       if (savedLength) setResponseLength(savedLength);
       const savedStyle = await localforage.getItem(`ai_style_${card.id}`);
       if (savedStyle) setAiStyle(savedStyle);
@@ -314,40 +319,54 @@ const WeatherCardComponent = ({
       const hourly = card.hourly || [];
 
       // Беремо прогноз на найближчі 5 годин для ШІ
-      const shortTermForecast = hourly.slice(0, 5).map(h => 
-        `${h.time}: ${h.temp}, вітер ${h.windNum}м/с, ${h.iconPlaceholder}`
-      ).join("; ");
-      
-      const lengthInstruction = responseLength === "extensive" 
-        ? "надай розгорнуту відповідь (кілька речень)" 
-        : "згенеруй лаконічний прогноз одним реченням (макс 25 слів)";
-        
-      const styleInstruction = 
-        aiStyle === "scientific" ? "використовуй науковий стиль" : 
-        aiStyle === "sarcastic" ? "додай дрібку сарказму та іронії" : 
-        "використовуй дружній та теплий тон";
+      const shortTermForecast = hourly
+        .slice(0, 5)
+        .map(
+          (h) =>
+            `${h.time}: ${h.temp}, вітер ${h.windNum}м/с, ${h.iconPlaceholder}`,
+        )
+        .join("; ");
 
-      const systemInstructions = customAiPrompt.trim() 
+      const lengthInstruction =
+        responseLength === "extensive"
+          ? "надай розгорнуту відповідь (кілька речень)"
+          : "згенеруй лаконічний прогноз одним реченням (макс 25 слів)";
+
+      const styleInstruction =
+        aiStyle === "scientific"
+          ? "використовуй науковий стиль"
+          : aiStyle === "sarcastic"
+            ? "додай дрібку сарказму та іронії"
+            : "використовуй дружній та теплий тон";
+
+      const systemInstructions = customAiPrompt.trim()
         ? `Ти метеоролог-асистент. ${styleInstruction}. Виконуй цю інструкцію: ${customAiPrompt}. Критичні попередження (якщо є) виводь на самому початку. Використовуй абзаци для розбиття тексту. Відповідь надай українською мовою.`
         : `Ти метеоролог-асистент. На основі наданих даних ${lengthInstruction}. ${styleInstruction}. Згадай про комфортний одяг. КРИТИЧНІ ПОПЕРЕДЖЕННЯ (температура, вітер, УФ) став найвище. Використовуй абзаци для зручності читання. Відповідь виключно українською мовою.`;
 
-      const promptText = `${systemInstructions}\n\nМісто: ${card.locationName}. Поточний час на сайті: ${currentTimeString}.\n\nПоточні показники: ${current.temp}, ${current.description}, вологість ${current.humidity}, вітер ${current.wind_speed}.\nНайближчі години: ${shortTermForecast}.\nПрогноз на дні: завтра ${daily[1]?.temp_day || 'н/д'}, післязавтра ${daily[2]?.temp_day || 'н/д'}.\nТенденція на 2 тижні: 1-й тиждень ~${daily[7]?.temp_day || 'н/д'}, 2-й тиждень ~${daily[14]?.temp_day || 'н/д'}.`;
+      const promptText = `${systemInstructions}\n\nМісто: ${card.locationName}. Поточний час на сайті: ${currentTimeString}.\n\nПоточні показники: ${current.temp}, ${current.description}, вологість ${current.humidity}, вітер ${current.wind_speed}.\nНайближчі години: ${shortTermForecast}.\nПрогноз на дні: завтра ${daily[1]?.temp_day || "н/д"}, післязавтра ${daily[2]?.temp_day || "н/д"}.\nТенденція на 2 тижні: 1-й тиждень ~${daily[7]?.temp_day || "н/д"}, 2-й тиждень ~${daily[14]?.temp_day || "н/д"}.`;
 
       const result = await model.generateContent(promptText);
       const response = await result.response;
       const text = response.text().trim();
-      
+
       setAiSummary(text);
       await localforage.setItem(`ai_weather_summary_${card.id}`, {
         text,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       });
     } catch (e) {
       console.error("Gemini Weather Error:", e);
     } finally {
       setIsAiLoading(false);
     }
-  }, [card, isAiLoading, customAiPrompt, responseLength, aiStyle, currentTimeString]);
+  }, [
+    card,
+    isAiLoading,
+    customAiPrompt,
+    responseLength,
+    aiStyle,
+    currentTimeString,
+  ]);
 
   const checkAndUpdate = useCallback(async () => {
     const saved = await localforage.getItem(`ai_weather_summary_${card.id}`);
@@ -355,7 +374,7 @@ const WeatherCardComponent = ({
     const TWO_HOURS = 2 * 60 * 60 * 1000; // 7,200,000 мс
 
     // Оновлюємо лише якщо даних немає або пройшло більше 2 годин з останнього запиту
-    const needsUpdate = !saved || (now - saved.timestamp > TWO_HOURS);
+    const needsUpdate = !saved || now - saved.timestamp > TWO_HOURS;
 
     if (needsUpdate) {
       generateWeatherSummary();
@@ -466,35 +485,35 @@ const WeatherCardComponent = ({
     "01.01": "Вітаю з Новим роком!",
     "06.01": "Богоявлення (Водохреща)",
     "07.01": "Різдво Христове (старий стиль)",
-    "12.01": "1 серія 'Реальної містики'",
+    12.01: "1 серія 'Реальної містики'",
     "02.02": "Стрітення Господнє",
-    "14.02": "З Днем святого Валентина!",
+    14.02: "З Днем святого Валентина!",
     "08.03": "Жінки, всіх вас вітаю з вашим днем!",
-    "25.03": "Благовіщення",
+    25.03: "Благовіщення",
     "01.04": "Сьогодні день дурня, не святого лежня. Нікому не вірте!",
-    "12.04": "З Великоднем (Пасха). Бажаю всім всього найкращого.",
+    12.04: "З Великоднем (Пасха). Бажаю всім всього найкращого.",
     "01.05": "День праці",
     "08.05":
       "День пам'яті та перемоги. В цей день наші прадіди перемогли фашизм.",
-    "10.05":
+    10.05:
       "День матері. Подякуйте їм, за те що вони підтримували вас у тяжкі дні. А радісні робили, ще кращими.",
-    "21.05": "Вознесіння Господнє",
-    "27.05": "Випуск Dragon Village 3",
-    "31.05": "Трійця (П'ятдесятниця). ",
-    "28.06": "День Конституції України",
+    21.05: "Вознесіння Господнє",
+    27.05: "Випуск Dragon Village 3",
+    31.05: "Трійця (П'ятдесятниця). ",
+    28.06: "День Конституції України",
     "01.08": "День Малятко ТВ. Ще раз особиста подяка.",
     "06.08": "Преображення (Спас)",
-    "15.08": "Успіння Пресвятої Богородиці",
-    "24.08": "День Незалежності України",
+    15.08: "Успіння Пресвятої Богородиці",
+    24.08: "День Незалежності України",
     "01.09":
       "День знань. Цей день усі ненавидять, бо термін відпустки закінчився.",
-    "11.09": "Випуск 1шої серії м/с Динофроз. Легенда.",
+    11.09: "Випуск 1шої серії м/с Динофроз. Легенда.",
     "01.10": "Покрова і день Козацтва (Новий стиль)",
     "14.10": "Покрова і день Козацтва (Старий стиль)",
     "27.10": "День писемності та мови",
-    "19.11": "Міжнародний чоловічий день. Наш день :)",
-    "21.11": "Введення в храм Пресвятої Богородиці",
-    "25.12": "Різдво Христове (новий стиль)",
+    19.11: "Міжнародний чоловічий день. Наш день :)",
+    21.11: "Введення в храм Пресвятої Богородиці",
+    25.12: "Різдво Христове (новий стиль)",
   };
 
   const isWeekend = (dayName) => {
@@ -812,14 +831,34 @@ const WeatherCardComponent = ({
               Детально: {selectedDay.date} ({selectedDay.day})
             </h3>
             {(() => {
-              const dateType = getDateType(selectedDay.date, selectedDay.day, selectedDay.fullDate);
+              const dateType = getDateType(
+                selectedDay.date,
+                selectedDay.day,
+                selectedDay.fullDate,
+              );
               if (!dateType.label) return null;
-              
+
               if (dateType.type === "custom") {
                 return (
-                  <div style={{ margin: "10px 0", width: "100%", display: "flex", flexDirection: "column", alignItems: "center", gap: "10px" }}>
+                  <div
+                    style={{
+                      margin: "10px 0",
+                      width: "100%",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: "10px",
+                    }}
+                  >
                     {isEditingReason ? (
-                      <div style={{ display: "flex", gap: "5px", width: "100%", justifyContent: "center" }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "5px",
+                          width: "100%",
+                          justifyContent: "center",
+                        }}
+                      >
                         <input
                           type="text"
                           value={tempReason}
@@ -832,27 +871,96 @@ const WeatherCardComponent = ({
                             border: "1px solid #ffb36c",
                             background: isDarkMode ? "#333" : "#fff",
                             color: isDarkMode ? "#fff" : "#000",
-                            fontSize: "14px"
+                            fontSize: "14px",
                           }}
                         />
-                        <button 
+                        <button
                           onClick={() => {
                             if (tempReason.trim()) {
-                              dispatch(addCustomDay({ date: selectedDay.fullDate, reason: tempReason.trim() }));
+                              dispatch(
+                                addCustomDay({
+                                  date: selectedDay.fullDate,
+                                  reason: tempReason.trim(),
+                                }),
+                              );
                               setIsEditingReason(false);
                             }
                           }}
-                          style={{ background: "green", color: "white", padding: "4px 8px", borderRadius: "4px", border: "none", cursor: "pointer" }}
-                        >✓</button>
-                        <button onClick={() => setIsEditingReason(false)} style={{ background: "red", color: "white", padding: "4px 8px", borderRadius: "4px", border: "none", cursor: "pointer" }}>✕</button>
+                          style={{
+                            background: "green",
+                            color: "white",
+                            padding: "4px 8px",
+                            borderRadius: "4px",
+                            border: "none",
+                            cursor: "pointer",
+                          }}
+                        >
+                          ✓
+                        </button>
+                        <button
+                          onClick={() => setIsEditingReason(false)}
+                          style={{
+                            background: "red",
+                            color: "white",
+                            padding: "4px 8px",
+                            borderRadius: "4px",
+                            border: "none",
+                            cursor: "pointer",
+                          }}
+                        >
+                          ✕
+                        </button>
                       </div>
                     ) : (
-                      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                         <p style={{ margin: 0, fontWeight: "bold", color: dateType.color || "#00bfff", fontSize: "14px" }}>
-                           {dateType.label.toUpperCase()}
-                         </p>
-                         <button onClick={() => { setTempReason(dateType.label); setIsEditingReason(true); }} style={{ background: "none", border: "none", cursor: "pointer", fontSize: "16px" }} title="Редагувати">✎</button>
-                         <button onClick={() => { if(window.confirm("Видалити цю подію?")) { dispatch(removeCustomDay(selectedDay.fullDate)); setSelectedDay(null); } }} style={{ background: "none", border: "none", cursor: "pointer", fontSize: "16px" }} title="Видалити">🗑</button>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "10px",
+                        }}
+                      >
+                        <p
+                          style={{
+                            margin: 0,
+                            fontWeight: "bold",
+                            color: dateType.color || "#00bfff",
+                            fontSize: "14px",
+                          }}
+                        >
+                          {dateType.label.toUpperCase()}
+                        </p>
+                        <button
+                          onClick={() => {
+                            setTempReason(dateType.label);
+                            setIsEditingReason(true);
+                          }}
+                          style={{
+                            background: "none",
+                            border: "none",
+                            cursor: "pointer",
+                            fontSize: "16px",
+                          }}
+                          title="Редагувати"
+                        >
+                          ✎
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (window.confirm("Видалити цю подію?")) {
+                              dispatch(removeCustomDay(selectedDay.fullDate));
+                              setSelectedDay(null);
+                            }
+                          }}
+                          style={{
+                            background: "none",
+                            border: "none",
+                            cursor: "pointer",
+                            fontSize: "16px",
+                          }}
+                          title="Видалити"
+                        >
+                          🗑
+                        </button>
                       </div>
                     )}
                   </div>
@@ -877,22 +985,23 @@ const WeatherCardComponent = ({
               selectedDay.date,
               selectedDay.day,
               selectedDay.fullDate,
-            ) && !isEditingReason && (
-              <p
-                style={{
-                  margin: "8px 0",
-                  fontSize: "16px",
-                  fontWeight: "bold",
-                  color: "#ffb36c",
-                }}
-              >
-                {getHolidayMessage(
-                  selectedDay.date,
-                  selectedDay.day,
-                  selectedDay.fullDate,
-                )}
-              </p>
-            )}
+            ) &&
+              !isEditingReason && (
+                <p
+                  style={{
+                    margin: "8px 0",
+                    fontSize: "16px",
+                    fontWeight: "bold",
+                    color: "#ffb36c",
+                  }}
+                >
+                  {getHolidayMessage(
+                    selectedDay.date,
+                    selectedDay.day,
+                    selectedDay.fullDate,
+                  )}
+                </p>
+              )}
             <ImagePlaceholder
               size="60px"
               fontSize="30px"
@@ -1002,15 +1111,22 @@ const WeatherCardComponent = ({
                 {isLocationEnabled ? "🧭" : "🧭🔒"}
               </button>
             )}
-            <button 
-              onClick={handleAiToggle} 
-              style={{ background: isAiEnabled ? "#8a2be2" : "#444", transition: "all 0.3s" }}
-              title={isAiEnabled ? "Вимкнути ШІ підсумок" : "Увімкнути ШІ підсумок"}
+            <button
+              onClick={handleAiToggle}
+              style={{
+                background: isAiEnabled ? "#8a2be2" : "#444",
+                transition: "all 0.3s",
+              }}
+              title={
+                isAiEnabled ? "Вимкнути ШІ підсумок" : "Увімкнути ШІ підсумок"
+              }
             >
               ✨
             </button>
             <button onClick={() => handleRefreshCard(card)}>↺</button>
-            <button onClick={onOpenDetails} title="Детальна погода">📊</button>
+            <button onClick={onOpenDetails} title="Детальна погода">
+              📊
+            </button>
             {!card.isMain && (
               <button onClick={() => handleDeleteCard(card.id)}>🗑</button>
             )}
@@ -1069,68 +1185,130 @@ const WeatherCardComponent = ({
 
         {aiSummary && (
           <AiSummaryBox $isDarkMode={isDarkMode} layout>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '5px' }}>
-               <span className="ai-header-text" style={{ fontWeight: 800, color: '#8a2be2', fontSize: '9px', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                 ✨ Адаптивний прогноз ШІ
-               </span>
-               <button 
-                 className="ai-edit-btn"
-                 onClick={() => setIsEditingPrompt(!isEditingPrompt)}
-                 style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '10px', color: '#8a2be2', padding: 0 }}
-                 title="Редагувати умову промпту"
-               >
-                 {isEditingPrompt ? "✕" : "✎ Умова"}
-               </button>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+                marginBottom: "5px",
+              }}
+            >
+              <span
+                className="ai-header-text"
+                style={{
+                  fontWeight: 800,
+                  color: "#8a2be2",
+                  fontSize: "9px",
+                  textTransform: "uppercase",
+                  letterSpacing: "1px",
+                }}
+              >
+                ✨ Адаптивний прогноз ШІ
+              </span>
+              <button
+                className="ai-edit-btn"
+                onClick={() => setIsEditingPrompt(!isEditingPrompt)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  fontSize: "10px",
+                  color: "#8a2be2",
+                  padding: 0,
+                }}
+                title="Редагувати умову промпту"
+              >
+                {isEditingPrompt ? "✕" : "✎ Умова"}
+              </button>
             </div>
-            
+
             {isEditingPrompt ? (
-               <PromptEditor $isDarkMode={isDarkMode}>
-                  <label style={{ fontSize: '10px', fontWeight: 'bold' }}>Своя інструкція:</label>
-                  <PromptTextarea 
-                    $isDarkMode={isDarkMode}
-                    value={customAiPrompt}
-                    onChange={(e) => setCustomAiPrompt(e.target.value)}
-                    placeholder="Наприклад: Дай поради для рибалки на основі вітру та тиску..."
-                  />
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <select 
-                      value={responseLength}
-                      onChange={(e) => setResponseLength(e.target.value)}
-                      style={{ fontSize: '10px', padding: '2px', borderRadius: '4px', background: isDarkMode ? '#333' : '#fff', color: isDarkMode ? '#fff' : '#000' }}
-                    >
-                      <option value="concise">Стисло</option>
-                      <option value="extensive">Обширно</option>
-                    </select>
-                    <select 
-                      value={aiStyle}
-                      onChange={(e) => setAiStyle(e.target.value)}
-                      style={{ fontSize: '10px', padding: '2px', borderRadius: '4px', background: isDarkMode ? '#333' : '#fff', color: isDarkMode ? '#fff' : '#000' }}
-                    >
-                      <option value="friendly">Дружній</option>
-                      <option value="scientific">Науковий</option>
-                      <option value="sarcastic">Саркастичний</option>
-                    </select>
-                    <button 
-                      onClick={async () => {
-                        await localforage.setItem(`ai_custom_prompt_${card.id}`, customAiPrompt);
-                        await localforage.setItem(`ai_response_length_${card.id}`, responseLength);
-                        await localforage.setItem(`ai_style_${card.id}`, aiStyle);
-                        setIsEditingPrompt(false);
-                        generateWeatherSummary();
-                      }}
-                      style={{ background: '#8a2be2', color: 'white', border: 'none', borderRadius: '4px', padding: '4px 8px', fontSize: '10px', cursor: 'pointer', fontWeight: 'bold' }}
-                    >
-                      Зберегти та оновити
-                    </button>
-                  </div>
-               </PromptEditor>
+              <PromptEditor $isDarkMode={isDarkMode}>
+                <label style={{ fontSize: "10px", fontWeight: "bold" }}>
+                  Своя інструкція:
+                </label>
+                <PromptTextarea
+                  $isDarkMode={isDarkMode}
+                  value={customAiPrompt}
+                  onChange={(e) => setCustomAiPrompt(e.target.value)}
+                  placeholder="Наприклад: Дай поради для рибалки на основі вітру та тиску..."
+                />
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <select
+                    value={responseLength}
+                    onChange={(e) => setResponseLength(e.target.value)}
+                    style={{
+                      fontSize: "10px",
+                      padding: "2px",
+                      borderRadius: "4px",
+                      background: isDarkMode ? "#333" : "#fff",
+                      color: isDarkMode ? "#fff" : "#000",
+                    }}
+                  >
+                    <option value="concise">Стисло</option>
+                    <option value="extensive">Обширно</option>
+                  </select>
+                  <select
+                    value={aiStyle}
+                    onChange={(e) => setAiStyle(e.target.value)}
+                    style={{
+                      fontSize: "10px",
+                      padding: "2px",
+                      borderRadius: "4px",
+                      background: isDarkMode ? "#333" : "#fff",
+                      color: isDarkMode ? "#fff" : "#000",
+                    }}
+                  >
+                    <option value="friendly">Дружній</option>
+                    <option value="scientific">Науковий</option>
+                    <option value="sarcastic">Саркастичний</option>
+                  </select>
+                  <button
+                    onClick={async () => {
+                      await localforage.setItem(
+                        `ai_custom_prompt_${card.id}`,
+                        customAiPrompt,
+                      );
+                      await localforage.setItem(
+                        `ai_response_length_${card.id}`,
+                        responseLength,
+                      );
+                      await localforage.setItem(`ai_style_${card.id}`, aiStyle);
+                      setIsEditingPrompt(false);
+                      generateWeatherSummary();
+                    }}
+                    style={{
+                      background: "#8a2be2",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "4px",
+                      padding: "4px 8px",
+                      fontSize: "10px",
+                      cursor: "pointer",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Зберегти та оновити
+                  </button>
+                </div>
+              </PromptEditor>
             ) : (
               <>
                 <motion.div layout transition={{ duration: 0.3 }}>
-                  <SummaryText ref={summaryRef} $isExpanded={isSummaryExpanded}>{aiSummary}</SummaryText>
+                  <SummaryText ref={summaryRef} $isExpanded={isSummaryExpanded}>
+                    {aiSummary}
+                  </SummaryText>
                 </motion.div>
                 {hasOverflow && (
-                  <ShowMoreBtn onClick={() => setIsSummaryExpanded(!isSummaryExpanded)}>
+                  <ShowMoreBtn
+                    onClick={() => setIsSummaryExpanded(!isSummaryExpanded)}
+                  >
                     {isSummaryExpanded ? "Згорнути" : "Читати далі..."}
                   </ShowMoreBtn>
                 )}

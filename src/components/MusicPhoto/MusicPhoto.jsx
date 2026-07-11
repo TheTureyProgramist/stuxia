@@ -1,6 +1,95 @@
-import { musicCards, songAiKnowledge, dinofrozVideo } from "./MusicPhoto.assets";
+import {
+  musicCards,
+  songAiKnowledge,
+  dinofrozVideo,
+} from "./MusicPhoto.assets";
 import authorsData from "./authors.json";
-import { SeekIndicator, LongPressBadge, AihelpTitle, MusicPhotoDiv, ActButton, MusicPhotoFix, ControlsContainer, SearchInput, SortSelect, AuthorCardWrapper, AuthorInfoOverlay, CardWrapper, LyricsModalImage, MusicImageContainer, MusicImage, HeartButton, MusicText, SliderRow, VolumeSlider, LoadMoreButton, FilterOverlay, StyledSymbol, SeekBar, StereoSeekBar, StereoChannel, SpeedSlider, UnlockContainer, SeekAmountSlider, LoopButton, ActionButtonsContainer, ActionButton, ModalOverlay, LyricsModalContent, PlaylistModalContent, LyricsCloseButton, FullScreenOverlay, MiniPlayerContainer, MiniPlayerHeader, MiniControlBtn, MiniResizeHandle, AudioBarContainer, AudioBarBtn, FSHeader, FSContent, FSVisualWrapper, FSVideo, FSImage, FSControls, FSSliderContainer, FSSliderImage, FSTitle, GearModal, SubtitleOverlay, DownloadModal, PlaylistCloseButton, LyricsContainer, LyricsLine, InputGroup, StorageIndicatorContainer, StorageBar, StorageBarFill, SliderItemWrapper, CheckpointBadge, CheckpointMarker, SliderOverlay, SliderBtn, PlaylistOverlay, SeekBarWrapper, SeekTooltip, LoadingContainer, ProgressBar, ProgressBarFill, AiChatContainer, MessageList, Message, ChatInputRow, AuthorPreviewCard, AuthorPreviewImage, AuthorPreviewName, AuthorPreviewBody, AuthorPreviewSection, AuthorPreviewActions, AuthorPreviewBtn } from "./MusicPhoto.styled";
+import {
+  SeekIndicator,
+  LongPressBadge,
+  AihelpTitle,
+  MusicPhotoDiv,
+  ActButton,
+  MusicPhotoFix,
+  ControlsContainer,
+  SearchInput,
+  SortSelect,
+  AuthorCardWrapper,
+  AuthorInfoOverlay,
+  CardWrapper,
+  LyricsModalImage,
+  MusicImageContainer,
+  MusicImage,
+  HeartButton,
+  MusicText,
+  SliderRow,
+  VolumeSlider,
+  LoadMoreButton,
+  FilterOverlay,
+  StyledSymbol,
+  SeekBar,
+  StereoSeekBar,
+  StereoChannel,
+  SpeedSlider,
+  UnlockContainer,
+  SeekAmountSlider,
+  LoopButton,
+  ActionButtonsContainer,
+  ActionButton,
+  ModalOverlay,
+  LyricsModalContent,
+  PlaylistModalContent,
+  LyricsCloseButton,
+  FullScreenOverlay,
+  MiniPlayerContainer,
+  MiniPlayerHeader,
+  MiniControlBtn,
+  MiniResizeHandle,
+  AudioBarContainer,
+  AudioBarBtn,
+  FSHeader,
+  FSContent,
+  FSVisualWrapper,
+  FSVideo,
+  FSImage,
+  FSControls,
+  FSSliderContainer,
+  FSSliderImage,
+  FSTitle,
+  GearModal,
+  SubtitleOverlay,
+  DownloadModal,
+  PlaylistCloseButton,
+  LyricsContainer,
+  LyricsLine,
+  InputGroup,
+  StorageIndicatorContainer,
+  StorageBar,
+  StorageBarFill,
+  SliderItemWrapper,
+  CheckpointBadge,
+  CheckpointMarker,
+  SliderOverlay,
+  SliderBtn,
+  PlaylistOverlay,
+  SeekBarWrapper,
+  SeekTooltip,
+  LoadingContainer,
+  ProgressBar,
+  ProgressBarFill,
+  AiChatContainer,
+  MessageList,
+  Message,
+  ChatInputRow,
+  AuthorPreviewCard,
+  AuthorPreviewImage,
+  AuthorPreviewName,
+  AuthorPreviewBody,
+  AuthorPreviewSection,
+  AuthorPreviewActions,
+  AuthorPreviewBtn,
+  AuthorTracksGrid,
+} from "./MusicPhoto.styled";
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import localforage from "localforage";
 import { motion, AnimatePresence } from "framer-motion";
@@ -85,10 +174,14 @@ const SymbolOverlay = ({
     const realCount = isFirework
       ? 6
       : Math.max(1, Math.floor(count * multiplier));
-    const list =
-      Array.isArray(customSymbols) && customSymbols.length > 0
-        ? customSymbols
-        : musicSymbols;
+    // Normalize customSymbols: accept a string (single symbol), array, or fall back to defaults
+    const normalizedCustom =
+      typeof customSymbols === "string" && customSymbols.length > 0
+        ? [customSymbols]
+        : Array.isArray(customSymbols) && customSymbols.length > 0
+          ? customSymbols
+          : null;
+    const list = normalizedCustom || musicSymbols;
     return Array.from({ length: realCount }).map((_, i) => {
       const r1 = Math.random();
       const r2 = Math.random();
@@ -475,7 +568,7 @@ const AudioBar = ({
             {checkpointsEnabled && checkpoint > 0 && duration > 0 && (
               <CheckpointMarker
                 $left={(checkpoint / duration) * 100}
-              style={{ bottom: "auto", top: "0px", fontSize: "10px" }}
+                style={{ bottom: "auto", top: "0px", fontSize: "10px" }}
                 title="Ви тут зупинилися"
               >
                 🚩
@@ -677,7 +770,9 @@ const MiniPlayer = ({
   }, [initialTime, isPlaying, speed, volume, track.id]);
   useEffect(() => {
     if ("mediaSession" in navigator && track) {
-      const artwork = track.image ? [{ src: track.image, sizes: "512x512", type: "image/webp" }] : [];
+      const artwork = track.image
+        ? [{ src: track.image, sizes: "512x512", type: "image/webp" }]
+        : [];
       navigator.mediaSession.metadata = new window.MediaMetadata({
         title: track.text || track.author || "Стихія",
         artist: track.author || "Stykhiya",
@@ -1026,8 +1121,9 @@ const SongAiModal = ({ track, onClose, isDarkMode }) => {
       const savedOaiKey = await localforage.getItem("openai_api_key");
       const savedGroqKey = await localforage.getItem("groq_api_key");
       const savedGeminiModel = await localforage.getItem("gemini_model");
-      
-      if (savedModel && !savedModel.includes("meta-llama")) setSelectedModel(savedModel);
+
+      if (savedModel && !savedModel.includes("meta-llama"))
+        setSelectedModel(savedModel);
       if (savedKey) setPersonalApiKey(savedKey);
       if (savedOaiKey) setOpenaiApiKey(savedOaiKey);
       if (savedGroqKey) {
@@ -1037,9 +1133,16 @@ const SongAiModal = ({ track, onClose, isDarkMode }) => {
       if (savedGeminiModel) setGeminiModel(savedGeminiModel);
       if (history) setMessages(history);
       else
-        setMessages((prev) => prev.length > 0 ? prev : [
-          { text: `Привіт, мене звати Домініц(робот Доміно). Я можу відповісти на деякі ваші запитання "${track.author}"?`, isBot: true },
-        ]);
+        setMessages((prev) =>
+          prev.length > 0
+            ? prev
+            : [
+                {
+                  text: `Привіт, мене звати Домініц(робот Доміно). Я можу відповісти на деякі ваші запитання "${track.author}"?`,
+                  isBot: true,
+                },
+              ],
+        );
     };
     loadHistory();
   }, [track.id, track.author]);
@@ -1064,11 +1167,14 @@ const SongAiModal = ({ track, onClose, isDarkMode }) => {
   };
 
   const verifyGroqKey = async (key) => {
-    if (!key || key.length < 10) { setGroqKeyStatus("idle"); return; }
+    if (!key || key.length < 10) {
+      setGroqKeyStatus("idle");
+      return;
+    }
     setGroqKeyStatus("loading");
     try {
       const res = await fetch("https://api.groq.com/openai/v1/models", {
-        headers: { "Authorization": `Bearer ${key}` }
+        headers: { Authorization: `Bearer ${key}` },
       });
       setGroqKeyStatus(res.ok ? "valid" : "invalid");
     } catch {
@@ -1082,10 +1188,16 @@ const SongAiModal = ({ track, onClose, isDarkMode }) => {
   };
 
   const saveKeys = async (type, key) => {
-    if (type === "gemini") { setPersonalApiKey(key); await localforage.setItem("gemini_api_key", key); }
-    if (type === "openai") { setOpenaiApiKey(key); await localforage.setItem("openai_api_key", key); }
-    if (type === "groq") { 
-      setGroqApiKey(key); 
+    if (type === "gemini") {
+      setPersonalApiKey(key);
+      await localforage.setItem("gemini_api_key", key);
+    }
+    if (type === "openai") {
+      setOpenaiApiKey(key);
+      await localforage.setItem("openai_api_key", key);
+    }
+    if (type === "groq") {
+      setGroqApiKey(key);
       await localforage.setItem("groq_api_key", key);
       verifyGroqKey(key);
     }
@@ -1119,30 +1231,47 @@ const SongAiModal = ({ track, onClose, isDarkMode }) => {
     const lowerQuery = query.toLowerCase();
 
     // Спеціальна обробка запиту про список пісень
-    if (lowerQuery.includes("які пісні") || lowerQuery.includes("список пісень") || lowerQuery.includes("що тут є") || lowerQuery.includes("які є пісні")) {
-      answer = "У проекті 'Стихія' зараз розміщені такі пісні: " + songAiKnowledge.map(s => s.author).join(", ") + ".";
-    } else if (lowerQuery.includes("скільки пісень") || lowerQuery.includes("яка кількість") || lowerQuery.includes("кількість пісень")) {
+    if (
+      lowerQuery.includes("які пісні") ||
+      lowerQuery.includes("список пісень") ||
+      lowerQuery.includes("що тут є") ||
+      lowerQuery.includes("які є пісні")
+    ) {
+      answer =
+        "У проекті 'Стихія' зараз розміщені такі пісні: " +
+        songAiKnowledge.map((s) => s.author).join(", ") +
+        ".";
+    } else if (
+      lowerQuery.includes("скільки пісень") ||
+      lowerQuery.includes("яка кількість") ||
+      lowerQuery.includes("кількість пісень")
+    ) {
       answer = `Зараз у моїй локальній базі знань (файл songAiKnowledge.json) є інформація про ${songAiKnowledge.length} пісень.`;
     }
 
     if (!answer) {
       // Шукаємо відповідь по ключах у всіх записах бази знань
       for (const entry of songAiKnowledge) {
-        const matchKey = Object.keys(entry).find((k) =>
-          lowerQuery.includes(k.toLowerCase()) && 
-          typeof entry[k] === 'string' && 
-          entry[k].length > 0
+        const matchKey = Object.keys(entry).find(
+          (k) =>
+            lowerQuery.includes(k.toLowerCase()) &&
+            typeof entry[k] === "string" &&
+            entry[k].length > 0,
         );
         if (matchKey) {
           answer = `(Інформація про ${entry.author}): ${entry[matchKey]}`;
-          if (entry.YouTube) answer += `\n\nВи можете переглянути це на YouTube: ${entry.YouTube}`;
+          if (entry.YouTube)
+            answer += `\n\nВи можете переглянути це на YouTube: ${entry.YouTube}`;
           break;
         }
 
         // Пошук у текстах пісень (lyrics)
         if (entry.lyrics && Array.isArray(entry.lyrics)) {
-          const foundLine = entry.lyrics.find(line => 
-            line.text && (line.text.toLowerCase().includes(lowerQuery) || lowerQuery.includes(line.text.toLowerCase()))
+          const foundLine = entry.lyrics.find(
+            (line) =>
+              line.text &&
+              (line.text.toLowerCase().includes(lowerQuery) ||
+                lowerQuery.includes(line.text.toLowerCase())),
           );
           if (foundLine) {
             answer = `У пісні "${entry.author}" є такі рядки: "${foundLine.text}"`;
@@ -1152,8 +1281,13 @@ const SongAiModal = ({ track, onClose, isDarkMode }) => {
 
         // Пошук у фільтрах
         if (entry.filters && Array.isArray(entry.filters)) {
-          const foundFilter = entry.filters.find(f => 
-            f.type && lowerQuery.includes(f.type.toLowerCase()) && (lowerQuery.includes("коли") || lowerQuery.includes("фільтр") || lowerQuery.includes("ефект"))
+          const foundFilter = entry.filters.find(
+            (f) =>
+              f.type &&
+              lowerQuery.includes(f.type.toLowerCase()) &&
+              (lowerQuery.includes("коли") ||
+                lowerQuery.includes("фільтр") ||
+                lowerQuery.includes("ефект")),
           );
           if (foundFilter) {
             answer = `У пісні "${entry.author}" ефект "${foundFilter.type}" активується на проміжку від ${foundFilter.start} до ${foundFilter.end} секунди.`;
@@ -1170,7 +1304,13 @@ const SongAiModal = ({ track, onClose, isDarkMode }) => {
       setIsAiLoading(false);
     } else if (selectedModel === "gemini-personal") {
       if (!personalApiKey) {
-        const errFinal = [...newMessages, { text: "Будь ласка, введіть ваш API-ключ Gemini у налаштуваннях чату (кнопка 🔑).", isBot: true }];
+        const errFinal = [
+          ...newMessages,
+          {
+            text: "Будь ласка, введіть ваш API-ключ Gemini у налаштуваннях чату (кнопка 🔑).",
+            isBot: true,
+          },
+        ];
         setMessages(errFinal);
         setIsAiLoading(false);
         return;
@@ -1180,13 +1320,26 @@ const SongAiModal = ({ track, onClose, isDarkMode }) => {
         setStatus("З'єднання з Gemini...");
         const genAI = new GoogleGenerativeAI(personalApiKey);
         const model = genAI.getGenerativeModel({ model: geminiModel });
-        
-        const allSongs = songAiKnowledge.map(s => s.author).join(", ");
-        const durationText = track.duration ? `${Math.floor(track.duration / 60)}:${(track.duration % 60).toString().padStart(2, '0')}` : "невідома";
-        const lyricsInfo = track.lyrics && Array.isArray(track.lyrics) ? track.lyrics.map(l => `${l.time}с: ${l.text || ''}`).join("; ") : "відсутній";
-        const filtersInfo = track.filters && Array.isArray(track.filters) ? track.filters.map(f => `${f.start}-${f.end}с: ${f.type}`).join("; ") : "відсутні";
-        
-        const lengthInstruction = responseLength === "detailed" ? "Відповідай максимально докладно, розгорнуто та з деталями." : "Відповідай максимально стисло, коротко та лаконічно.";
+
+        const allSongs = songAiKnowledge.map((s) => s.author).join(", ");
+        const durationText = track.duration
+          ? `${Math.floor(track.duration / 60)}:${(track.duration % 60).toString().padStart(2, "0")}`
+          : "невідома";
+        const lyricsInfo =
+          track.lyrics && Array.isArray(track.lyrics)
+            ? track.lyrics.map((l) => `${l.time}с: ${l.text || ""}`).join("; ")
+            : "відсутній";
+        const filtersInfo =
+          track.filters && Array.isArray(track.filters)
+            ? track.filters
+                .map((f) => `${f.start}-${f.end}с: ${f.type}`)
+                .join("; ")
+            : "відсутні";
+
+        const lengthInstruction =
+          responseLength === "detailed"
+            ? "Відповідай максимально докладно, розгорнуто та з деталями."
+            : "Відповідай максимально стисло, коротко та лаконічно.";
 
         const systemContext = `Ти - Домініц, помічник проекту "Стихія". У базі знань є такі пісні: ${allSongs}. Поточна пісня: ${track.author}, тривалість: ${durationText}. Таймінги тексту: ${lyricsInfo}. Ефекти (фільтри): ${filtersInfo}. Якщо питають "коли" або "який ефект" — використовуй ці дані.
 Правила роботи:
@@ -1202,60 +1355,100 @@ const SongAiModal = ({ track, onClose, isDarkMode }) => {
         const result = await model.generateContent(prompt);
         const botText = result.response.text();
 
-        const final = [...newMessages, { text: botText || "Я не зміг отримати відповідь від Gemini.", isBot: true }];
+        const final = [
+          ...newMessages,
+          {
+            text: botText || "Я не зміг отримати відповідь від Gemini.",
+            isBot: true,
+          },
+        ];
         setMessages(final);
         await saveHistory(final);
       } catch (e) {
-        const final = [...newMessages, { text: `Помилка Gemini: ${e.message}. Перевірте ключ або підключення.`, isBot: true }];
+        const final = [
+          ...newMessages,
+          {
+            text: `Помилка Gemini: ${e.message}. Перевірте ключ або підключення.`,
+            isBot: true,
+          },
+        ];
         setMessages(final);
         await saveHistory(final);
       } finally {
         setIsAiLoading(false);
         setStatus("");
       }
-    } else if (selectedModel === "openai-personal" || selectedModel === "groq-personal") {
+    } else if (
+      selectedModel === "openai-personal" ||
+      selectedModel === "groq-personal"
+    ) {
       const isOAI = selectedModel === "openai-personal";
       const key = isOAI ? openaiApiKey : groqApiKey;
-      const endpoint = isOAI ? "https://api.openai.com/v1/chat/completions" : "https://api.groq.com/openai/v1/chat/completions";
+      const endpoint = isOAI
+        ? "https://api.openai.com/v1/chat/completions"
+        : "https://api.groq.com/openai/v1/chat/completions";
       const modelName = isOAI ? "gpt-4o-mini" : "llama-3.3-70b-versatile";
 
       if (!key) {
-        const errFinal = [...newMessages, { text: `Будь ласка, введіть ваш API-ключ ${isOAI ? 'OpenAI' : 'Groq'} у налаштуваннях (кнопка 🔑).`, isBot: true }];
+        const errFinal = [
+          ...newMessages,
+          {
+            text: `Будь ласка, введіть ваш API-ключ ${isOAI ? "OpenAI" : "Groq"} у налаштуваннях (кнопка 🔑).`,
+            isBot: true,
+          },
+        ];
         setMessages(errFinal);
         setIsAiLoading(false);
         return;
       }
 
       try {
-        setStatus(`З'єднання з ${isOAI ? 'OpenAI' : 'Groq'}...`);
+        setStatus(`З'єднання з ${isOAI ? "OpenAI" : "Groq"}...`);
         const total = songAiKnowledge.length;
-        const songsSummary = songAiKnowledge.map(s => {
-          const dur = s.duration ? `${Math.floor(s.duration / 60)}:${(s.duration % 60).toString().padStart(2, '0')}` : "невідома";
-          const yt = s.YouTube ? ` [YouTube: ${s.YouTube}]` : "";
-          return `${s.author} (${dur})${yt}`;
-        }).join(", ");
+        const songsSummary = songAiKnowledge
+          .map((s) => {
+            const dur = s.duration
+              ? `${Math.floor(s.duration / 60)}:${(s.duration % 60).toString().padStart(2, "0")}`
+              : "невідома";
+            const yt = s.YouTube ? ` [YouTube: ${s.YouTube}]` : "";
+            return `${s.author} (${dur})${yt}`;
+          })
+          .join(", ");
 
-        const durationText = track.duration ? `${Math.floor(track.duration / 60)}:${(track.duration % 60).toString().padStart(2, '0')}` : "невідома";
-        const lyricsInfo = track.lyrics && Array.isArray(track.lyrics) ? track.lyrics.map(l => `${l.time}с: ${l.text || ''}`).join("; ") : "відсутній";
-        const filtersInfo = track.filters && Array.isArray(track.filters) ? track.filters.map(f => `${f.start}-${f.end}с: ${f.type}`).join("; ") : "відсутні";
+        const durationText = track.duration
+          ? `${Math.floor(track.duration / 60)}:${(track.duration % 60).toString().padStart(2, "0")}`
+          : "невідома";
+        const lyricsInfo =
+          track.lyrics && Array.isArray(track.lyrics)
+            ? track.lyrics.map((l) => `${l.time}с: ${l.text || ""}`).join("; ")
+            : "відсутній";
+        const filtersInfo =
+          track.filters && Array.isArray(track.filters)
+            ? track.filters
+                .map((f) => `${f.start}-${f.end}с: ${f.type}`)
+                .join("; ")
+            : "відсутні";
 
-        const lengthInstruction = responseLength === "detailed" ? "Відповідай максимально докладно." : "Відповідай максимально стисло.";
+        const lengthInstruction =
+          responseLength === "detailed"
+            ? "Відповідай максимально докладно."
+            : "Відповідай максимально стисло.";
         const systemContext = `Ти помічник проекту "Стихія". Всього пісень: ${total}. Список: ${songsSummary}. Користувач слухає: ${track.author}, тривалість: ${durationText}. Текст: ${lyricsInfo}. Ефекти: ${filtersInfo}. ${lengthInstruction} Відповідай українською.`;
 
         const res = await fetch(endpoint, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${key}`
+            Authorization: `Bearer ${key}`,
           },
           body: JSON.stringify({
             model: modelName,
             messages: [
               { role: "system", content: systemContext },
-              { role: "user", content: query }
+              { role: "user", content: query },
             ],
-            temperature: 0.7
-          })
+            temperature: 0.7,
+          }),
         });
 
         if (!res.ok) {
@@ -1266,11 +1459,20 @@ const SongAiModal = ({ track, onClose, isDarkMode }) => {
         const data = await res.json();
         const botText = data.choices[0]?.message?.content;
 
-        const final = [...newMessages, { text: botText || "Я не зміг отримати відповідь.", isBot: true }];
+        const final = [
+          ...newMessages,
+          { text: botText || "Я не зміг отримати відповідь.", isBot: true },
+        ];
         setMessages(final);
         await saveHistory(final);
       } catch (e) {
-        const final = [...newMessages, { text: `Помилка ${isOAI ? 'OpenAI' : 'Groq'}: ${e.message}`, isBot: true }];
+        const final = [
+          ...newMessages,
+          {
+            text: `Помилка ${isOAI ? "OpenAI" : "Groq"}: ${e.message}`,
+            isBot: true,
+          },
+        ];
         setMessages(final);
         await saveHistory(final);
       } finally {
@@ -1290,7 +1492,9 @@ const SongAiModal = ({ track, onClose, isDarkMode }) => {
           currentModelRef.current = selectedModel;
         }
         setStatus(navigator.gpu ? "Обробка (WebGPU)..." : "Обробка запиту...");
-        const durationText = track.duration ? `${Math.floor(track.duration / 60)}:${(track.duration % 60).toString().padStart(2, '0')}` : "unknown";
+        const durationText = track.duration
+          ? `${Math.floor(track.duration / 60)}:${(track.duration % 60).toString().padStart(2, "0")}`
+          : "unknown";
         const prompt = `Context: Author is ${track.author}, category ${track.category}, duration ${durationText}. Question: ${query}. Answer in Ukrainian briefly:`; // Define prompt here
 
         const result = await generator.current(prompt, {
@@ -1299,7 +1503,8 @@ const SongAiModal = ({ track, onClose, isDarkMode }) => {
           temperature: 0.1,
           callback_function: (beams) => {
             if (abortRef.current) return; // Stop streaming if aborted
-            const decoded = generator.current.tokenizer.decode( // Define `decoded` here
+            const decoded = generator.current.tokenizer.decode(
+              // Define `decoded` here
               beams[0].output_token_ids,
               { skip_special_tokens: true },
             );
@@ -1307,10 +1512,13 @@ const SongAiModal = ({ track, onClose, isDarkMode }) => {
             setStreamingText(content);
           },
         });
-        
-        if (!abortRef.current) { // Only update if not aborted
+
+        if (!abortRef.current) {
+          // Only update if not aborted
           setStreamingText(""); // Clear streaming text once generation is complete
-          const generatedText = result[0].generated_text.replace(prompt, "").trim();
+          const generatedText = result[0].generated_text
+            .replace(prompt, "")
+            .trim();
           const final = [
             ...newMessages,
             {
@@ -1319,29 +1527,37 @@ const SongAiModal = ({ track, onClose, isDarkMode }) => {
             },
           ];
           setMessages(final);
-            await saveHistory(final);
+          await saveHistory(final);
         }
       } catch (e) {
-        if (!abortRef.current) { // Only update if not aborted
+        if (!abortRef.current) {
+          // Only update if not aborted
           setStreamingText(""); // Clear streaming text on error
-          
-          let errorMessage = "Помилка ШІ. Спробуйте пізніше або змініть модель.";
+
+          let errorMessage =
+            "Помилка ШІ. Спробуйте пізніше або змініть модель.";
           const errorStr = e.message?.toLowerCase() || "";
 
           if (errorStr.includes("webgpu")) {
-            errorMessage = "Помилка WebGPU. Спробуйте обрати CPU версію моделі або оновити драйвери.";
-          } else if (errorStr.includes("fetch") || errorStr.includes("network")) {
-            errorMessage = "Помилка завантаження моделі. Перевірте з'єднання з інтернетом.";
+            errorMessage =
+              "Помилка WebGPU. Спробуйте обрати CPU версію моделі або оновити драйвери.";
+          } else if (
+            errorStr.includes("fetch") ||
+            errorStr.includes("network")
+          ) {
+            errorMessage =
+              "Помилка завантаження моделі. Перевірте з'єднання з інтернетом.";
           } else if (errorStr.includes("memory") || errorStr.includes("vram")) {
-            errorMessage = "Недостатньо оперативної пам'яті для роботи цієї моделі. Спробуйте Qwen 1.5.";
+            errorMessage =
+              "Недостатньо оперативної пам'яті для роботи цієї моделі. Спробуйте Qwen 1.5.";
           }
 
           const errMsgs = [
             ...newMessages,
-          {
-            text: errorMessage,
-            isBot: true,
-          },
+            {
+              text: errorMessage,
+              isBot: true,
+            },
           ];
           setMessages(errMsgs);
           await saveHistory(errMsgs);
@@ -1357,8 +1573,12 @@ const SongAiModal = ({ track, onClose, isDarkMode }) => {
     abortRef.current = true;
     setIsAiLoading(false);
     setStatus("Генерацію зупинено.");
-    if (messages[messages.length - 1]?.text !== "Генерацію зупинено.") { // Avoid duplicate messages
-      setMessages((prev) => [...prev, { text: "Генерацію зупинено.", isBot: true }]);
+    if (messages[messages.length - 1]?.text !== "Генерацію зупинено.") {
+      // Avoid duplicate messages
+      setMessages((prev) => [
+        ...prev,
+        { text: "Генерацію зупинено.", isBot: true },
+      ]);
       saveHistory([...messages, { text: "Генерацію зупинено.", isBot: true }]);
     }
   };
@@ -1368,7 +1588,13 @@ const SongAiModal = ({ track, onClose, isDarkMode }) => {
     return text.split(urlRegex).map((part, index) => {
       if (part.match(urlRegex)) {
         return (
-          <a key={index} href={part} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>
+          <a
+            key={index}
+            href={part}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: "inherit", textDecoration: "underline" }}
+          >
             {part}
           </a>
         );
@@ -1381,7 +1607,11 @@ const SongAiModal = ({ track, onClose, isDarkMode }) => {
     <ModalOverlay onClick={onClose}>
       <LyricsModalContent
         onClick={(e) => e.stopPropagation()}
-        style={{ maxWidth: "400px", padding: 0, background: isDarkMode ? '#1e1e1e' : '#fff' }}
+        style={{
+          maxWidth: "400px",
+          padding: 0,
+          background: isDarkMode ? "#1e1e1e" : "#fff",
+        }}
       >
         <div
           style={{
@@ -1393,26 +1623,42 @@ const SongAiModal = ({ track, onClose, isDarkMode }) => {
             alignItems: "center",
           }}
           // Add a class or id here if needed for styling or specific targeting
-        > {/* Changed for dark mode */}
+        >
+          {" "}
+          {/* Changed for dark mode */}
           <div style={{ display: "flex", flexDirection: "column" }}>
             <h4 style={{ margin: 0, color: "black" }}>
               ✨ Помічник {track.author}
             </h4>
-            <select 
-              value={selectedModel} 
+            <select
+              value={selectedModel}
               onChange={(e) => changeModel(e.target.value)}
-              style={{ fontSize: '10px', marginTop: '4px', border: `1px solid ${isDarkMode ? '#555' : '#ccc'}`, borderRadius: '4px', background: isDarkMode ? '#333' : '#fff', color: isDarkMode ? '#fff' : '#333' }}
+              style={{
+                fontSize: "10px",
+                marginTop: "4px",
+                border: `1px solid ${isDarkMode ? "#555" : "#ccc"}`,
+                borderRadius: "4px",
+                background: isDarkMode ? "#333" : "#fff",
+                color: isDarkMode ? "#fff" : "#333",
+              }}
             >
               <option value="gemini-personal">Google Gemini (Free)</option>
               <option value="groq-personal">Groq Llama 3 (Fast & Free)</option>
               <option value="openai-personal">OpenAI GPT-4o mini</option>
-              <option value="meta-llama/Llama-3.2-3B-Instruct">Offline (Local)</option>
+              <option value="meta-llama/Llama-3.2-3B-Instruct">
+                Offline (Local)
+              </option>
             </select>
           </div>
           <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
             <button
               onClick={() => setShowKeyInput(!showKeyInput)}
-              style={{ background: "none", border: "none", cursor: "pointer", fontSize: "14px" }}
+              style={{
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                fontSize: "14px",
+              }}
               title="Налаштування ключа Gemini"
             >
               🔑
@@ -1428,7 +1674,13 @@ const SongAiModal = ({ track, onClose, isDarkMode }) => {
                   await localforage.removeItem(`song_ai_history_${track.id}`);
                 }
               }}
-              style={{ color: isDarkMode ? '#aaa' : '#333', background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px' }}
+              style={{
+                color: isDarkMode ? "#aaa" : "#333",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                fontSize: "14px",
+              }}
               title="Очистити чат"
             >
               🗑️
@@ -1447,51 +1699,177 @@ const SongAiModal = ({ track, onClose, isDarkMode }) => {
                 🛑
               </button>
             )}
-            <LyricsCloseButton style={{ color: isDarkMode ? '#fff' : '#333' }} onClick={onClose}>&times;</LyricsCloseButton>
+            <LyricsCloseButton
+              style={{ color: isDarkMode ? "#fff" : "#333" }}
+              onClick={onClose}
+            >
+              &times;
+            </LyricsCloseButton>
           </div>
         </div>
-        
+
         <AnimatePresence>
           {showKeyInput && (
-            <motion.div 
-              initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }}
-              style={{ padding: '10px', background: isDarkMode ? '#252525' : '#fff9e6', borderBottom: `1px solid ${isDarkMode ? '#444' : '#eee'}`, overflow: 'hidden' }}
-            > {/* Changed for dark mode */}
-              <div style={{ marginBottom: '8px' }}>
-                <label style={{ fontSize: '10px', color: isDarkMode ? '#aaa' : '#666' }}>Gemini Key:</label>
-                <input type="password" value={personalApiKey} onChange={(e) => saveKeys("gemini", e.target.value)} style={{ width: '100%', padding: '4px', fontSize: '11px', background: isDarkMode ? '#333' : '#fff', color: isDarkMode ? '#fff' : '#000', border: '1px solid #555' }} />
+            <motion.div
+              initial={{ height: 0 }}
+              animate={{ height: "auto" }}
+              exit={{ height: 0 }}
+              style={{
+                padding: "10px",
+                background: isDarkMode ? "#252525" : "#fff9e6",
+                borderBottom: `1px solid ${isDarkMode ? "#444" : "#eee"}`,
+                overflow: "hidden",
+              }}
+            >
+              {" "}
+              {/* Changed for dark mode */}
+              <div style={{ marginBottom: "8px" }}>
+                <label
+                  style={{
+                    fontSize: "10px",
+                    color: isDarkMode ? "#aaa" : "#666",
+                  }}
+                >
+                  Gemini Key:
+                </label>
+                <input
+                  type="password"
+                  value={personalApiKey}
+                  onChange={(e) => saveKeys("gemini", e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "4px",
+                    fontSize: "11px",
+                    background: isDarkMode ? "#333" : "#fff",
+                    color: isDarkMode ? "#fff" : "#000",
+                    border: "1px solid #555",
+                  }}
+                />
               </div>
-              <div style={{ marginBottom: '8px' }}>
-                <label style={{ fontSize: '10px', color: isDarkMode ? '#aaa' : '#666' }}>Модель Gemini:</label>
+              <div style={{ marginBottom: "8px" }}>
+                <label
+                  style={{
+                    fontSize: "10px",
+                    color: isDarkMode ? "#aaa" : "#666",
+                  }}
+                >
+                  Модель Gemini:
+                </label>
                 <select
                   value={geminiModel}
                   onChange={(e) => saveGeminiModel(e.target.value)}
-                  style={{ width: '100%', padding: '4px', fontSize: '11px', background: isDarkMode ? '#333' : '#fff', color: isDarkMode ? '#fff' : '#000', border: `1px solid ${isDarkMode ? '#555' : '#ccc'}` }}
+                  style={{
+                    width: "100%",
+                    padding: "4px",
+                    fontSize: "11px",
+                    background: isDarkMode ? "#333" : "#fff",
+                    color: isDarkMode ? "#fff" : "#000",
+                    border: `1px solid ${isDarkMode ? "#555" : "#ccc"}`,
+                  }}
                 >
                   <option value="gemini-2.5-flash">1.5 Flash (Швидка)</option>
                   <option value="gemini-2.5-pro">1.5 Pro (Розумна)</option>
                 </select>
               </div>
-              <div style={{ marginBottom: '8px' }}>
-                <label style={{ fontSize: '10px', color: isDarkMode ? '#aaa' : '#666' }}>
-                  Groq Key: {groqKeyStatus === "valid" ? "✅" : groqKeyStatus === "invalid" ? "❌" : ""}
+              <div style={{ marginBottom: "8px" }}>
+                <label
+                  style={{
+                    fontSize: "10px",
+                    color: isDarkMode ? "#aaa" : "#666",
+                  }}
+                >
+                  Groq Key:{" "}
+                  {groqKeyStatus === "valid"
+                    ? "✅"
+                    : groqKeyStatus === "invalid"
+                      ? "❌"
+                      : ""}
                 </label>
-                <input type="password" value={groqApiKey} onChange={(e) => saveKeys("groq", e.target.value)} style={{ width: '100%', padding: '4px', fontSize: '11px', background: isDarkMode ? '#333' : '#fff', color: isDarkMode ? '#fff' : '#000', border: groqKeyStatus === 'invalid' ? '1px solid red' : `1px solid ${isDarkMode ? '#555' : '#ccc'}` }} />
+                <input
+                  type="password"
+                  value={groqApiKey}
+                  onChange={(e) => saveKeys("groq", e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "4px",
+                    fontSize: "11px",
+                    background: isDarkMode ? "#333" : "#fff",
+                    color: isDarkMode ? "#fff" : "#000",
+                    border:
+                      groqKeyStatus === "invalid"
+                        ? "1px solid red"
+                        : `1px solid ${isDarkMode ? "#555" : "#ccc"}`,
+                  }}
+                />
               </div>
-              <div style={{ marginBottom: '8px' }}>
-                <label style={{ fontSize: '10px', color: isDarkMode ? '#aaa' : '#666' }}>OpenAI Key:</label>
-                <input type="password" value={openaiApiKey} onChange={(e) => saveKeys("openai", e.target.value)} style={{ width: '100%', padding: '4px', fontSize: '11px', background: isDarkMode ? '#333' : '#fff', color: isDarkMode ? '#fff' : '#000', border: `1px solid ${isDarkMode ? '#555' : '#ccc'}` }} />
+              <div style={{ marginBottom: "8px" }}>
+                <label
+                  style={{
+                    fontSize: "10px",
+                    color: isDarkMode ? "#aaa" : "#666",
+                  }}
+                >
+                  OpenAI Key:
+                </label>
+                <input
+                  type="password"
+                  value={openaiApiKey}
+                  onChange={(e) => saveKeys("openai", e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "4px",
+                    fontSize: "11px",
+                    background: isDarkMode ? "#333" : "#fff",
+                    color: isDarkMode ? "#fff" : "#000",
+                    border: `1px solid ${isDarkMode ? "#555" : "#ccc"}`,
+                  }}
+                />
               </div>
-              <p style={{ fontSize: '8px', color: '#888', textAlign: 'center' }}>
+              <p
+                style={{ fontSize: "8px", color: "#888", textAlign: "center" }}
+              >
                 ℹ️ Ключі зберігаються лише у вашому браузері.
               </p>
-              <div style={{ display: 'flex', gap: '10px', marginTop: '5px', justifyContent: 'center' }}>
-                <label style={{ fontSize: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '3px' }}>
-                  <input type="radio" name="length" checked={responseLength === 'concise'} onChange={() => setResponseLength('concise')} />
+              <div
+                style={{
+                  display: "flex",
+                  gap: "10px",
+                  marginTop: "5px",
+                  justifyContent: "center",
+                }}
+              >
+                <label
+                  style={{
+                    fontSize: "10px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "3px",
+                  }}
+                >
+                  <input
+                    type="radio"
+                    name="length"
+                    checked={responseLength === "concise"}
+                    onChange={() => setResponseLength("concise")}
+                  />
                   Стисло
                 </label>
-                <label style={{ fontSize: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '3px' }}>
-                  <input type="radio" name="length" checked={responseLength === 'detailed'} onChange={() => setResponseLength('detailed')} />
+                <label
+                  style={{
+                    fontSize: "10px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "3px",
+                  }}
+                >
+                  <input
+                    type="radio"
+                    name="length"
+                    checked={responseLength === "detailed"}
+                    onChange={() => setResponseLength("detailed")}
+                  />
                   Докладно
                 </label>
               </div>
@@ -1507,7 +1885,9 @@ const SongAiModal = ({ track, onClose, isDarkMode }) => {
               </Message>
             ))}
             {streamingText && (
-              <Message $isUser={false}>{renderTextWithLinks(streamingText)}</Message>
+              <Message $isUser={false}>
+                {renderTextWithLinks(streamingText)}
+              </Message>
             )}
             {isAiLoading && (
               <div style={{ fontSize: "10px", color: "#999" }}>{status}</div>
@@ -1544,7 +1924,7 @@ const LyricsViewer = ({ lyrics, currentTime, voiceActingMode, trackText }) => {
   if (!Array.isArray(lyrics)) {
     return <>{lyrics || trackText || "Текст відсутній."}</>;
   }
-/* Changed for dark mode */
+  /* Changed for dark mode */
   return (
     <div>
       {lyrics.map((line, index) => (
@@ -1617,8 +1997,14 @@ const FullScreenPlayer = ({
   const [frameStartStr, setFrameStartStr] = useState("0:00");
   const [frameEndStr, setFrameEndStr] = useState("0:00");
 
-  const isStartInvalid = useMemo(() => timeToSeconds(frameStartStr) > duration, [frameStartStr, duration]);
-  const isEndInvalid = useMemo(() => timeToSeconds(frameEndStr) > duration, [frameEndStr, duration]);
+  const isStartInvalid = useMemo(
+    () => timeToSeconds(frameStartStr) > duration,
+    [frameStartStr, duration],
+  );
+  const isEndInvalid = useMemo(
+    () => timeToSeconds(frameEndStr) > duration,
+    [frameEndStr, duration],
+  );
 
   const handleResetFrames = () => {
     setFrameStartStr("0:00");
@@ -1742,26 +2128,42 @@ const FullScreenPlayer = ({
   const [socialReactionState, setSocialReactionState] = useState(0);
   const [socialCommentCount, setSocialCommentCount] = useState(0);
   const activeSocialTrack = socialTargetTrack || track;
-    // Normalize various shapes into a consistent social target object
-    const toSocialTarget = (t) => {
-      if (!t) return null;
-      if (typeof t === "string") return { id: String(t), author: "", text: "", isGeneral: String(t) === "general" };
-      const id = t.id || t.trackId || (t && t.id === 0 ? 0 : undefined);
-      if (id !== undefined) return { ...t, id: String(id), isGeneral: t.isGeneral || String(id) === "general" };
-      return { id: String(t), author: t.author || "", text: t.text || "", isGeneral: false };
+  // Normalize various shapes into a consistent social target object
+  const toSocialTarget = (t) => {
+    if (!t) return null;
+    if (typeof t === "string")
+      return {
+        id: String(t),
+        author: "",
+        text: "",
+        isGeneral: String(t) === "general",
+      };
+    const id = t.id || t.trackId || (t && t.id === 0 ? 0 : undefined);
+    if (id !== undefined)
+      return {
+        ...t,
+        id: String(id),
+        isGeneral: t.isGeneral || String(id) === "general",
+      };
+    return {
+      id: String(t),
+      author: t.author || "",
+      text: t.text || "",
+      isGeneral: false,
     };
+  };
 
-    const getAvatarSrc = (a) => {
-      if (!a) return null;
-      if (typeof a === "string") return a;
-      if (typeof a === "object") return a.default || a.url || null;
-      return null;
-    };
-
+  const getAvatarSrc = (a) => {
+    if (!a) return null;
+    if (typeof a === "string") return a;
+    if (typeof a === "object") return a.default || a.url || null;
+    return null;
+  };
 
   const getSocialQuotaKey = useCallback((trackId, currentUser) => {
     const day = new Date().toISOString().slice(0, 10);
-    const uid = currentUser?.uid || currentUser?.id || currentUser?.account || "guest";
+    const uid =
+      currentUser?.uid || currentUser?.id || currentUser?.account || "guest";
     return `music_comment_quota_${trackId}_${uid}_${day}`;
   }, []);
   const [loop, setLoop] = useState(false);
@@ -1803,7 +2205,8 @@ const FullScreenPlayer = ({
         setSocialAuthUser({
           uid: firebaseUser.uid,
           account: firebaseUser.email || "",
-          firstName: firebaseUser.displayName || firebaseUser.email || "Користувач",
+          firstName:
+            firebaseUser.displayName || firebaseUser.email || "Користувач",
           avatar: firebaseUser.photoURL || "",
           email: firebaseUser.email || "",
         });
@@ -1817,7 +2220,11 @@ const FullScreenPlayer = ({
   useEffect(() => {
     if (!showSocialModal || !activeSocialTrack?.id) return undefined;
 
-    const statsRef = doc(db, "music_social_stats", String(activeSocialTrack.id));
+    const statsRef = doc(
+      db,
+      "music_social_stats",
+      String(activeSocialTrack.id),
+    );
     const commentsRef = query(
       collection(db, "music_social_comments"),
       where("trackId", "==", String(activeSocialTrack.id)),
@@ -1845,22 +2252,37 @@ const FullScreenPlayer = ({
     });
 
     const unsubscribeComments = onSnapshot(commentsRef, (snapshot) => {
-      const next = snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
+      const next = snapshot.docs.map((docSnap) => ({
+        id: docSnap.id,
+        ...docSnap.data(),
+      }));
       setSocialComments(next);
       setSocialCommentCount(next.length);
     });
 
-    const unsubscribeGlobalComments = onSnapshot(globalCommentsRef, (snapshot) => {
-      const next = snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
-      setSocialGlobalComments(next.slice(0, MAX_TOTAL_COMMENTS));
-      setSocialGlobalCommentCount(next.length);
-    });
+    const unsubscribeGlobalComments = onSnapshot(
+      globalCommentsRef,
+      (snapshot) => {
+        const next = snapshot.docs.map((docSnap) => ({
+          id: docSnap.id,
+          ...docSnap.data(),
+        }));
+        setSocialGlobalComments(next.slice(0, MAX_TOTAL_COMMENTS));
+        setSocialGlobalCommentCount(next.length);
+      },
+    );
 
     const updateView = async () => {
       try {
         const current = await getDoc(statsRef);
-        const data = current.exists() ? current.data() : getInitialCommentStats();
-        await setDoc(statsRef, { ...data, views: (data.views || 0) + 1 }, { merge: true });
+        const data = current.exists()
+          ? current.data()
+          : getInitialCommentStats();
+        await setDoc(
+          statsRef,
+          { ...data, views: (data.views || 0) + 1 },
+          { merge: true },
+        );
       } catch (error) {
         console.error("Social view update failed", error);
       }
@@ -1881,20 +2303,35 @@ const FullScreenPlayer = ({
       setSocialCommentQuotaUsed(0);
       return;
     }
-    const quotaKey = getSocialQuotaKey(String(activeSocialTrack.id), currentUser);
-    localforage.getItem(quotaKey).then((value) => {
-      setSocialCommentQuotaUsed(Number(value) || 0);
-    }).catch(() => {
-      setSocialCommentQuotaUsed(0);
-    });
-  }, [activeSocialTrack?.id, getSocialQuotaKey, showSocialModal, socialAuthUser, user]);
+    const quotaKey = getSocialQuotaKey(
+      String(activeSocialTrack.id),
+      currentUser,
+    );
+    localforage
+      .getItem(quotaKey)
+      .then((value) => {
+        setSocialCommentQuotaUsed(Number(value) || 0);
+      })
+      .catch(() => {
+        setSocialCommentQuotaUsed(0);
+      });
+  }, [
+    activeSocialTrack?.id,
+    getSocialQuotaKey,
+    showSocialModal,
+    socialAuthUser,
+    user,
+  ]);
 
   useEffect(() => {
     if (!user?.uid && !socialAuthUser?.uid) return;
     const key = `${activeSocialTrack?.id || "track"}:${user?.uid || socialAuthUser?.uid}`;
-    const savedState = localforage.getItem(key).then((value) => {
-      if (value !== null) setSocialReactionState(normalizeLikeValue(value));
-    }).catch(() => {});
+    const savedState = localforage
+      .getItem(key)
+      .then((value) => {
+        if (value !== null) setSocialReactionState(normalizeLikeValue(value));
+      })
+      .catch(() => {});
     return () => {
       savedState.catch(() => {});
     };
@@ -1907,7 +2344,8 @@ const FullScreenPlayer = ({
       setSocialAuthUser({
         uid: firebaseUser.uid,
         account: firebaseUser.email || "",
-        firstName: firebaseUser.displayName || firebaseUser.email || "Користувач",
+        firstName:
+          firebaseUser.displayName || firebaseUser.email || "Користувач",
         avatar: firebaseUser.photoURL || "",
         email: firebaseUser.email || "",
       });
@@ -1940,7 +2378,10 @@ const FullScreenPlayer = ({
     setSocialCommentError("");
 
     try {
-      const quotaKey = getSocialQuotaKey(String(activeSocialTrack.id), currentUser);
+      const quotaKey = getSocialQuotaKey(
+        String(activeSocialTrack.id),
+        currentUser,
+      );
       const storedQuota = (await localforage.getItem(quotaKey)) || 0;
       if (storedQuota >= MAX_DAILY_COMMENTS) {
         setSocialCommentError("Сьогодні ви вже використали 4 коментарі");
@@ -1953,15 +2394,30 @@ const FullScreenPlayer = ({
         user: currentUser,
         text,
         avatar: currentUser.avatar || currentUser.photoURL || "",
-        color: currentUser.borderColor || currentUser.textColor || currentUser.color || "#ffb36c",
-        supporterName: currentUser.firstName || currentUser.name || currentUser.displayName || currentUser.account,
+        color:
+          currentUser.borderColor ||
+          currentUser.textColor ||
+          currentUser.color ||
+          "#ffb36c",
+        supporterName:
+          currentUser.firstName ||
+          currentUser.name ||
+          currentUser.displayName ||
+          currentUser.account,
       });
       await setDoc(doc(db, "music_social_comments", payload.id), payload);
-      await updateDoc(doc(db, "music_social_stats", String(activeSocialTrack.id)), {
-        comments: (socialStats.comments || 0) + 1,
-        updatedAt: serverTimestamp(),
-      }).catch(async () => {
-        await setDoc(doc(db, "music_social_stats", String(activeSocialTrack.id)), { comments: 1, likes: 0, dislikes: 0, views: 0 }, { merge: true });
+      await updateDoc(
+        doc(db, "music_social_stats", String(activeSocialTrack.id)),
+        {
+          comments: (socialStats.comments || 0) + 1,
+          updatedAt: serverTimestamp(),
+        },
+      ).catch(async () => {
+        await setDoc(
+          doc(db, "music_social_stats", String(activeSocialTrack.id)),
+          { comments: 1, likes: 0, dislikes: 0, views: 0 },
+          { merge: true },
+        );
       });
       await localforage.setItem(quotaKey, storedQuota + 1);
       setSocialCommentQuotaUsed(storedQuota + 1);
@@ -1972,35 +2428,55 @@ const FullScreenPlayer = ({
     } finally {
       setSocialLoading(false);
     }
-  }, [activeSocialTrack?.id, getSocialQuotaKey, socialAuthUser, socialCommentText, socialStats.comments, user]);
+  }, [
+    activeSocialTrack?.id,
+    getSocialQuotaKey,
+    socialAuthUser,
+    socialCommentText,
+    socialStats.comments,
+    user,
+  ]);
 
-  const handleSocialReaction = useCallback(async (nextValue) => {
-    if (!activeSocialTrack?.id) return;
-    const currentUser = socialAuthUser || user;
-    if (!currentUser) {
-      setSocialCommentError("Увійдіть, щоб ставити реакції");
-      return;
-    }
+  const handleSocialReaction = useCallback(
+    async (nextValue) => {
+      if (!activeSocialTrack?.id) return;
+      const currentUser = socialAuthUser || user;
+      if (!currentUser) {
+        setSocialCommentError("Увійдіть, щоб ставити реакції");
+        return;
+      }
 
-    const normalized = normalizeLikeValue(nextValue);
-    const reactionKey = `${String(activeSocialTrack.id)}:${currentUser.uid || currentUser.id || currentUser.account}`;
-    const previous = socialReactionState;
-    const statsRef = doc(db, "music_social_stats", String(activeSocialTrack.id));
-    const currentState = previous === normalized ? 0 : normalized;
-    setSocialReactionState(currentState);
-    await localforage.setItem(reactionKey, currentState);
+      const normalized = normalizeLikeValue(nextValue);
+      const reactionKey = `${String(activeSocialTrack.id)}:${currentUser.uid || currentUser.id || currentUser.account}`;
+      const previous = socialReactionState;
+      const statsRef = doc(
+        db,
+        "music_social_stats",
+        String(activeSocialTrack.id),
+      );
+      const currentState = previous === normalized ? 0 : normalized;
+      setSocialReactionState(currentState);
+      await localforage.setItem(reactionKey, currentState);
 
-    try {
-      const snapshot = await getDoc(statsRef);
-      const data = snapshot.exists() ? snapshot.data() : getInitialCommentStats();
-      const likes = (data.likes || 0) + (currentState === 1 ? 1 : previous === 1 ? -1 : 0);
-      const dislikes = (data.dislikes || 0) + (currentState === -1 ? 1 : previous === -1 ? -1 : 0);
-      await setDoc(statsRef, { ...data, likes, dislikes }, { merge: true });
-      setSocialStats((prev) => ({ ...prev, likes, dislikes }));
-    } catch (error) {
-      console.error("Reaction update failed", error);
-    }
-  }, [activeSocialTrack?.id, socialAuthUser, socialReactionState, user]);
+      try {
+        const snapshot = await getDoc(statsRef);
+        const data = snapshot.exists()
+          ? snapshot.data()
+          : getInitialCommentStats();
+        const likes =
+          (data.likes || 0) +
+          (currentState === 1 ? 1 : previous === 1 ? -1 : 0);
+        const dislikes =
+          (data.dislikes || 0) +
+          (currentState === -1 ? 1 : previous === -1 ? -1 : 0);
+        await setDoc(statsRef, { ...data, likes, dislikes }, { merge: true });
+        setSocialStats((prev) => ({ ...prev, likes, dislikes }));
+      } catch (error) {
+        console.error("Reaction update failed", error);
+      }
+    },
+    [activeSocialTrack?.id, socialAuthUser, socialReactionState, user],
+  );
 
   useEffect(() => {
     localforage.setItem("video_quality", videoQuality);
@@ -2446,7 +2922,9 @@ const FullScreenPlayer = ({
 
   useEffect(() => {
     if ("mediaSession" in navigator && track) {
-      const artwork = track.image ? [{ src: track.image, sizes: "512x512", type: "image/webp" }] : [];
+      const artwork = track.image
+        ? [{ src: track.image, sizes: "512x512", type: "image/webp" }]
+        : [];
       navigator.mediaSession.metadata = new window.MediaMetadata({
         title: track.text || track.author || "Стихія",
         artist: track.author || "Stykhiya",
@@ -2519,7 +2997,9 @@ const FullScreenPlayer = ({
       const range = endTime - startTime;
 
       if (range <= 0) {
-        alert("Помилка: Початковий час не може бути пізніше або дорівнювати кінцевому!");
+        alert(
+          "Помилка: Початковий час не може бути пізніше або дорівнювати кінцевому!",
+        );
         setIsGeneratingFrames(false);
         return;
       }
@@ -3000,7 +3480,8 @@ const FullScreenPlayer = ({
   );
 
   const handleInteractionEnd = useCallback(
-    () => { // Тепер не приймає 'side' як параметр, а використовує ref
+    () => {
+      // Тепер не приймає 'side' як параметр, а використовує ref
       if (longPressTimerRef.current) {
         clearTimeout(longPressTimerRef.current);
         longPressTimerRef.current = null;
@@ -3013,7 +3494,8 @@ const FullScreenPlayer = ({
           originalSpeedRef.current = null;
         }
         setLongPressSpeedIndicator(null);
-      } else { // Це означає, що це було коротке натискання (не довге)
+      } else {
+        // Це означає, що це було коротке натискання (не довге)
         // Якщо це не було подвійне натискання для перемотування (бо handleInteractionStart повернув би раніше),
         // і не довге натискання, то це простий клік. Перемикаємо відтворення/паузу.
         togglePlay();
@@ -3053,14 +3535,17 @@ const FullScreenPlayer = ({
   }, [sliderImages, currentImgIdx, isDinofroz, track.author]);
 
   return (
-    <FullScreenOverlay ref={overlayRef}
-                       onMouseMove={resetControlsTimeout}
-                       onClick={(e) => { /* Changed for dark mode */
-                         e.stopPropagation();
-                         resetControlsTimeout();
-                       }}
-                       $closing={isClosing}
-                       onWheel={handleWheel}>
+    <FullScreenOverlay
+      ref={overlayRef}
+      onMouseMove={resetControlsTimeout}
+      onClick={(e) => {
+        /* Changed for dark mode */
+        e.stopPropagation();
+        resetControlsTimeout();
+      }}
+      $closing={isClosing}
+      onWheel={handleWheel}
+    >
       <canvas
         ref={fsCanvasRef}
         width="640"
@@ -3074,12 +3559,16 @@ const FullScreenPlayer = ({
         style={{ display: "none" }}
       />
 
-      <FSHeader style={{ 
-        opacity: (showControls && !isLocked) ? 1 : 0, 
-        transition: "opacity 0.3s",
-        pointerEvents: isLocked ? "none" : "auto" 
-      }}>
-        <div style={{ display: "flex", gap: "0px", alignItems: "center" }}> {/* Changed for dark mode */}
+      <FSHeader
+        style={{
+          opacity: showControls && !isLocked ? 1 : 0,
+          transition: "opacity 0.3s",
+          pointerEvents: isLocked ? "none" : "auto",
+        }}
+      >
+        <div style={{ display: "flex", gap: "0px", alignItems: "center" }}>
+          {" "}
+          {/* Changed for dark mode */}
           <ActButton
             style={{ fontSize: "26px" }}
             onClick={() => {
@@ -3125,7 +3614,9 @@ const FullScreenPlayer = ({
             {isFullscreenNative ? "⏹" : "⛶"}
           </ActButton>
           <div style={{ display: "flex", flexDirection: "column" }}>
-            <FSTitle>{track.author} - {track.text}</FSTitle>
+            <FSTitle>
+              {track.author} - {track.text}
+            </FSTitle>
           </div>
         </div>
         <div style={{ display: "flex", gap: "8px" }}>
@@ -3140,11 +3631,7 @@ const FullScreenPlayer = ({
               return "🤍 Оцінити";
             })()}
           >
-            {rating === 2 || rating === 1
-              ? "❤️"
-              : rating === -1
-                ? "💔"
-                : "🤍"}
+            {rating === 2 || rating === 1 ? "❤️" : rating === -1 ? "💔" : "🤍"}
           </ActButton>
           <ActButton
             onClick={() => setIsLocked(true)}
@@ -3165,10 +3652,7 @@ const FullScreenPlayer = ({
           <ActButton onClick={handlePrint} title="Друк">
             🖨️
           </ActButton>
-          <ActButton
-            onClick={() => setShowDownload(true)}
-            title="Завантажити"
-          >
+          <ActButton onClick={() => setShowDownload(true)} title="Завантажити">
             ⇩
           </ActButton>
           <ActButton
@@ -3177,7 +3661,13 @@ const FullScreenPlayer = ({
           >
             📑
           </ActButton>
-          <ActButton onClick={() => { setSocialTargetTrack(toSocialTarget(track)); setShowSocialModal(true); }} title="Чат та статистика">
+          <ActButton
+            onClick={() => {
+              setSocialTargetTrack(toSocialTarget(track));
+              setShowSocialModal(true);
+            }}
+            title="Чат та статистика"
+          >
             <BsWechat />
           </ActButton>
           <ActButton onClick={() => onOpenAi(track)} title="ШІ Помічник">
@@ -3187,7 +3677,7 @@ const FullScreenPlayer = ({
             onClick={() => setShowSettings(!showSettings)}
             title="Налаштування"
           >
-             <MdSettingsSuggest />
+            <MdSettingsSuggest />
           </ActButton>
         </div>
       </FSHeader>
@@ -3208,7 +3698,8 @@ const FullScreenPlayer = ({
       <FSContent
         ref={containerRef}
         onMouseDown={(e) =>
-          !isLocked && handleInteractionStart(e.clientX, containerRef.current.clientWidth)
+          !isLocked &&
+          handleInteractionStart(e.clientX, containerRef.current.clientWidth)
         }
         onMouseUp={() => !isLocked && handleInteractionEnd()}
         onMouseLeave={() => handleInteractionEnd()}
@@ -3307,8 +3798,16 @@ const FullScreenPlayer = ({
         </FSVisualWrapper>
 
         {isLocked && (
-          <UnlockContainer onClick={(e) => { e.stopPropagation(); setIsLocked(false); }}>
-            <span style={{ fontSize: "18px" }}><BiSolidLock /></span> Натисніть для доступу
+          <UnlockContainer
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsLocked(false);
+            }}
+          >
+            <span style={{ fontSize: "18px" }}>
+              <BiSolidLock />
+            </span>{" "}
+            Натисніть для доступу
           </UnlockContainer>
         )}
 
@@ -3336,7 +3835,10 @@ const FullScreenPlayer = ({
           </div>
         )}
       </FSContent>
-      <SubtitleOverlay $show={!!currentLyric && !isLocked} $controlsVisible={showControls}>
+      <SubtitleOverlay
+        $show={!!currentLyric && !isLocked}
+        $controlsVisible={showControls}
+      >
         {currentLyric}
       </SubtitleOverlay>
       {!isDinofroz && <audio ref={mediaRef} src={track.audio} loop={loop} />}
@@ -3380,7 +3882,9 @@ const FullScreenPlayer = ({
                       src={track.video || dinofrozVideo}
                       muted
                       preload="auto"
-                      style={{ filter: mediaFilter }} /* Apply filter to video preview */ /* Changed for dark mode */
+                      style={{
+                        filter: mediaFilter,
+                      }} /* Apply filter to video preview */ /* Changed for dark mode */
                     />
                   ) : (
                     sliderImages.length > 0 && (
@@ -3395,7 +3899,9 @@ const FullScreenPlayer = ({
                             )
                           ]
                         } /* Changed for dark mode */
-                        style={{ filter: mediaFilter }} /* Apply filter to image preview */
+                        style={{
+                          filter: mediaFilter,
+                        }} /* Apply filter to image preview */
                         alt="preview"
                       />
                     )
@@ -3650,7 +4156,9 @@ const FullScreenPlayer = ({
                 display: "flex",
                 alignItems: "center",
                 gap: "5px",
-                background: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
+                background: isDarkMode
+                  ? "rgba(255,255,255,0.1)"
+                  : "rgba(0,0,0,0.1)",
                 padding: "5px 10px",
                 borderRadius: "20px",
               }}
@@ -3664,7 +4172,8 @@ const FullScreenPlayer = ({
                 value={speed}
                 onChange={(e) => setSpeed(parseFloat(e.target.value))}
                 style={{ width: "60px" }}
-              /> {/* Changed for dark mode */}
+              />{" "}
+              {/* Changed for dark mode */}
               <span
                 style={{
                   color: "white",
@@ -3707,7 +4216,9 @@ const FullScreenPlayer = ({
                 $active={isAutoSlideshow}
                 onClick={() => setIsAutoSlideshow(!isAutoSlideshow)}
                 title={
-                  isAutoSlideshow ? "Слайд-шоу ввімкнено" : "Слайд-шоу вимкнено" /* Changed for dark mode */
+                  isAutoSlideshow
+                    ? "Слайд-шоу ввімкнено"
+                    : "Слайд-шоу вимкнено" /* Changed for dark mode */
                 }
               >
                 📽️
@@ -3719,7 +4230,9 @@ const FullScreenPlayer = ({
                   display: "flex",
                   alignItems: "center",
                   gap: "5px",
-                  background: isDarkMode ? 'rgba(255,179,108,0.2)' : 'rgba(0,0,0,0.1)',
+                  background: isDarkMode
+                    ? "rgba(255,179,108,0.2)"
+                    : "rgba(0,0,0,0.1)",
                   padding: "5px 10px",
                   borderRadius: "20px",
                   border: "1px solid rgba(255,179,108,0.5)",
@@ -3800,7 +4313,9 @@ const FullScreenPlayer = ({
       {showSettings && (
         <GearModal>
           <h4>Налаштування</h4>
-          <SliderRow> {/* Changed for dark mode */}
+          <SliderRow>
+            {" "}
+            {/* Changed for dark mode */}
             <span style={{ color: "white" }}>
               Промотка назад ({seekBackwardAmount}с)
             </span>
@@ -3816,7 +4331,9 @@ const FullScreenPlayer = ({
               }
             />
           </SliderRow>
-          <SliderRow> {/* Changed for dark mode */}
+          <SliderRow>
+            {" "}
+            {/* Changed for dark mode */}
             <span style={{ color: "white" }}>
               Промотка вперед ({seekForwardAmount}с)
             </span>
@@ -3832,7 +4349,7 @@ const FullScreenPlayer = ({
               }
             />
           </SliderRow>
-          {(track.lyrics || track.text) && ( /* Changed for dark mode */
+          {(track.lyrics || track.text) /* Changed for dark mode */ && (
             <SliderRow>
               <span style={{ color: "white" }}>Субтитри</span>
               {track.id === 1 && Array.isArray(track.lyrics) ? (
@@ -3887,7 +4404,8 @@ const FullScreenPlayer = ({
                 </button>
               )}
             </SliderRow>
-          )} {/* Changed for dark mode */}
+          )}{" "}
+          {/* Changed for dark mode */}
           {track.filters && track.filters.length > 0 && (
             <SliderRow>
               <span style={{ color: "white" }}>Ефекти</span>
@@ -3906,7 +4424,8 @@ const FullScreenPlayer = ({
                 {filtersEnabled ? "Увімкнено" : "Вимкнено"}
               </button>
             </SliderRow>
-          )} {/* Changed for dark mode */}
+          )}{" "}
+          {/* Changed for dark mode */}
           {isDinofroz && (
             <SliderRow>
               <span style={{ color: "white" }}>Якість відео</span>
@@ -3915,7 +4434,7 @@ const FullScreenPlayer = ({
                 onChange={(e) => handleQualityChange(e.target.value)}
                 style={{
                   background: "#444",
-                  color: "white", /* Changed for dark mode */
+                  color: "white" /* Changed for dark mode */,
                   border: "1px solid #666",
                   borderRadius: "4px",
                   padding: "3px 6px",
@@ -3944,7 +4463,8 @@ const FullScreenPlayer = ({
                 onChange={(e) => setDynamicIntensity(parseInt(e.target.value))}
               />
             </SliderRow>
-          )} {/* Changed for dark mode */}
+          )}{" "}
+          {/* Changed for dark mode */}
           <SliderRow>
             <span style={{ color: "white" }}>Чекпоінти</span>
             <button
@@ -3962,7 +4482,9 @@ const FullScreenPlayer = ({
               {checkpointsEnabled ? "Увімкнено" : "Вимкнено"}
             </button>
           </SliderRow>
-          <SliderRow> {/* Changed for dark mode */}
+          <SliderRow>
+            {" "}
+            {/* Changed for dark mode */}
             <span style={{ color: "white" }}>Фоновий режим</span>
             <button
               onClick={onToggleBackgroundMode}
@@ -3979,7 +4501,9 @@ const FullScreenPlayer = ({
               {backgroundMode ? "Увімкнено" : "Вимкнено"}
             </button>
           </SliderRow>
-          <SliderRow> {/* Changed for dark mode */}
+          <SliderRow>
+            {" "}
+            {/* Changed for dark mode */}
             <span style={{ color: "white" }}>Режим шкали</span>
             <button
               onClick={() =>
@@ -4000,7 +4524,7 @@ const FullScreenPlayer = ({
               {progressMode === "linear" ? "Часова шкала" : "Стереограмa"}
             </button>
           </SliderRow>
-          {isDinofroz && ( /* Changed for dark mode */
+          {isDinofroz /* Changed for dark mode */ && (
             <>
               <SliderRow>
                 <span style={{ color: "white" }}>Кількість кадрів</span>
@@ -4009,7 +4533,7 @@ const FullScreenPlayer = ({
                   onChange={(e) => setFramesCount(parseInt(e.target.value))}
                   style={{
                     background: "#444",
-                    color: "white", /* Changed for dark mode */
+                    color: "white" /* Changed for dark mode */,
                     border: "1px solid #666",
                     borderRadius: "4px",
                     padding: "3px 6px",
@@ -4021,7 +4545,8 @@ const FullScreenPlayer = ({
                   <option value={60}>60 кадрів</option>
                   <option value={120}>120 кадрів</option>
                 </select>
-              </SliderRow> {/* Changed for dark mode */}
+              </SliderRow>{" "}
+              {/* Changed for dark mode */}
               <div
                 style={{
                   display: "flex",
@@ -4031,7 +4556,14 @@ const FullScreenPlayer = ({
                 }}
               >
                 <div style={{ flex: 1 }}>
-                  <label style={{ fontSize: "9px", color: "#aaa", display: "block", marginBottom: "2px" }}>
+                  <label
+                    style={{
+                      fontSize: "9px",
+                      color: "#aaa",
+                      display: "block",
+                      marginBottom: "2px",
+                    }}
+                  >
                     Початок (хв:сс)
                   </label>
                   <div style={{ display: "flex", gap: "2px" }}>
@@ -4043,19 +4575,42 @@ const FullScreenPlayer = ({
                         if (/^[0-9:]*$/.test(val)) setFrameStartStr(val);
                       }}
                       placeholder="0:59"
-                      style={{ width: "100%", background: isDarkMode ? '#222' : '#fff', color: isDarkMode ? 'white' : 'black', border: `1px solid ${isStartInvalid ? "#ff4d4d" : (isDarkMode ? '#555' : '#ccc')}`, borderRadius: "4px", padding: "2px", fontSize: "10px" }}
+                      style={{
+                        width: "100%",
+                        background: isDarkMode ? "#222" : "#fff",
+                        color: isDarkMode ? "white" : "black",
+                        border: `1px solid ${isStartInvalid ? "#ff4d4d" : isDarkMode ? "#555" : "#ccc"}`,
+                        borderRadius: "4px",
+                        padding: "2px",
+                        fontSize: "10px",
+                      }}
                     />
                     <button
                       onClick={() => setFrameStartStr(secondsToTime(progress))}
                       title="Вставити поточний час"
-                      style={{ background: "#444", border: "1px solid #666", borderRadius: "4px", cursor: "pointer", color: "white", fontSize: "9px", padding: "0 2px" }}
+                      style={{
+                        background: "#444",
+                        border: "1px solid #666",
+                        borderRadius: "4px",
+                        cursor: "pointer",
+                        color: "white",
+                        fontSize: "9px",
+                        padding: "0 2px",
+                      }}
                     >
                       ⏱️
                     </button>
                   </div>
                 </div>
                 <div style={{ flex: 1 }}>
-                  <label style={{ fontSize: "9px", color: "#aaa", display: "block", marginBottom: "2px" }}>
+                  <label
+                    style={{
+                      fontSize: "9px",
+                      color: "#aaa",
+                      display: "block",
+                      marginBottom: "2px",
+                    }}
+                  >
                     Кінець (хв:сс)
                   </label>
                   <div style={{ display: "flex", gap: "2px" }}>
@@ -4067,12 +4622,28 @@ const FullScreenPlayer = ({
                         if (/^[0-9:]*$/.test(val)) setFrameEndStr(val);
                       }}
                       placeholder="2:33"
-                      style={{ width: "100%", background: isDarkMode ? '#222' : '#fff', color: isDarkMode ? 'white' : 'black', border: `1px solid ${isEndInvalid ? "#ff4d4d" : (isDarkMode ? '#555' : '#ccc')}`, borderRadius: "4px", padding: "2px", fontSize: "10px" }}
+                      style={{
+                        width: "100%",
+                        background: isDarkMode ? "#222" : "#fff",
+                        color: isDarkMode ? "white" : "black",
+                        border: `1px solid ${isEndInvalid ? "#ff4d4d" : isDarkMode ? "#555" : "#ccc"}`,
+                        borderRadius: "4px",
+                        padding: "2px",
+                        fontSize: "10px",
+                      }}
                     />
                     <button
                       onClick={() => setFrameEndStr(secondsToTime(progress))}
                       title="Вставити поточний час"
-                      style={{ background: "#444", border: "1px solid #666", borderRadius: "4px", cursor: "pointer", color: "white", fontSize: "9px", padding: "0 2px" }}
+                      style={{
+                        background: "#444",
+                        border: "1px solid #666",
+                        borderRadius: "4px",
+                        cursor: "pointer",
+                        color: "white",
+                        fontSize: "9px",
+                        padding: "0 2px",
+                      }}
                     >
                       ⏱️
                     </button>
@@ -4083,7 +4654,7 @@ const FullScreenPlayer = ({
                 onClick={handleResetFrames}
                 style={{
                   width: "100%",
-                  background: isDarkMode ? '#333' : '#eee',
+                  background: isDarkMode ? "#333" : "#eee",
                   color: "#aaa",
                   border: "1px solid #444",
                   borderRadius: "4px",
@@ -4101,7 +4672,7 @@ const FullScreenPlayer = ({
                 style={{
                   marginTop: "2px",
                   width: "100%",
-                    fontSize: "11px", /* Changed for dark mode */
+                  fontSize: "11px" /* Changed for dark mode */,
                   background: isGeneratingFrames ? "#3f3f3f" : "#b12c00",
                   color: "white",
                   border: "none",
@@ -4114,7 +4685,8 @@ const FullScreenPlayer = ({
                 {isGeneratingFrames
                   ? `Генерація ${loadingProgress}%...`
                   : `🎞️ Розділити на ${framesCount} кадрів`}
-              </button> {/* Changed for dark mode */}
+              </button>{" "}
+              {/* Changed for dark mode */}
             </>
           )}
           <button
@@ -4131,7 +4703,7 @@ const FullScreenPlayer = ({
             disabled={track.id === 2}
             style={{
               marginTop: "3px",
-              width: "100%", /* Changed for dark mode */
+              width: "100%" /* Changed for dark mode */,
               background: track.id === 2 ? "#626262" : "#00ae0f",
               color: "white",
               border: "none",
@@ -4175,7 +4747,7 @@ const FullScreenPlayer = ({
             style={{
               marginTop: "4px",
               width: "100%",
-                background: isDarkMode ? '#7afcff' : '#00bcd4',
+              background: isDarkMode ? "#7afcff" : "#00bcd4",
               color: "#333",
               border: "none",
               padding: "2px",
@@ -4206,7 +4778,7 @@ const FullScreenPlayer = ({
             style={{
               marginTop: "3px",
               padding: "2px",
-              width: "100%", /* Changed for dark mode */
+              width: "100%" /* Changed for dark mode */,
               background: "#ae0000",
               color: "white",
               border: "none",
@@ -4221,7 +4793,7 @@ const FullScreenPlayer = ({
             onClick={() => setShowSettings(false)}
             style={{
               marginTop: "4px",
-              width: "100%", /* Changed for dark mode */
+              width: "100%" /* Changed for dark mode */,
               background: "transparent",
               padding: "2px",
               border: "1px solid white",
@@ -4239,7 +4811,8 @@ const FullScreenPlayer = ({
         <ModalOverlay onClick={() => setShowFramesGallery(false)}>
           <PlaylistModalContent
             onClick={(e) => e.stopPropagation()}
-            style={{ /* Changed for dark mode */
+            style={{
+              /* Changed for dark mode */
               maxWidth: "1200px",
               background: "#1a1a1a",
               border: "1px solid orange",
@@ -4248,7 +4821,9 @@ const FullScreenPlayer = ({
             <PlaylistCloseButton
               onClick={() => setShowFramesGallery(false)}
               style={{ color: "white" }}
-            > {/* Changed for dark mode */}
+            >
+              {" "}
+              {/* Changed for dark mode */}
               &times;
             </PlaylistCloseButton>
             <h3
@@ -4275,7 +4850,7 @@ const FullScreenPlayer = ({
                 <div
                   key={idx}
                   style={{
-                    background: isDarkMode ? '#333' : '#eee',
+                    background: isDarkMode ? "#333" : "#eee",
                     borderRadius: "8px",
                     overflow: "hidden",
                     border: "1px solid #444",
@@ -4304,7 +4879,7 @@ const FullScreenPlayer = ({
                         flex: 1,
                         padding: "4px",
                         fontSize: "10px",
-                        background: isDarkMode ? 'orange' : '#ffb36c',
+                        background: isDarkMode ? "orange" : "#ffb36c",
                         border: "none",
                         borderRadius: "4px",
                         cursor: "pointer",
@@ -4324,7 +4899,7 @@ const FullScreenPlayer = ({
                         flex: 1,
                         padding: "4px",
                         fontSize: "10px",
-                        background: isDarkMode ? '#555' : '#ccc',
+                        background: isDarkMode ? "#555" : "#ccc",
                         color: "white",
                         border: "none",
                         borderRadius: "4px",
@@ -4342,7 +4917,7 @@ const FullScreenPlayer = ({
                 onClick={() => setShowFramesGallery(false)}
                 style={{
                   padding: "10px 30px",
-                  borderRadius: "20px", /* Changed for dark mode */
+                  borderRadius: "20px" /* Changed for dark mode */,
                   background: "orange",
                   border: "none",
                   cursor: "pointer",
@@ -4359,7 +4934,9 @@ const FullScreenPlayer = ({
       {showScreenshotMenu && (
         <GearModal
           style={{ bottom: "auto", top: "70px", right: "80px", width: "150px" }}
-        > {/* Changed for dark mode */}
+        >
+          {" "}
+          {/* Changed for dark mode */}
           <button
             onClick={() =>
               mainFilter
@@ -4368,7 +4945,7 @@ const FullScreenPlayer = ({
             }
             style={{
               background: "transparent",
-              border: "none", /* Changed for dark mode */
+              border: "none" /* Changed for dark mode */,
               color: "white",
               textAlign: "left",
               cursor: "pointer",
@@ -4381,7 +4958,7 @@ const FullScreenPlayer = ({
             onClick={saveScreenshotToGallery}
             style={{
               background: "transparent",
-              border: "none", /* Changed for dark mode */
+              border: "none" /* Changed for dark mode */,
               color: "#ffb36c",
               textAlign: "left",
               cursor: "pointer",
@@ -4400,7 +4977,7 @@ const FullScreenPlayer = ({
             }
             style={{
               background: "transparent",
-              border: "none", /* Changed for dark mode */
+              border: "none" /* Changed for dark mode */,
               color: "white",
               textAlign: "left",
               cursor: "pointer",
@@ -4414,7 +4991,9 @@ const FullScreenPlayer = ({
 
       {pendingScreenshotAction && (
         <DownloadModal>
-          <h3 style={{ color: isDarkMode ? 'white' : 'black' }}>Фільтр виявлено</h3>
+          <h3 style={{ color: isDarkMode ? "white" : "black" }}>
+            Фільтр виявлено
+          </h3>
           <p style={{ color: "black", fontSize: "14px" }}>
             Бажаєте накласти активний візуальний ефект на скріншот?
           </p>
@@ -4435,7 +5014,7 @@ const FullScreenPlayer = ({
                 else if (action === "print") printScreenshot(true);
               }}
               style={{
-                background: isDarkMode ? 'orange' : '#ffb36c',
+                background: isDarkMode ? "orange" : "#ffb36c",
                 color: "white",
                 border: "none",
                 padding: "8px 15px",
@@ -4454,7 +5033,7 @@ const FullScreenPlayer = ({
                 else if (action === "print") printScreenshot(false);
               }}
               style={{
-                background: isDarkMode ? '#555' : '#ccc',
+                background: isDarkMode ? "#555" : "#ccc",
                 border: "none",
                 padding: "8px 15px",
                 borderRadius: "5px",
@@ -4469,99 +5048,411 @@ const FullScreenPlayer = ({
 
       {showSocialModal && (
         <ModalOverlay onClick={() => setShowSocialModal(false)}>
-          <PlaylistModalContent onClick={(e) => e.stopPropagation()} style={{ maxWidth: 760, width: "92%", padding: 20, maxHeight: "85vh", overflowY: "auto", background: isDarkMode ? "#1f2335" : "#fffaf4", color: isDarkMode ? "#f2f2f2" : "#111" }}>
-            <PlaylistCloseButton onClick={() => setShowSocialModal(false)} style={{ color: isDarkMode ? "#fff" : "#111" }}>
+          <PlaylistModalContent
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              maxWidth: 760,
+              width: "92%",
+              padding: 20,
+              maxHeight: "85vh",
+              overflowY: "auto",
+              background: isDarkMode ? "#1f2335" : "#fffaf4",
+              color: isDarkMode ? "#f2f2f2" : "#111",
+            }}
+          >
+            <PlaylistCloseButton
+              onClick={() => setShowSocialModal(false)}
+              style={{ color: isDarkMode ? "#fff" : "#111" }}
+            >
               &times;
             </PlaylistCloseButton>
             <h3 style={{ marginTop: 0, marginBottom: 12 }}>
-        {socialTargetTrack?.isGeneral ? "🌐 Загальний чат" : `🎵 ${socialTargetTrack?.author || ""} — ${socialTargetTrack?.text || ""}`}
-      </h3>
+              {socialTargetTrack?.isGeneral
+                ? "🌐 Загальний чат"
+                : `🎵 ${socialTargetTrack?.author || ""} — ${socialTargetTrack?.text || ""}`}
+            </h3>
             <div style={{ display: "grid", gap: 12, marginBottom: 16 }}>
               <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                <span style={{ background: "rgba(255,179,108,0.2)", padding: "6px 10px", borderRadius: 999 }}>Тривалість: {Math.floor(duration || 0)}с</span>
-                <span style={{ background: "rgba(122,252,255,0.15)", padding: "6px 10px", borderRadius: 999 }}>Перегляди: {socialStats.views}</span>
-                <span style={{ background: "rgba(255,107,107,0.15)", padding: "6px 10px", borderRadius: 999 }}>Лайки: {socialStats.likes}</span>
-                <span style={{ background: "rgba(90,90,255,0.15)", padding: "6px 10px", borderRadius: 999 }}>Дизлайки: {socialStats.dislikes}</span>
-                <span style={{ background: "rgba(255,255,255,0.15)", padding: "6px 10px", borderRadius: 999 }}>Коментарі: {socialCommentCount}</span>
+                <span
+                  style={{
+                    background: "rgba(255,179,108,0.2)",
+                    padding: "6px 10px",
+                    borderRadius: 999,
+                  }}
+                >
+                  Тривалість: {Math.floor(duration || 0)}с
+                </span>
+                <span
+                  style={{
+                    background: "rgba(122,252,255,0.15)",
+                    padding: "6px 10px",
+                    borderRadius: 999,
+                  }}
+                >
+                  Перегляди: {socialStats.views}
+                </span>
+                <span
+                  style={{
+                    background: "rgba(255,107,107,0.15)",
+                    padding: "6px 10px",
+                    borderRadius: 999,
+                  }}
+                >
+                  Лайки: {socialStats.likes}
+                </span>
+                <span
+                  style={{
+                    background: "rgba(90,90,255,0.15)",
+                    padding: "6px 10px",
+                    borderRadius: 999,
+                  }}
+                >
+                  Дизлайки: {socialStats.dislikes}
+                </span>
+                <span
+                  style={{
+                    background: "rgba(255,255,255,0.15)",
+                    padding: "6px 10px",
+                    borderRadius: 999,
+                  }}
+                >
+                  Коментарі: {socialCommentCount}
+                </span>
               </div>
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                <button onClick={() => handleSocialReaction(1)} style={{ border: "none", borderRadius: 999, padding: "8px 12px", cursor: "pointer", background: socialReactionState === 1 ? "#ff4d6d" : "#e8e8e8", color: socialReactionState === 1 ? "#fff" : "#111" }}>❤ Лайк</button>
-                <button onClick={() => handleSocialReaction(-1)} style={{ border: "none", borderRadius: 999, padding: "8px 12px", cursor: "pointer", background: socialReactionState === -1 ? "#4c78ff" : "#e8e8e8", color: socialReactionState === -1 ? "#fff" : "#111" }}>👎 Дизлайк</button>
+                <button
+                  onClick={() => handleSocialReaction(1)}
+                  style={{
+                    border: "none",
+                    borderRadius: 999,
+                    padding: "8px 12px",
+                    cursor: "pointer",
+                    background:
+                      socialReactionState === 1 ? "#ff4d6d" : "#e8e8e8",
+                    color: socialReactionState === 1 ? "#fff" : "#111",
+                  }}
+                >
+                  ❤ Лайк
+                </button>
+                <button
+                  onClick={() => handleSocialReaction(-1)}
+                  style={{
+                    border: "none",
+                    borderRadius: 999,
+                    padding: "8px 12px",
+                    cursor: "pointer",
+                    background:
+                      socialReactionState === -1 ? "#4c78ff" : "#e8e8e8",
+                    color: socialReactionState === -1 ? "#fff" : "#111",
+                  }}
+                >
+                  👎 Дизлайк
+                </button>
               </div>
             </div>
-            <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", marginBottom: 12 }}>
+            <div
+              style={{
+                display: "flex",
+                gap: 10,
+                alignItems: "center",
+                flexWrap: "wrap",
+                marginBottom: 12,
+              }}
+            >
               {!socialAuthUser && !user ? (
-                <button onClick={handleGoogleSignIn} style={{ border: "none", borderRadius: 999, padding: "8px 12px", cursor: "pointer", background: "#4285f4", color: "#fff" }}>🔑 Увійти з Google</button>
+                <button
+                  onClick={handleGoogleSignIn}
+                  style={{
+                    border: "none",
+                    borderRadius: 999,
+                    padding: "8px 12px",
+                    cursor: "pointer",
+                    background: "#4285f4",
+                    color: "#fff",
+                  }}
+                >
+                  🔑 Увійти з Google
+                </button>
               ) : (
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   {(socialAuthUser?.avatar || user?.avatar) && (
                     <img
                       src={socialAuthUser?.avatar || user?.avatar}
                       alt="avatar"
-                      style={{ width: 30, height: 30, borderRadius: "50%", objectFit: "cover", border: "2px solid #ffb36c" }}
+                      style={{
+                        width: 30,
+                        height: 30,
+                        borderRadius: "50%",
+                        objectFit: "cover",
+                        border: "2px solid #ffb36c",
+                      }}
                     />
                   )}
-                  <span style={{ fontSize: 13, opacity: 0.8 }}>Увійшли як {socialAuthUser?.firstName || user?.firstName || user?.account || "користувач"}</span>
+                  <span style={{ fontSize: 13, opacity: 0.8 }}>
+                    Увійшли як{" "}
+                    {socialAuthUser?.firstName ||
+                      user?.firstName ||
+                      user?.account ||
+                      "користувач"}
+                  </span>
                 </div>
               )}
-              <span style={{ fontSize: 12, opacity: 0.7 }}>Залишилось коментарів сьогодні: {getDailyCommentQuotaLeft(MAX_DAILY_COMMENTS, socialCommentQuotaUsed)}</span>
+              <span style={{ fontSize: 12, opacity: 0.7 }}>
+                Залишилось коментарів сьогодні:{" "}
+                {getDailyCommentQuotaLeft(
+                  MAX_DAILY_COMMENTS,
+                  socialCommentQuotaUsed,
+                )}
+              </span>
             </div>
             <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
               {(socialAuthUser?.avatar || user?.avatar) && (
                 <img
                   src={socialAuthUser?.avatar || user?.avatar}
                   alt="avatar"
-                  style={{ width: 38, height: 38, borderRadius: "50%", objectFit: "cover", border: "2px solid #ffb36c", flexShrink: 0, marginTop: 2 }}
+                  style={{
+                    width: 38,
+                    height: 38,
+                    borderRadius: "50%",
+                    objectFit: "cover",
+                    border: "2px solid #ffb36c",
+                    flexShrink: 0,
+                    marginTop: 2,
+                  }}
                 />
               )}
-              <textarea value={socialCommentText} onChange={(e) => setSocialCommentText(e.target.value)} maxLength={1000} placeholder={!socialAuthUser && !user ? "Увійдіть щоб написати коментар..." : "Залиште коментар..."} disabled={!socialAuthUser && !user} style={{ flex: 1, minHeight: 90, borderRadius: 12, padding: 10, border: "1px solid rgba(0,0,0,0.15)", resize: "vertical", opacity: !socialAuthUser && !user ? 0.6 : 1 }} />
+              <textarea
+                value={socialCommentText}
+                onChange={(e) => setSocialCommentText(e.target.value)}
+                maxLength={1000}
+                placeholder={
+                  !socialAuthUser && !user
+                    ? "Увійдіть щоб написати коментар..."
+                    : "Залиште коментар..."
+                }
+                disabled={!socialAuthUser && !user}
+                style={{
+                  flex: 1,
+                  minHeight: 90,
+                  borderRadius: 12,
+                  padding: 10,
+                  border: "1px solid rgba(0,0,0,0.15)",
+                  resize: "vertical",
+                  opacity: !socialAuthUser && !user ? 0.6 : 1,
+                }}
+              />
             </div>
-            {socialCommentError && <div style={{ color: "#ff4d6d", fontSize: 12, marginTop: 6 }}>{socialCommentError}</div>}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 8 }}>
-              <span style={{ fontSize: 12, opacity: 0.7 }}>{socialCommentText.length}/1000</span>
-              <button onClick={handleSocialCommentSubmit} disabled={socialLoading} style={{ border: "none", borderRadius: 999, padding: "8px 12px", cursor: "pointer", background: "#ffb36c", color: "#111", opacity: socialLoading ? 0.6 : 1 }}>{socialLoading ? "Надсилаю..." : "Надіслати"}</button>
+            {socialCommentError && (
+              <div style={{ color: "#ff4d6d", fontSize: 12, marginTop: 6 }}>
+                {socialCommentError}
+              </div>
+            )}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginTop: 8,
+              }}
+            >
+              <span style={{ fontSize: 12, opacity: 0.7 }}>
+                {socialCommentText.length}/1000
+              </span>
+              <button
+                onClick={handleSocialCommentSubmit}
+                disabled={socialLoading}
+                style={{
+                  border: "none",
+                  borderRadius: 999,
+                  padding: "8px 12px",
+                  cursor: "pointer",
+                  background: "#ffb36c",
+                  color: "#111",
+                  opacity: socialLoading ? 0.6 : 1,
+                }}
+              >
+                {socialLoading ? "Надсилаю..." : "Надіслати"}
+              </button>
             </div>
             <div style={{ marginTop: 16, display: "grid", gap: 14 }}>
               {!socialTargetTrack.isGeneral && (
                 <div>
-                  <div style={{ fontWeight: 700, marginBottom: 8 }}>Коментарі до цієї пісні</div>
+                  <div style={{ fontWeight: 700, marginBottom: 8 }}>
+                    Коментарі до цієї пісні
+                  </div>
                   <div style={{ display: "grid", gap: 10 }}>
-                    {socialComments.slice(0, MAX_VISIBLE_COMMENTS).map((comment) => (
-                      <div key={comment.id} style={{ background: isDarkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)", borderRadius: 14, padding: 10, border: "1px solid rgba(255,179,108,0.2)" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                          <div style={{ width: 38, height: 38, borderRadius: "50%", border: `2px solid ${comment.user?.color || "#ffb36c"}`, overflow: "hidden", background: "#fff" }}>
-                            {getAvatarSrc(comment.user?.avatar) ? <img src={getAvatarSrc(comment.user?.avatar)} alt={comment.user?.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>👤</div>}
+                    {socialComments
+                      .slice(0, MAX_VISIBLE_COMMENTS)
+                      .map((comment) => (
+                        <div
+                          key={comment.id}
+                          style={{
+                            background: isDarkMode
+                              ? "rgba(255,255,255,0.08)"
+                              : "rgba(0,0,0,0.04)",
+                            borderRadius: 14,
+                            padding: 10,
+                            border: "1px solid rgba(255,179,108,0.2)",
+                          }}
+                        >
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 10,
+                            }}
+                          >
+                            <div
+                              style={{
+                                width: 38,
+                                height: 38,
+                                borderRadius: "50%",
+                                border: `2px solid ${comment.user?.color || "#ffb36c"}`,
+                                overflow: "hidden",
+                                background: "#fff",
+                              }}
+                            >
+                              {getAvatarSrc(comment.user?.avatar) ? (
+                                <img
+                                  src={getAvatarSrc(comment.user?.avatar)}
+                                  alt={comment.user?.name}
+                                  style={{
+                                    width: "100%",
+                                    height: "100%",
+                                    objectFit: "cover",
+                                  }}
+                                />
+                              ) : (
+                                <div
+                                  style={{
+                                    width: "100%",
+                                    height: "100%",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    fontSize: 16,
+                                  }}
+                                >
+                                  👤
+                                </div>
+                              )}
+                            </div>
+                            <div>
+                              <div style={{ fontWeight: 700 }}>
+                                {comment.user?.name || "Гість"}
+                              </div>
+                              <div style={{ fontSize: 11, opacity: 0.7 }}>
+                                {new Date(
+                                  comment.createdAt || Date.now(),
+                                ).toLocaleString("uk-UA")}
+                              </div>
+                            </div>
                           </div>
-                          <div>
-                            <div style={{ fontWeight: 700 }}>{comment.user?.name || "Гість"}</div>
-                            <div style={{ fontSize: 11, opacity: 0.7 }}>{new Date(comment.createdAt || Date.now()).toLocaleString("uk-UA")}</div>
+                          <div
+                            style={{
+                              marginTop: 8,
+                              whiteSpace: "pre-wrap",
+                              wordBreak: "break-word",
+                            }}
+                          >
+                            {comment.text}
                           </div>
                         </div>
-                        <div style={{ marginTop: 8, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{comment.text}</div>
+                      ))}
+                    {!socialComments.length && (
+                      <div style={{ opacity: 0.7, fontSize: 13 }}>
+                        Ще немає коментарів до цієї пісні.
                       </div>
-                    ))}
-                    {!socialComments.length && <div style={{ opacity: 0.7, fontSize: 13 }}>Ще немає коментарів до цієї пісні.</div>}
+                    )}
                   </div>
                 </div>
               )}
               <div>
-                <div style={{ fontWeight: 700, marginBottom: 8 }}>Загальні коментарі ({socialGlobalCommentCount})</div>
+                <div style={{ fontWeight: 700, marginBottom: 8 }}>
+                  Загальні коментарі ({socialGlobalCommentCount})
+                </div>
                 <div style={{ display: "grid", gap: 10 }}>
                   {socialGlobalComments.map((comment) => (
-                    <div key={comment.id} style={{ background: isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.03)", borderRadius: 14, padding: 10, border: "1px solid rgba(122,252,255,0.2)" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                        <div style={{ width: 38, height: 38, borderRadius: "50%", border: `2px solid ${comment.user?.color || "#ffb36c"}`, overflow: "hidden", background: "#fff" }}>
-                          {getAvatarSrc(comment.user?.avatar) ? <img src={getAvatarSrc(comment.user?.avatar)} alt={comment.user?.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>👤</div>}
+                    <div
+                      key={comment.id}
+                      style={{
+                        background: isDarkMode
+                          ? "rgba(255,255,255,0.06)"
+                          : "rgba(0,0,0,0.03)",
+                        borderRadius: 14,
+                        padding: 10,
+                        border: "1px solid rgba(122,252,255,0.2)",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 10,
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: 38,
+                            height: 38,
+                            borderRadius: "50%",
+                            border: `2px solid ${comment.user?.color || "#ffb36c"}`,
+                            overflow: "hidden",
+                            background: "#fff",
+                          }}
+                        >
+                          {getAvatarSrc(comment.user?.avatar) ? (
+                            <img
+                              src={getAvatarSrc(comment.user?.avatar)}
+                              alt={comment.user?.name}
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
+                              }}
+                            />
+                          ) : (
+                            <div
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                fontSize: 16,
+                              }}
+                            >
+                              👤
+                            </div>
+                          )}
                         </div>
                         <div>
-                          <div style={{ fontWeight: 700 }}>{comment.user?.name || "Гість"}</div>
-                          <div style={{ fontSize: 11, opacity: 0.7 }}>{comment.trackId ? `Пісня #${comment.trackId}` : "Усі пісні"}</div>
+                          <div style={{ fontWeight: 700 }}>
+                            {comment.user?.name || "Гість"}
+                          </div>
+                          <div style={{ fontSize: 11, opacity: 0.7 }}>
+                            {comment.trackId
+                              ? `Пісня #${comment.trackId}`
+                              : "Усі пісні"}
+                          </div>
                         </div>
                       </div>
-                      <div style={{ marginTop: 8, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{comment.text}</div>
+                      <div
+                        style={{
+                          marginTop: 8,
+                          whiteSpace: "pre-wrap",
+                          wordBreak: "break-word",
+                        }}
+                      >
+                        {comment.text}
+                      </div>
                     </div>
                   ))}
-                  {!socialGlobalComments.length && <div style={{ opacity: 0.7, fontSize: 13 }}>Ще немає загальних коментарів.</div>}
+                  {!socialGlobalComments.length && (
+                    <div style={{ opacity: 0.7, fontSize: 13 }}>
+                      Ще немає загальних коментарів.
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -4571,7 +5462,8 @@ const FullScreenPlayer = ({
       {showPlaylist && (
         <PlaylistOverlay>
           <div
-            style={{ /* Changed for dark mode */
+            style={{
+              /* Changed for dark mode */
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
@@ -4600,7 +5492,9 @@ const FullScreenPlayer = ({
                   padding: "8px",
                   background:
                     t.id === track.id
-                      ? isDarkMode ? "rgba(255, 165, 0, 0.3)" : "rgba(255, 165, 0, 0.1)"
+                      ? isDarkMode
+                        ? "rgba(255, 165, 0, 0.3)"
+                        : "rgba(255, 165, 0, 0.1)"
                       : "transparent",
                   borderRadius: "6px",
                   cursor: "pointer",
@@ -4661,7 +5555,7 @@ const FullScreenPlayer = ({
                 a.click();
               }}
               style={{
-                padding: "10px", /* Changed for dark mode */
+                padding: "10px" /* Changed for dark mode */,
                 background: "orange",
                 border: "none",
                 borderRadius: "5px",
@@ -4673,7 +5567,11 @@ const FullScreenPlayer = ({
             <hr style={{ width: "100%" }} />
             <label>Вибрати проміжок (сек):</label>
             <div
-              style={{ display: "flex", gap: "5px", justifyContent: "center" }} /* Changed for dark mode */
+              style={{
+                display: "flex",
+                gap: "5px",
+                justifyContent: "center",
+              }} /* Changed for dark mode */
             >
               <input
                 type="number"
@@ -4684,7 +5582,13 @@ const FullScreenPlayer = ({
                     start: parseInt(e.target.value, 10) || 0,
                   })
                 }
-                style={{ width: "60px", padding: "5px", background: isDarkMode ? '#333' : '#fff', color: isDarkMode ? '#fff' : '#000', border: `1px solid ${isDarkMode ? '#555' : '#ccc'}` }}
+                style={{
+                  width: "60px",
+                  padding: "5px",
+                  background: isDarkMode ? "#333" : "#fff",
+                  color: isDarkMode ? "#fff" : "#000",
+                  border: `1px solid ${isDarkMode ? "#555" : "#ccc"}`,
+                }}
               />
               <span>-</span>
               <input
@@ -4696,7 +5600,13 @@ const FullScreenPlayer = ({
                     end: parseInt(e.target.value, 10) || 0,
                   })
                 }
-                style={{ width: "60px", padding: "5px", background: isDarkMode ? '#333' : '#fff', color: isDarkMode ? '#fff' : '#000', border: `1px solid ${isDarkMode ? '#555' : '#ccc'}` }}
+                style={{
+                  width: "60px",
+                  padding: "5px",
+                  background: isDarkMode ? "#333" : "#fff",
+                  color: isDarkMode ? "#fff" : "#000",
+                  border: `1px solid ${isDarkMode ? "#555" : "#ccc"}`,
+                }}
               />
             </div>
             <button
@@ -4707,7 +5617,7 @@ const FullScreenPlayer = ({
                 setShowDownload(false);
               }}
               style={{
-                padding: "8px", /* Changed for dark mode */
+                padding: "8px" /* Changed for dark mode */,
                 background: "#444",
                 color: "white",
                 border: "none",
@@ -4728,7 +5638,7 @@ const FullScreenPlayer = ({
                   a.click();
                 }}
                 style={{
-                  marginTop: "5px", /* Changed for dark mode */
+                  marginTop: "5px" /* Changed for dark mode */,
                   padding: "8px",
                   background: "green",
                   color: "white",
@@ -4744,7 +5654,7 @@ const FullScreenPlayer = ({
           <button
             onClick={() => setShowDownload(false)}
             style={{
-              background: "transparent", /* Changed for dark mode */
+              background: "transparent" /* Changed for dark mode */,
               border: "1px solid #333",
               padding: "5px 15px",
               borderRadius: "5px",
@@ -4771,7 +5681,7 @@ const MusicCard = ({
   checkpointsEnabled,
 }) => {
   const { id, image, text, deezerLink } = cardData;
-/* Changed for dark mode */
+  /* Changed for dark mode */
   const handleDownloadTrack = (e) => {
     e.stopPropagation();
     const a = document.createElement("a"); /* Changed for dark mode */
@@ -4819,11 +5729,7 @@ const MusicCard = ({
             onRate && onRate(id);
           }}
         >
-          {rating === 2 || rating === 1
-            ? "❤️"
-            : rating === -1
-              ? "💔"
-              : "🤍"}
+          {rating === 2 || rating === 1 ? "❤️" : rating === -1 ? "💔" : "🤍"}
         </HeartButton>
         <MusicImage src={image} alt="Music" onClick={() => onOpenPlayer(id)} />
 
@@ -4833,14 +5739,23 @@ const MusicCard = ({
           {cardData.lyrics && (
             <ActionButton
               title="Текст пісні"
-              onClick={(e) => { e.stopPropagation(); onOpenModal({ ...cardData }); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpenModal({ ...cardData });
+              }}
             >
               <svg viewBox="0 0 24 24">
                 <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
               </svg>
             </ActionButton>
           )}
-          <ActionButton title="Відкрити плеєр" onClick={(e) => { e.stopPropagation(); onOpenPlayer(id); }}>
+          <ActionButton
+            title="Відкрити плеєр"
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenPlayer(id);
+            }}
+          >
             <svg viewBox="0 0 24 24">
               <path d="M8 5v14l11-7z" />
             </svg>
@@ -4875,7 +5790,10 @@ const MusicCard = ({
           {deezerLink && (
             <ActionButton
               title="Слухати на Deezer"
-              onClick={(e) => { e.stopPropagation(); window.open(deezerLink, "_blank"); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                window.open(deezerLink, "_blank");
+              }}
             >
               <svg viewBox="0 0 24 24">
                 <path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z" />
@@ -4906,7 +5824,10 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
     if (navigator.storage && navigator.storage.estimate) {
       try {
         const estimate = await navigator.storage.estimate();
-        setStorageInfo({ usage: estimate.usage || 0, quota: estimate.quota || 0 });
+        setStorageInfo({
+          usage: estimate.usage || 0,
+          quota: estimate.quota || 0,
+        });
       } catch (e) {
         console.error("Storage Manager error:", e);
       }
@@ -5121,7 +6042,8 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
               <span>
                 {Math.round(storageInfo.usage / 1024 / 1024)} MB /{" "}
                 {storageInfo.quota > 1024 * 1024 * 1024
-                  ? (storageInfo.quota / (1024 * 1024 * 1024)).toFixed(1) + " GB"
+                  ? (storageInfo.quota / (1024 * 1024 * 1024)).toFixed(1) +
+                    " GB"
                   : Math.round(storageInfo.quota / 1024 / 1024) + " MB"}
               </span>
             </div>
@@ -5129,7 +6051,7 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
               <StorageBarFill
                 $percent={Math.min(
                   100,
-                  (storageInfo.usage / storageInfo.quota) * 100
+                  (storageInfo.usage / storageInfo.quota) * 100,
                 )}
               />
             </StorageBar>
@@ -5177,7 +6099,8 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
         )}
 
         <div
-          style={{ /* Changed for dark mode */
+          style={{
+            /* Changed for dark mode */
             margin: "15px 0",
             borderTop: "1px solid #ccc",
             paddingTop: "10px",
@@ -5204,7 +6127,8 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
               value={artistQuery}
               onChange={(e) => setArtistQuery(e.target.value)}
               placeholder="Виконавець..."
-              style={{ /* Changed for dark mode */
+              style={{
+                /* Changed for dark mode */
                 flex: 1,
                 padding: "5px",
                 borderRadius: "5px",
@@ -5216,7 +6140,8 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
               value={titleQuery}
               onChange={(e) => setTitleQuery(e.target.value)}
               placeholder="Назва пісні..."
-              style={{ /* Changed for dark mode */
+              style={{
+                /* Changed for dark mode */
                 flex: 1,
                 padding: "5px",
                 borderRadius: "5px",
@@ -5228,7 +6153,8 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
               onClick={handleSearch}
               disabled={searchCooldown > 0 || isSearching}
               style={{
-                background: searchCooldown > 0 ? (isDarkMode ? '#555' : 'grey') : 'blue',
+                background:
+                  searchCooldown > 0 ? (isDarkMode ? "#555" : "grey") : "blue",
                 color: "white",
                 border: "none",
                 borderRadius: "5px",
@@ -5250,7 +6176,7 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
                 maxHeight: "150px",
                 overflowY: "auto",
                 marginTop: "10px",
-                border: `1px solid ${isDarkMode ? '#444' : '#ddd'}`,
+                border: `1px solid ${isDarkMode ? "#444" : "#ddd"}`,
                 borderRadius: "5px",
               }}
             >
@@ -5260,7 +6186,7 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    padding: "5px", /* Changed for dark mode */
+                    padding: "5px" /* Changed for dark mode */,
                     borderBottom: "1px solid #eee",
                     gap: "10px",
                   }}
@@ -5278,7 +6204,7 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
                     style={{
                       flex: 1,
                       fontSize: "12px",
-                      color: isDarkMode ? '#eee' : '#333',
+                      color: isDarkMode ? "#eee" : "#333",
                       overflow: "hidden",
                       whiteSpace: "nowrap",
                       textOverflow: "ellipsis",
@@ -5289,7 +6215,7 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
                   <button
                     onClick={() => addDeezerTrack(track)}
                     style={{
-                      background: isDarkMode ? 'green' : '#4CAF50',
+                      background: isDarkMode ? "green" : "#4CAF50",
                       color: "white",
                       border: "none",
                       borderRadius: "3px",
@@ -5303,7 +6229,7 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
                   <button
                     onClick={() => window.open(track.link, "_blank")}
                     style={{
-                      background: isDarkMode ? 'blue' : '#2196F3',
+                      background: isDarkMode ? "blue" : "#2196F3",
                       color: "white",
                       border: "none",
                       borderRadius: "3px",
@@ -5325,7 +6251,8 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
               onClick={handleLoadMore}
               disabled={searchCooldown > 0 || isSearching}
               style={{
-                background: searchCooldown > 0 ? (isDarkMode ? '#555' : 'grey') : 'green',
+                background:
+                  searchCooldown > 0 ? (isDarkMode ? "#555" : "grey") : "green",
                 color: "white",
                 border: "none",
                 borderRadius: "5px",
@@ -5343,7 +6270,7 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
           )}
         </div>
 
-        <h4 style={{ color: isDarkMode ? '#fff' : 'black', margin: "10px 0" }}>
+        <h4 style={{ color: isDarkMode ? "#fff" : "black", margin: "10px 0" }}>
           Пісні ({tracks.length}/10)
         </h4>
         {tracks.map((track, i) => (
@@ -5351,7 +6278,7 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
             key={track.id}
             style={{
               background: "#f0f0f0",
-              padding: 10, /* Changed for dark mode */
+              padding: 10 /* Changed for dark mode */,
               borderRadius: 5,
               marginBottom: 10,
             }}
@@ -5361,7 +6288,8 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
               <input
                 value={track.text}
                 onChange={(e) => updateTrack(i, "text", e.target.value)}
-              /> {/* Changed for dark mode */}
+              />{" "}
+              {/* Changed for dark mode */}
             </InputGroup>
             <InputGroup>
               <label>Аудіо (макс 5хв)</label>
@@ -5382,7 +6310,9 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
                 <input
                   type="file"
                   accept="audio/*"
-                  onChange={(e) => handleAudio(e, i)} /* Changed for dark mode */
+                  onChange={(e) =>
+                    handleAudio(e, i)
+                  } /* Changed for dark mode */
                 />
               )}
               {activeProgressId === `track-audio-${i}` && (
@@ -5471,7 +6401,7 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
             <button
               onClick={() => removeTrack(i)}
               style={{
-                background: isDarkMode ? 'red' : '#F44336',
+                background: isDarkMode ? "red" : "#F44336",
                 color: "white",
                 border: "none",
                 borderRadius: 5,
@@ -5487,7 +6417,8 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
             onClick={addTrack}
             disabled={addCooldown > 0}
             style={{
-              background: addCooldown > 0 ? (isDarkMode ? '#555' : 'grey') : 'orange',
+              background:
+                addCooldown > 0 ? (isDarkMode ? "#555" : "grey") : "orange",
               color: "white",
               border: "none",
               borderRadius: 5,
@@ -5505,7 +6436,8 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
         <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
           <button
             onClick={handleSave}
-            style={{ /* Changed for dark mode */
+            style={{
+              /* Changed for dark mode */
               background: "green",
               color: "white",
               border: "none",
@@ -5517,7 +6449,8 @@ const CreatePlaylistModal = ({ onClose, onSave, initialData }) => {
           </button>
           <button
             onClick={onClose}
-            style={{ /* Changed for dark mode */
+            style={{
+              /* Changed for dark mode */
               background: "grey",
               color: "white",
               border: "none",
@@ -5603,7 +6536,8 @@ const PlaylistModal = ({
 
   const getSocialQuotaKey = useCallback((trackId, currentUser) => {
     const day = new Date().toISOString().slice(0, 10);
-    const uid = currentUser?.uid || currentUser?.id || currentUser?.account || "guest";
+    const uid =
+      currentUser?.uid || currentUser?.id || currentUser?.account || "guest";
     return `music_comment_quota_${trackId}_${uid}_${day}`;
   }, []);
 
@@ -5613,7 +6547,8 @@ const PlaylistModal = ({
         setSocialAuthUser({
           uid: firebaseUser.uid,
           account: firebaseUser.email || "",
-          firstName: firebaseUser.displayName || firebaseUser.email || "Користувач",
+          firstName:
+            firebaseUser.displayName || firebaseUser.email || "Користувач",
           avatar: firebaseUser.photoURL || "",
           email: firebaseUser.email || "",
         });
@@ -5627,7 +6562,11 @@ const PlaylistModal = ({
   useEffect(() => {
     if (!showSocialModal || !socialTargetTrack?.id) return undefined;
 
-    const statsRef = doc(db, "music_social_stats", String(socialTargetTrack.id));
+    const statsRef = doc(
+      db,
+      "music_social_stats",
+      String(socialTargetTrack.id),
+    );
     const trackCommentsRef = query(
       collection(db, "music_social_comments"),
       where("trackId", "==", String(socialTargetTrack.id)),
@@ -5654,23 +6593,41 @@ const PlaylistModal = ({
       }
     });
 
-    const unsubscribeTrackComments = onSnapshot(trackCommentsRef, (snapshot) => {
-      const next = snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
-      setSocialComments(next);
-      setSocialCommentCount(next.length);
-    });
+    const unsubscribeTrackComments = onSnapshot(
+      trackCommentsRef,
+      (snapshot) => {
+        const next = snapshot.docs.map((docSnap) => ({
+          id: docSnap.id,
+          ...docSnap.data(),
+        }));
+        setSocialComments(next);
+        setSocialCommentCount(next.length);
+      },
+    );
 
-    const unsubscribeGlobalComments = onSnapshot(globalCommentsRef, (snapshot) => {
-      const next = snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
-      setSocialGlobalComments(next.slice(0, MAX_TOTAL_COMMENTS));
-      setSocialGlobalCommentCount(next.length);
-    });
+    const unsubscribeGlobalComments = onSnapshot(
+      globalCommentsRef,
+      (snapshot) => {
+        const next = snapshot.docs.map((docSnap) => ({
+          id: docSnap.id,
+          ...docSnap.data(),
+        }));
+        setSocialGlobalComments(next.slice(0, MAX_TOTAL_COMMENTS));
+        setSocialGlobalCommentCount(next.length);
+      },
+    );
 
     const updateView = async () => {
       try {
         const current = await getDoc(statsRef);
-        const data = current.exists() ? current.data() : getInitialCommentStats();
-        await setDoc(statsRef, { ...data, views: (data.views || 0) + 1 }, { merge: true });
+        const data = current.exists()
+          ? current.data()
+          : getInitialCommentStats();
+        await setDoc(
+          statsRef,
+          { ...data, views: (data.views || 0) + 1 },
+          { merge: true },
+        );
       } catch (error) {
         console.error("Social view update failed", error);
       }
@@ -5691,20 +6648,35 @@ const PlaylistModal = ({
       setSocialCommentQuotaUsed(0);
       return;
     }
-    const quotaKey = getSocialQuotaKey(String(socialTargetTrack.id), currentUser);
-    localforage.getItem(quotaKey).then((value) => {
-      setSocialCommentQuotaUsed(Number(value) || 0);
-    }).catch(() => {
-      setSocialCommentQuotaUsed(0);
-    });
-  }, [getSocialQuotaKey, showSocialModal, socialAuthUser, socialTargetTrack?.id, user]);
+    const quotaKey = getSocialQuotaKey(
+      String(socialTargetTrack.id),
+      currentUser,
+    );
+    localforage
+      .getItem(quotaKey)
+      .then((value) => {
+        setSocialCommentQuotaUsed(Number(value) || 0);
+      })
+      .catch(() => {
+        setSocialCommentQuotaUsed(0);
+      });
+  }, [
+    getSocialQuotaKey,
+    showSocialModal,
+    socialAuthUser,
+    socialTargetTrack?.id,
+    user,
+  ]);
 
   useEffect(() => {
     if (!user?.uid && !socialAuthUser?.uid) return;
     const key = `${socialTargetTrack?.id || "track"}:${user?.uid || socialAuthUser?.uid}`;
-    const savedState = localforage.getItem(key).then((value) => {
-      if (value !== null) setSocialReactionState(normalizeLikeValue(value));
-    }).catch(() => {});
+    const savedState = localforage
+      .getItem(key)
+      .then((value) => {
+        if (value !== null) setSocialReactionState(normalizeLikeValue(value));
+      })
+      .catch(() => {});
     return () => {
       savedState.catch(() => {});
     };
@@ -5717,7 +6689,8 @@ const PlaylistModal = ({
       setSocialAuthUser({
         uid: firebaseUser.uid,
         account: firebaseUser.email || "",
-        firstName: firebaseUser.displayName || firebaseUser.email || "Користувач",
+        firstName:
+          firebaseUser.displayName || firebaseUser.email || "Користувач",
         avatar: firebaseUser.photoURL || "",
         email: firebaseUser.email || "",
       });
@@ -5750,7 +6723,10 @@ const PlaylistModal = ({
     setSocialCommentError("");
 
     try {
-      const quotaKey = getSocialQuotaKey(String(socialTargetTrack.id), currentUser);
+      const quotaKey = getSocialQuotaKey(
+        String(socialTargetTrack.id),
+        currentUser,
+      );
       const storedQuota = (await localforage.getItem(quotaKey)) || 0;
       if (storedQuota >= MAX_DAILY_COMMENTS) {
         setSocialCommentError("Сьогодні ви вже використали 4 коментарі");
@@ -5763,15 +6739,30 @@ const PlaylistModal = ({
         user: currentUser,
         text,
         avatar: currentUser.avatar || currentUser.photoURL || "",
-        color: currentUser.borderColor || currentUser.textColor || currentUser.color || "#ffb36c",
-        supporterName: currentUser.firstName || currentUser.name || currentUser.displayName || currentUser.account,
+        color:
+          currentUser.borderColor ||
+          currentUser.textColor ||
+          currentUser.color ||
+          "#ffb36c",
+        supporterName:
+          currentUser.firstName ||
+          currentUser.name ||
+          currentUser.displayName ||
+          currentUser.account,
       });
       await setDoc(doc(db, "music_social_comments", payload.id), payload);
-      await updateDoc(doc(db, "music_social_stats", String(socialTargetTrack.id)), {
-        comments: (socialStats.comments || 0) + 1,
-        updatedAt: serverTimestamp(),
-      }).catch(async () => {
-        await setDoc(doc(db, "music_social_stats", String(socialTargetTrack.id)), { comments: 1, likes: 0, dislikes: 0, views: 0 }, { merge: true });
+      await updateDoc(
+        doc(db, "music_social_stats", String(socialTargetTrack.id)),
+        {
+          comments: (socialStats.comments || 0) + 1,
+          updatedAt: serverTimestamp(),
+        },
+      ).catch(async () => {
+        await setDoc(
+          doc(db, "music_social_stats", String(socialTargetTrack.id)),
+          { comments: 1, likes: 0, dislikes: 0, views: 0 },
+          { merge: true },
+        );
       });
       await localforage.setItem(quotaKey, storedQuota + 1);
       setSocialCommentQuotaUsed(storedQuota + 1);
@@ -5782,35 +6773,55 @@ const PlaylistModal = ({
     } finally {
       setSocialLoading(false);
     }
-  }, [getSocialQuotaKey, socialCommentText, socialStats.comments, socialTargetTrack?.id, socialAuthUser, user]);
+  }, [
+    getSocialQuotaKey,
+    socialCommentText,
+    socialStats.comments,
+    socialTargetTrack?.id,
+    socialAuthUser,
+    user,
+  ]);
 
-  const handleSocialReaction = useCallback(async (nextValue) => {
-    if (!socialTargetTrack?.id) return;
-    const currentUser = socialAuthUser || user;
-    if (!currentUser) {
-      setSocialCommentError("Увійдіть, щоб ставити реакції");
-      return;
-    }
+  const handleSocialReaction = useCallback(
+    async (nextValue) => {
+      if (!socialTargetTrack?.id) return;
+      const currentUser = socialAuthUser || user;
+      if (!currentUser) {
+        setSocialCommentError("Увійдіть, щоб ставити реакції");
+        return;
+      }
 
-    const normalized = normalizeLikeValue(nextValue);
-    const reactionKey = `${String(socialTargetTrack.id)}:${currentUser.uid || currentUser.id || currentUser.account}`;
-    const previous = socialReactionState;
-    const statsRef = doc(db, "music_social_stats", String(socialTargetTrack.id));
-    const currentState = previous === normalized ? 0 : normalized;
-    setSocialReactionState(currentState);
-    await localforage.setItem(reactionKey, currentState);
+      const normalized = normalizeLikeValue(nextValue);
+      const reactionKey = `${String(socialTargetTrack.id)}:${currentUser.uid || currentUser.id || currentUser.account}`;
+      const previous = socialReactionState;
+      const statsRef = doc(
+        db,
+        "music_social_stats",
+        String(socialTargetTrack.id),
+      );
+      const currentState = previous === normalized ? 0 : normalized;
+      setSocialReactionState(currentState);
+      await localforage.setItem(reactionKey, currentState);
 
-    try {
-      const snapshot = await getDoc(statsRef);
-      const data = snapshot.exists() ? snapshot.data() : getInitialCommentStats();
-      const likes = (data.likes || 0) + (currentState === 1 ? 1 : previous === 1 ? -1 : 0);
-      const dislikes = (data.dislikes || 0) + (currentState === -1 ? 1 : previous === -1 ? -1 : 0);
-      await setDoc(statsRef, { ...data, likes, dislikes }, { merge: true });
-      setSocialStats((prev) => ({ ...prev, likes, dislikes }));
-    } catch (error) {
-      console.error("Reaction update failed", error);
-    }
-  }, [socialAuthUser, socialReactionState, socialTargetTrack?.id, user]);
+      try {
+        const snapshot = await getDoc(statsRef);
+        const data = snapshot.exists()
+          ? snapshot.data()
+          : getInitialCommentStats();
+        const likes =
+          (data.likes || 0) +
+          (currentState === 1 ? 1 : previous === 1 ? -1 : 0);
+        const dislikes =
+          (data.dislikes || 0) +
+          (currentState === -1 ? 1 : previous === -1 ? -1 : 0);
+        await setDoc(statsRef, { ...data, likes, dislikes }, { merge: true });
+        setSocialStats((prev) => ({ ...prev, likes, dislikes }));
+      } catch (error) {
+        console.error("Reaction update failed", error);
+      }
+    },
+    [socialAuthUser, socialReactionState, socialTargetTrack?.id, user],
+  );
 
   const voiceActingMode = user?.voiceActingMode || "malyatko";
 
@@ -5829,7 +6840,8 @@ const PlaylistModal = ({
   const [levelEditorTrack, setLevelEditorTrack] = useState(null);
   const handleCloseLevelEditor = () => setLevelEditorTrack(null);
 
-  const handleSaveLevelEditor = async (updatedTrack) => { /* Changed for dark mode */
+  const handleSaveLevelEditor = async (updatedTrack) => {
+    /* Changed for dark mode */
     if (!customTracks) return;
     const updatedTracks = customTracks.map((t) =>
       t.id === updatedTrack.id ? updatedTrack : t,
@@ -5845,8 +6857,13 @@ const PlaylistModal = ({
       setLevelEditorTrack(null);
     } catch (e) {
       console.error("Save error:", e);
-      if (e.name === "QuotaExceededError" || e.name === "NS_ERROR_DOM_QUOTA_REACHED") {
-        alert("❌ Помилка: Перевищено ліміт пам'яті браузера! Спробуйте видалити частину пісень або зменшити розмір зображень.");
+      if (
+        e.name === "QuotaExceededError" ||
+        e.name === "NS_ERROR_DOM_QUOTA_REACHED"
+      ) {
+        alert(
+          "❌ Помилка: Перевищено ліміт пам'яті браузера! Спробуйте видалити частину пісень або зменшити розмір зображень.",
+        );
       } else {
         alert("❌ Помилка при збереженні змін.");
       }
@@ -5920,7 +6937,8 @@ const PlaylistModal = ({
   const handleCloseLyricsModal = (e) => {
     if (e) e.stopPropagation();
     setIsLyricsClosing(true);
-    setTimeout(() => { /* Changed for dark mode */
+    setTimeout(() => {
+      /* Changed for dark mode */
       setLyricsModalData(null);
       setIsLyricsClosing(false);
     }, 500);
@@ -5945,7 +6963,8 @@ const PlaylistModal = ({
   }, [lyricsModalData]);
   const getAuthorGroupedCards = useMemo(() => {
     let cards = musicCards;
-    if (customTracks) { /* Changed for dark mode */
+    if (customTracks) {
+      /* Changed for dark mode */
       cards = [...cards, ...customTracks];
     }
     cards = cards.filter((card) =>
@@ -5964,7 +6983,7 @@ const PlaylistModal = ({
     return Object.entries(grouped).map(([author, tracks]) => ({
       author,
       tracks,
-      image: tracks[0].image, 
+      image: tracks[0].image,
     }));
   }, [searchQuery, customTracks]);
 
@@ -5974,7 +6993,7 @@ const PlaylistModal = ({
       filtered = [...filtered, ...customTracks];
     }
     if (playlistKey !== "allSongs" && playlistKey !== "custom") {
-      filtered = filtered.filter(card => card.category === playlistKey);
+      filtered = filtered.filter((card) => card.category === playlistKey);
     }
     filtered = filtered.filter((card) =>
       (card.text || "").toLowerCase().includes(searchQuery.toLowerCase()),
@@ -6006,7 +7025,7 @@ const PlaylistModal = ({
       if (fullScreenTrack && newTrack && fullScreenTrack.id !== newTrack.id) {
         setPlayHistory((prev) => {
           const next = [...prev, fullScreenTrack];
-          return next.slice(-10); 
+          return next.slice(-10);
         });
       }
       setFullScreenTrack(newTrack);
@@ -6016,7 +7035,8 @@ const PlaylistModal = ({
 
   const handleTrackEnd = (id) => {
     const currentTracks = selectedAuthor
-      ? getAuthorGroupedCards.find((a) => a.author === selectedAuthor)?.tracks || []
+      ? getAuthorGroupedCards.find((a) => a.author === selectedAuthor)
+          ?.tracks || []
       : processedCards;
 
     if (isShuffle) {
@@ -6049,7 +7069,8 @@ const PlaylistModal = ({
       return;
     }
     const currentTracks = selectedAuthor
-      ? getAuthorGroupedCards.find((a) => a.author === selectedAuthor)?.tracks || []
+      ? getAuthorGroupedCards.find((a) => a.author === selectedAuthor)
+          ?.tracks || []
       : processedCards;
 
     const idx = currentTracks.findIndex((c) => c.id === fullScreenTrack.id);
@@ -6057,11 +7078,11 @@ const PlaylistModal = ({
       handleSetFullScreenTrack(currentTracks[idx - 1]);
     }
   };
-  
+
   return (
     <div style={{ width: "100%" }}>
-            <AihelpTitle $isDarkMode={isDarkMode}>Музика</AihelpTitle>
-      <div 
+      <AihelpTitle $isDarkMode={isDarkMode}>Музика</AihelpTitle>
+      <div
         style={{
           background: "transparent",
           padding: "10px",
@@ -6070,7 +7091,7 @@ const PlaylistModal = ({
         }}
       >
         <ControlsContainer>
-            <button 
+          <button
             onClick={() => onEdit && onEdit()}
             style={{
               background: "black",
@@ -6085,9 +7106,15 @@ const PlaylistModal = ({
           >
             Стати творцем
           </button>
-          <button 
+          <button
             onClick={() => {
-              setSocialTargetTrack(toSocialTarget({ id: "general", text: "Усі пісні", isGeneral: true }));
+              setSocialTargetTrack(
+                toSocialTarget({
+                  id: "general",
+                  text: "Усі пісні",
+                  isGeneral: true,
+                }),
+              );
               setShowSocialModal(true);
             }}
             style={{
@@ -6102,9 +7129,10 @@ const PlaylistModal = ({
               marginLeft: "10px",
             }}
           >
-            Загальний Чат 
+            Загальний Чат
           </button>
-          <SearchInput $isDarkMode={isDarkMode}
+          <SearchInput
+            $isDarkMode={isDarkMode}
             type="text"
             placeholder="Пошук пісні за описом..."
             value={searchQuery}
@@ -6112,7 +7140,8 @@ const PlaylistModal = ({
           />
           <SortSelect
             value={sortOption}
-            onChange={(e) => setSortOption(e.target.value)} $isDarkMode={isDarkMode}
+            onChange={(e) => setSortOption(e.target.value)}
+            $isDarkMode={isDarkMode}
           >
             <option value="favorites">Улюблені</option>
             <option value="name_asc">Назва (А-Я)</option>
@@ -6126,8 +7155,13 @@ const PlaylistModal = ({
           {!selectedAuthor ? (
             // Показуємо авторів /* Changed for dark mode */
             getAuthorGroupedCards.slice(0, visibleCount).map((authorData) => (
-              <div key={authorData.author} style={{ position: "relative", marginBottom: 5 }}>
-                <AuthorCardWrapper onClick={() => setSelectedAuthor(authorData.author)}>
+              <div
+                key={authorData.author}
+                style={{ position: "relative", marginBottom: 5 }}
+              >
+                <AuthorCardWrapper
+                  onClick={() => setSelectedAuthor(authorData.author)}
+                >
                   <img src={authorData.image} alt={authorData.author} />
                   <AuthorInfoOverlay>
                     <h3>{authorData.author}</h3>
@@ -6140,137 +7174,223 @@ const PlaylistModal = ({
             // Показуємо пісні обраного автора /* Changed for dark mode */
             <>
               {(() => {
-                const authorMeta = authorsData.find((a) => a.author === selectedAuthor);
+                const authorMeta = authorsData.find(
+                  (a) => a.author === selectedAuthor,
+                );
                 if (authorMeta) {
                   const links = parseAuthorLinks(authorMeta);
-                  const authorGroup = getAuthorGroupedCards.find((a) => a.author === selectedAuthor);
+                  const authorGroup = getAuthorGroupedCards.find(
+                    (a) => a.author === selectedAuthor,
+                  );
                   const previewImage = authorGroup?.image;
                   return (
-<AuthorPreviewCard>
-  <AuthorPreviewImage>
-    {previewImage && <img src={previewImage} alt={selectedAuthor} />}
-    <AuthorPreviewActions style={{ position: 'absolute', bottom: 50, left: 24, zIndex: 4 }}>
-      <AuthorPreviewBtn $variant="back" onClick={() => setSelectedAuthor(null)}>
-        ← Назад до авторів
-      </AuthorPreviewBtn>
-      {links.map((linkObj, i) => (
-        <RotatingLinkButton key={i} href={linkObj.url} names={linkObj.names} />
-      ))}
-    </AuthorPreviewActions>
-    <AuthorPreviewName>{selectedAuthor}</AuthorPreviewName>
-  </AuthorPreviewImage>
-  <AuthorPreviewBody>
-    {authorMeta.info && (
-      <AuthorPreviewSection 
-        $accent="#667eea"
-        onClick={() => setAuthorModalInfo({ title: "Про автора", text: authorMeta.info, accent: "#667eea" })}
-      >
-        <span className="section-label" style={{ fontWeight: 'bold' }}>ℹ️ Про автора: </span>
-        <span className="section-text">{authorMeta.info}</span>
-      </AuthorPreviewSection>
-    )}
-    {authorMeta["Замітка"] && (
-      <AuthorPreviewSection 
-        $accent="#f59e0b"
-        onClick={() => setAuthorModalInfo({ title: "Замітка", text: authorMeta["Замітка"], accent: "#f59e0b" })}
-      >
-        <span className="section-label" style={{ fontWeight: 'bold' }}>✍️ Замітка: </span>
-        <span className="section-text">{authorMeta["Замітка"]}</span>
-      </AuthorPreviewSection>
-    )}
-    {authorMeta["Примітка"] && (
-      <AuthorPreviewSection 
-        $accent="#10b981"
-        onClick={() => setAuthorModalInfo({ title: "Примітка", text: authorMeta["Примітка"], accent: "#10b981" })}
-      >
-        <span className="section-label" style={{ fontWeight: 'bold' }}>📌 Примітка: </span>
-        <span className="section-text">{authorMeta["Примітка"]}</span>
-      </AuthorPreviewSection>
-    )}
-  </AuthorPreviewBody>
-  
-</AuthorPreviewCard>
+                    <AuthorPreviewCard>
+                      <AuthorPreviewImage>
+                        {previewImage && (
+                          <img src={previewImage} alt={selectedAuthor} />
+                        )}
+                        <AuthorPreviewName style={{ top: 15, left: 15 }}>
+                          {selectedAuthor}
+                        </AuthorPreviewName>
+                        <AuthorPreviewActions
+                          style={{
+                            position: "absolute",
+                            bottom: 5,
+                            left: 7,
+                            zIndex: 4,
+                            display: "flex",
+                            gap: 8,
+                            alignItems: "center",
+                          }}
+                        >
+                          <AuthorPreviewBtn
+                            $variant="back"
+                            onClick={() => setSelectedAuthor(null)}
+                          >
+                            ← Назад до авторів
+                          </AuthorPreviewBtn>
+                          {links.map((linkObj, i) => (
+                            <RotatingLinkButton
+                              key={i}
+                              href={linkObj.url}
+                              names={linkObj.names}
+                            />
+                          ))}
+                        </AuthorPreviewActions>
+                      </AuthorPreviewImage>
+                      <AuthorPreviewBody>
+                        {authorMeta.info && (
+                          <AuthorPreviewSection
+                            $accent="#667eea"
+                            onClick={() =>
+                              setAuthorModalInfo({
+                                title: "Про автора",
+                                text: authorMeta.info,
+                                accent: "#667eea",
+                              })
+                            }
+                          >
+                            <span
+                              className="section-label"
+                              style={{ fontWeight: "bold" }}
+                            >
+                              ℹ️ Про автора:{" "}
+                            </span>
+                            <span className="section-text">
+                              {authorMeta.info}
+                            </span>
+                          </AuthorPreviewSection>
+                        )}
+                        {authorMeta["Замітка"] && (
+                          <AuthorPreviewSection
+                            $accent="#f59e0b"
+                            onClick={() =>
+                              setAuthorModalInfo({
+                                title: "Замітка",
+                                text: authorMeta["Замітка"],
+                                accent: "#f59e0b",
+                              })
+                            }
+                          >
+                            <span
+                              className="section-label"
+                              style={{ fontWeight: "bold" }}
+                            >
+                              ✍️ Замітка:{" "}
+                            </span>
+                            <span className="section-text">
+                              {authorMeta["Замітка"]}
+                            </span>
+                          </AuthorPreviewSection>
+                        )}
+                        {authorMeta["Примітка"] && (
+                          <AuthorPreviewSection
+                            $accent="#10b981"
+                            onClick={() =>
+                              setAuthorModalInfo({
+                                title: "Примітка",
+                                text: authorMeta["Примітка"],
+                                accent: "#10b981",
+                              })
+                            }
+                          >
+                            <span
+                              className="section-label"
+                              style={{ fontWeight: "bold" }}
+                            >
+                              📌 Примітка:{" "}
+                            </span>
+                            <span className="section-text">
+                              {authorMeta["Примітка"]}
+                            </span>
+                          </AuthorPreviewSection>
+                        )}
+                      </AuthorPreviewBody>
+
+                      {/* Пісні всередині банеру — 4 в ряд */}
+                      <AuthorTracksGrid>
+                        {getAuthorGroupedCards
+                          .find((a) => a.author === selectedAuthor)
+                          ?.tracks.slice(0, visibleCount)
+                          .map((card) => (
+                            <div key={card.id} style={{ position: "relative" }}>
+                              <MusicCard
+                                cardData={card}
+                                user={user}
+                                rating={getRating(card.id)} // Pass rating
+                                onOpenModal={setLyricsModalData} // Pass lyrics modal handler
+                                onOpenPlayer={(id, startTime) => {
+                                  // Pass player open handler
+                                  const t = getAuthorGroupedCards
+                                    .find((a) => a.author === selectedAuthor)
+                                    ?.tracks.find(
+                                      (c) => c.id === id,
+                                    ); /* Changed for dark mode */
+                                  handleSetFullScreenTrack({
+                                    ...t,
+                                    initialTime: startTime || 0,
+                                  });
+                                }} // Pass player open handler
+                                onRate={handleToggleFavorite} // Pass rating handler
+                                onOpenAi={onOpenAi} // Pass AI handler
+                                onOpenSocial={(selectedCard) => {
+                                  setSocialTargetTrack(
+                                    toSocialTarget(selectedCard),
+                                  );
+                                  setShowSocialModal(true);
+                                }}
+                                onOpenInfo={(selectedCard) => {
+                                  setSocialTargetTrack(
+                                    toSocialTarget(selectedCard),
+                                  );
+                                  setShowSocialModal(true);
+                                }}
+                                checkpoint={checkpoints[card.id]}
+                                checkpointsEnabled={checkpointsEnabled}
+                              />
+                              {playlistKey === "custom" && (
+                                <div
+                                  style={{
+                                    position: "absolute",
+                                    top: 10,
+                                    right: 10,
+                                    zIndex: 2,
+                                    display: "flex",
+                                    gap: 8,
+                                  }}
+                                >
+                                  <button
+                                    style={{
+                                      background: "#7afcff",
+                                      color: "#222",
+                                      border: "none",
+                                      borderRadius: 8,
+                                      padding: "4px 10px",
+                                      fontSize: 12,
+                                      cursor: "pointer",
+                                    }}
+                                    onClick={() => setLevelEditorTrack(card)}
+                                  >
+                                    Налаштувати
+                                  </button>
+                                  <button
+                                    title="Відкрити загальний чат"
+                                    style={{
+                                      background: "#4c78ff",
+                                      color: "white",
+                                      border: "none",
+                                      borderRadius: 8,
+                                      padding: "4px 8px",
+                                      fontSize: 12,
+                                      cursor: "pointer",
+                                    }}
+                                    onClick={() => {
+                                      setSocialTargetTrack(
+                                        toSocialTarget({
+                                          id: "general",
+                                          text: "Усі пісні",
+                                          isGeneral: true,
+                                        }),
+                                      );
+                                      setShowSocialModal(true);
+                                    }}
+                                  >
+                                    <BsWechat />
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                      </AuthorTracksGrid>
+                    </AuthorPreviewCard>
                   );
                 }
                 return null;
               })()}
-              {getAuthorGroupedCards
-                .find((a) => a.author === selectedAuthor)
-                ?.tracks.slice(0, visibleCount)
-                .map((card) => (
-                  <div
-                    key={card.id}
-                    style={{ position: "relative", marginBottom: 10 }}
-                  >
-                    <MusicCard
-                      cardData={card}
-                      user={user}
-                      rating={getRating(card.id)} // Pass rating
-                      onOpenModal={setLyricsModalData} // Pass lyrics modal handler
-                      onOpenPlayer={(id, startTime) => { // Pass player open handler
-                        const t = getAuthorGroupedCards
-                          .find((a) => a.author === selectedAuthor)
-                          ?.tracks.find((c) => c.id === id); /* Changed for dark mode */
-                        handleSetFullScreenTrack({
-                          ...t,
-                          initialTime: startTime || 0,
-                        });
-                      }} // Pass player open handler
-                      onRate={handleToggleFavorite} // Pass rating handler
-                      onOpenAi={onOpenAi} // Pass AI handler
-                      onOpenSocial={(selectedCard) => {
-                        setSocialTargetTrack(toSocialTarget(selectedCard));
-                        setShowSocialModal(true);
-                      }}
-                      onOpenInfo={(selectedCard) => {
-                        setSocialTargetTrack(toSocialTarget(selectedCard));
-                        setShowSocialModal(true);
-                      }}
-                      checkpoint={checkpoints[card.id]}
-                      checkpointsEnabled={checkpointsEnabled}
-                    />
-                    {playlistKey === "custom" && (
-                      <div style={{ position: "absolute", top: 10, right: 10, zIndex: 2, display: 'flex', gap: 8 }}>
-                        <button
-                          style={{
-                            background: "#7afcff",
-                            color: "#222",
-                            border: "none",
-                            borderRadius: 8,
-                            padding: "4px 10px",
-                            fontSize: 12,
-                            cursor: "pointer",
-                          }}
-                          onClick={() => setLevelEditorTrack(card)}
-                        >
-                          Налаштувати
-                        </button>
-                        <button
-                          title="Відкрити загальний чат"
-                          style={{
-                            background: "#4c78ff",
-                            color: "white",
-                            border: "none",
-                            borderRadius: 8,
-                            padding: "4px 8px",
-                            fontSize: 12,
-                            cursor: "pointer",
-                          }}
-                          onClick={() => {
-                            setSocialTargetTrack(toSocialTarget({ id: "general", text: "Усі пісні", isGeneral: true }));
-                            setShowSocialModal(true);
-                          }}
-                        >
-                          <BsWechat />
-                         </button>
-                      </div>
-                    )}
-                  </div>
-                ))}   {}
             </>
           )}
-                  </MusicPhotoFix>
-        {levelEditorTrack && ( /* Changed for dark mode */
+        </MusicPhotoFix>
+        {levelEditorTrack /* Changed for dark mode */ && (
           <ModalOverlay onClick={handleCloseLevelEditor}>
             <PlaylistModalContent onClick={(e) => e.stopPropagation()}>
               <PlaylistCloseButton onClick={handleCloseLevelEditor}>
@@ -6291,7 +7411,7 @@ const PlaylistModal = ({
                           time: levelEditorTrack.lyrics?.[0]?.time || 0,
                           text: val,
                         },
-                      ], /* Changed for dark mode */
+                      ] /* Changed for dark mode */,
                     });
                   }}
                   style={{ width: "100%" }}
@@ -6562,7 +7682,8 @@ const PlaylistModal = ({
 
         {(() => {
           const maxCount = selectedAuthor
-            ? getAuthorGroupedCards.find((a) => a.author === selectedAuthor)?.tracks.length || 0
+            ? getAuthorGroupedCards.find((a) => a.author === selectedAuthor)
+                ?.tracks.length || 0
             : getAuthorGroupedCards.length; // Total number of authors
           return visibleCount < maxCount ? (
             <LoadMoreButton
@@ -6624,56 +7745,202 @@ const PlaylistModal = ({
       </div>
       {showSocialModal && socialTargetTrack && (
         <ModalOverlay onClick={() => setShowSocialModal(false)}>
-          <PlaylistModalContent onClick={(e) => e.stopPropagation()} style={{ maxWidth: 760, width: "92%", padding: 20, maxHeight: "85vh", overflowY: "auto", background: isDarkMode ? "#1f2335" : "#fffaf4", color: isDarkMode ? "#f2f2f2" : "#111" }}>
-            <PlaylistCloseButton onClick={() => setShowSocialModal(false)} style={{ color: isDarkMode ? "#fff" : "#111" }}>
+          <PlaylistModalContent
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              maxWidth: 760,
+              width: "92%",
+              padding: 20,
+              maxHeight: "85vh",
+              overflowY: "auto",
+              background: isDarkMode ? "#1f2335" : "#fffaf4",
+              color: isDarkMode ? "#f2f2f2" : "#111",
+            }}
+          >
+            <PlaylistCloseButton
+              onClick={() => setShowSocialModal(false)}
+              style={{ color: isDarkMode ? "#fff" : "#111" }}
+            >
               &times;
             </PlaylistCloseButton>
             <h3>
-        {socialTargetTrack?.isGeneral ? "🌐 Загальний чат" : `🎵 ${socialTargetTrack?.author || ""} — ${socialTargetTrack?.text || ""}`}
-      </h3>
+              {socialTargetTrack?.isGeneral
+                ? "🌐 Загальний чат"
+                : `🎵 ${socialTargetTrack?.author || ""} — ${socialTargetTrack?.text || ""}`}
+            </h3>
             <div style={{ display: "grid", gap: 12, marginBottom: 16 }}>
               <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                <span style={{ background: "rgba(255,179,108,0.2)", padding: "6px 10px", borderRadius: 999 }}>Тривалість: {Math.floor(socialTargetTrack.duration || 0)}с</span>
-                <span style={{ background: "rgba(122,252,255,0.15)", padding: "6px 10px", borderRadius: 999 }}>Перегляди: {socialStats.views}</span>
-                <span style={{ background: "rgba(255,107,107,0.15)", padding: "6px 10px", borderRadius: 999 }}>Лайки: {socialStats.likes}</span>
-                <span style={{ background: "rgba(90,90,255,0.15)", padding: "6px 10px", borderRadius: 999 }}>Дизлайки: {socialStats.dislikes}</span>
-                <span style={{ background: "rgba(255,255,255,0.15)", padding: "6px 10px", borderRadius: 999 }}>Коментарі: {socialCommentCount}</span>
+                <span
+                  style={{
+                    background: "rgba(255,179,108,0.2)",
+                    padding: "6px 10px",
+                    borderRadius: 999,
+                  }}
+                >
+                  Тривалість: {Math.floor(socialTargetTrack.duration || 0)}с
+                </span>
+                <span
+                  style={{
+                    background: "rgba(122,252,255,0.15)",
+                    padding: "6px 10px",
+                    borderRadius: 999,
+                  }}
+                >
+                  Перегляди: {socialStats.views}
+                </span>
+                <span
+                  style={{
+                    background: "rgba(255,107,107,0.15)",
+                    padding: "6px 10px",
+                    borderRadius: 999,
+                  }}
+                >
+                  Лайки: {socialStats.likes}
+                </span>
+                <span
+                  style={{
+                    background: "rgba(90,90,255,0.15)",
+                    padding: "6px 10px",
+                    borderRadius: 999,
+                  }}
+                >
+                  Дизлайки: {socialStats.dislikes}
+                </span>
+                <span
+                  style={{
+                    background: "rgba(255,255,255,0.15)",
+                    padding: "6px 10px",
+                    borderRadius: 999,
+                  }}
+                >
+                  Коментарі: {socialCommentCount}
+                </span>
               </div>
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                <button onClick={() => handleSocialReaction(1)} style={{ border: "none", borderRadius: 999, padding: "8px 12px", cursor: "pointer", background: socialReactionState === 1 ? "#ff4d6d" : "#e8e8e8", color: socialReactionState === 1 ? "#fff" : "#111" }}>❤ Лайк</button>
-                <button onClick={() => handleSocialReaction(-1)} style={{ border: "none", borderRadius: 999, padding: "8px 12px", cursor: "pointer", background: socialReactionState === -1 ? "#4c78ff" : "#e8e8e8", color: socialReactionState === -1 ? "#fff" : "#111" }}>👎 Дизлайк</button>
+                <button
+                  onClick={() => handleSocialReaction(1)}
+                  style={{
+                    border: "none",
+                    borderRadius: 999,
+                    padding: "8px 12px",
+                    cursor: "pointer",
+                    background:
+                      socialReactionState === 1 ? "#ff4d6d" : "#e8e8e8",
+                    color: socialReactionState === 1 ? "#fff" : "#111",
+                  }}
+                >
+                  ❤ Лайк
+                </button>
+                <button
+                  onClick={() => handleSocialReaction(-1)}
+                  style={{
+                    border: "none",
+                    borderRadius: 999,
+                    padding: "8px 12px",
+                    cursor: "pointer",
+                    background:
+                      socialReactionState === -1 ? "#4c78ff" : "#e8e8e8",
+                    color: socialReactionState === -1 ? "#fff" : "#111",
+                  }}
+                >
+                  👎 Дизлайк
+                </button>
               </div>
             </div>
-            
-            <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", marginBottom: 12 }}>
+
+            <div
+              style={{
+                display: "flex",
+                gap: 10,
+                alignItems: "center",
+                flexWrap: "wrap",
+                marginBottom: 12,
+              }}
+            >
               {/* ТУТ ВИПРАВЛЕНО: Додано початок тернарного оператора перевірки юзера */}
               {!(socialAuthUser || user) ? (
-                <button onClick={handleGoogleSignIn} style={{ border: "none", borderRadius: 999, padding: "8px 12px", cursor: "pointer", background: "#4285f4", color: "#fff" }}>🔑 Увійти з Google</button>
+                <button
+                  onClick={handleGoogleSignIn}
+                  style={{
+                    border: "none",
+                    borderRadius: 999,
+                    padding: "8px 12px",
+                    cursor: "pointer",
+                    background: "#4285f4",
+                    color: "#fff",
+                  }}
+                >
+                  🔑 Увійти з Google
+                </button>
               ) : (
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  {(getAvatarSrc(socialAuthUser?.avatar) || getAvatarSrc(user?.avatar)) && (
+                  {(getAvatarSrc(socialAuthUser?.avatar) ||
+                    getAvatarSrc(user?.avatar)) && (
                     <img
-                      src={getAvatarSrc(socialAuthUser?.avatar) || getAvatarSrc(user?.avatar)}
+                      src={
+                        getAvatarSrc(socialAuthUser?.avatar) ||
+                        getAvatarSrc(user?.avatar)
+                      }
                       alt="avatar"
-                      style={{ width: 30, height: 30, borderRadius: "50%", objectFit: "cover", border: "2px solid #ffb36c" }}
+                      style={{
+                        width: 30,
+                        height: 30,
+                        borderRadius: "50%",
+                        objectFit: "cover",
+                        border: "2px solid #ffb36c",
+                      }}
                     />
                   )}
-                  <span style={{ fontSize: 13, opacity: 0.8 }}>Увійшли як {socialAuthUser?.firstName || user?.firstName || user?.account || "користувач"}</span>
+                  <span style={{ fontSize: 13, opacity: 0.8 }}>
+                    Увійшли як{" "}
+                    {socialAuthUser?.firstName ||
+                      user?.firstName ||
+                      user?.account ||
+                      "користувач"}
+                  </span>
                 </div>
               )}
-              <span style={{ fontSize: 12, opacity: 0.7 }}>Залишилось коментарів сьогодні: {getDailyCommentQuotaLeft(MAX_DAILY_COMMENTS, socialCommentQuotaUsed)}</span>
+              <span style={{ fontSize: 12, opacity: 0.7 }}>
+                Залишилось коментарів сьогодні:{" "}
+                {getDailyCommentQuotaLeft(
+                  MAX_DAILY_COMMENTS,
+                  socialCommentQuotaUsed,
+                )}
+              </span>
             </div>
             {socialTargetTrack?.isGeneral && (
-              <div style={{ background: "rgba(76,120,255,0.12)", borderRadius: 12, padding: "8px 14px", fontSize: 13, color: isDarkMode ? "#aac4ff" : "#2244aa", border: "1px solid rgba(76,120,255,0.25)", marginBottom: 8 }}>
-                 Повідомлення будуть видимі всім у загальному чаті
+              <div
+                style={{
+                  background: "rgba(76,120,255,0.12)",
+                  borderRadius: 12,
+                  padding: "8px 14px",
+                  fontSize: 13,
+                  color: isDarkMode ? "#aac4ff" : "#2244aa",
+                  border: "1px solid rgba(76,120,255,0.25)",
+                  marginBottom: 8,
+                }}
+              >
+                Повідомлення будуть видимі всім у загальному чаті
               </div>
             )}
             <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
-              {(getAvatarSrc(socialAuthUser?.avatar) || getAvatarSrc(user?.avatar)) && (
+              {(getAvatarSrc(socialAuthUser?.avatar) ||
+                getAvatarSrc(user?.avatar)) && (
                 <img
-                  src={getAvatarSrc(socialAuthUser?.avatar) || getAvatarSrc(user?.avatar)}
+                  src={
+                    getAvatarSrc(socialAuthUser?.avatar) ||
+                    getAvatarSrc(user?.avatar)
+                  }
                   alt="avatar"
-                  style={{ width: 38, height: 38, borderRadius: "50%", objectFit: "cover", border: "2px solid #ffb36c", flexShrink: 0, marginTop: 2 }}
+                  style={{
+                    width: 38,
+                    height: 38,
+                    borderRadius: "50%",
+                    objectFit: "cover",
+                    border: "2px solid #ffb36c",
+                    flexShrink: 0,
+                    marginTop: 2,
+                  }}
                 />
               )}
               {(() => {
@@ -6684,59 +7951,238 @@ const PlaylistModal = ({
                     value={socialCommentText}
                     onChange={(e) => setSocialCommentText(e.target.value)}
                     maxLength={1000}
-                    placeholder={!currentUser ? "Увійдіть щоб написати коментар..." : !canComment ? "Вам заборонено залишати коментарі" : "Залиште коментар..."}
+                    placeholder={
+                      !currentUser
+                        ? "Увійдіть щоб написати коментар..."
+                        : !canComment
+                          ? "Вам заборонено залишати коментарі"
+                          : "Залиште коментар..."
+                    }
                     disabled={!canComment}
-                    style={{ flex: 1, minHeight: 90, borderRadius: 12, padding: 10, border: "1px solid rgba(0,0,0,0.15)", resize: "vertical", opacity: !canComment ? 0.6 : 1 }}
+                    style={{
+                      flex: 1,
+                      minHeight: 90,
+                      borderRadius: 12,
+                      padding: 10,
+                      border: "1px solid rgba(0,0,0,0.15)",
+                      resize: "vertical",
+                      opacity: !canComment ? 0.6 : 1,
+                    }}
                   />
                 );
               })()}
             </div>
-            {socialCommentError && <div style={{ color: "#ff4d6d", fontSize: 12, marginTop: 6 }}>{socialCommentError}</div>}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 8 }}>
-              <span style={{ fontSize: 12, opacity: 0.7 }}>{socialCommentText.length}/1000</span>
-              <button onClick={handleSocialCommentSubmit} disabled={socialLoading} style={{ border: "none", borderRadius: 999, padding: "8px 12px", cursor: "pointer", background: "#ffb36c", color: "#111", opacity: socialLoading ? 0.6 : 1 }}>{socialLoading ? "Надсилаю..." : "Надіслати"}</button>
+            {socialCommentError && (
+              <div style={{ color: "#ff4d6d", fontSize: 12, marginTop: 6 }}>
+                {socialCommentError}
+              </div>
+            )}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginTop: 8,
+              }}
+            >
+              <span style={{ fontSize: 12, opacity: 0.7 }}>
+                {socialCommentText.length}/1000
+              </span>
+              <button
+                onClick={handleSocialCommentSubmit}
+                disabled={socialLoading}
+                style={{
+                  border: "none",
+                  borderRadius: 999,
+                  padding: "8px 12px",
+                  cursor: "pointer",
+                  background: "#ffb36c",
+                  color: "#111",
+                  opacity: socialLoading ? 0.6 : 1,
+                }}
+              >
+                {socialLoading ? "Надсилаю..." : "Надіслати"}
+              </button>
             </div>
             <div style={{ marginTop: 16, display: "grid", gap: 14 }}>
               {!socialTargetTrack?.isGeneral && (
                 <div>
-                  <div style={{ fontWeight: 700, marginBottom: 8 }}>Коментарі до цієї пісні</div>
+                  <div style={{ fontWeight: 700, marginBottom: 8 }}>
+                    Коментарі до цієї пісні
+                  </div>
                   <div style={{ display: "grid", gap: 10 }}>
-                    {socialComments.slice(0, MAX_VISIBLE_COMMENTS).map((comment) => (
-                      <div key={comment.id} style={{ background: isDarkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)", borderRadius: 14, padding: 10, border: "1px solid rgba(255,179,108,0.2)" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                          <div style={{ width: 38, height: 38, borderRadius: "50%", border: `2px solid ${comment.user?.color || "#ffb36c"}`, overflow: "hidden", background: "#fff" }}>
-                            {getAvatarSrc(comment.user?.avatar) ? <img src={getAvatarSrc(comment.user?.avatar)} alt={comment.user?.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>👤</div>}
+                    {socialComments
+                      .slice(0, MAX_VISIBLE_COMMENTS)
+                      .map((comment) => (
+                        <div
+                          key={comment.id}
+                          style={{
+                            background: isDarkMode
+                              ? "rgba(255,255,255,0.08)"
+                              : "rgba(0,0,0,0.04)",
+                            borderRadius: 14,
+                            padding: 10,
+                            border: "1px solid rgba(255,179,108,0.2)",
+                          }}
+                        >
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 10,
+                            }}
+                          >
+                            <div
+                              style={{
+                                width: 38,
+                                height: 38,
+                                borderRadius: "50%",
+                                border: `2px solid ${comment.user?.color || "#ffb36c"}`,
+                                overflow: "hidden",
+                                background: "#fff",
+                              }}
+                            >
+                              {getAvatarSrc(comment.user?.avatar) ? (
+                                <img
+                                  src={getAvatarSrc(comment.user?.avatar)}
+                                  alt={comment.user?.name}
+                                  style={{
+                                    width: "100%",
+                                    height: "100%",
+                                    objectFit: "cover",
+                                  }}
+                                />
+                              ) : (
+                                <div
+                                  style={{
+                                    width: "100%",
+                                    height: "100%",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    fontSize: 16,
+                                  }}
+                                >
+                                  👤
+                                </div>
+                              )}
+                            </div>
+                            <div>
+                              <div style={{ fontWeight: 700 }}>
+                                {comment.user?.name || "Гість"}
+                              </div>
+                              <div style={{ fontSize: 11, opacity: 0.7 }}>
+                                {new Date(
+                                  comment.createdAt || Date.now(),
+                                ).toLocaleString("uk-UA")}
+                              </div>
+                            </div>
                           </div>
-                          <div>
-                            <div style={{ fontWeight: 700 }}>{comment.user?.name || "Гість"}</div>
-                            <div style={{ fontSize: 11, opacity: 0.7 }}>{new Date(comment.createdAt || Date.now()).toLocaleString("uk-UA")}</div>
+                          <div
+                            style={{
+                              marginTop: 8,
+                              whiteSpace: "pre-wrap",
+                              wordBreak: "break-word",
+                            }}
+                          >
+                            {comment.text}
                           </div>
                         </div>
-                        <div style={{ marginTop: 8, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{comment.text}</div>
+                      ))}
+                    {!socialComments.length && (
+                      <div style={{ opacity: 0.7, fontSize: 13 }}>
+                        Ще немає коментарів до цієї пісні.
                       </div>
-                    ))}
-                    {!socialComments.length && <div style={{ opacity: 0.7, fontSize: 13 }}>Ще немає коментарів до цієї пісні.</div>}
+                    )}
                   </div>
                 </div>
               )}
               <div>
-                <div style={{ fontWeight: 700, marginBottom: 8 }}>Загальні коментарі ({socialGlobalCommentCount})</div>
+                <div style={{ fontWeight: 700, marginBottom: 8 }}>
+                  Загальні коментарі ({socialGlobalCommentCount})
+                </div>
                 <div style={{ display: "grid", gap: 10 }}>
                   {socialGlobalComments.map((comment) => (
-                    <div key={comment.id} style={{ background: isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.03)", borderRadius: 14, padding: 10, border: "1px solid rgba(122,252,255,0.2)" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                        <div style={{ width: 38, height: 38, borderRadius: "50%", border: `2px solid ${comment.user?.color || "#ffb36c"}`, overflow: "hidden", background: "#fff" }}>
-                          {getAvatarSrc(comment.user?.avatar) ? <img src={getAvatarSrc(comment.user?.avatar)} alt={comment.user?.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>👤</div>}
+                    <div
+                      key={comment.id}
+                      style={{
+                        background: isDarkMode
+                          ? "rgba(255,255,255,0.06)"
+                          : "rgba(0,0,0,0.03)",
+                        borderRadius: 14,
+                        padding: 10,
+                        border: "1px solid rgba(122,252,255,0.2)",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 10,
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: 38,
+                            height: 38,
+                            borderRadius: "50%",
+                            border: `2px solid ${comment.user?.color || "#ffb36c"}`,
+                            overflow: "hidden",
+                            background: "#fff",
+                          }}
+                        >
+                          {getAvatarSrc(comment.user?.avatar) ? (
+                            <img
+                              src={getAvatarSrc(comment.user?.avatar)}
+                              alt={comment.user?.name}
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
+                              }}
+                            />
+                          ) : (
+                            <div
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                fontSize: 16,
+                              }}
+                            >
+                              👤
+                            </div>
+                          )}
                         </div>
                         <div>
-                          <div style={{ fontWeight: 700 }}>{comment.user?.name || "Гість"}</div>
-                          <div style={{ fontSize: 11, opacity: 0.7 }}>{comment.trackId ? `Пісня #${comment.trackId}` : "Усі пісні"}</div>
+                          <div style={{ fontWeight: 700 }}>
+                            {comment.user?.name || "Гість"}
+                          </div>
+                          <div style={{ fontSize: 11, opacity: 0.7 }}>
+                            {comment.trackId
+                              ? `Пісня #${comment.trackId}`
+                              : "Усі пісні"}
+                          </div>
                         </div>
                       </div>
-                      <div style={{ marginTop: 8, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{comment.text}</div>
+                      <div
+                        style={{
+                          marginTop: 8,
+                          whiteSpace: "pre-wrap",
+                          wordBreak: "break-word",
+                        }}
+                      >
+                        {comment.text}
+                      </div>
                     </div>
                   ))}
-                  {!socialGlobalComments.length && <div style={{ opacity: 0.7, fontSize: 13 }}>Ще немає загальних коментарів.</div>}
+                  {!socialGlobalComments.length && (
+                    <div style={{ opacity: 0.7, fontSize: 13 }}>
+                      Ще немає загальних коментарів.
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -6768,8 +8214,7 @@ const PlaylistModal = ({
             setSocialTargetTrack(toSocialTarget(fullScreenTrack));
             setShowSocialModal(true);
           }}
-          playlist={selectedAuthor
-            ? processedCards : []} // Playlist should be the currently filtered songs
+          playlist={selectedAuthor ? processedCards : []} // Playlist should be the currently filtered songs
           onSelectTrack={setFullScreenTrack}
           onUpdateUser={onUpdateUser}
           checkpoint={checkpoints[fullScreenTrack.id]}
@@ -6784,44 +8229,63 @@ const PlaylistModal = ({
 
       <AnimatePresence>
         {authorModalInfo && (
-          <ModalOverlay 
+          <ModalOverlay
             onClick={() => setAuthorModalInfo(null)}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <PlaylistModalContent 
+            <PlaylistModalContent
               onClick={(e) => e.stopPropagation()}
               initial={{ y: 50, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 50, opacity: 0 }}
               style={{
-                background: 'linear-gradient(145deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
-                color: 'white',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                padding: '24px',
-                borderRadius: '16px',
-                maxWidth: '600px',
-                width: '90%',
-                maxHeight: '80vh',
-                overflowY: 'auto',
-                zIndex: 1000
+                background:
+                  "linear-gradient(145deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
+                color: "white",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                padding: "24px",
+                borderRadius: "16px",
+                maxWidth: "600px",
+                width: "90%",
+                maxHeight: "80vh",
+                overflowY: "auto",
+                zIndex: 1000,
               }}
             >
-              <PlaylistCloseButton onClick={() => setAuthorModalInfo(null)} style={{ color: 'white' }}>
+              <PlaylistCloseButton
+                onClick={() => setAuthorModalInfo(null)}
+                style={{ color: "white" }}
+              >
                 &times;
               </PlaylistCloseButton>
-              <h3 style={{ color: authorModalInfo.accent, marginBottom: '15px', borderBottom: `2px solid ${authorModalInfo.accent}40`, paddingBottom: '10px' }}>
+              <h3
+                style={{
+                  color: authorModalInfo.accent,
+                  marginBottom: "15px",
+                  borderBottom: `2px solid ${authorModalInfo.accent}40`,
+                  paddingBottom: "10px",
+                }}
+              >
                 {authorModalInfo.title}
               </h3>
-              <p style={{ lineHeight: '1.6', whiteSpace: 'pre-wrap', color: 'rgba(255, 255, 255, 0.9)', fontSize: '15px', wordBreak: 'break-word', margin: 0 }}>
+              <p
+                style={{
+                  lineHeight: "1.6",
+                  whiteSpace: "pre-wrap",
+                  color: "rgba(255, 255, 255, 0.9)",
+                  fontSize: "15px",
+                  wordBreak: "break-word",
+                  margin: 0,
+                }}
+              >
                 {authorModalInfo.text}
               </p>
             </PlaylistModalContent>
           </ModalOverlay>
         )}
       </AnimatePresence>
-
     </div>
   );
 };
@@ -6830,19 +8294,23 @@ const parseAuthorLinks = (authorMeta) => {
   const links = [];
   if (authorMeta.link) {
     if (Array.isArray(authorMeta.link)) {
-      authorMeta.link.forEach((l, i) => links.push({ url: l, names: [`Посилання ${i + 1}`] }));
+      authorMeta.link.forEach((l, i) =>
+        links.push({ url: l, names: [`Посилання ${i + 1}`] }),
+      );
     } else {
       links.push({ url: authorMeta.link, names: ["Посилання"] });
     }
   }
 
-  const linkKeys = Object.keys(authorMeta).filter(k => k.startsWith('linkk'));
-  linkKeys.forEach(key => {
-    const suffix = key.replace('linkk', ''); 
+  const linkKeys = Object.keys(authorMeta).filter((k) => k.startsWith("linkk"));
+  linkKeys.forEach((key) => {
+    const suffix = key.replace("linkk", "");
     const url = authorMeta[key];
-    const nameKeys = Object.keys(authorMeta).filter(k => k.startsWith(`linkname${suffix}`));
+    const nameKeys = Object.keys(authorMeta).filter((k) =>
+      k.startsWith(`linkname${suffix}`),
+    );
     nameKeys.sort();
-    const names = nameKeys.map(nk => authorMeta[nk]);
+    const names = nameKeys.map((nk) => authorMeta[nk]);
     if (names.length === 0) names.push("Посилання");
     links.push({ url, names });
   });
@@ -6861,7 +8329,7 @@ const RotatingLinkButton = ({ href, names }) => {
       setIndex((prev) => (prev + 1) % len);
     }, 3000);
     return () => clearInterval(interval);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [namesStr]);
 
   const currentName = names && names.length > 0 ? names[index] : "Посилання";
@@ -6878,7 +8346,13 @@ const RotatingLinkButton = ({ href, names }) => {
   );
 };
 
-const MusicPhoto = ({ user, onOpenRegister, isAnyModalOpen, onUpdateUser, onFsToggle }) => {
+const MusicPhoto = ({
+  user,
+  onOpenRegister,
+  isAnyModalOpen,
+  onUpdateUser,
+  onFsToggle,
+}) => {
   const [currentPlaylist, setCurrentPlaylist] = useState("allSongs"); // Default to showing all songs/authors
   const [showCreateModal, setShowCreateModal] = useState(false);
 
@@ -6968,7 +8442,6 @@ const MusicPhoto = ({ user, onOpenRegister, isAnyModalOpen, onUpdateUser, onFsTo
     await localforage.setItem("custom_playlist", updatedPlaylist);
   };
 
-
   const saveCustomPlaylist = async (data) => {
     try {
       setCustomPlaylist(data);
@@ -6976,8 +8449,13 @@ const MusicPhoto = ({ user, onOpenRegister, isAnyModalOpen, onUpdateUser, onFsTo
       setShowCreateModal(false);
     } catch (e) {
       console.error("Save error:", e);
-      if (e.name === "QuotaExceededError" || e.name === "NS_ERROR_DOM_QUOTA_REACHED") {
-        alert("❌ Помилка: Недостатньо місця для збереження плейлиста. Спробуйте використати менше пісень або стиснути зображення.");
+      if (
+        e.name === "QuotaExceededError" ||
+        e.name === "NS_ERROR_DOM_QUOTA_REACHED"
+      ) {
+        alert(
+          "❌ Помилка: Недостатньо місця для збереження плейлиста. Спробуйте використати менше пісень або стиснути зображення.",
+        );
       } else {
         alert("Помилка збереження! Можливо, файли занадто великі.");
       }
@@ -6995,52 +8473,52 @@ const MusicPhoto = ({ user, onOpenRegister, isAnyModalOpen, onUpdateUser, onFsTo
       )}
 
       <PlaylistModal
-          playlistKey="allSongs"
-          user={user}
-          onOpenRegister={onOpenRegister}
-          customTracks={customPlaylist?.tracks}
-          onUpdateCustomPlaylist={setCustomPlaylist}
-          onEdit={() => setShowCreateModal(true)}
-          onMiniPlayer={(track, time, isPlaying, volume, speed) => {
-            onFsToggle(false);
-            setMiniPlayerTrack(track);
-            setMiniPlayerInitialTime(time);
-            setMiniPlayerInitialIsPlaying(isPlaying);
-            setMiniPlayerInitialVolume(volume);
-            setMiniPlayerInitialSpeed(speed);
-            setCurrentPlaylist(null);
-            setAudioBarTrack(null);
-            setRestoreTrack(null);
-          }}
-          onAudioBar={(track, time, isPlaying, volume, speed) => {
-            onFsToggle(false);
-            setAudioBarTrack(track);
-            setMiniPlayerInitialTime(time);
-            setMiniPlayerInitialIsPlaying(isPlaying);
-            setMiniPlayerInitialVolume(volume);
-            setMiniPlayerInitialSpeed(speed);
-            setCurrentPlaylist(null);
-            setMiniPlayerTrack(null);
-            setRestoreTrack(null);
-          }}
-          onOpenAi={setActiveAiTrack}
-          onDeleteTrack={deleteTrackFromCustomPlaylist}
-          onFsToggle={onFsToggle}
-          customPlaylistName={
-            currentPlaylist === "custom" ? customPlaylist?.name : null
-          }
-          initialFullScreenTrack={restoreTrack}
-          onUpdateUser={onUpdateUser}
-          checkpoints={checkpoints}
-          checkpointsEnabled={checkpointsEnabled}
-          onSaveCheckpoint={handleSaveCheckpoint}
-          onClearCheckpoint={handleClearCheckpoint}
-          onToggleCheckpoints={async () => {
-            const val = !checkpointsEnabled;
-            setCheckpointsEnabled(val);
-            await localforage.setItem("checkpoints_enabled", val);
-          }}
-        />
+        playlistKey="allSongs"
+        user={user}
+        onOpenRegister={onOpenRegister}
+        customTracks={customPlaylist?.tracks}
+        onUpdateCustomPlaylist={setCustomPlaylist}
+        onEdit={() => setShowCreateModal(true)}
+        onMiniPlayer={(track, time, isPlaying, volume, speed) => {
+          onFsToggle(false);
+          setMiniPlayerTrack(track);
+          setMiniPlayerInitialTime(time);
+          setMiniPlayerInitialIsPlaying(isPlaying);
+          setMiniPlayerInitialVolume(volume);
+          setMiniPlayerInitialSpeed(speed);
+          setCurrentPlaylist(null);
+          setAudioBarTrack(null);
+          setRestoreTrack(null);
+        }}
+        onAudioBar={(track, time, isPlaying, volume, speed) => {
+          onFsToggle(false);
+          setAudioBarTrack(track);
+          setMiniPlayerInitialTime(time);
+          setMiniPlayerInitialIsPlaying(isPlaying);
+          setMiniPlayerInitialVolume(volume);
+          setMiniPlayerInitialSpeed(speed);
+          setCurrentPlaylist(null);
+          setMiniPlayerTrack(null);
+          setRestoreTrack(null);
+        }}
+        onOpenAi={setActiveAiTrack}
+        onDeleteTrack={deleteTrackFromCustomPlaylist}
+        onFsToggle={onFsToggle}
+        customPlaylistName={
+          currentPlaylist === "custom" ? customPlaylist?.name : null
+        }
+        initialFullScreenTrack={restoreTrack}
+        onUpdateUser={onUpdateUser}
+        checkpoints={checkpoints}
+        checkpointsEnabled={checkpointsEnabled}
+        onSaveCheckpoint={handleSaveCheckpoint}
+        onClearCheckpoint={handleClearCheckpoint}
+        onToggleCheckpoints={async () => {
+          const val = !checkpointsEnabled;
+          setCheckpointsEnabled(val);
+          await localforage.setItem("checkpoints_enabled", val);
+        }}
+      />
       <AnimatePresence>
         {miniPlayerTrack && (
           <MiniPlayer

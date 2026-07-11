@@ -373,7 +373,9 @@ const ChatWrapper = styled.div`
   padding: 10px;
   background: rgba(255, 255, 255, 0.3);
   border-radius: 15px;
-  &::-webkit-scrollbar { width: 4px; }
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
 `;
 
 const Message = styled.div`
@@ -382,22 +384,25 @@ const Message = styled.div`
   font-size: 13px;
   max-width: 85%;
   position: relative;
-  ${props => props.$isUser ? css`
-    background: #8a2be2;
-    color: white;
-    align-self: flex-end;
-  ` : css`
-    background: white;
-    color: #333;
-    align-self: flex-start;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-  `}
+  ${(props) =>
+    props.$isUser
+      ? css`
+          background: #8a2be2;
+          color: white;
+          align-self: flex-end;
+        `
+      : css`
+          background: white;
+          color: #333;
+          align-self: flex-start;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        `}
 `;
 
 const EditBtn = styled.button`
   background: none;
   border: none;
-  color: rgba(255,255,255,0.7);
+  color: rgba(255, 255, 255, 0.7);
   font-size: 10px;
   cursor: pointer;
   margin-top: 4px;
@@ -478,13 +483,20 @@ const InfoModal = ({ onClose, isOpen }) => {
       const savedHistory = await localforage.getItem("user_help_session");
       if (savedKey) setGeminiKey(savedKey);
       if (savedHistory) setChatHistory(savedHistory);
-      else setChatHistory([{ text: "Привіт! Я твій асистент 'Стихії'. Запитай мене про погоду, пісні або правила сайту.", isBot: true }]);
+      else
+        setChatHistory([
+          {
+            text: "Привіт! Я твій асистент 'Стихії'. Запитай мене про погоду, пісні або правила сайту.",
+            isBot: true,
+          },
+        ]);
     };
     initAi();
   }, []);
 
   useEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    if (scrollRef.current)
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [chatHistory, isAiLoading]);
 
   const saveSession = async (history) => {
@@ -502,7 +514,12 @@ const InfoModal = ({ onClose, isOpen }) => {
 
   const handleClearHistory = async () => {
     if (window.confirm("Очистити історію чату з асистентом?")) {
-      const resetMsg = [{ text: "Привіт! Я твій асистент 'Стихії'. Запитай мене про погоду, пісні або правила сайту.", isBot: true }];
+      const resetMsg = [
+        {
+          text: "Привіт! Я твій асистент 'Стихії'. Запитай мене про погоду, пісні або правила сайту.",
+          isBot: true,
+        },
+      ];
       setChatHistory(resetMsg);
       await localforage.removeItem("user_help_session");
     }
@@ -730,9 +747,11 @@ Clubstep: рандомні фільтри.
 
   const handleAskAi = async () => {
     if (!searchQuery.trim() || isAiLoading) return;
-    
+
     if (!geminiKey) {
-      alert("Будь ласка, встановіть API-ключ Gemini у налаштуваннях ШІ для використання цієї функції.");
+      alert(
+        "Будь ласка, встановіть API-ключ Gemini у налаштуваннях ШІ для використання цієї функції.",
+      );
       return;
     }
 
@@ -745,23 +764,38 @@ Clubstep: рандомні фільтри.
     try {
       const genAI = new GoogleGenerativeAI(geminiKey);
       const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-      
+
       // Формуємо контекст з FAQ та бази пісень
-      const faqContext = faqData.map(f => `Q: ${f.q} A: ${f.a}`).join("\n");
-      const songsContext = songAiKnowledge.map(s => {
-        const dur = s.duration ? `${Math.floor(s.duration / 60)}:${(s.duration % 60).toString().padStart(2, '0')}` : "невідомо";
-        const lyricsSum = s.lyrics && Array.isArray(s.lyrics) ? s.lyrics.map(l => `${l.time}s:${l.text}`).join("|").substring(0, 100) : "no";
-        const filtersSum = s.filters && Array.isArray(s.filters) ? s.filters.map(f => `${f.start}-${f.end}s:${f.type}`).join("|") : "no";
-        
-        let base = `Song: ${s.author}, Category: ${s.category}, Duration: ${dur}, Lyrics: ${lyricsSum}..., Filters: ${filtersSum}, Info: ${s.text}`;
-        
-        if (s.schedule) {
-          const sched = s.schedule.map(e => `S${e.season}E${e.ep}: ${e.title} (${e.date})`).join("; ");
-          base += `. Schedule: ${sched}`;
-        }
-        return base;
-      }).join("\n");
-      
+      const faqContext = faqData.map((f) => `Q: ${f.q} A: ${f.a}`).join("\n");
+      const songsContext = songAiKnowledge
+        .map((s) => {
+          const dur = s.duration
+            ? `${Math.floor(s.duration / 60)}:${(s.duration % 60).toString().padStart(2, "0")}`
+            : "невідомо";
+          const lyricsSum =
+            s.lyrics && Array.isArray(s.lyrics)
+              ? s.lyrics
+                  .map((l) => `${l.time}s:${l.text}`)
+                  .join("|")
+                  .substring(0, 100)
+              : "no";
+          const filtersSum =
+            s.filters && Array.isArray(s.filters)
+              ? s.filters.map((f) => `${f.start}-${f.end}s:${f.type}`).join("|")
+              : "no";
+
+          let base = `Song: ${s.author}, Category: ${s.category}, Duration: ${dur}, Lyrics: ${lyricsSum}..., Filters: ${filtersSum}, Info: ${s.text}`;
+
+          if (s.schedule) {
+            const sched = s.schedule
+              .map((e) => `S${e.season}E${e.ep}: ${e.title} (${e.date})`)
+              .join("; ");
+            base += `. Schedule: ${sched}`;
+          }
+          return base;
+        })
+        .join("\n");
+
       const prompt = `Ти асистент проекту "Стихія". Тобі доступні дві бази даних:
       1. База FAQ: містить правила сайту, інформацію про підписки, набори 🧧 та інструкції щодо розділу Погода.
       2. База пісень: містить повний список треків (${songAiKnowledge.length} шт), авторів, тексти пісень та візуальні ефекти (фільтри).
@@ -785,8 +819,14 @@ Clubstep: рандомні фільтри.
       setChatHistory(finalHistory);
       await saveSession(finalHistory);
     } catch (e) {
-      if (e.name !== 'AbortError') {
-        const errHistory = [...newHistory, { text: "Помилка зв'язку з інтелектом. Перевірте ключ.", isBot: true }];
+      if (e.name !== "AbortError") {
+        const errHistory = [
+          ...newHistory,
+          {
+            text: "Помилка зв'язку з інтелектом. Перевірте ключ.",
+            isBot: true,
+          },
+        ];
         setChatHistory(errHistory);
       }
     } finally {
@@ -803,7 +843,13 @@ Clubstep: рандомні фільтри.
     return text.split(urlRegex).map((part, index) => {
       if (part.match(urlRegex)) {
         return (
-          <a key={index} href={part} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>
+          <a
+            key={index}
+            href={part}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: "inherit", textDecoration: "underline" }}
+          >
             {part}
           </a>
         );
@@ -854,10 +900,16 @@ Clubstep: рандомні фільтри.
         </p>
 
         <TabsContainer>
-          <TabButton $active={activeTab === "faq"} onClick={() => setActiveTab("faq")}>
+          <TabButton
+            $active={activeTab === "faq"}
+            onClick={() => setActiveTab("faq")}
+          >
             Питання (FAQ)
           </TabButton>
-          <TabButton $active={activeTab === "ai"} onClick={() => setActiveTab("ai")}>
+          <TabButton
+            $active={activeTab === "ai"}
+            onClick={() => setActiveTab("ai")}
+          >
             ШІ Асистент
           </TabButton>
         </TabsContainer>
@@ -869,7 +921,9 @@ Clubstep: рандомні фільтри.
                 <Message key={i} $isUser={!m.isBot}>
                   {renderTextWithLinks(m.text)}
                   {!m.isBot && i === chatHistory.length - 1 && !isAiLoading && (
-                    <EditBtn onClick={() => handleEditMessage(i)}>редагувати</EditBtn>
+                    <EditBtn onClick={() => handleEditMessage(i)}>
+                      редагувати
+                    </EditBtn>
                   )}
                 </Message>
               ))}
@@ -884,11 +938,18 @@ Clubstep: рандомні фільтри.
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleAskAi()}
               />
-              <ClearBtn onClick={handleClearHistory} title="Очистити чат">🗑️</ClearBtn>
+              <ClearBtn onClick={handleClearHistory} title="Очистити чат">
+                🗑️
+              </ClearBtn>
               {isAiLoading ? (
-                <StopBtn onClick={handleStopGeneration} title="Зупинити">🛑</StopBtn>
+                <StopBtn onClick={handleStopGeneration} title="Зупинити">
+                  🛑
+                </StopBtn>
               ) : (
-                <AcceptBtn style={{ marginTop: 0, padding: '0 15px' }} onClick={handleAskAi}>
+                <AcceptBtn
+                  style={{ marginTop: 0, padding: "0 15px" }}
+                  onClick={handleAskAi}
+                >
                   Запитати
                 </AcceptBtn>
               )}
@@ -904,7 +965,10 @@ Clubstep: рандомні фільтри.
 
               return (
                 <AccordionItem key={originalIndex} $index={displayIndex + 1}>
-                  <Question $rating={rating} onClick={() => toggleAccordion(originalIndex)}>
+                  <Question
+                    $rating={rating}
+                    onClick={() => toggleAccordion(originalIndex)}
+                  >
                     <QuestionContent>
                       <QuestionText>{item.q}</QuestionText>
                       <ArrowContainer>
@@ -924,7 +988,11 @@ Clubstep: рандомні фільтри.
                           }}
                           title="Не корисно"
                         >
-                          {rating === DISLIKE ? <IoHeartDislikeSharp /> : <IoHeartDislikeSharp />}
+                          {rating === DISLIKE ? (
+                            <IoHeartDislikeSharp />
+                          ) : (
+                            <IoHeartDislikeSharp />
+                          )}
                         </LikeButton>
                         <Arrow $isOpen={activeIndex === originalIndex}>▼</Arrow>
                       </ArrowContainer>
@@ -979,7 +1047,11 @@ Clubstep: рандомні фільтри.
                         </>
                       )}
                       {/* Вставляємо як HTML, якщо потрібно підтримувати теги */}
-                      <div dangerouslySetInnerHTML={{ __html: item.a.replace(/\n/g, '<br/>') }} />
+                      <div
+                        dangerouslySetInnerHTML={{
+                          __html: item.a.replace(/\n/g, "<br/>"),
+                        }}
+                      />
                     </AnswerContent>
                   </Answer>
                 </AccordionItem>

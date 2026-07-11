@@ -192,10 +192,11 @@ export const MusicPhotoDiv = styled.div`
       &::-webkit-scrollbar {
         width: 8px;
       }
-      &::-webkit-scrollbar-thumb { /* Changed for dark mode */
-        background: ${props.$isDarkMode ? '#ffb36c' : 'orange'};
+      &::-webkit-scrollbar-thumb {
+        /* Changed for dark mode */
+        background: ${props.$isDarkMode ? "#ffb36c" : "orange"};
         border-radius: 10px;
-        border: 2px solid ${props.$isDarkMode ? '#1a1a1a' : 'transparent'};
+        border: 2px solid ${props.$isDarkMode ? "#1a1a1a" : "transparent"};
         background-clip: content-box;
       }
     `}
@@ -225,14 +226,14 @@ export const SearchInput = styled.input`
   max-width: 250px;
   padding: 6px 10px;
   border-radius: 25px; /* Changed for dark mode */
-  border: 2px solid ${props => props.$isDarkMode ? '#555' : '#ccc'};
+  border: 2px solid ${(props) => (props.$isDarkMode ? "#555" : "#ccc")};
   font-size: 13px;
   outline: none;
   transition: border-color 0.3s;
-  background: ${props => props.$isDarkMode ? '#333' : '#fff'};
-  color: ${props => props.$isDarkMode ? '#fff' : '#333'};
+  background: ${(props) => (props.$isDarkMode ? "#333" : "#fff")};
+  color: ${(props) => (props.$isDarkMode ? "#fff" : "#333")};
   &:focus {
-    border-color: ${props => props.$isDarkMode ? '#ffb36c' : 'orange'};
+    border-color: ${(props) => (props.$isDarkMode ? "#ffb36c" : "orange")};
   }
 `;
 
@@ -241,8 +242,8 @@ export const SortSelect = styled.select`
   border-radius: 25px;
   border: 2px solid #ccc;
   font-size: 13px;
-  background: ${props => props.$isDarkMode ? '#333' : '#fff'};
-  color: ${props => props.$isDarkMode ? '#fff' : '#333'};
+  background: ${(props) => (props.$isDarkMode ? "#333" : "#fff")};
+  color: ${(props) => (props.$isDarkMode ? "#fff" : "#333")};
   font-family: var(--font-family);
   outline: none;
   cursor: pointer; /* Changed for dark mode */
@@ -258,15 +259,17 @@ export const AuthorCardWrapper = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
-  width: 305px;
-  height: 156px;
+  width: 285px;
+  height: 136px;
   border-radius: 15px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   overflow: hidden;
   cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  
+
   &:hover {
     transform: translateY(-8px);
     box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
@@ -287,7 +290,8 @@ export const AuthorInfoOverlay = styled.div`
   position: relative;
   z-index: 2;
   text-align: center;
-  padding: 10px;
+  padding: 5px;
+  //    padding-top: 35px;
   background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
   width: 100%;
   color: white;
@@ -311,13 +315,15 @@ export const CardWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 308px;
-  height: 220px;
+  width: 278px;
+  height: 160px;
   background: #000;
   border-radius: 15px;
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
   opacity: ${(props) => (props.$rating === -1 ? 0.6 : 1)};
   border: ${(props) =>
     props.$rating === 2
@@ -364,7 +370,7 @@ export const MusicImageContainer = styled.div`
   width: 100%;
   height: 100%;
   border-radius: 15px;
-  background-color: ${props => props.$isDarkMode ? '#444' : '#a5a5a5'};
+  background-color: ${(props) => (props.$isDarkMode ? "#444" : "#a5a5a5")};
   overflow: hidden;
 `;
 
@@ -420,7 +426,12 @@ export const MusicText = styled.div`
   font-size: 13px;
   font-weight: 600;
   padding: 30px 12px 10px 12px;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.4) 60%, transparent 100%);
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.85) 0%,
+    rgba(0, 0, 0, 0.4) 60%,
+    transparent 100%
+  );
   line-height: 1.4;
   z-index: 5;
   pointer-events: none;
@@ -511,115 +522,133 @@ export const FilterOverlay = styled.div`
   background-color: rgba(0, 0, 0, 0);
   background-image: none;
   opacity: 1;
-   backdrop-filter: none;
+  backdrop-filter: none;
   -webkit-backdrop-filter: none;
 
   ${(props) =>
     props.$active &&
     css`
       ${props.$type === "red" && `background: linear-gradient(to right, rgba(255, 0, 0, ${props.$opacity}), rgba(255, 69, 0, ${props.$opacity}));`}
-${props.$type === "purple" && `background: linear-gradient(to right, rgba(255, 20, 147, ${props.$opacity}), rgba(255, 182, 193, ${props.$opacity}));`}
+      ${props.$type === "purple" && `background: linear-gradient(to right, rgba(255, 20, 147, ${props.$opacity}), rgba(255, 182, 193, ${props.$opacity}));`}
       ${props.$type === "green" && `background: linear-gradient(to right, rgba(0, 255, 0, ${props.$opacity}), rgba(50, 205, 50, ${props.$opacity}));`}
       ${props.$type === "blue" && `background: linear-gradient(to right, rgba(0, 0, 255, ${props.$opacity}), rgba(65, 105, 225, ${props.$opacity}));`}
-      ${props.$type === "black" && `background: linear-gradient(to right, rgba(0, 0, 0, ${props.$opacity}), rgba(50, 50, 50, ${props.$opacity}));`}
+      ${props.$type === "black" && `background: linear-gradient(to right, rgba(0, 0, 0, ${props.$opacity}), rgba(0, 0, 0, ${props.$opacity}));`}
       ${props.$type === "orange" && `background: linear-gradient(to right, rgba(230, 149, 0, ${props.$opacity}), rgba(255, 165, 0, ${props.$opacity}));`}
       ${props.$type === "cyan" && `background: linear-gradient(to right, rgba(0, 255, 255, ${props.$opacity}), rgba(0, 206, 209, ${props.$opacity}));`}
       ${props.$type === "brown" && `background: linear-gradient(to right, rgba(139, 69, 19, ${props.$opacity}), rgba(160, 82, 45, ${props.$opacity}));`}
       ${props.$type === "white" && `background: linear-gradient(to right, rgba(255, 255, 255, ${props.$opacity}), rgba(240, 240, 240, ${props.$opacity}));`}
-      ${props.$type === "image" &&
-      css`
-        background-image: url(${props.$imageUrl});
-        background-size: cover;
-        background-position: center;
-        background: transparent;
-        opacity: ${props.$opacity || 1};
-      `}
-      ${(props.$type === "flash" ||
-        props.$type === "flicker" ||
-        props.$flicker) &&
-      css`
-        background: rgba(255, 255, 255, ${props.$opacity});
-      `}
-      ${props.$type === "vignette" &&
-      css`
-        background: radial-gradient(
-          circle,
-          transparent 40%,
-          rgba(0, 0, 0, ${props.$opacity || 0.8}) 100%
-        );
-      `}
-      ${props.$type === "cinemascope" &&
-      css`
-        &::before,
-        &::after {
-          content: "";
-          position: absolute;
-          left: 0;
-          width: 100%;
-          background: black;
-          z-index: 100;
-        }
-        &::before {
-          top: 0;
-          animation: ${cinemascopeTop} 1s ease forwards;
-        }
-        &::after {
-          bottom: 0;
-          animation: ${cinemascopeBottom} 1s ease forwards;
-        }
-      `}
-      ${props.$type === "vintage" &&
-      css`
-        animation: ${oldFilmShake} 0.15s infinite;
-
-        /* Вертикальні лінії (шум) */
-        &::before {
-          content: "";
-          position: absolute;
-          inset: 0;
-          background-image: repeating-linear-gradient(
-            90deg,
-            transparent,
-            transparent 150px,
-            rgba(255, 255, 255, 0.05) 150px,
-            rgba(255, 255, 255, 0.05) 151px,
-            transparent 151px,
-            transparent 300px,
-            rgba(0, 0, 0, 0.05) 300px,
-            rgba(0, 0, 0, 0.05) 301px
+      ${
+        props.$type === "image" &&
+        css`
+          background-image: url(${props.$imageUrl});
+          background-size: cover;
+          background-position: center;
+          background: transparent;
+          opacity: ${props.$opacity || 1};
+        `
+      }
+      ${
+        (props.$type === "flash" ||
+          props.$type === "flicker" ||
+          props.$flicker) &&
+        css`
+          background: rgba(255, 255, 255, ${props.$opacity});
+        `
+      }
+      ${
+        props.$type === "vignette" &&
+        css`
+          background: radial-gradient(
+            circle,
+            transparent 40%,
+            rgba(0, 0, 0, ${props.$opacity || 0.8}) 100%
           );
-          background-size: 200% 100%;
-          animation: ${oldFilmNoise} 0.2s steps(5) infinite;
-          pointer-events: none;
-          z-index: 5;
-        }
-      `}
-      ${props.$type === "chaos" &&
-      css`
-        --chaos-opacity: ${props.$opacity || 0.4};
-        animation: ${chaosAnimation} 1.5s linear infinite;
-      `}
-      ${props.$type === "ultrachaos" &&
-      css`
-        background: radial-gradient(
-          circle at center,
-          rgba(255, 0, 150, ${props.$opacity || 0.5}),
-          rgba(0, 204, 255, ${props.$opacity || 0.5}),
-          rgba(255, 255, 0, ${props.$opacity || 0.5}),
-          rgba(0, 255, 0, ${props.$opacity || 0.5})
-        );
-        background-size: 300% 300%;
-        animation: ${ultrachaosAnimation} 6s ease-in-out infinite;
-        backdrop-filter: blur(2px) saturate(1.5);
-      `}
-      ${props.$type === "grayscale" &&
-      css`
-        background: rgba(119, 119, 119, ${props.$opacity * 0.2});
-      `}
-      ${props.$type === "flicker" &&
-      css`
-        animation: ${flickerAnimation} 0.1s infinite alternate;
-      `}
+        `
+      }
+      ${
+        props.$type === "cinemascope" &&
+        css`
+          &::before,
+          &::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            width: 100%;
+            background: black;
+            z-index: 100;
+          }
+          &::before {
+            top: 0;
+            animation: ${cinemascopeTop} 1s ease forwards;
+          }
+          &::after {
+            bottom: 0;
+            animation: ${cinemascopeBottom} 1s ease forwards;
+          }
+        `
+      }
+      ${
+        props.$type === "vintage" &&
+        css`
+          animation: ${oldFilmShake} 0.15s infinite;
+
+          /* Вертикальні лінії (шум) */
+          &::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-image: repeating-linear-gradient(
+              90deg,
+              transparent,
+              transparent 150px,
+              rgba(255, 255, 255, 0.05) 150px,
+              rgba(255, 255, 255, 0.05) 151px,
+              transparent 151px,
+              transparent 300px,
+              rgba(0, 0, 0, 0.05) 300px,
+              rgba(0, 0, 0, 0.05) 301px
+            );
+            background-size: 200% 100%;
+            animation: ${oldFilmNoise} 0.2s steps(5) infinite;
+            pointer-events: none;
+            z-index: 5;
+          }
+        `
+      }
+      ${
+        props.$type === "chaos" &&
+        css`
+          --chaos-opacity: ${props.$opacity || 0.4};
+          animation: ${chaosAnimation} 1.5s linear infinite;
+        `
+      }
+      ${
+        props.$type === "ultrachaos" &&
+        css`
+          background: radial-gradient(
+            circle at center,
+            rgba(255, 0, 150, ${props.$opacity || 0.5}),
+            rgba(0, 204, 255, ${props.$opacity || 0.5}),
+            rgba(255, 255, 0, ${props.$opacity || 0.5}),
+            rgba(0, 255, 0, ${props.$opacity || 0.5})
+          );
+          background-size: 300% 300%;
+          animation: ${ultrachaosAnimation} 6s ease-in-out infinite;
+          backdrop-filter: blur(2px) saturate(1.5);
+        `
+      }
+      ${
+        props.$type === "grayscale" &&
+        css`
+          background: rgba(119, 119, 119, ${props.$opacity * 0.2});
+        `
+      }
+      ${
+        props.$type === "flicker" &&
+        css`
+          animation: ${flickerAnimation} 0.1s infinite alternate;
+        `
+      }
     `}
 `;
 
@@ -662,8 +691,8 @@ export const SeekBar = styled.input`
   height: 5px;
   -webkit-appearance: none;
   background: linear-gradient(
-    to right, /* Changed for dark mode */
-    orange 0%,
+    to right,
+    /* Changed for dark mode */ orange 0%,
     orange ${(props) => (props.value / props.max) * 100 || 0}%,
     rgba(255, 255, 255, 0.3) ${(props) => (props.value / props.max) * 100 || 0}%,
     rgba(255, 255, 255, 0.3)
@@ -694,7 +723,7 @@ export const SeekBar = styled.input`
 export const StereoSeekBar = styled.div`
   flex-grow: 1;
   height: 40px;
-  background: ${props => props.$isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.2)'};
+  background: ${(props) => (props.$isDarkMode ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.2)")};
   position: relative;
   cursor: pointer;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -710,7 +739,8 @@ export const StereoSeekBar = styled.div`
 export const StereoChannel = styled.div`
   flex: 1;
   height: ${(props) => Math.max(15, props.$height * 100)}%;
-  background: ${(props) => /* Changed for dark mode */
+  background: ${(props) =>
+    /* Changed for dark mode */
     props.$active ? "orange" : "rgba(255, 255, 255, 0.25)"};
   border-radius: 1px;
   transition: background 0.2s ease;
@@ -720,8 +750,8 @@ export const SpeedSlider = styled.input`
   flex-grow: 1;
   height: 3px;
   -webkit-appearance: none;
-  background: linear-gradient( /* Changed for dark mode */
-    to right,
+  background: linear-gradient(
+    /* Changed for dark mode */ to right,
     ${(props) => props.$activeColor || "orange"} 0%,
     ${(props) => props.$activeColor || "orange"}
       ${(props) => ((props.value - 0.2) / 1.8) * 100 || 0}%,
@@ -756,17 +786,20 @@ export const UnlockContainer = styled.div`
   border: 1px solid rgba(255, 255, 255, 0.3);
   font-size: 14px;
   backdrop-filter: blur(8px);
-  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
   transition: all 0.2s ease;
-  &:hover { background: rgba(0, 0, 0, 0.8); transform: scale(1.02); }
+  &:hover {
+    background: rgba(0, 0, 0, 0.8);
+    transform: scale(1.02);
+  }
 `;
 
 export const SeekAmountSlider = styled.input`
   flex-grow: 1;
   height: 3px;
   -webkit-appearance: none;
-  background: linear-gradient( /* Changed for dark mode */
-    to right,
+  background: linear-gradient(
+    /* Changed for dark mode */ to right,
     orange 0%,
     orange ${(props) => ((props.value - 5) / 15) * 100}%,
     #ccc ${(props) => ((props.value - 5) / 15) * 100}%,
@@ -787,7 +820,7 @@ export const SeekAmountSlider = styled.input`
 export const LoopButton = styled.button`
   background: transparent;
   border: none;
-  color: ${(props) => (props.$active ? "skyblue" : 'orange')};
+  color: ${(props) => (props.$active ? "skyblue" : "orange")};
   font-size: 20px;
   cursor: pointer;
   margin-bottom: 5px;
@@ -806,7 +839,9 @@ export const ActionButtonsContainer = styled.div`
   gap: 6px;
   z-index: 8;
   opacity: 0;
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
 `;
 
 export const ActionButton = styled.button`
@@ -890,7 +925,7 @@ export const ModalOverlay = styled.div`
 `;
 
 export const LyricsModalContent = styled.div`
-  background: ${props => props.$isDarkMode ? '#1a1a1a' : 'white'};
+  background: ${(props) => (props.$isDarkMode ? "#1a1a1a" : "white")};
   padding: 10px;
   width: 100%;
   max-width: 320px;
@@ -899,15 +934,18 @@ export const LyricsModalContent = styled.div`
   position: relative;
   animation: ${(props) => (props.$isClosing ? slideOut : slideIn)} forwards;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-  &::-webkit-scrollbar { /* Changed for dark mode */
+  &::-webkit-scrollbar {
+    /* Changed for dark mode */
     width: 6px;
   }
-  &::-webkit-scrollbar-thumb { /* Changed for dark mode */
-    background: ${props => props.$isDarkMode ? '#ffb36c' : '#ffb36c'};
+  &::-webkit-scrollbar-thumb {
+    /* Changed for dark mode */
+    background: ${(props) => (props.$isDarkMode ? "#ffb36c" : "#ffb36c")};
     border-radius: 3px;
   }
-  &::-webkit-scrollbar-track { /* Changed for dark mode */
-    background: ${props => props.$isDarkMode ? '#333' : '#f0f0f0'};
+  &::-webkit-scrollbar-track {
+    /* Changed for dark mode */
+    background: ${(props) => (props.$isDarkMode ? "#333" : "#f0f0f0")};
   }
 `;
 
@@ -923,15 +961,18 @@ export const PlaylistModalContent = styled.div`
   animation: ${(props) => (props.$isClosing ? slideOut : slideIn)} 0.5s ease-out
     forwards;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-  &::-webkit-scrollbar { /* Changed for dark mode */
+  &::-webkit-scrollbar {
+    /* Changed for dark mode */
     width: 8px;
   }
-  &::-webkit-scrollbar-thumb { /* Changed for dark mode */
-    background: ${props => props.$isDarkMode ? '#ffb36c' : '#ffb36c'};
+  &::-webkit-scrollbar-thumb {
+    /* Changed for dark mode */
+    background: ${(props) => (props.$isDarkMode ? "#ffb36c" : "#ffb36c")};
     border-radius: 4px;
   }
-  &::-webkit-scrollbar-track { /* Changed for dark mode */
-    background: ${props => props.$isDarkMode ? '#333' : '#dcdcdc'};
+  &::-webkit-scrollbar-track {
+    /* Changed for dark mode */
+    background: ${(props) => (props.$isDarkMode ? "#333" : "#dcdcdc")};
   }
 `;
 
@@ -943,7 +984,7 @@ export const LyricsCloseButton = styled.button`
   border: none;
   font-size: 20px;
   cursor: pointer;
-  color: ${props => props.$isDarkMode ? '#fff' : '#333'};
+  color: ${(props) => (props.$isDarkMode ? "#fff" : "#333")};
   &:hover {
     color: #ffb36c;
   }
@@ -1266,7 +1307,7 @@ export const LyricsLine = styled.p`
   transition:
     color 0.3s,
     font-weight 0.3s;
-  color: ${(props) => (props.$active ? "orange" : (props.$isDarkMode ? '#eee' : '#333'))};
+  color: ${(props) => (props.$active ? "orange" : props.$isDarkMode ? "#eee" : "#333")};
   font-weight: ${(props) => (props.$active ? "bold" : "normal")};
 `;
 
@@ -1278,9 +1319,10 @@ export const InputGroup = styled.div`
   label {
     font-weight: bold;
     font-size: 12px; /* Changed for dark mode */
-    color: ${props => props.$isDarkMode ? '#eee' : 'black'};
+    color: ${(props) => (props.$isDarkMode ? "#eee" : "black")};
   }
-  input { /* Changed for dark mode */
+  input {
+    /* Changed for dark mode */
     padding: 8px;
     border-radius: 5px;
     border: 1px solid #ccc;
@@ -1294,7 +1336,7 @@ export const StorageIndicatorContainer = styled.div`
   background: rgba(0, 0, 0, 0.05);
   border-radius: 10px; /* Changed for dark mode */
   font-size: 11px;
-  color: ${props => props.$isDarkMode ? '#aaa' : '#555'};
+  color: ${(props) => (props.$isDarkMode ? "#aaa" : "#555")};
   text-align: left; /* Changed for dark mode */
 `;
 
@@ -1549,8 +1591,8 @@ export const AiChatContainer = styled.div`
   flex-direction: column;
   height: 400px;
   width: 100%;
-  color: ${props => props.$isDarkMode ? 'white' : '#333'};
-  background: ${props => props.$isDarkMode ? '#1e1e1e' : '#fff'};
+  color: ${(props) => (props.$isDarkMode ? "white" : "#333")};
+  background: ${(props) => (props.$isDarkMode ? "#1e1e1e" : "#fff")};
 `;
 
 export const MessageList = styled.div`
@@ -1560,7 +1602,7 @@ export const MessageList = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
-  background: ${props => props.$isDarkMode ? '#121212' : '#f7f7f7'};
+  background: ${(props) => (props.$isDarkMode ? "#121212" : "#f7f7f7")};
 `;
 
 export const Message = styled.div`
@@ -1568,23 +1610,23 @@ export const Message = styled.div`
   padding: 8px 14px;
   border-radius: 15px;
   font-size: 13.5px;
-  background: ${(props) => (props.$isUser ? "orange" : (props.$isDarkMode ? "#333" : "#e0e0e0"))};
-  color: ${(props) => (props.$isUser ? "white" : (props.$isDarkMode ? "#ddd" : "#222"))};
+  background: ${(props) => (props.$isUser ? "orange" : props.$isDarkMode ? "#333" : "#e0e0e0")};
+  color: ${(props) => (props.$isUser ? "white" : props.$isDarkMode ? "#ddd" : "#222")};
   align-self: ${(props) => (props.$isUser ? "flex-end" : "flex-start")};
 `;
 
 export const ChatInputRow = styled.div`
   display: flex;
   padding: 10px;
-  border-top: 1px solid ${props => props.$isDarkMode ? '#333' : '#eee'};
+  border-top: 1px solid ${(props) => (props.$isDarkMode ? "#333" : "#eee")};
   gap: 8px;
   input {
     flex: 1;
     padding: 8px 12px;
     border-radius: 20px;
-    border: 1px solid ${props => props.$isDarkMode ? '#444' : '#ccc'};
-    background: ${props => props.$isDarkMode ? '#2c2c2c' : '#fff'};
-    color: ${props => props.$isDarkMode ? '#fff' : '#000'};
+    border: 1px solid ${(props) => (props.$isDarkMode ? "#444" : "#ccc")};
+    background: ${(props) => (props.$isDarkMode ? "#2c2c2c" : "#fff")};
+    color: ${(props) => (props.$isDarkMode ? "#fff" : "#000")};
     outline: none;
   }
   button {
@@ -1604,18 +1646,18 @@ export const AuthorPreviewCard = styled.div`
   overflow: hidden;
   margin-bottom: 20px;
   background: #0f3460;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.08);
   animation: ${slideIn} 0.5s ease-out;
-  
-  /* Робимо картку flex-контейнером */
+
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: stretch;
-  min-height: 200px;
+  min-height: 500px;
 
   @media (max-width: 768px) {
-    flex-direction: column;
     min-height: auto;
   }
 `;
@@ -1631,28 +1673,32 @@ export const AuthorPreviewImage = styled.div`
 
   @media (max-width: 768px) {
     position: relative;
-    height: 180px;
+    height: 200px;
   }
 
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    opacity: 0.35; /* Трохи зменшили яскравість, щоб текст добре читався */
+    opacity: 0.35;
     transition: opacity 0.3s ease;
   }
 
   &::after {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     /* Градієнт тепер затемнює картинку зліва направо, створюючи плашку під контент */
-    background: linear-gradient(to right, rgba(26, 26, 46, 0.4) 0%, rgba(22, 33, 62, 0.9) 100%);
+    background: linear-gradient(
+      to right,
+      rgba(26, 26, 46, 0.09) 0%,
+      rgba(22, 33, 62, 0.11) 100%
+    );
     pointer-events: none;
-    
+
     @media (max-width: 768px) {
       background: linear-gradient(to top, #1a1a2e 0%, transparent 100%);
     }
@@ -1661,10 +1707,8 @@ export const AuthorPreviewImage = styled.div`
 
 export const AuthorPreviewName = styled.h2`
   position: absolute;
-  bottom: 20px;
-  left: 24px;
   margin: 0;
-  font-size: 24px; /* Трішки збільшено для виразності */
+  font-size: 24px;
   font-weight: 800;
   color: #fff;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
@@ -1672,46 +1716,34 @@ export const AuthorPreviewName = styled.h2`
   letter-spacing: 0.3px;
 
   @media (max-width: 768px) {
-    bottom: 12px;
-    left: 16px;
     font-size: 20px;
   }
 `;
 
 export const AuthorPreviewBody = styled.div`
-  padding: 24px;
+  padding: 16px 24px 12px;
   display: flex;
+  margin-top: 35px;
   flex-direction: column;
-  justify-content: center;
-  gap: 12px;
-  
-  /* Зсуваємо блок інформації вправо */
-  margin-left: auto; 
-  width: 50%; /* Займає рівно половину банера справа */
-  max-width: 550px;
-  z-index: 2; /* Стає поверх картинки-фону */
-
-  @media (max-width: 900px) {
-    width: 60%; /* На середніх екранах даємо більше простору */
-  }
-
-  @media (max-width: 768px) {
-    width: 100%;
-    max-width: none;
-    margin-left: 0;
-    padding: 16px;
-    background: #1a1a2e; /* Повертаємо суцільний фон на мобільних */
-  }
+  justify-content: flex-start;
+  gap: 4px;
+  width: 100%;
+  z-index: 2;
 `;
 export const AuthorPreviewSection = styled.div`
-  background: rgba(15, 34, 96, 0.6); /* Темніший підклад, щоб текст не губився на картинці */
+  background: rgba(
+    15,
+    34,
+    96,
+    0.6
+  ); /* Темніший підклад, щоб текст не губився на картинці */
   backdrop-filter: blur(4px); /* Ефект матового скла */
   border-radius: 10px;
   padding: 10px 14px;
-  border-left: 3px solid ${props => props.$accent || '#667eea'};
+  border-left: 3px solid ${(props) => props.$accent || "#667eea"};
   cursor: pointer;
   transition: all 0.2s;
-  
+
   /* Перетворюємо контейнер на flex-рядок */
   display: flex;
   flex-direction: row;
@@ -1728,7 +1760,7 @@ export const AuthorPreviewSection = styled.div`
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 1.2px;
-    color: ${props => props.$accent || '#667eea'};
+    color: ${(props) => props.$accent || "#667eea"};
     margin-right: 6px;
     white-space: nowrap; /* Щоб заголовок НІКОЛИ не переносився */
     display: flex;
@@ -1740,7 +1772,7 @@ export const AuthorPreviewSection = styled.div`
     font-size: 13px;
     color: rgba(255, 255, 255, 0.9);
     margin: 0;
-    
+
     /* Стандартне надійне обрізання тексту в 1 рядок */
     white-space: nowrap;
     overflow: hidden;
@@ -1769,25 +1801,44 @@ export const AuthorPreviewBtn = styled.button`
   text-decoration: none;
   line-height: 1;
 
-  ${props => props.$variant === 'back' ? css`
-    background: rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+  ${(props) =>
+    props.$variant === "back"
+      ? css`
+          background: rgba(255, 255, 255, 0.1);
+          color: rgba(255, 255, 255, 0.9);
+          border: 1px solid rgba(255, 255, 255, 0.15);
 
-    &:hover {
-      background: rgba(255, 255, 255, 0.2);
-      transform: translateX(-2px);
-    }
-  ` : css`
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: #fff;
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+          &:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(-2px);
+          }
+        `
+      : css`
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: #fff;
+          box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
 
-    &:hover {
-      box-shadow: 0 4px 14px rgba(102, 126, 234, 0.5);
-      transform: translateY(-1px);
-    }
-  `}
+          &:hover {
+            box-shadow: 0 4px 14px rgba(102, 126, 234, 0.5);
+            transform: translateY(-1px);
+          }
+        `}
 `;
 
+export const AuthorTracksGrid = styled.div`
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  padding: 12px 16px 20px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
 
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+`;

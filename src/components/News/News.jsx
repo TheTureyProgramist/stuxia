@@ -11,7 +11,12 @@ const fadeIn = keyframes`
 `;
 
 const SOURCES = [
-  { url: "https://phys.org/rss-feed/biology-news/animals-news/", name: "Phys.org", flag: "🇬🇧", home: "https://phys.org" },
+  {
+    url: "https://phys.org/rss-feed/biology-news/animals-news/",
+    name: "Phys.org",
+    flag: "🇬🇧",
+    home: "https://phys.org",
+  },
 ];
 
 const STOP_WORDS = [
@@ -38,7 +43,7 @@ const translateText = async (text) => {
   }
 };
 
-const NewsDiv = styled.div`  
+const NewsDiv = styled.div`
   position: relative;
 `;
 
@@ -125,7 +130,7 @@ const PaginationSide = styled.div`
   border-radius: 30px;
   backdrop-filter: blur(10px);
   border: 1px solid #ffb36c;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 `;
 
 const PageArrow = styled.button`
@@ -135,7 +140,10 @@ const PageArrow = styled.button`
   cursor: pointer;
   font-size: 20px;
   padding: 0;
-  &:disabled { opacity: 0.3; cursor: not-allowed; }
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
 `;
 
 const NewBadge = styled.span`
@@ -157,7 +165,7 @@ const NewBadge = styled.span`
 const AiSummaryBtn = styled.button`
   position: absolute;
   top: 10px;
-  right: ${(props) => (props.$hasNewBadge ? '60px' : '10px')};
+  right: ${(props) => (props.$hasNewBadge ? "60px" : "10px")};
   background: rgba(255, 179, 108, 0.9);
   color: black;
   border: none;
@@ -167,7 +175,7 @@ const AiSummaryBtn = styled.button`
   font-weight: 700;
   z-index: 6;
   cursor: pointer;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
   transition: all 0.2s;
   &:hover {
     background: #ffb36c;
@@ -175,7 +183,14 @@ const AiSummaryBtn = styled.button`
   }
 `;
 
-const NewsCard = ({ item, $isDarkMode, showImage, showTitle, showDescription, onAiSummaryClick }) => {
+const NewsCard = ({
+  item,
+  $isDarkMode,
+  showImage,
+  showTitle,
+  showDescription,
+  onAiSummaryClick,
+}) => {
   const cardRef = useRef(null);
   const [isVisible, setIsVisible] = useState(item.isNew);
 
@@ -189,9 +204,13 @@ const NewsCard = ({ item, $isDarkMode, showImage, showTitle, showDescription, on
           const timer = setTimeout(async () => {
             setIsVisible(false);
             // Оновлюємо список побачених в localforage
-            const seenLinks = (await localforage.getItem("seen_news_links")) || [];
+            const seenLinks =
+              (await localforage.getItem("seen_news_links")) || [];
             if (!seenLinks.includes(item.link)) {
-              await localforage.setItem("seen_news_links", [...seenLinks, item.link]);
+              await localforage.setItem("seen_news_links", [
+                ...seenLinks,
+                item.link,
+              ]);
             }
           }, 60000); // 60000мс = 1 хвилина
 
@@ -199,7 +218,7 @@ const NewsCard = ({ item, $isDarkMode, showImage, showTitle, showDescription, on
           return () => clearTimeout(timer);
         }
       },
-      { threshold: 0.5 } // Мінімум 50% картки має бути видно
+      { threshold: 0.5 }, // Мінімум 50% картки має бути видно
     );
 
     if (cardRef.current) observer.observe(cardRef.current);
@@ -214,11 +233,19 @@ const NewsCard = ({ item, $isDarkMode, showImage, showTitle, showDescription, on
       rel="noopener noreferrer"
       $isDarkMode={$isDarkMode}
     >
-      <div style={{ position: "relative", display: "flex", flexDirection: "column", flexGrow: 1, minHeight: showImage ? "260px" : "auto" }}>
+      <div
+        style={{
+          position: "relative",
+          display: "flex",
+          flexDirection: "column",
+          flexGrow: 1,
+          minHeight: showImage ? "260px" : "auto",
+        }}
+      >
         {isVisible && <NewBadge>Нове</NewBadge>}
-        <SourceFlag 
+        <SourceFlag
           onClick={(e) => {
-            e.preventDefault(); 
+            e.preventDefault();
             e.stopPropagation();
             window.open(item.sourceHome, "_blank");
           }}
@@ -226,7 +253,7 @@ const NewsCard = ({ item, $isDarkMode, showImage, showTitle, showDescription, on
         >
           {item.sourceFlag} {item.sourceName}
         </SourceFlag>
-        <AiSummaryBtn 
+        <AiSummaryBtn
           $hasNewBadge={isVisible}
           onClick={(e) => {
             e.preventDefault();
@@ -250,12 +277,26 @@ const NewsCard = ({ item, $isDarkMode, showImage, showTitle, showDescription, on
         {(showTitle || showDescription) && (
           <CardContent $overlay={showImage}>
             {showTitle && (
-              <h4 style={{ margin: "0 0 8px 0", fontSize: "16px", fontWeight: "700", lineHeight: "1.3" }}>
+              <h4
+                style={{
+                  margin: "0 0 8px 0",
+                  fontSize: "16px",
+                  fontWeight: "700",
+                  lineHeight: "1.3",
+                }}
+              >
                 {item.title}
               </h4>
             )}
             {showDescription && (
-              <p style={{ fontSize: "13px", opacity: 0.9, margin: 0, lineHeight: "1.4" }}>
+              <p
+                style={{
+                  fontSize: "13px",
+                  opacity: 0.9,
+                  margin: 0,
+                  lineHeight: "1.4",
+                }}
+              >
                 {item.description}
               </p>
             )}
@@ -274,11 +315,14 @@ const CardContent = styled.div`
   justify-content: flex-end;
   flex-grow: 1;
   z-index: 2;
-  ${(props) => props.$overlay ? `
+  ${(props) =>
+    props.$overlay
+      ? `
     background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 60%, transparent 100%);
     color: #ffffff;
     text-shadow: 0 1px 3px rgba(0,0,0,0.8);
-  ` : `
+  `
+      : `
     color: inherit;
   `}
 `;
@@ -311,7 +355,8 @@ const FilterBtn = styled.button`
 
 const RefreshBtn = styled.button`
   background: none;
-  border: 1px solid ${(props) => (props.$isDarkMode ? "rgba(0,0,0,0.2)" : "rgba(255,255,255,0.3)")};
+  border: 1px solid
+    ${(props) => (props.$isDarkMode ? "rgba(0,0,0,0.2)" : "rgba(255,255,255,0.3)")};
   color: ${(props) => (props.$isDarkMode ? "#666" : "#ccc")};
   border-radius: 12px;
   padding: 2px 10px;
@@ -336,7 +381,8 @@ const ProgressBar = styled.div`
   width: 200px;
   height: 8px;
   background: ${(props) => (props.$isDarkMode ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.2)")};
-  border: 1px solid ${(props) => (props.$isDarkMode ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.1)")};
+  border: 1px solid
+    ${(props) => (props.$isDarkMode ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.1)")};
   border-radius: 10px;
   overflow: hidden;
   margin: 0 auto;
@@ -346,8 +392,11 @@ const ProgressBarFill = styled.div`
   height: 100%;
   background: ${(props) => (props.$isError ? "#ff4d4d" : "#ffb36c")};
   width: ${(props) => props.$progress}%;
-  transition: width 0.3s ease, background-color 0.3s ease;
-  box-shadow: 0 0 10px ${(props) => (props.$isError ? "rgba(255, 77, 77, 0.7)" : "rgba(255, 179, 108, 0.5)")};
+  transition:
+    width 0.3s ease,
+    background-color 0.3s ease;
+  box-shadow: 0 0 10px
+    ${(props) => (props.$isError ? "rgba(255, 77, 77, 0.7)" : "rgba(255, 179, 108, 0.5)")};
 `;
 
 const News = ({ $isDarkMode, user }) => {
@@ -358,14 +407,14 @@ const News = ({ $isDarkMode, user }) => {
   const [filterSource, setFilterSource] = useState("all");
   const [lastUpdated, setLastUpdated] = useState(null);
   const [cooldown, setCooldown] = useState(0);
-  
+
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [selectedNews, setSelectedNews] = useState(null);
 
   const [customSources, setCustomSources] = useState([]);
   const [newUrl, setNewUrl] = useState("");
   const [isAddingSource, setIsAddingSource] = useState(false);
-  
+
   // 1. Стан розмонтування для Memory Leak Protection
   const isMounted = useRef(true);
 
@@ -389,7 +438,8 @@ const News = ({ $isDarkMode, user }) => {
     }
     try {
       let allItems = [];
-      const savedCustom = (await localforage.getItem("custom_news_sources")) || [];
+      const savedCustom =
+        (await localforage.getItem("custom_news_sources")) || [];
       const allSources = [...SOURCES, ...savedCustom];
       for (const source of allSources) {
         try {
@@ -399,11 +449,11 @@ const News = ({ $isDarkMode, user }) => {
           const data = await res.json();
           if (data.status === "ok" && data.items.length > 0) {
             // Додаємо інформацію про джерело до кожного елемента
-            const itemsWithSource = data.items.map(item => ({
+            const itemsWithSource = data.items.map((item) => ({
               ...item,
               sourceName: source.name,
               sourceFlag: source.flag,
-              sourceHome: source.home
+              sourceHome: source.home,
             }));
             allItems = [...allItems, ...itemsWithSource];
           }
@@ -443,7 +493,13 @@ const News = ({ $isDarkMode, user }) => {
         const isNew = !seenLinks.includes(item.link);
 
         if (cached) {
-          results[i] = { ...cached, sourceName: item.sourceName, sourceFlag: item.sourceFlag, sourceHome: item.sourceHome, isNew };
+          results[i] = {
+            ...cached,
+            sourceName: item.sourceName,
+            sourceFlag: item.sourceFlag,
+            sourceHome: item.sourceHome,
+            isNew,
+          };
         } else {
           const cleanDesc = (item.description || "")
             .replace(/<[^>]*>?/gm, "")
@@ -459,7 +515,7 @@ const News = ({ $isDarkMode, user }) => {
       // 2. Пакетний переклад з безпечним роздільником ___ та перевіркою довжини
       if (stringsToTranslate.length > 0) {
         if (showLoader && isMounted.current) setLoadProgress(40);
-        
+
         let currentBatchStrings = [];
         let currentBatchIndices = [];
         let currentLen = 0;
@@ -471,7 +527,10 @@ const News = ({ $isDarkMode, user }) => {
           const pairLen = title.length + desc.length + 10; // Довжина тексту + роздільники
 
           if (currentLen + pairLen > 4500 && currentBatchStrings.length > 0) {
-            batches.push({ strings: currentBatchStrings, indices: currentBatchIndices });
+            batches.push({
+              strings: currentBatchStrings,
+              indices: currentBatchIndices,
+            });
             currentBatchStrings = [];
             currentBatchIndices = [];
             currentLen = 0;
@@ -481,7 +540,10 @@ const News = ({ $isDarkMode, user }) => {
           currentLen += pairLen;
         }
         if (currentBatchStrings.length > 0) {
-          batches.push({ strings: currentBatchStrings, indices: currentBatchIndices });
+          batches.push({
+            strings: currentBatchStrings,
+            indices: currentBatchIndices,
+          });
         }
 
         // Виконуємо запити для кожного батча
@@ -494,7 +556,10 @@ const News = ({ $isDarkMode, user }) => {
           for (let j = 0; j < batch.indices.length; j++) {
             const idx = batch.indices[j];
             const item = limited[idx];
-            const bestImg = (item.enclosure && item.enclosure.link) || item.thumbnail || rainbow;
+            const bestImg =
+              (item.enclosure && item.enclosure.link) ||
+              item.thumbnail ||
+              rainbow;
 
             const translatedItem = {
               title: splitResults[j * 2]?.trim() || item.title,
@@ -504,10 +569,13 @@ const News = ({ $isDarkMode, user }) => {
               sourceName: item.sourceName,
               sourceFlag: item.sourceFlag,
               sourceHome: item.sourceHome,
-              isNew: !seenLinks.includes(item.link)
+              isNew: !seenLinks.includes(item.link),
             };
 
-            await localforage.setItem(`news_trans_${item.link}`, translatedItem);
+            await localforage.setItem(
+              `news_trans_${item.link}`,
+              translatedItem,
+            );
             results[idx] = translatedItem;
           }
         }
@@ -599,16 +667,16 @@ const News = ({ $isDarkMode, user }) => {
     }
     try {
       const urlObj = new URL(newUrl);
-      const domain = urlObj.hostname.replace('www.', '');
+      const domain = urlObj.hostname.replace("www.", "");
       const newSource = {
         url: newUrl,
         name: domain,
         flag: "🌐",
-        home: urlObj.origin
+        home: urlObj.origin,
       };
 
       const saved = (await localforage.getItem("custom_news_sources")) || [];
-      if (!saved.find(s => s.url === newUrl)) {
+      if (!saved.find((s) => s.url === newUrl)) {
         if (saved.length >= 2) {
           alert("Ви досягли ліміту! Можна додати не більше 2 власних джерел.");
           return;
@@ -623,17 +691,19 @@ const News = ({ $isDarkMode, user }) => {
         alert("Це джерело вже додано.");
       }
     } catch (e) {
-      alert("Невірний формат URL. Введіть правильне посилання (наприклад, https://example.com/rss)");
+      alert(
+        "Невірний формат URL. Введіть правильне посилання (наприклад, https://example.com/rss)",
+      );
     }
   };
 
   const handleRemoveSource = async (urlToRemove) => {
     if (!window.confirm("Видалити це джерело новин?")) return;
     const saved = (await localforage.getItem("custom_news_sources")) || [];
-    const updated = saved.filter(s => s.url !== urlToRemove);
+    const updated = saved.filter((s) => s.url !== urlToRemove);
     await localforage.setItem("custom_news_sources", updated);
     setCustomSources(updated);
-    if (filterSource === saved.find(s => s.url === urlToRemove)?.name) {
+    if (filterSource === saved.find((s) => s.url === urlToRemove)?.name) {
       setFilterSource("all");
     }
     getData(true);
@@ -644,11 +714,15 @@ const News = ({ $isDarkMode, user }) => {
   });
 
   const [currentPage, setCurrentPage] = useState(1);
-  const displayedItems = filteredItems.slice((currentPage - 1) * 3, currentPage * 3);
+  const displayedItems = filteredItems.slice(
+    (currentPage - 1) * 3,
+    currentPage * 3,
+  );
 
   // Отримуємо налаштування видимості з об'єкта користувача
   const layout = user?.newsLayout || [];
-  const isVisible = (key) => layout.find(item => item.key === key)?.visible !== false;
+  const isVisible = (key) =>
+    layout.find((item) => item.key === key)?.visible !== false;
   const showImage = isVisible("image");
   const showTitle = isVisible("title");
   const showDescription = isVisible("description");
@@ -658,44 +732,76 @@ const News = ({ $isDarkMode, user }) => {
       <AihelpTitle $isDarkMode={$isDarkMode}>
         Новини та реклама
         {lastUpdated && (
-          <span style={{ fontSize: '0.55em', opacity: 0.6, marginLeft: '12px', fontWeight: '400', verticalAlign: 'middle' }}>
-            (Оновлено: {lastUpdated.toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' })})
+          <span
+            style={{
+              fontSize: "0.55em",
+              opacity: 0.6,
+              marginLeft: "12px",
+              fontWeight: "400",
+              verticalAlign: "middle",
+            }}
+          >
+            (Оновлено:{" "}
+            {lastUpdated.toLocaleTimeString("uk-UA", {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+            )
           </span>
         )}
-        <RefreshBtn 
-          $isDarkMode={$isDarkMode} 
+        <RefreshBtn
+          $isDarkMode={$isDarkMode}
           onClick={handleManualRefresh}
           disabled={loading || cooldown > 0}
-          title={cooldown > 0 ? `Повторне оновлення буде доступне через ${cooldown} сек.` : "Оновити новини"}
+          title={
+            cooldown > 0
+              ? `Повторне оновлення буде доступне через ${cooldown} сек.`
+              : "Оновити новини"
+          }
         >
-          {loading ? "⌛ Оновлення..." : cooldown > 0 ? `⏳ ${cooldown}с` : "🔄 Оновити"}
+          {loading
+            ? "⌛ Оновлення..."
+            : cooldown > 0
+              ? `⏳ ${cooldown}с`
+              : "🔄 Оновити"}
         </RefreshBtn>
       </AihelpTitle>
       <FilterContainer>
-        <FilterBtn 
-          $isDarkMode={$isDarkMode} 
-          $active={filterSource === "all"} 
+        <FilterBtn
+          $isDarkMode={$isDarkMode}
+          $active={filterSource === "all"}
           onClick={() => setFilterSource("all")}
-        >Усі</FilterBtn>
-        {SOURCES.map(s => (
-          <FilterBtn 
+        >
+          Усі
+        </FilterBtn>
+        {SOURCES.map((s) => (
+          <FilterBtn
             key={s.name}
-            $isDarkMode={$isDarkMode} 
-            $active={filterSource === s.name} 
-            onClick={() => setFilterSource(s.name)}
-          >{s.name}</FilterBtn>
-        ))}
-        {customSources.map(s => (
-          <FilterBtn 
-            key={s.url}
-            $isDarkMode={$isDarkMode} 
-            $active={filterSource === s.name} 
+            $isDarkMode={$isDarkMode}
+            $active={filterSource === s.name}
             onClick={() => setFilterSource(s.name)}
           >
-            {s.name} 
-            <span 
-              onClick={(e) => { e.stopPropagation(); handleRemoveSource(s.url); }} 
-              style={{ marginLeft: '6px', color: '#ff4d4d', fontWeight: 'bold' }}
+            {s.name}
+          </FilterBtn>
+        ))}
+        {customSources.map((s) => (
+          <FilterBtn
+            key={s.url}
+            $isDarkMode={$isDarkMode}
+            $active={filterSource === s.name}
+            onClick={() => setFilterSource(s.name)}
+          >
+            {s.name}
+            <span
+              onClick={(e) => {
+                e.stopPropagation();
+                handleRemoveSource(s.url);
+              }}
+              style={{
+                marginLeft: "6px",
+                color: "#ff4d4d",
+                fontWeight: "bold",
+              }}
               title="Видалити джерело"
             >
               ×
@@ -703,65 +809,83 @@ const News = ({ $isDarkMode, user }) => {
           </FilterBtn>
         ))}
         {customSources.length < 2 && (
-          <FilterBtn 
-            $isDarkMode={$isDarkMode} 
+          <FilterBtn
+            $isDarkMode={$isDarkMode}
             onClick={() => setIsAddingSource(!isAddingSource)}
-            style={{ borderStyle: 'dashed' }}
+            style={{ borderStyle: "dashed" }}
           >
-            {isAddingSource ? 'Скасувати' : '+ Додати джерело'}
+            {isAddingSource ? "Скасувати" : "+ Додати джерело"}
           </FilterBtn>
         )}
-          <PaginationSide $isDarkMode={$isDarkMode}>
-              <PageArrow 
-                disabled={currentPage === 1} 
-                onClick={() => setCurrentPage(p => p - 1)}
-              >◄</PageArrow>
-            {[1, 2, 3].map(num => (
-              <FilterBtn
-                key={num}
-                $active={currentPage === num}
-                $isDarkMode={$isDarkMode}
-                onClick={() => setCurrentPage(num)}
-                style={{ padding: '5px', minWidth: '25px', borderRadius: '50%' }}
-                disabled={filteredItems.length < (num - 1) * 3 + 1}
-              >
-                {num}
-              </FilterBtn>
-            ))}
-                          <PageArrow 
-                disabled={currentPage === 3 || filteredItems.length <= currentPage * 3} 
-                onClick={() => setCurrentPage(p => p + 1)}
-              >► </PageArrow>
-          </PaginationSide>
+        <PaginationSide $isDarkMode={$isDarkMode}>
+          <PageArrow
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage((p) => p - 1)}
+          >
+            ◄
+          </PageArrow>
+          {[1, 2, 3].map((num) => (
+            <FilterBtn
+              key={num}
+              $active={currentPage === num}
+              $isDarkMode={$isDarkMode}
+              onClick={() => setCurrentPage(num)}
+              style={{ padding: "5px", minWidth: "25px", borderRadius: "50%" }}
+              disabled={filteredItems.length < (num - 1) * 3 + 1}
+            >
+              {num}
+            </FilterBtn>
+          ))}
+          <PageArrow
+            disabled={
+              currentPage === 3 || filteredItems.length <= currentPage * 3
+            }
+            onClick={() => setCurrentPage((p) => p + 1)}
+          >
+            ►{" "}
+          </PageArrow>
+        </PaginationSide>
       </FilterContainer>
 
       <AnimatePresence>
         {isAddingSource && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
+            animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            style={{ overflow: 'hidden' }}
+            style={{ overflow: "hidden" }}
           >
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
-              <input 
-                type="text" 
-                value={newUrl} 
-                onChange={e => setNewUrl(e.target.value)}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                gap: "8px",
+                marginBottom: "20px",
+                flexWrap: "wrap",
+              }}
+            >
+              <input
+                type="text"
+                value={newUrl}
+                onChange={(e) => setNewUrl(e.target.value)}
                 placeholder="Введіть URL RSS (напр. https://rss.com/feed)"
-                style={{ 
-                  padding: '8px 16px', 
-                  borderRadius: '20px', 
-                  border: `1px solid ${$isDarkMode ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.2)'}`, 
-                  background: $isDarkMode ? '#f5f5f5' : '#1a1a1a', 
-                  color: $isDarkMode ? '#000' : '#fff', 
-                  outline: 'none',
-                  minWidth: '250px',
-                  fontFamily: 'var(--font-family)',
-                  fontSize: '14px'
+                style={{
+                  padding: "8px 16px",
+                  borderRadius: "20px",
+                  border: `1px solid ${$isDarkMode ? "rgba(0,0,0,0.2)" : "rgba(255,255,255,0.2)"}`,
+                  background: $isDarkMode ? "#f5f5f5" : "#1a1a1a",
+                  color: $isDarkMode ? "#000" : "#fff",
+                  outline: "none",
+                  minWidth: "250px",
+                  fontFamily: "var(--font-family)",
+                  fontSize: "14px",
                 }}
               />
-              <FilterBtn $isDarkMode={$isDarkMode} onClick={handleAddSource} style={{ background: '#ffb36c', color: '#000' }}>
+              <FilterBtn
+                $isDarkMode={$isDarkMode}
+                onClick={handleAddSource}
+                style={{ background: "#ffb36c", color: "#000" }}
+              >
                 Зберегти
               </FilterBtn>
             </div>
@@ -770,16 +894,28 @@ const News = ({ $isDarkMode, user }) => {
       </AnimatePresence>
 
       {loading ? (
-        <div style={{ textAlign: "center", color: "gray", padding: "60px 20px" }}>
-          <div style={{ marginBottom: "15px", fontSize: "14px", fontWeight: "500" }}>
-            {hasError ? "⚠️ Помилка завантаження!" : `Шукаємо цікавинки... ${loadProgress}%`}
+        <div
+          style={{ textAlign: "center", color: "gray", padding: "60px 20px" }}
+        >
+          <div
+            style={{
+              marginBottom: "15px",
+              fontSize: "14px",
+              fontWeight: "500",
+            }}
+          >
+            {hasError
+              ? "⚠️ Помилка завантаження!"
+              : `Шукаємо цікавинки... ${loadProgress}%`}
           </div>
           <ProgressBar $isDarkMode={$isDarkMode}>
             <ProgressBarFill $progress={loadProgress} $isError={hasError} />
           </ProgressBar>
         </div>
       ) : filteredItems.length > 0 ? (
-        <div style={{ position: "relative", maxWidth: "1400px", margin: "0 auto" }}>
+        <div
+          style={{ position: "relative", maxWidth: "1400px", margin: "0 auto" }}
+        >
           <AnimatePresence mode="wait">
             <motion.div
               key={currentPage + filterSource}
@@ -814,11 +950,11 @@ const News = ({ $isDarkMode, user }) => {
       )}
 
       {selectedNews && (
-        <NewsAiModal 
-          isOpen={isAiModalOpen} 
-          onClose={() => setIsAiModalOpen(false)} 
-          newsItem={selectedNews} 
-          isDarkMode={$isDarkMode} 
+        <NewsAiModal
+          isOpen={isAiModalOpen}
+          onClose={() => setIsAiModalOpen(false)}
+          newsItem={selectedNews}
+          isDarkMode={$isDarkMode}
         />
       )}
     </NewsDiv>

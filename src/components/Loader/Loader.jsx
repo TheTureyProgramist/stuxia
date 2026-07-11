@@ -115,7 +115,7 @@ const PhraseText = styled.p`
   line-height: 1.5;
   max-width: 1200px;
   font-style: italic;
-    border-radius: 20px;
+  border-radius: 20px;
   background: rgba(0, 0, 0, 0.61);
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 `;
@@ -142,7 +142,7 @@ const StatusText = styled.span`
   font-weight: 600;
   letter-spacing: 0.5px;
   text-align: right;
-  min-width: 170px; 
+  min-width: 170px;
 `;
 
 const DotGrid = styled.div`
@@ -157,14 +157,46 @@ const Dot = styled.div`
   height: 5px;
   background-color: #ffffff;
   animation: ${dotFade} 0.8s infinite linear;
-  &:nth-child(1) { grid-row: 1; grid-column: 1; animation-delay: 0s; }
-  &:nth-child(2) { grid-row: 1; grid-column: 2; animation-delay: 0.1s; }
-  &:nth-child(3) { grid-row: 1; grid-column: 3; animation-delay: 0.2s; }
-  &:nth-child(4) { grid-row: 2; grid-column: 3; animation-delay: 0.3s; }
-  &:nth-child(5) { grid-row: 3; grid-column: 3; animation-delay: 0.4s; }
-  &:nth-child(6) { grid-row: 3; grid-column: 2; animation-delay: 0.5s; }
-  &:nth-child(7) { grid-row: 3; grid-column: 1; animation-delay: 0.6s; }
-  &:nth-child(8) { grid-row: 2; grid-column: 1; animation-delay: 0.7s; }
+  &:nth-child(1) {
+    grid-row: 1;
+    grid-column: 1;
+    animation-delay: 0s;
+  }
+  &:nth-child(2) {
+    grid-row: 1;
+    grid-column: 2;
+    animation-delay: 0.1s;
+  }
+  &:nth-child(3) {
+    grid-row: 1;
+    grid-column: 3;
+    animation-delay: 0.2s;
+  }
+  &:nth-child(4) {
+    grid-row: 2;
+    grid-column: 3;
+    animation-delay: 0.3s;
+  }
+  &:nth-child(5) {
+    grid-row: 3;
+    grid-column: 3;
+    animation-delay: 0.4s;
+  }
+  &:nth-child(6) {
+    grid-row: 3;
+    grid-column: 2;
+    animation-delay: 0.5s;
+  }
+  &:nth-child(7) {
+    grid-row: 3;
+    grid-column: 1;
+    animation-delay: 0.6s;
+  }
+  &:nth-child(8) {
+    grid-row: 2;
+    grid-column: 1;
+    animation-delay: 0.7s;
+  }
 `;
 
 export default function Loader({ isLoading, isFadingOut, randomPhrase }) {
@@ -198,9 +230,10 @@ export default function Loader({ isLoading, isFadingOut, randomPhrase }) {
       const phase2Phrases = [
         "Доміно бажає гарної погоди :)",
         "??? - Я знаю його",
-        "Він скоро повернеться" 
+        "Він скоро повернеться",
       ];
-      const randomFinalPhrase = phase2Phrases[Math.floor(Math.random() * phase2Phrases.length)];
+      const randomFinalPhrase =
+        phase2Phrases[Math.floor(Math.random() * phase2Phrases.length)];
 
       const finalTimeout = setTimeout(() => {
         clearInterval(interval);

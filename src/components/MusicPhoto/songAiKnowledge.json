@@ -5,7 +5,7 @@
     "Режисер": "Орландо Корраді",
     "Актори": "Марко Вівіо, Джулиано Санті, Андреа Уорд, George Castiglia, Даніэль Ди Маттео, Олівьеро Дінеллі, Сільвио Ансельмо, Алессіо Уорд, Леонардо Канева, Патриція Салерно ",
     "Графік серій": "Динофроз - датм виходу серій 2сезону: 26 серія  The Last Secret(Остання таємниця) 2 грудня 2015, 25 серія  Over The Skies Of Rocketown(Над небесами Роктауну) 1 грудня 2015, 24 серія From Father To Son(Від батька до сина) 27 листопада 2015, 23 серія  Unexpected Proposal(Несподівана пропозиція) 26 листопада 2015, 22 серія  The Ive Prison 25 листопада 2015, 21 серія Tower Assault(Штурм вежі) 24 листопада 2015, 20 серія  Mission Incredible(Неймовірна місія) 16 жовтня 2015,  19 серія A New Alliance(Новий союз) 15 жовтня 2015, 18 серія  Face to Face(Віч-на-віч) 14 жовтня 2015, 17 серія  In the Lair of the Enemy(У лігві ворога) 13 жовтня 2015, 16 серія  Acquisition: Triceratops 9 жовтня 2015,  15 серія  The Shadow Of Betrayal(Тінь зради) 8 жовтня 2015,  14 серія  The Day of the Two Stars(День 2 зірок) 7 жовтня 2015, 13 серія  The Power of the DinoWatch 6 жовтня 2015, 12 серія  The Fury of Drakemon 2 жовтня 2015, 11 серія  Codename: Dominion Project 1 жовтня 2015, 10 серія  The Girl With The Jade Eyes(Дівина з Нефритовими очима) 30 вересня 2015,  9 серія  Race Against Time(Гонка проти часу) 29 вересня 2015, 8 серія  The Dragon Slayers 25 вересня 2015, 7 серія  Mystery At The Center Of The Earth(Таємниця в центрі Землі) 24 вересня 2015,  6 серія  The Dragon From The Swamp(Дракон з болота) 23 вересня 2015, 5 серія  The Legend of Firerock 22 вересня 2015, 4 серія  A New Dinofroz 18 вересня 2015, 3 серія  An Island in the Sky(Літаючий острів) 17 вересня 2015, 2 серія The Iron Dinosaur 16 вересня 2015,  1 серія  Return To The Past World(Повернення в доісторичний світ) 15 вересня 2015, 1 сезон 26 серія Все тільки починається(The End of the Beginning) 19 квітня 2014, 1 сезон 25 серія Віч-на-віч(Bare faced) 18 квітня 2014, 1 сезон 24 серія Останнє затемнення(The Last Eclipse) 14 грудня 2012, 1 сезон 23 серія Відчайдушна втеча(Desperate Escape) 13 грудня 2012, 1 сезон 22 серія Mission 'White Dragon' 12 грудня 2012, 1 сезон 21 серія (Тінь ворога)The Shadow of the Enemy 11 грудня 2012, 1 сезон 20 серія Повернення з темряви(Return from the Dark) 17 листопада 2012, 1 сезон 19 серія Зберігач озера(The Guardian of the Lake) 17 листопада 2012, 1 сезон 18 серія The Secret of James 16 листопада 2012, 1 сезон 17 серія Пригоди для шістьох(Adventure for Six) 16 листопада 2012, 1 сезон 16 серія Послання зминулого (Message From the Past) 15 листопада 2012, 1 сезон 15 серія Подвійний обман Double Deception 30 вересня 2012, 1 сезон 14 серія Повстання драконів(The Revolt of the Dragons) 29 вересня 2012,1 сезон 13 серія Hunt for General Treek 28 вересня 2012, 1 сезон 12 серія Місячний острів(The Island of the Moon) 27 вересня 2012, 1 сезон 11 серія Смертельна небезпека(Mortal Danger) 26 вересня 2012, 1 сезон 10 серія Несподівана допомога(An Unexpected Help) 22 вересня 2012, 1 сезон 9 серія Призначення(The Predestined) 21 вересня 2012, 1 сезон 8 серія Занедбаний храм(The Temple of Doom) 20 вересня 2012, 1 сезон 7 серія Жорстокий Ніцерон(Neceron the Mercyless) 19 вересня 2012, 1 сезон 6 серія Землі подрібнених лоз(In the Land of Crushing Liana) 18 вересня 2012, 1 сезон 5 серія Раптовий удар(Surprise Attack) 14 вересня 2012, 1 сезон 4 серія (Новий ворог)A New Enemy 13 вересня 2012, 1 сезон 3 серія The Rockfroz 12 вересня 2012, 1 сезон 2 серія Шаман(The Shaman) 11 вересня 2012, 1 сезон 1 серія Початок(The Origins) 11 вересня 2012 ",
- "Сюжет": "",
+    "Сюжет": "",
     "image": "dinofrozone",
     "audio": "dinofrozAudio",
     "author": "Mondo TV",
@@ -127,7 +127,7 @@
         "type": "purple",
         "opacity": 0.25
       },
-     
+
       {
         "start": 53,
         "end": 71,
@@ -202,7 +202,7 @@
       }
     ],
     "author": "TheFatRat",
-        "text": "No No No"
+    "text": "No No No"
   },
   {
     "id": 4,
@@ -384,7 +384,7 @@
         "text": ""
       }
     ],
-        "text": "Monody"
+    "text": "Monody"
   },
   {
     "id": 7,
@@ -414,25 +414,64 @@
     "id": 12,
     "category": "хіти",
     "text": "Electrodynamix",
-    "author": "DJ-Nate(GeometryDash)",
+    "author": "DJ-Nate",
     "image": "electrodynamix",
     "audio": "electrodynamixAudio",
     "filters": [
       {
-        "start": 127,
-        "end": 134,
+        "start": 19,
+        "end": 37,
+        "symbols": "✧",
         "type": "symbols",
-        "intensity": 105,
-        "speed": 0.1,
-        "blur": 1.7
+        "intensity": 100,
+        "speed": 3.5
       },
       {
-        "start": 148,
-        "end": 154,
+        "start": 0,
+        "end": 7,
+        "symbols": "⬦",
         "type": "symbols",
-        "intensity": 115,
-        "speed": 0.3,
-        "blur": 1.7
+        "intensity": 20,
+        "speed": 0.1
+      },
+      {
+        "start": 7,
+        "end": 19,
+        "type": "symbols",
+        "intensity": 200,
+        "speed": 6.5
+      },
+      {
+        "start": 37,
+        "end": 52,
+        "symbols": "⬣",
+        "type": "symbols",
+        "intensity": 60,
+        "speed": 2,
+        "blur": 1.3
+      },
+            {
+        "start": 60,
+        "end": 75,
+        "symbols": "✧",
+        "type": "symbols",
+        "intensity": 100,
+        "speed": 3.5
+      },
+            {
+        "start": 75,
+        "end": 97,
+        "symbols": "⬦",
+        "type": "symbols",
+        "intensity": 20,
+        "speed": 0.1
+      },
+            {
+        "start": 97,
+        "end": 127,
+        "type": "symbols",
+        "intensity": 200,
+        "speed": 6.5
       },
       {
         "start": 1,
@@ -576,10 +615,8 @@
   },
   {
     "id": 14,
-    "symbols": [
-      "⏧"
-    ],
-    "author": "DJ-Nate(GeometryDash)",
+    "symbols": ["⏧"],
+    "author": "DJ-Nate",
     "image": "clubstep",
     "text": "Clubstep",
     "audio": "clubstepAudio",
@@ -620,10 +657,7 @@
         "start": 21,
         "end": 37,
         "randomColor": true,
-        "colorOptions": [
-          "red",
-          "green"
-        ],
+        "colorOptions": ["red", "green"],
         "isRandom": true,
         "minOpacity": 0.1,
         "maxOpacity": 0.25,
@@ -636,10 +670,7 @@
         "start": 50,
         "end": 55,
         "randomColor": true,
-        "colorOptions": [
-          "black",
-          "grayscale"
-        ],
+        "colorOptions": ["black", "grayscale"],
         "isRandom": true,
         "minOpacity": 0.4,
         "maxOpacity": 0.8,
@@ -651,10 +682,7 @@
         "start": 59,
         "end": 64,
         "randomColor": true,
-        "colorOptions": [
-          "black",
-          "grayscale"
-        ],
+        "colorOptions": ["black", "grayscale"],
         "isRandom": true,
         "minOpacity": 0.6,
         "maxOpacity": 0.9,
@@ -666,10 +694,7 @@
         "start": 68,
         "end": 72,
         "randomColor": true,
-        "colorOptions": [
-          "black",
-          "grayscale"
-        ],
+        "colorOptions": ["black", "grayscale"],
         "isRandom": true,
         "minOpacity": 0.7,
         "maxOpacity": 0.8,
@@ -681,10 +706,7 @@
         "start": 72,
         "end": 87,
         "randomColor": true,
-        "colorOptions": [
-          "purple",
-          "blue"
-        ],
+        "colorOptions": ["purple", "blue"],
         "isRandom": true,
         "minOpacity": 0.1,
         "maxOpacity": 0.25,
@@ -696,10 +718,7 @@
         "start": 87,
         "end": 100,
         "randomColor": true,
-        "colorOptions": [
-          "brown",
-          "orange"
-        ],
+        "colorOptions": ["brown", "orange"],
         "isRandom": true,
         "minOpacity": 0.1,
         "maxOpacity": 0.25,
@@ -712,10 +731,7 @@
         "start": 103,
         "end": 133,
         "randomColor": true,
-        "colorOptions": [
-          "ultrachaos",
-          "chaos"
-        ],
+        "colorOptions": ["ultrachaos", "chaos"],
         "isRandom": true,
         "minOpacity": 0.1,
         "maxOpacity": 0.25,
@@ -724,7 +740,14 @@
         "maxBlur": 2
       },
       { "start": 133, "end": 135, "type": "grayscale", "opacity": 1 },
-      { "start": 135, "end": 166, "type": "red", "minOpacity": 0.15, "isRandom": true, "maxOpacity": 0.3 }
+      {
+        "start": 135,
+        "end": 166,
+        "type": "red",
+        "minOpacity": 0.15,
+        "isRandom": true,
+        "maxOpacity": 0.3
+      }
     ]
   },
   {
@@ -738,8 +761,20 @@
     "duration": 140,
     "images": ["fingerdash"],
     "filters": [
-      { "start": 77, "end": 85, "type": "symbols", "intensity": 70, "speed": 1 },
-      { "start": 104, "end": 128, "type": "symbols", "intensity": 50, "speed": 1 },
+      {
+        "start": 77,
+        "end": 85,
+        "type": "symbols",
+        "intensity": 70,
+        "speed": 1
+      },
+      {
+        "start": 104,
+        "end": 128,
+        "type": "symbols",
+        "intensity": 50,
+        "speed": 1
+      },
       { "start": 17, "end": 34, "type": "flicker", "opacity": 1 },
       { "start": 34, "end": 41, "type": "grayscale", "opacity": 1 },
       { "start": 41, "end": 43, "type": "black", "opacity": 0.75 },
@@ -769,49 +804,168 @@
     "id": 16,
     "image": "theorytwo",
     "audio": "theorytwoAudio",
-    "author": "DJ-Nate(GeometryDash)",
+    "author": "DJ-Nate",
     "category": "хіти",
     "duration": 140,
     "text": "Theory of everything II",
     "images": ["theorytwo"],
-    "symbols": ["✧"],
     "filters": [
       { "start": 70, "end": 90, "type": "flicker", "opacity": 0.3 },
-      { "start": 52, "end": 66.5, "symbols": "⬣", "type": "symbols", "intensity": 60, "speed": 1, "blur": 1.3 },
-      { "start": 0, "end": 10, "symbols": "⬣", "type": "symbols", "intensity": 20, "speed": 0.1, "blur": 1.3 },
-      { "start": 10, "end": 18, "type": "purple", "opacity": 0.4 },
-      { "start": 18, "end": 23, "type": "blue", "opacity": 0.3 },
+      {
+        "start": 10,
+        "end": 23,
+        "symbols": "⬣",
+        "type": "symbols",
+        "intensity": 60,
+        "speed": 2,
+        "blur": 1.3
+      },
+      {
+        "start": 41,
+        "end": 45,
+        "symbols": "⬣",
+        "type": "symbols",
+        "intensity": 60,
+        "speed": 2,
+        "blur": 1.3
+      },
+      {
+        "start": 47,
+        "end": 52,
+        "symbols": "✧",
+        "type": "symbols",
+        "intensity": 100,
+        "speed": 3.5
+      },
+      {
+        "start": 0,
+        "end": 10,
+        "symbols": "⬦",
+        "type": "symbols",
+        "intensity": 20,
+        "speed": 0.1
+      },
+      {
+        "start": 25,
+        "end": 37,
+        "symbols": "✧",
+        "type": "symbols",
+        "intensity": 100,
+        "speed": 3.5
+      },
+      {
+        "start": 52,
+        "end": 69,
+        "symbols": "⬦",
+        "type": "symbols",
+        "intensity": 20,
+        "speed": 0.1
+      },
+      {
+        "start": 70,
+        "end": 122,
+        "type": "symbols",
+        "intensity": 200,
+        "speed": 6.5
+      },
+      {
+        "start": 122,
+        "end": 129,
+        "symbols": "⬣",
+        "type": "symbols",
+        "intensity": 60,
+        "speed": 2,
+        "blur": 1.3
+      },
+      {
+        "start": 129,
+        "end": 154,
+        "symbols": "⬦",
+        "type": "symbols",
+        "intensity": 20,
+        "speed": 0.1
+      },
+      {
+        "start": 154,
+        "end": 168,
+        "symbols": "✧",
+        "type": "symbols",
+        "intensity": 100,
+        "speed": 3.5
+      },
+      { "start": 10, "end": 23, "type": "green", "opacity": 0.2 },
       { "start": 23, "end": 25, "type": "grayscale", "opacity": 1 },
-      { "start": 25, "end": 32, "type": "cyan", "opacity": 0.3 },
-      { "start": 32, "end": 37, "type": "brown", "opacity": 0.4 },
+      { "start": 25, "end": 37, "type": "orange", "opacity": 0.2 },
       { "start": 37, "end": 40, "type": "grayscale", "opacity": 1 },
-      { "start": 40, "end": 40.2, "type": "flash", "opacity": 1 },
-      { "start": 40.3, "end": 45, "type": "purple", "opacity": 0.4 },
+      { "start": 40, "end": 41, "type": "flash", "opacity": 1 },
+      { "start": 41, "end": 45, "type": "green", "opacity": 0.2 },
       { "start": 45, "end": 47, "type": "grayscale", "opacity": 1 },
-      { "start": 47, "end": 52, "type": "chaos", "opacity": 0.3 },
-      { "start": 52, "end": 57, "type": "black", "opacity": 0.33, "blur": 3.3 },
-      { "start": 57, "end": 63, "type": "black", "opacity": 0.67, "blur": 6.7 },
+      { "start": 47, "end": 52, "type": "orange", "opacity": 0.2 },
+      { "start": 57, "end": 63, "type": "black", "opacity": 0.5, "blur": 5 },
       { "start": 63, "end": 69, "type": "black", "opacity": 1, "blur": 10 },
       { "start": 69, "end": 69.4, "type": "flash", "opacity": 1 },
-      { "start": 69.4, "end": 72, "type": "red", "opacity": 0.5 },
-      { "start": 72, "end": 78, "type": "chaos", "opacity": 0.3 },
-      { "start": 78, "end": 90, "type": "cyan", "opacity": 0.3 },
+      { "start": 69.4, "end": 72, "type": "red", "opacity": 0.2 },
+      { "start": 72, "end": 78, "type": "chaos", "opacity": 0.2 },
+      { "start": 78, "end": 90, "type": "cyan", "opacity": 0.2 },
       { "start": 90, "end": 92, "type": "white", "opacity": 0.6 },
-      { "start": 92, "end": 120, "type": "ultrachaos", "opacity": 0.3 },
+      { "start": 92, "end": 120, "type": "ultrachaos", "opacity": 0.2 },
       { "start": 120, "end": 122, "type": "white", "opacity": 0.6 },
-      { "start": 122, "end": 129, "type": "green", "opacity": 0.3 },
+      { "start": 122, "end": 129, "type": "green", "opacity": 0.2 },
       { "start": 129, "end": 135, "type": "black", "opacity": 1 },
-      { "start": 135, "end": 147, "type": "black", "opacity": 0.67, "blur": 3.3 },
-      { "start": 147, "end": 152, "type": "black", "opacity": 0.33, "blur": 6.7 },
-      { "start": 152, "end": 154, "type": "blue", "opacity": 0.3, "blur": 10 },
-      { "start": 154, "end": 164, "type": "brown", "opacity": 0.4 },
-      { "start": 164, "end": 168, "type": "cyan", "opacity": 0.3 },
+      {
+        "start": 135,
+        "end": 147,
+        "type": "black",
+        "opacity": 0.67,
+        "blur": 3.3
+      },
+      {
+        "start": 147,
+        "end": 152,
+        "type": "black",
+        "opacity": 0.33,
+        "blur": 6.7
+      },
+      { "start": 152, "end": 154, "type": "blue", "opacity": 0.2, "blur": 10 },
+      { "start": 154, "end": 164, "type": "brown", "opacity": 0.2 },
+      { "start": 164, "end": 168, "type": "cyan", "opacity": 0.2 },
       { "start": 168, "end": 170, "type": "grayscale", "opacity": 1 },
-      { "start": 170, "end": 182, "type": "purple", "opacity": 0.4 },
+      {
+        "start": 170,
+        "end": 182,
+        "type": "symbols",
+        "intensity": 200,
+        "speed": 6.5
+      },
+      { "start": 170, "end": 182, "type": "purple", "opacity": 0.2 },
       { "start": 182, "end": 184, "type": "grayscale", "opacity": 1 },
-      { "start": 184, "end": 190, "type": "orange", "opacity": 0.4 },
-      { "start": 190, "end": 194, "type": "white", "opacity": 0.4 },
-      { "start": 194, "end": 198, "type": "red", "opacity": 0.5 },
+      {
+        "start": 184,
+        "end": 190,
+        "type": "symbols",
+        "intensity": 200,
+        "speed": 6.5
+      },
+      { "start": 184, "end": 190, "type": "orange", "opacity": 0.2 },
+      { "start": 190, "end": 194, "type": "white", "opacity": 0.2 },
+      { "start": 194, "end": 198, "type": "green", "opacity": 0.2 },
+      {
+        "start": 194,
+        "end": 198,
+        "symbols": "⬣",
+        "type": "symbols",
+        "intensity": 60,
+        "speed": 2,
+        "blur": 1.3
+      },
+      {
+        "start": 198,
+        "end": 222,
+        "symbols": "⬦",
+        "type": "symbols",
+        "intensity": 20,
+        "speed": 0.1
+      },
       { "start": 198, "end": 222, "type": "grayscale", "opacity": 1 }
     ]
   },
@@ -823,7 +977,25 @@
     "author": "Deadlocked - F77(GeometryDash).",
     "category": "хіти",
     "duration": 140,
-    "images": ["deadlocked", "swamptwo", "swampthree", "swampfour", "swampfive", "swampsix", "swampseven", "swampeight", "swampnine", "horror", "horrortwo", "horrorthree", "horrorfour", "horrorfive", "horrorsix", "horrorseven", "horroreight"],
+    "images": [
+      "deadlocked",
+      "swamptwo",
+      "swampthree",
+      "swampfour",
+      "swampfive",
+      "swampsix",
+      "swampseven",
+      "swampeight",
+      "swampnine",
+      "horror",
+      "horrortwo",
+      "horrorthree",
+      "horrorfour",
+      "horrorfive",
+      "horrorsix",
+      "horrorseven",
+      "horroreight"
+    ],
     "Чому ми в пісню вставили розмову персонажів?": "Найближчим часом, у Стихії з'явиться сюжет.",
     "text": "Моторошна, але епічна пісня. Друг фанат цього рівня :).",
     "author": "Deadlocked - F77(GeometryDash).",
@@ -835,12 +1007,19 @@
     "audio": "theoryAudio",
     "text": "Theory of everything",
     "symbols": ["✦"],
-    "author": "DJ-Nate(GeometryDash)",
+    "author": "DJ-Nate",
     "category": "хіти",
     "duration": 140,
     "images": ["theory"],
     "filters": [
-      { "start": 65, "end": 81, "type": "symbols", "intensity": 150, "speed": 0.6, "blur": 1.3 },
+      {
+        "start": 65,
+        "end": 81,
+        "type": "symbols",
+        "intensity": 150,
+        "speed": 0.6,
+        "blur": 1.3
+      },
       { "start": 254, "end": 274, "type": "flicker", "opacity": 0.15 },
       { "start": 7, "end": 15, "type": "brown", "opacity": 0.28 },
       { "start": 15, "end": 15.5, "type": "flash", "opacity": 1 },
@@ -878,7 +1057,14 @@
     "images": ["unity"],
     "filters": [
       { "start": 170, "end": 191, "type": "flicker", "opacity": 0.3 },
-      { "start": 81, "end": 100, "type": "symbols", "intensity": 140, "speed": 1.4, "blur": 0.5 },
+      {
+        "start": 81,
+        "end": 100,
+        "type": "symbols",
+        "intensity": 140,
+        "speed": 1.4,
+        "blur": 0.5
+      },
       { "start": 8, "end": 27, "type": "purple", "opacity": 0.25 },
       { "start": 27, "end": 27.5, "type": "flash", "opacity": 1 },
       { "start": 45, "end": 63, "type": "blue", "opacity": 0.2 },
@@ -904,34 +1090,73 @@
     "images": ["hunger"],
     "Не співпадіння по субтитрам": "При додаванні, вони були змінені для рифми. ",
     "lyrics": [
-      { "time": 11, "text": "Донечко, не лишай страх на згадку, я подбаю про те, щоб ти була у порядку" },
+      {
+        "time": 11,
+        "text": "Донечко, не лишай страх на згадку, я подбаю про те, щоб ти була у порядку"
+      },
       { "time": 16, "text": "Донечко, не хвилюйся за мене, все погане мине" },
       { "time": 22, "text": "Віддам все, тобі моє" },
-      { "time": 27, "text": "Сподіваюся, ти не помітиш страх голоду, в моїх очах" },
+      {
+        "time": 27,
+        "text": "Сподіваюся, ти не помітиш страх голоду, в моїх очах"
+      },
       { "time": 34, "text": "Все, про що ми мріяли" },
       { "time": 39, "text": "Брехню за хмарами нам повіяли" },
       { "time": 44, "text": "Зі страхами, з дощами, сльозами та болями" },
-      { "time": 49, "text": "Донечко, не бійся за неньку, я подбаю про твою безпеконьку" },
-      { "time": 52, "text": "Я продовжуватиму боротьбу, я продовжуватиму боротьбу" },
+      {
+        "time": 49,
+        "text": "Донечко, не бійся за неньку, я подбаю про твою безпеконьку"
+      },
+      {
+        "time": 52,
+        "text": "Я продовжуватиму боротьбу, я продовжуватиму боротьбу"
+      },
       { "time": 66, "text": "Ховайся тут на ходу, поки я йду" },
       { "time": 69, "text": "Ніхто не зашкодить, тобі хочу пообіцять" },
-      { "time": 72, "text": "Все буде добре, тут залишайся і мовчи, завдання тобі таке" },
+      {
+        "time": 72,
+        "text": "Все буде добре, тут залишайся і мовчи, завдання тобі таке"
+      },
       { "time": 75, "text": "Не йди за мною, я повернуся завтра з тобою" },
       { "time": 78, "text": "Віддам все, тобі моє" },
-      { "time": 82, "text": "Сподіваюся, ти не помітиш страх голоду, в моїх очах" },
+      {
+        "time": 82,
+        "text": "Сподіваюся, ти не помітиш страх голоду, в моїх очах"
+      },
       { "time": 89, "text": "Все, про що ми мріяли" },
       { "time": 94, "text": "Брехню за хмарами нам повіяли" },
       { "time": 100, "text": "Зі страхами, зі дощами, сльозами та болями" },
-      { "time": 104, "text": "Донечко, не бійся за неньку, я подбаю про твою безпеконьку" },
-      { "time": 110, "text": "Я продовжуватиму боротьбу, я продовжуватиму боротьбу" },
-      { "time": 133, "text": "Не плач, моя айстра. Я повернуся завтра, коли прокинешся" },
-      { "time": 145, "text": "Не плач. Я буду сьогодні ввечері та триматиму монстрів подалі" },
+      {
+        "time": 104,
+        "text": "Донечко, не бійся за неньку, я подбаю про твою безпеконьку"
+      },
+      {
+        "time": 110,
+        "text": "Я продовжуватиму боротьбу, я продовжуватиму боротьбу"
+      },
+      {
+        "time": 133,
+        "text": "Не плач, моя айстра. Я повернуся завтра, коли прокинешся"
+      },
+      {
+        "time": 145,
+        "text": "Не плач. Я буду сьогодні ввечері та триматиму монстрів подалі"
+      },
       { "time": 155, "text": "" },
-      { "time": 165, "text": "(Come closer, пошепки) Підійди ближче, підійди ближче." },
+      {
+        "time": 165,
+        "text": "(Come closer, пошепки) Підійди ближче, підійди ближче."
+      },
       { "time": 175, "text": "Я продовжуватиму боротьбу, бо я їх здолаю" }
     ],
     "filters": [
-      { "start": 55, "end": 66, "type": "symbols", "intensity": 140, "speed": 1.4 },
+      {
+        "start": 55,
+        "end": 66,
+        "type": "symbols",
+        "intensity": 140,
+        "speed": 1.4
+      },
       { "start": 10, "end": 22, "type": "purple", "opacity": 0.25 },
       { "start": 22, "end": 33, "type": "cyan", "opacity": 0.2 },
       { "start": 33, "end": 44, "type": "green", "opacity": 0.2 },
@@ -954,9 +1179,15 @@
     "category": "хіти",
     "duration": 140,
     "images": ["horror", "horrortwo", "horrorthree"],
-     "Які треки, я використав": "Авторські слова: Трохи свого, трохи з т/с Реальна містика, запис на секунду збився і вставило Ніцерона :) Коли я побачив мені було лінь міняти, то вставив уривок,мще уривок з Динофрозу, можливо це додасть у саунтрек таємничості.",
+    "Які треки, я використав": "Авторські слова: Трохи свого, трохи з т/с Реальна містика, запис на секунду збився і вставило Ніцерона :) Коли я побачив мені було лінь міняти, то вставив уривок,мще уривок з Динофрозу, можливо це додасть у саунтрек таємничості.",
     "filters": [
-      { "start": 5, "end": 15, "type": "image", "imageUrl": "theorytwo", "opacity": 0.4 }
+      {
+        "start": 5,
+        "end": 15,
+        "type": "image",
+        "imageUrl": "theorytwo",
+        "opacity": 0.4
+      }
     ]
   },
   {
@@ -967,11 +1198,29 @@
     "category": "хіти",
     "duration": 60,
     "author": "Моя робота :)",
-    "images": ["turkeysone", "turkeytwo", "turkeythree", "turkeyfour", "turkeyfive", "turkeysix", "turkeyseven", "turkeys"],
+    "images": [
+      "turkeysone",
+      "turkeytwo",
+      "turkeythree",
+      "turkeyfour",
+      "turkeyfive",
+      "turkeysix",
+      "turkeyseven",
+      "turkeys"
+    ],
     "lyrics": [
-      { "time": 25, "text": "Дякую всім слухачам! Давно хотів сказати, що робота над піснями, була примною і важкою." },
-      { "time": 40, "text": "Динофроз, режимом відео, забрав багато часу, та деякі пісні, у плані фільтрів. Тим не менш, індики, попри скромність, заслужили, бути на рівні з іншими." },
-      { "time": 55, "text": "Друзі, у кожного, своя улюблена тема(спільне, відмінне), і ненавидна. Я розміщую захопливе і заспокійливе, окрім моїх захоплень, тільки скажіть і ваше улюблене може з'явитись. Я це кажу, до того, що Стихію, ми розвиватимемо разом. " }
+      {
+        "time": 25,
+        "text": "Дякую всім слухачам! Давно хотів сказати, що робота над піснями, була примною і важкою."
+      },
+      {
+        "time": 40,
+        "text": "Динофроз, режимом відео, забрав багато часу, та деякі пісні, у плані фільтрів. Тим не менш, індики, попри скромність, заслужили, бути на рівні з іншими."
+      },
+      {
+        "time": 55,
+        "text": "Друзі, у кожного, своя улюблена тема(спільне, відмінне), і ненавидна. Я розміщую захопливе і заспокійливе, окрім моїх захоплень, тільки скажіть і ваше улюблене може з'явитись. Я це кажу, до того, що Стихію, ми розвиватимемо разом. "
+      }
     ]
   },
   {
@@ -985,26 +1234,43 @@
     "author": "Alan Walker",
     "YouTube": "https://www.youtube.com/watch?v=S2u0hDVsTWA",
     "lyrics": [
-      { "time": 10, "text": "Ти був тінню для мого світла. Ти відчував нас, коли я тут була?" },
+      {
+        "time": 10,
+        "text": "Ти був тінню для мого світла. Ти відчував нас, коли я тут була?"
+      },
       { "time": 17, "text": "Ще одна зірка, ти зникаєш, як та річка" },
-      { "time": 21, "text": "Боїшся, що ми можемо, щось проґавити. Хочеш нас побачити. Час летіти." },
+      {
+        "time": 21,
+        "text": "Боїшся, що ми можемо, щось проґавити. Хочеш нас побачити. Час летіти."
+      },
       { "time": 29, "text": "Де ти зараз?" },
       { "time": 45, "text": "Чи твій образ, це уява? Де ти зараз?" },
       { "time": 50, "text": "Чи, уява тоді, взяла гору якраз? Де ти зараз?" },
       { "time": 55, "text": "Де ти зараз? Атлантида. На глибині моря." },
       { "time": 66, "text": "Ще один сон, шалено біжить у мені дракон." },
-            { "time": 73, "text": "Я зникла. І так втрачена. Я зникла." },
-      { "time": 97, "text": "Це мілководдя ніколи не зустрічало, що моє серце бажало" },
-      { "time": 105, "text": "Я відпускаю. Глибше занурення. Вічна тиша моря. Я дихаю" },
+      { "time": 73, "text": "Я зникла. І так втрачена. Я зникла." },
+      {
+        "time": 97,
+        "text": "Це мілководдя ніколи не зустрічало, що моє серце бажало"
+      },
+      {
+        "time": 105,
+        "text": "Я відпускаю. Глибше занурення. Вічна тиша моря. Я дихаю"
+      },
       { "time": 113, "text": "Живий" },
       { "time": 115, "text": "Де ти зараз?" },
       { "time": 126, "text": "Чи, уява тоді, взяла гору якраз? Де ти зараз?" },
       { "time": 55, "text": "Де ти зараз? Атлантида. На глибині моря." },
       { "time": 68, "text": "Ще один сон, шалено біжить у мені дракон." }
-
     ],
     "filters": [
-      { "start": 55, "end": 86, "type": "symbols", "intensity": 140, "speed": 1.4 },
+      {
+        "start": 55,
+        "end": 86,
+        "type": "symbols",
+        "intensity": 140,
+        "speed": 1.4
+      },
       { "start": 10, "end": 30, "type": "purple", "opacity": 0.25 },
       { "start": 44, "end": 55, "type": "orange", "opacity": 0.2 },
       { "start": 55, "end": 86, "type": "chaos", "opacity": 0.2 },
@@ -1016,7 +1282,7 @@
       { "start": 174, "end": 191, "type": "chaos", "opacity": 0.2 }
     ]
   },
-    {
+  {
     "id": 24,
     "image": "turkeys",
     "audio": "turkeyAudio",
@@ -1024,11 +1290,29 @@
     "category": "хіти",
     "duration": 60,
     "author": "Моя робота :)",
-    "images": ["turkeysone", "turkeytwo", "turkeythree", "turkeyfour", "turkeyfive", "turkeysix", "turkeyseven", "turkeys"],
+    "images": [
+      "turkeysone",
+      "turkeytwo",
+      "turkeythree",
+      "turkeyfour",
+      "turkeyfive",
+      "turkeysix",
+      "turkeyseven",
+      "turkeys"
+    ],
     "lyrics": [
-      { "time": 25, "text": "Дякую всім слухачам! Давно хотів сказати, що робота над піснями, була примною і важкою." },
-      { "time": 40, "text": "Динофроз, режимом відео, забрав багато часу, та деякі пісні, у плані фільтрів. Тим не менш, індики, попри скромність, заслужили, бути на рівні з іншими." },
-      { "time": 55, "text": "Друзі, у кожного, своя улюблена тема(спільне, відмінне), і ненавидна. Я розміщую захопливе і заспокійливе, окрім моїх захоплень, тільки скажіть і ваше улюблене може з'явитись. Я це кажу, до того, що Стихію, ми розвиватимемо разом. " }
+      {
+        "time": 25,
+        "text": "Дякую всім слухачам! Давно хотів сказати, що робота над піснями, була примною і важкою."
+      },
+      {
+        "time": 40,
+        "text": "Динофроз, режимом відео, забрав багато часу, та деякі пісні, у плані фільтрів. Тим не менш, індики, попри скромність, заслужили, бути на рівні з іншими."
+      },
+      {
+        "time": 55,
+        "text": "Друзі, у кожного, своя улюблена тема(спільне, відмінне), і ненавидна. Я розміщую захопливе і заспокійливе, окрім моїх захоплень, тільки скажіть і ваше улюблене може з'явитись. Я це кажу, до того, що Стихію, ми розвиватимемо разом. "
+      }
     ]
   }
 ]

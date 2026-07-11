@@ -581,7 +581,8 @@ const ShopModal = ({ onClose }) => {
     {
       name: "Спонсорський",
       img: time,
-      count: "Ви поліпшите Стихію! Та дасте знати, що я роблю це не надарма! Дякую! Без:",
+      count:
+        "Ви поліпшите Стихію! Та дасте знати, що я роблю це не надарма! Дякую! Без:",
       buttonText: "Будь-яка ціна",
       badge: "Підтримайте мене",
     },
@@ -652,7 +653,8 @@ const ShopModal = ({ onClose }) => {
                   $activeImg={activeSubImg}
                   onClick={() => {
                     if (pack.isCharacter) setShowDominoVideo(true);
-                    if (pack.name.includes("Сезонний")) setShowSeasonModal(true);
+                    if (pack.name.includes("Сезонний"))
+                      setShowSeasonModal(true);
                   }}
                   style={{
                     cursor:
@@ -681,18 +683,25 @@ const ShopModal = ({ onClose }) => {
                       </PackName>
                     </PackContent>
                   </PackInfo>
-                  {pack.isCharacter && (characterPhrases.length > 0 || showLateMessage) && (
-                    <CharacterFrame>
-                      {characterPhrases.map((text, index) => (
-                        <span key={index}>{text}</span>
-                      ))}
-                      {showLateMessage && (
-                        <span style={{ color: "#ff6c6c", fontWeight: "bold", marginTop: "4px" }}>
-                          {LATE_WARNING_PHRASE}
-                        </span>
-                      )}
-                    </CharacterFrame>
-                  )}
+                  {pack.isCharacter &&
+                    (characterPhrases.length > 0 || showLateMessage) && (
+                      <CharacterFrame>
+                        {characterPhrases.map((text, index) => (
+                          <span key={index}>{text}</span>
+                        ))}
+                        {showLateMessage && (
+                          <span
+                            style={{
+                              color: "#ff6c6c",
+                              fontWeight: "bold",
+                              marginTop: "4px",
+                            }}
+                          >
+                            {LATE_WARNING_PHRASE}
+                          </span>
+                        )}
+                      </CharacterFrame>
+                    )}
                   <BuyButton
                     onClick={() => pack.isSub && setShowVipModal(true)}
                   >
@@ -788,7 +797,12 @@ const ShopModal = ({ onClose }) => {
           внутрішньоігрові валюти. Натисніть тут!
         </div>
       </ShopContainer>
-      {showLearning && <InfoModal isOpen={showLearning} onClose={() => setShowLearning(false)} />}
+      {showLearning && (
+        <InfoModal
+          isOpen={showLearning}
+          onClose={() => setShowLearning(false)}
+        />
+      )}
 
       {showSeasonModal && (
         <SeasonOverlay>

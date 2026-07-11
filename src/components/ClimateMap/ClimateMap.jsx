@@ -135,9 +135,10 @@ const SearchInput = styled.input`
   color: white;
   font-size: 12px;
   outline: none;
-  &::placeholder { color: rgba(255, 255, 255, 0.5); }
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+  }
 `;
-
 
 const MiniPlayerWindow = styled.div`
   position: fixed;
@@ -188,7 +189,11 @@ const ResizeHandle = styled.div`
   width: 18px;
   height: 18px;
   cursor: nwse-resize;
-  background: linear-gradient(135deg, transparent 50%, rgba(255, 255, 255, 0.35) 50%);
+  background: linear-gradient(
+    135deg,
+    transparent 50%,
+    rgba(255, 255, 255, 0.35) 50%
+  );
 `;
 
 const ClimateMap = () => {
@@ -212,7 +217,10 @@ const ClimateMap = () => {
       y: Math.max(16, window.innerHeight - 260),
     };
   });
-  const [miniPlayerSize, setMiniPlayerSize] = useState({ width: 320, height: 220 });
+  const [miniPlayerSize, setMiniPlayerSize] = useState({
+    width: 320,
+    height: 220,
+  });
   const mapWrapperRef = useRef(null);
   const miniPlayerRef = useRef(null);
   const dragStateRef = useRef(null);
@@ -234,7 +242,7 @@ const ClimateMap = () => {
       try {
         const savedKey = await localforage.getItem("gemini_api_key");
         if (savedKey) setGeminiKey(savedKey);
-        
+
         const pinnedLoc = await localforage.getItem("pinned_map_location");
         if (pinnedLoc) {
           setLat(pinnedLoc.lat);
@@ -252,7 +260,12 @@ const ClimateMap = () => {
   const handlePinLocation = async (e) => {
     e.stopPropagation();
     try {
-      await localforage.setItem("pinned_map_location", { lat, lon, zoom, overlay });
+      await localforage.setItem("pinned_map_location", {
+        lat,
+        lon,
+        zoom,
+        overlay,
+      });
       alert("Локацію закріплено! Вона завантажиться при наступному вході.");
     } catch (error) {
       console.error("Error pinning location:", error);
@@ -263,10 +276,12 @@ const ClimateMap = () => {
     e?.preventDefault();
     if (!searchQuery.trim() || isAiLoading) return;
     if (!geminiKey) {
-      alert("API-ключ Gemini не знайдено. Будь ласка, додайте його в налаштуваннях ШІ.");
+      alert(
+        "API-ключ Gemini не знайдено. Будь ласка, додайте його в налаштуваннях ШІ.",
+      );
       return;
     }
-    
+
     setIsAiLoading(true);
     try {
       const genAI = new GoogleGenerativeAI(geminiKey);
@@ -274,16 +289,19 @@ const ClimateMap = () => {
       const prompt = `Ти помічник з географії. Користувач шукає локацію. Твоя задача: знайти координати цього місця. 
       Поверни ВИНЯТКОВО валідний JSON без markdown форматування, приклад: {"lat": 48.8566, "lon": 2.3522, "zoom": 6}.
       Запит: ${searchQuery}`;
-      
+
       const result = await model.generateContent(prompt);
       const response = await result.response;
       let text = response.text().trim();
       if (text.startsWith("```json")) {
-        text = text.replace(/```json/g, "").replace(/```/g, "").trim();
+        text = text
+          .replace(/```json/g, "")
+          .replace(/```/g, "")
+          .trim();
       } else if (text.startsWith("```")) {
         text = text.replace(/```/g, "").trim();
       }
-      
+
       const data = JSON.parse(text);
       if (Number.isFinite(data.lat) && Number.isFinite(data.lon)) {
         setLat(data.lat);
@@ -304,15 +322,27 @@ const ClimateMap = () => {
     const handleMouseMove = (event) => {
       if (dragStateRef.current) {
         const { startX, startY, originX, originY } = dragStateRef.current;
-        const nextX = Math.max(8, Math.min(window.innerWidth - 120, originX + event.clientX - startX));
-        const nextY = Math.max(8, Math.min(window.innerHeight - 80, originY + event.clientY - startY));
+        const nextX = Math.max(
+          8,
+          Math.min(window.innerWidth - 120, originX + event.clientX - startX),
+        );
+        const nextY = Math.max(
+          8,
+          Math.min(window.innerHeight - 80, originY + event.clientY - startY),
+        );
         setMiniPlayerPosition({ x: nextX, y: nextY });
       }
 
       if (resizeStateRef.current) {
         const { startX, startY, width, height } = resizeStateRef.current;
-        const nextWidth = Math.max(260, Math.min(window.innerWidth - 24, width + event.clientX - startX));
-        const nextHeight = Math.max(200, Math.min(window.innerHeight - 24, height + event.clientY - startY));
+        const nextWidth = Math.max(
+          260,
+          Math.min(window.innerWidth - 24, width + event.clientX - startX),
+        );
+        const nextHeight = Math.max(
+          200,
+          Math.min(window.innerHeight - 24, height + event.clientY - startY),
+        );
         setMiniPlayerSize({ width: nextWidth, height: nextHeight });
       }
     };
@@ -388,14 +418,23 @@ const ClimateMap = () => {
                   placeholder="Місто, село..."
                   autoFocus
                 />
-                <ActionButton type="submit" $active={true} disabled={isAiLoading} onClick={(e) => e.stopPropagation()}>
+                <ActionButton
+                  type="submit"
+                  $active={true}
+                  disabled={isAiLoading}
+                  onClick={(e) => e.stopPropagation()}
+                >
                   {isAiLoading ? "Шукаю..." : "Знайти"}
                 </ActionButton>
               </SearchContainer>
             )}
 
-
-            <ActionButton onClick={(e) => { e.stopPropagation(); setIsAiSearchOpen(!isAiSearchOpen); }}>
+            <ActionButton
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsAiSearchOpen(!isAiSearchOpen);
+              }}
+            >
               ✨ ШІ Пошук
             </ActionButton>
 
@@ -403,21 +442,46 @@ const ClimateMap = () => {
               📌 Закріпити
             </ActionButton>
 
-            <div style={{ height: "1px", background: "rgba(255,255,255,0.2)", margin: "4px 0" }} />
+            <div
+              style={{
+                height: "1px",
+                background: "rgba(255,255,255,0.2)",
+                margin: "4px 0",
+              }}
+            />
 
             <ActionButton
-              onClick={(e) => { e.stopPropagation(); setIsMapActive(!isMapActive); }}
-              style={{ border: isMapActive ? "1px solid #ff4d4d" : "1px solid skyblue" }}
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsMapActive(!isMapActive);
+              }}
+              style={{
+                border: isMapActive ? "1px solid #ff4d4d" : "1px solid skyblue",
+              }}
             >
               {isMapActive ? "Деактивувати" : "Активувати"}
             </ActionButton>
-            <ActionButton onClick={(e) => { e.stopPropagation(); toggleFullscreen(); }}>
+            <ActionButton
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleFullscreen();
+              }}
+            >
               {isFullscreen ? "Згорнути" : "На весь екран"}
             </ActionButton>
-            <ActionButton onClick={(e) => { e.stopPropagation(); setIsMiniPlayerOpen(true); }}>
+            <ActionButton
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsMiniPlayerOpen(true);
+              }}
+            >
               Міні-плеєр
             </ActionButton>
-            <MapLink href="https://www.windy.com/" target="_blank" rel="noopener noreferrer">
+            <MapLink
+              href="https://www.windy.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               Windy.com
             </MapLink>
           </Controls>
@@ -452,7 +516,9 @@ const ClimateMap = () => {
           }}
         >
           <MiniPlayerHeader onMouseDown={handleMiniPlayerDragStart}>
-            <MiniHeaderTitle>Міні-карта • подвійний клік — назад</MiniHeaderTitle>
+            <MiniHeaderTitle>
+              Міні-карта • подвійний клік — назад
+            </MiniHeaderTitle>
             <MiniHeaderButtons>
               <ActionButton
                 onClick={(e) => {

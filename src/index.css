@@ -106,7 +106,7 @@ JS-код чистий і зрозумілий, використовується
 
 /* //TM@q@K6CC84355334 */
 /* //fghyujkilop */
-      /* { time: 8, text: "Динофроз...Динофроз!" },
+/* { time: 8, text: "Динофроз...Динофроз!" },
       {
         time: 15,
         text: "Четверо друзів знайшли дивну гру. В доісторичну пішли давнину.",
@@ -150,7 +150,7 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig); */
 /* //GENERATE_SOURCEMAP=false y .env */
-    /* "lyrics": [
+/* "lyrics": [
       {
         "time": 1,
         "text": "Діма: Кейт, де це ми?"

@@ -132,7 +132,9 @@ const HourlyTable = styled.div`
 
     tbody tr:nth-child(odd) {
       background: ${(props) =>
-        props.$isDarkMode ? "rgba(255, 255, 255, 0.03)" : "rgba(0, 0, 0, 0.03)"};
+        props.$isDarkMode
+          ? "rgba(255, 255, 255, 0.03)"
+          : "rgba(0, 0, 0, 0.03)"};
     }
   }
 `;
@@ -186,7 +188,10 @@ const WeatherDetailsModal = ({ isOpen, onClose, card, isDarkMode }) => {
 
   return (
     <ModalOverlay onClick={onClose}>
-      <ModalContent $isDarkMode={isDarkMode} onClick={(e) => e.stopPropagation()}>
+      <ModalContent
+        $isDarkMode={isDarkMode}
+        onClick={(e) => e.stopPropagation()}
+      >
         <CloseButton onClick={onClose}>✕ Закрити</CloseButton>
 
         <Title>🌍 Детальна погода: {card.locationName}</Title>
@@ -261,7 +266,24 @@ const WeatherDetailsModal = ({ isOpen, onClose, card, isDarkMode }) => {
                   <Value>
                     {(() => {
                       const deg = current.wind_direction_10m || 0;
-                      const directions = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
+                      const directions = [
+                        "N",
+                        "NNE",
+                        "NE",
+                        "ENE",
+                        "E",
+                        "ESE",
+                        "SE",
+                        "SSE",
+                        "S",
+                        "SSW",
+                        "SW",
+                        "WSW",
+                        "W",
+                        "WNW",
+                        "NW",
+                        "NNW",
+                      ];
                       const index = Math.round(deg / 22.5) % 16;
                       return `${directions[index]} (${deg}°)`;
                     })()}
@@ -303,7 +325,12 @@ const WeatherDetailsModal = ({ isOpen, onClose, card, isDarkMode }) => {
 
                 <DataItem $isDarkMode={isDarkMode}>
                   <Label>Видимість:</Label>
-                  <Value>{current.visibility !== undefined ? (current.visibility / 1000).toFixed(1) : "—"} км</Value>
+                  <Value>
+                    {current.visibility !== undefined
+                      ? (current.visibility / 1000).toFixed(1)
+                      : "—"}{" "}
+                    км
+                  </Value>
                 </DataItem>
 
                 <DataItem $isDarkMode={isDarkMode}>
@@ -332,19 +359,51 @@ const WeatherDetailsModal = ({ isOpen, onClose, card, isDarkMode }) => {
 
         {activeTab === "hourly" && hourly.length > 0 && (
           <Section $isDarkMode={isDarkMode}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px", flexWrap: "wrap", gap: "5px" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: "10px",
+                flexWrap: "wrap",
+                gap: "5px",
+              }}
+            >
               <h3 style={{ margin: 0 }}>📊 Погодинні дані</h3>
               {hourly.length > 24 && (
                 <div style={{ display: "flex", gap: "5px", flexWrap: "wrap" }}>
-                  {Array.from({ length: Math.ceil(hourly.length / 24) }).map((_, i) => (
-                    <button 
-                      key={i}
-                      onClick={() => setHourlyDayIndex(i)} 
-                      style={{ background: hourlyDayIndex === i ? "#00bfff" : (isDarkMode ? "#333" : "#ddd"), color: hourlyDayIndex === i ? "#000" : (isDarkMode ? "#fff" : "#000"), border: "none", padding: "2px 8px", borderRadius: "4px", cursor: "pointer", fontSize: "12px", fontWeight: "bold" }}
-                    >
-                      {hourly[i * 24]?.date ? hourly[i * 24].date : `${i + 1} доба`}
-                    </button>
-                  ))}
+                  {Array.from({ length: Math.ceil(hourly.length / 24) }).map(
+                    (_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setHourlyDayIndex(i)}
+                        style={{
+                          background:
+                            hourlyDayIndex === i
+                              ? "#00bfff"
+                              : isDarkMode
+                                ? "#333"
+                                : "#ddd",
+                          color:
+                            hourlyDayIndex === i
+                              ? "#000"
+                              : isDarkMode
+                                ? "#fff"
+                                : "#000",
+                          border: "none",
+                          padding: "2px 8px",
+                          borderRadius: "4px",
+                          cursor: "pointer",
+                          fontSize: "12px",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {hourly[i * 24]?.date
+                          ? hourly[i * 24].date
+                          : `${i + 1} доба`}
+                      </button>
+                    ),
+                  )}
                 </div>
               )}
             </div>
@@ -363,42 +422,55 @@ const WeatherDetailsModal = ({ isOpen, onClose, card, isDarkMode }) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {hourly.slice(hourlyDayIndex * 24, (hourlyDayIndex + 1) * 24).map((h, idx) => (
-                    <tr key={idx}>
-                      <td>{h.time}</td>
-                      <td>
-                        {h.tempNum !== undefined && (h.tempNum > 30 || h.tempNum < -30) ? (
-                          <DangerHighlight
-                            $color={
-                              h.tempNum > 30
-                                ? "#ff6b6b"
-                                : h.tempNum < -30
-                                  ? "#4169e1"
-                                  : "#ffb36c"
-                            }
-                          >
-                            {h.tempNum}°C
-                          </DangerHighlight>
-                        ) : (
-                          `${h.tempNum !== undefined ? h.tempNum : "—"}°C`
-                        )}
-                      </td>
-                      <td>
-                        {h.windNum !== undefined && h.windNum > 10 ? (
-                          <DangerHighlight $color="#ff9800">
-                            {h.windNum.toFixed(1)} м/с
-                          </DangerHighlight>
-                        ) : (
-                          `${h.windNum !== undefined ? h.windNum.toFixed(1) : "—"} м/с`
-                        )}
-                      </td>
-                      <td>{h.relative_humidity_2m ?? "—"}%</td>
-                      <td>{h.precipitation !== undefined ? h.precipitation.toFixed(1) : "—"} мм</td>
-                      <td>{h.rain !== undefined ? h.rain.toFixed(1) : "—"} мм</td>
-                      <td>{h.pressure_msl ? Math.round(h.pressure_msl) : "—"} гПа</td>
-                      <td>{h.cloud_cover ?? "—"}%</td>
-                    </tr>
-                  ))}
+                  {hourly
+                    .slice(hourlyDayIndex * 24, (hourlyDayIndex + 1) * 24)
+                    .map((h, idx) => (
+                      <tr key={idx}>
+                        <td>{h.time}</td>
+                        <td>
+                          {h.tempNum !== undefined &&
+                          (h.tempNum > 30 || h.tempNum < -30) ? (
+                            <DangerHighlight
+                              $color={
+                                h.tempNum > 30
+                                  ? "#ff6b6b"
+                                  : h.tempNum < -30
+                                    ? "#4169e1"
+                                    : "#ffb36c"
+                              }
+                            >
+                              {h.tempNum}°C
+                            </DangerHighlight>
+                          ) : (
+                            `${h.tempNum !== undefined ? h.tempNum : "—"}°C`
+                          )}
+                        </td>
+                        <td>
+                          {h.windNum !== undefined && h.windNum > 10 ? (
+                            <DangerHighlight $color="#ff9800">
+                              {h.windNum.toFixed(1)} м/с
+                            </DangerHighlight>
+                          ) : (
+                            `${h.windNum !== undefined ? h.windNum.toFixed(1) : "—"} м/с`
+                          )}
+                        </td>
+                        <td>{h.relative_humidity_2m ?? "—"}%</td>
+                        <td>
+                          {h.precipitation !== undefined
+                            ? h.precipitation.toFixed(1)
+                            : "—"}{" "}
+                          мм
+                        </td>
+                        <td>
+                          {h.rain !== undefined ? h.rain.toFixed(1) : "—"} мм
+                        </td>
+                        <td>
+                          {h.pressure_msl ? Math.round(h.pressure_msl) : "—"}{" "}
+                          гПа
+                        </td>
+                        <td>{h.cloud_cover ?? "—"}%</td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </HourlyTable>
@@ -431,9 +503,7 @@ const WeatherDetailsModal = ({ isOpen, onClose, card, isDarkMode }) => {
                         parseInt(d.temp_day) < -30 ? (
                           <DangerHighlight
                             $color={
-                              parseInt(d.temp_day) > 30
-                                ? "#ff6b6b"
-                                : "#4169e1"
+                              parseInt(d.temp_day) > 30 ? "#ff6b6b" : "#4169e1"
                             }
                           >
                             {d.temp_day}
@@ -462,8 +532,14 @@ const WeatherDetailsModal = ({ isOpen, onClose, card, isDarkMode }) => {
                         )}
                       </td>
                       <td>{d.precipitation_probability_max ?? "—"}%</td>
-                      <td>{d.rain_sum !== undefined ? d.rain_sum.toFixed(1) : "—"}</td>
-                      <td>{d.precipitation_sum !== undefined ? d.precipitation_sum.toFixed(1) : "—"}</td>
+                      <td>
+                        {d.rain_sum !== undefined ? d.rain_sum.toFixed(1) : "—"}
+                      </td>
+                      <td>
+                        {d.precipitation_sum !== undefined
+                          ? d.precipitation_sum.toFixed(1)
+                          : "—"}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

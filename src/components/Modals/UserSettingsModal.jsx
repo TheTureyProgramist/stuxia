@@ -137,7 +137,8 @@ const Section = styled.div`
   padding: 5px;
   background: ${(props) => (props.$isDarkMode ? "rgba(255, 255, 255, 0.1)" : "rgba(255, 255, 255, 0.4)")};
   border-radius: 12px;
-  border: 1px solid ${(props) => (props.$isDarkMode ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.5)")};
+  border: 1px solid
+    ${(props) => (props.$isDarkMode ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.5)")};
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
   min-width: 0;
   color: ${(props) => (props.$isDarkMode ? "#ffffff" : "inherit")};
@@ -153,9 +154,10 @@ const SectionHeader = styled.div`
 
 const Input = styled.input`
   padding: 4px;
-  border: 1px solid ${(props) => (props.$isDarkMode ? "rgba(255, 255, 255, 0.3)" : "#000000")};
+  border: 1px solid
+    ${(props) => (props.$isDarkMode ? "rgba(255, 255, 255, 0.3)" : "#000000")};
   border-radius: 10px;
-  font-size: 14px; 
+  font-size: 14px;
   width: 100%;
   background: transparent;
   color: ${(props) => (props.$isDarkMode ? "#ffffff" : "black")};
@@ -164,7 +166,7 @@ const Input = styled.input`
     color: ${(props) => (props.$isDarkMode ? "rgba(255, 255, 255, 0.6)" : "#000000")};
     font-style: italic;
     font-size: 14px;
-    opacity: 1; 
+    opacity: 1;
   }
 `;
 const NameInput = styled(Input)`
@@ -180,11 +182,13 @@ const NameInput = styled(Input)`
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        ${isAnimated &&
-        css`
-          background-size: 400% 400%;
-          animation: ${flow} 5s ease infinite;
-        `}
+        ${
+          isAnimated &&
+          css`
+            background-size: 400% 400%;
+            animation: ${flow} 5s ease infinite;
+          `
+        }
       `;
     } else {
       return css`
@@ -198,7 +202,8 @@ const NameInput = styled(Input)`
 `;
 const Select = styled.select`
   padding: 12px;
-  border: 1px solid ${(props) => (props.$isDarkMode ? "rgba(255, 255, 255, 0.3)" : "#000000")};
+  border: 1px solid
+    ${(props) => (props.$isDarkMode ? "rgba(255, 255, 255, 0.3)" : "#000000")};
   background: ${(props) => (props.$isDarkMode ? "#4a3b4c" : "white")};
   color: ${(props) => (props.$isDarkMode ? "#ffffff" : "black")};
   border-radius: 10px;
@@ -324,7 +329,8 @@ const CancelButton = styled.button`
   flex: 1;
   border-radius: 10px;
   font-weight: bold;
-  border: 2px solid ${(props) => (props.$isDarkMode ? "rgba(255,255,255,0.5)" : "black")};
+  border: 2px solid
+    ${(props) => (props.$isDarkMode ? "rgba(255,255,255,0.5)" : "black")};
   cursor: pointer;
 `;
 const Title = styled.h3`
@@ -367,24 +373,27 @@ const OrderButton = styled.button`
   height: 26px;
   font-size: 14px;
   border-radius: 6px;
-  border: 1px solid ${(props) => (props.disabled ? (props.$isDarkMode ? "#555" : "#aaa") : (props.$isDarkMode ? "rgba(255, 255, 255, 0.3)" : "#000"))};
-  background: ${(props) => (props.disabled ? "transparent" : (props.$isDarkMode ? "#3e2b42" : "#fff"))};
-  color: ${(props) => (props.disabled ? (props.$isDarkMode ? "#555" : "#aaa") : (props.$isDarkMode ? "#fff" : "#000"))};
+  border: 1px solid
+    ${(props) => (props.disabled ? (props.$isDarkMode ? "#555" : "#aaa") : props.$isDarkMode ? "rgba(255, 255, 255, 0.3)" : "#000")};
+  background: ${(props) => (props.disabled ? "transparent" : props.$isDarkMode ? "#3e2b42" : "#fff")};
+  color: ${(props) => (props.disabled ? (props.$isDarkMode ? "#555" : "#aaa") : props.$isDarkMode ? "#fff" : "#000")};
   margin-left: 6px;
   cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
   transition: all 0.2s;
-  box-shadow: ${(props) => (props.disabled ? "none" : (props.$isDarkMode ? "0 2px 0 rgba(255,255,255,0.2)" : "0 2px 0 #000"))};
+  box-shadow: ${(props) => (props.disabled ? "none" : props.$isDarkMode ? "0 2px 0 rgba(255,255,255,0.2)" : "0 2px 0 #000")};
 
   &:hover:not(:disabled) {
     background: #ffb36c;
     color: #000;
     transform: translateY(-1px);
-    box-shadow: 0 3px 0 ${(props) => (props.$isDarkMode ? "rgba(255,255,255,0.3)" : "#000")};
+    box-shadow: 0 3px 0
+      ${(props) => (props.$isDarkMode ? "rgba(255,255,255,0.3)" : "#000")};
   }
 
   &:active:not(:disabled) {
     transform: translateY(1px);
-    box-shadow: 0 0 0 ${(props) => (props.$isDarkMode ? "rgba(255,255,255,0.3)" : "#000")};
+    box-shadow: 0 0 0
+      ${(props) => (props.$isDarkMode ? "rgba(255,255,255,0.3)" : "#000")};
   }
 `;
 const Label = styled.label`
@@ -396,24 +405,28 @@ const ResetOrderButton = styled.button`
   margin-top: 10px;
   padding: 8px 18px;
   border-radius: 8px;
-  border: 2px solid ${(props) => (props.$isDarkMode ? "rgba(255, 255, 255, 0.5)" : "#000")};
+  border: 2px solid
+    ${(props) => (props.$isDarkMode ? "rgba(255, 255, 255, 0.5)" : "#000")};
   background: transparent;
   color: ${(props) => (props.$isDarkMode ? "#ffffff" : "black")};
   font-weight: bold;
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: 0 2px 0 ${(props) => (props.$isDarkMode ? "rgba(255, 255, 255, 0.5)" : "#000")};
+  box-shadow: 0 2px 0
+    ${(props) => (props.$isDarkMode ? "rgba(255, 255, 255, 0.5)" : "#000")};
 
   &:hover {
     background: #ffe0b2;
     color: #000;
     transform: translateY(-1px);
-    box-shadow: 0 3px 0 ${(props) => (props.$isDarkMode ? "rgba(255, 255, 255, 0.7)" : "#000")};
+    box-shadow: 0 3px 0
+      ${(props) => (props.$isDarkMode ? "rgba(255, 255, 255, 0.7)" : "#000")};
   }
 
   &:active {
     transform: translateY(1px);
-    box-shadow: 0 0 0 ${(props) => (props.$isDarkMode ? "rgba(255, 255, 255, 0.7)" : "#000")};
+    box-shadow: 0 0 0
+      ${(props) => (props.$isDarkMode ? "rgba(255, 255, 255, 0.7)" : "#000")};
   }
 `;
 
@@ -462,15 +475,15 @@ const NEWS_BLOCK_LABELS = {
   description: "Опис",
 };
 
-const UserSettingsModal = ({ 
-  onClose, 
-  user, 
-  availableAvatars, 
-  onUpdate, 
-  weatherCardLayout, 
+const UserSettingsModal = ({
+  onClose,
+  user,
+  availableAvatars,
+  onUpdate,
+  weatherCardLayout,
   onUpdateLayout,
   showUpdateTimer,
-  setShowUpdateTimer 
+  setShowUpdateTimer,
 }) => {
   const dispatch = useDispatch();
   const customDays = useSelector((state) => state.calendar?.customDays || []);
@@ -488,23 +501,30 @@ const UserSettingsModal = ({
     avatarIndex:
       availableAvatars.indexOf(user?.avatar) !== -1
         ? availableAvatars.indexOf(user?.avatar)
-        : (user?.avatar && typeof user.avatar === 'string' && user.avatar.startsWith('http') && availableAvatars.indexOf(user.avatar) === -1) ? -1 : 0,
+        : user?.avatar &&
+            typeof user.avatar === "string" &&
+            user.avatar.startsWith("http") &&
+            availableAvatars.indexOf(user.avatar) === -1
+          ? -1
+          : 0,
     textColor: user?.textColor || "grey",
     borderColor: user?.borderColor || "grey",
     showSeconds: user?.showSeconds !== false,
     dateDisplayMode: user?.dateDisplayMode || "both",
     hour12: user?.hour12 === true,
     voiceActingMode: user?.voiceActingMode || "malyatko",
-    showUpdateTimer: showUpdateTimer !== false, 
+    showUpdateTimer: showUpdateTimer !== false,
   });
   const [showTerms, setShowTerms] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [sectionsOrder, setSectionsOrder] = useState([...DEFAULT_SECTIONS]);
-  const [newsLayout, setNewsLayout] = useState(user?.newsLayout || [
-    { key: "image", visible: true },
-    { key: "title", visible: true },
-    { key: "description", visible: true },
-  ]);
+  const [newsLayout, setNewsLayout] = useState(
+    user?.newsLayout || [
+      { key: "image", visible: true },
+      { key: "title", visible: true },
+      { key: "description", visible: true },
+    ],
+  );
 
   // Зберігаємо початковий стан користувача для відкату у разі скасування без збереження
   const initialUser = useMemo(() => ({ ...user }), [user]);
@@ -557,7 +577,10 @@ const UserSettingsModal = ({
     onUpdate({
       ...user,
       firstName: newFormData.name,
-      avatar: newFormData.avatarIndex === -1 ? user?.avatar : availableAvatars[newFormData.avatarIndex],
+      avatar:
+        newFormData.avatarIndex === -1
+          ? user?.avatar
+          : availableAvatars[newFormData.avatarIndex],
       birthDate: `${newFormData.year}-${newFormData.month.toString().padStart(2, "0")}-${newFormData.day.toString().padStart(2, "0")}`,
       textColor: newFormData.textColor,
       borderColor: newFormData.borderColor,
@@ -614,7 +637,10 @@ const UserSettingsModal = ({
     onUpdate({
       account: user?.account || formData.name,
       firstName: formData.name,
-      avatar: formData.avatarIndex === -1 ? user?.avatar : availableAvatars[formData.avatarIndex],
+      avatar:
+        formData.avatarIndex === -1
+          ? user?.avatar
+          : availableAvatars[formData.avatarIndex],
       birthDate: `${formData.year}-${formData.month.toString().padStart(2, "0")}-${formData.day.toString().padStart(2, "0")}`,
       textColor: formData.textColor,
       borderColor: formData.borderColor,
@@ -659,14 +685,14 @@ const UserSettingsModal = ({
   const toggleWeatherBlockVisibility = (key) => {
     const visibleCount = weatherCardLayout.filter((b) => b.visible).length;
     const block = weatherCardLayout.find((b) => b.key === key);
-    
+
     if (block.visible && visibleCount <= 1) {
       alert("Має бути видимим хоча б один елемент!");
       return;
     }
 
     const newLayout = weatherCardLayout.map((b) =>
-      b.key === key ? { ...b, visible: !b.visible } : b
+      b.key === key ? { ...b, visible: !b.visible } : b,
     );
     onUpdateLayout(newLayout);
   };
@@ -674,14 +700,14 @@ const UserSettingsModal = ({
   const toggleNewsBlockVisibility = (key) => {
     const visibleCount = newsLayout.filter((b) => b.visible).length;
     const block = newsLayout.find((b) => b.key === key);
-    
+
     if (block.visible && visibleCount <= 1) {
       alert("Має бути видимим хоча б один елемент!");
       return;
     }
 
     const newLayout = newsLayout.map((b) =>
-      b.key === key ? { ...b, visible: !b.visible } : b
+      b.key === key ? { ...b, visible: !b.visible } : b,
     );
     setNewsLayout(newLayout);
     updateLivePreview({ newsLayout: newLayout });
@@ -693,7 +719,11 @@ const UserSettingsModal = ({
     setShowKatScene(false);
     finishClosing();
   };
-  const hasExternalAvatar = user?.avatar && typeof user.avatar === 'string' && user.avatar.startsWith('http') && availableAvatars.indexOf(user.avatar) === -1;
+  const hasExternalAvatar =
+    user?.avatar &&
+    typeof user.avatar === "string" &&
+    user.avatar.startsWith("http") &&
+    availableAvatars.indexOf(user.avatar) === -1;
   const isGoogleAccount = Boolean(user?.email && !user?.password);
 
   const renderSectionHeader = (sectionKey, idx, label) => (
@@ -739,9 +769,11 @@ const UserSettingsModal = ({
               gap: "10px",
             }}
           >
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <div style={{ display: "flex", flexDirection: "column" }}>
               <Title style={{ margin: 0 }}>Налаштування</Title>
-              <div style={{ fontSize: 12, color: '#666' }}>{user?.email || user?.account}</div>
+              <div style={{ fontSize: 12, color: "#666" }}>
+                {user?.email || user?.account}
+              </div>
             </div>
             <button
               style={{
@@ -757,460 +789,548 @@ const UserSettingsModal = ({
               }}
               onClick={() => setShowKatScene(true)}
             >
-              📹︎ 
+              📹︎
             </button>
           </div>
           {/* ВСІ секції */}
           <SectionsContainer>
-          {sectionsOrder.map((section, idx) => {
-            let content = null;
-            if (section === "name") {
-              content = (
-                <Section key="name">
-                  {renderSectionHeader(section, idx, "Ім'я")}
-                  <NameInput
-                    $textColor={formData.textColor}
-                    value={formData.name}
-                    onChange={(e) =>
-                      setFormData({ ...formData, name: e.target.value })
-                    }
-                  />
-                </Section>
-              );
-            } else if (section === "birthDate") {
-              content = (
-                <Section key="birthDate">
-                  {renderSectionHeader(section, idx, "Дата народження")}
-                  <DateRow>
-                    <Select
-                      value={formData.day}
+            {sectionsOrder.map((section, idx) => {
+              let content = null;
+              if (section === "name") {
+                content = (
+                  <Section key="name">
+                    {renderSectionHeader(section, idx, "Ім'я")}
+                    <NameInput
+                      $textColor={formData.textColor}
+                      value={formData.name}
                       onChange={(e) =>
-                        setFormData({ ...formData, day: e.target.value })
+                        setFormData({ ...formData, name: e.target.value })
                       }
-                    >
-                      <option value="">День</option>
-                      {days.map((d) => (
-                        <option key={d} value={d}>
-                          {d}
-                        </option>
-                      ))}
-                    </Select>
-                    <Select
-                      value={formData.month}
-                      onChange={(e) =>
-                        setFormData({ ...formData, month: e.target.value })
-                      }
-                    >
-                      <option value="">Місяць</option>
-                      {months.map((m, i) => (
-                        <option key={i} value={i + 1}>
-                          {m}
-                        </option>
-                      ))}
-                    </Select>
-                    <Select
-                      value={formData.year}
-                      onChange={(e) =>
-                        setFormData({ ...formData, year: e.target.value })
-                      }
-                    >
-                      <option value="">Рік</option>
-                      {years.map((y) => (
-                        <option key={y} value={y}>
-                          {y}
-                        </option>
-                      ))}
-                    </Select>
-                  </DateRow>
-                  {isInvalidDate && (
-                    <span style={{ color: "red", fontSize: "11px" }}>
-                      Такої дати не існує!
-                    </span>
-                  )}
-                </Section>
-              );
-            } else if (section === "security") {
-              content = (
-                <Section key="security">
-                  {renderSectionHeader(section, idx, "Безпека")}
-                        {isGoogleAccount ? (
-                          <div style={{ fontSize: 13, color: '#444' }}>Google-акаунт — змінюйте пароль у налаштуваннях Google.</div>
-                        ) : (
-                          <> 
-                            <Input
-                              type="password"
-                              placeholder="Поточний пароль"
-                              disabled
-                              readOnly
-                              value="********"
-                              style={{
-                                marginBottom: "8px",
-                                opacity: 0.6,
-                                cursor: "not-allowed",
-                              }}
-                            />
-                            <Input
-                              type="password"
-                              placeholder="Новий пароль"
-                              onChange={(e) =>
-                                setFormData({ ...formData, newPassword: e.target.value })
-                              }
-                              style={{
-                                marginBottom: formData.newPassword ? "4px" : "8px",
-                              }}
-                            />
-                            {formData.newPassword && (
-                              <>
-                                <PasswordStrengthContainer>
-                                  <PasswordStrengthBar
-                                    $width={pwStrength.width}
-                                    $color={pwStrength.color}
-                                  />
-                                </PasswordStrengthContainer>
-                                <PasswordStrengthLabel $color={pwStrength.color}>
-                                  Надійність: {pwStrength.label}
-                                </PasswordStrengthLabel>
-                              </>
-                            )}
-                            <Input
-                              type="password"
-                              placeholder="Підтвердіть новий пароль"
-                              onChange={(e) =>
-                                setFormData({
-                                  ...formData,
-                                  confirmPassword: e.target.value,
-                                })
-                              }
-                            />
+                    />
+                  </Section>
+                );
+              } else if (section === "birthDate") {
+                content = (
+                  <Section key="birthDate">
+                    {renderSectionHeader(section, idx, "Дата народження")}
+                    <DateRow>
+                      <Select
+                        value={formData.day}
+                        onChange={(e) =>
+                          setFormData({ ...formData, day: e.target.value })
+                        }
+                      >
+                        <option value="">День</option>
+                        {days.map((d) => (
+                          <option key={d} value={d}>
+                            {d}
+                          </option>
+                        ))}
+                      </Select>
+                      <Select
+                        value={formData.month}
+                        onChange={(e) =>
+                          setFormData({ ...formData, month: e.target.value })
+                        }
+                      >
+                        <option value="">Місяць</option>
+                        {months.map((m, i) => (
+                          <option key={i} value={i + 1}>
+                            {m}
+                          </option>
+                        ))}
+                      </Select>
+                      <Select
+                        value={formData.year}
+                        onChange={(e) =>
+                          setFormData({ ...formData, year: e.target.value })
+                        }
+                      >
+                        <option value="">Рік</option>
+                        {years.map((y) => (
+                          <option key={y} value={y}>
+                            {y}
+                          </option>
+                        ))}
+                      </Select>
+                    </DateRow>
+                    {isInvalidDate && (
+                      <span style={{ color: "red", fontSize: "11px" }}>
+                        Такої дати не існує!
+                      </span>
+                    )}
+                  </Section>
+                );
+              } else if (section === "security") {
+                content = (
+                  <Section key="security">
+                    {renderSectionHeader(section, idx, "Безпека")}
+                    {isGoogleAccount ? (
+                      <div style={{ fontSize: 13, color: "#444" }}>
+                        Google-акаунт — змінюйте пароль у налаштуваннях Google.
+                      </div>
+                    ) : (
+                      <>
+                        <Input
+                          type="password"
+                          placeholder="Поточний пароль"
+                          disabled
+                          readOnly
+                          value="********"
+                          style={{
+                            marginBottom: "8px",
+                            opacity: 0.6,
+                            cursor: "not-allowed",
+                          }}
+                        />
+                        <Input
+                          type="password"
+                          placeholder="Новий пароль"
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              newPassword: e.target.value,
+                            })
+                          }
+                          style={{
+                            marginBottom: formData.newPassword ? "4px" : "8px",
+                          }}
+                        />
+                        {formData.newPassword && (
+                          <>
+                            <PasswordStrengthContainer>
+                              <PasswordStrengthBar
+                                $width={pwStrength.width}
+                                $color={pwStrength.color}
+                              />
+                            </PasswordStrengthContainer>
+                            <PasswordStrengthLabel $color={pwStrength.color}>
+                              Надійність: {pwStrength.label}
+                            </PasswordStrengthLabel>
                           </>
                         )}
-                </Section>
-              );
-            } else if (section === "textColor") {
-              content = (
-                <Section key="textColor">
-                  {renderSectionHeader(section, idx, "Колір тексту")}
-                  <ColorContainer>
-                    {COLORS.map((color, i) => (
-                      <ColorCircle
-                        key={i}
-                        $color={color.value}
-                        $isSelected={formData.textColor === color.value}
-                        title={color.name}
-                        onClick={() =>
-                          setFormData({ ...formData, textColor: color.value })
-                        }
-                      />
-                    ))}
-                  </ColorContainer>
-                </Section>
-              );
-            } else if (section === "borderColor") {
-              content = (
-                <Section key="borderColor">
-                  {renderSectionHeader(section, idx, "Колір рамки аватара")}
-                  <ColorContainer>
-                    {COLORS.map((color, i) => (
-                      <ColorCircle
-                        key={i}
-                        $color={color.value}
-                        $isSelected={formData.borderColor === color.value}
-                        title={color.name}
-                        onClick={() =>
-                          setFormData({ ...formData, borderColor: color.value })
-                        }
-                      />
-                    ))}
-                  </ColorContainer>
-                </Section>
-              );
-            } else if (section === "avatar") {
-              content = (
-                <Section key="avatar">
-                  {renderSectionHeader(section, idx, "Аватар")}
-                  <div
-                    style={{
-                      fontSize: "12px",
-                      fontWeight: "bold",
-                      color: "black",
-                    }}
-                  >
-                    Аватар оберіть. Активуйте
-                    <AnimatedText>Стихія+</AnimatedText> яка, дає доступ до відео аватарів. Отримуйте з магазину доміно, за сезонний пропуск
-                  </div>
-                  <AvatarSlider>
-                    {availableAvatars.map((img, i) => (
-                      <AvatarOption
-                        key={i}
-                        $isSelected={formData.avatarIndex === i}
-                        $borderColor={formData.borderColor}
-                        onClick={() =>
-                          setFormData({ ...formData, avatarIndex: i })
-                        }
-                      >
-                        <img src={img} alt="avatar" />
-                      </AvatarOption>
-                    ))}
-                    {hasExternalAvatar && (
-                      <AvatarOption
-                        key="external"
-                        $isSelected={formData.avatarIndex === -1}
-                        $borderColor={formData.borderColor}
-                        title="Google аватарка"
-                        onClick={() => setFormData({ ...formData, avatarIndex: -1 })}
-                      >
-                        <img src={user.avatar} alt="google-avatar" />
-                      </AvatarOption>
+                        <Input
+                          type="password"
+                          placeholder="Підтвердіть новий пароль"
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              confirmPassword: e.target.value,
+                            })
+                          }
+                        />
+                      </>
                     )}
-                  </AvatarSlider>
-                </Section>
-              );
-            } else if (section === "dateDisplay") {
-              content = (
-                <Section key="dateDisplay">
-                  {renderSectionHeader(section, idx, "Налаштування годинника")}
-                  <CheckboxRow>
-                    <input
-                      type="checkbox"
-                      checked={formData.showSeconds}
-                      onChange={(e) =>
-                        updateLivePreview({ showSeconds: e.target.checked })
-                      }
-                    />
-                    <label>Показувати секунди (17:23:17)</label>
-                  </CheckboxRow>
-                  <CheckboxRow>
-                    <input
-                      type="checkbox"
-                      checked={formData.hour12}
-                      onChange={(e) =>
-                        updateLivePreview({ hour12: e.target.checked })
-                      }
-                    />
-                    <label>12-годинний формат (AM/PM)</label>
-                  </CheckboxRow>
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "5px",
-                      marginTop: "5px",
-                    }}
-                  >
-                    <Select
-                      value={formData.dateDisplayMode}
-                      onChange={(e) =>
-                        updateLivePreview({ dateDisplayMode: e.target.value })
-                      }
-                    >
-                      <option value="both">Час та Дата (разом)</option>
-                      <option value="time">Тільки Час</option>
-                      <option value="date">Тільки Дата</option>
-                    </Select>
-                  </div>
-                </Section>
-              );
-            } else if (section === "customCalendar") {
-              content = (
-                <Section key="customCalendar">
-                  <label style={{ fontSize: "13px", fontWeight: "bold" }}>
-                    Мої пам'ятні дні (макс. 10)
-                  </label>
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "5px",
-                      marginBottom: "10px",
-                    }}
-                  >
-                    <Select
-                      value={newDay.d}
-                      onChange={(e) =>
-                        setNewDay({ ...newDay, d: e.target.value })
-                      }
-                    >
-                      <option value="">День</option>
-                      {days.map((d) => (
-                        <option key={d} value={d}>
-                          {d}
-                        </option>
+                  </Section>
+                );
+              } else if (section === "textColor") {
+                content = (
+                  <Section key="textColor">
+                    {renderSectionHeader(section, idx, "Колір тексту")}
+                    <ColorContainer>
+                      {COLORS.map((color, i) => (
+                        <ColorCircle
+                          key={i}
+                          $color={color.value}
+                          $isSelected={formData.textColor === color.value}
+                          title={color.name}
+                          onClick={() =>
+                            setFormData({ ...formData, textColor: color.value })
+                          }
+                        />
                       ))}
-                    </Select>
-                    <Select
-                      value={newDay.m}
-                      onChange={(e) =>
-                        setNewDay({ ...newDay, m: e.target.value })
-                      }
-                    >
-                      <option value="">Місяць</option>
-                      {months.map((m, i) => (
-                        <option key={i} value={i + 1}>
-                          {m}
-                        </option>
+                    </ColorContainer>
+                  </Section>
+                );
+              } else if (section === "borderColor") {
+                content = (
+                  <Section key="borderColor">
+                    {renderSectionHeader(section, idx, "Колір рамки аватара")}
+                    <ColorContainer>
+                      {COLORS.map((color, i) => (
+                        <ColorCircle
+                          key={i}
+                          $color={color.value}
+                          $isSelected={formData.borderColor === color.value}
+                          title={color.name}
+                          onClick={() =>
+                            setFormData({
+                              ...formData,
+                              borderColor: color.value,
+                            })
+                          }
+                        />
                       ))}
-                    </Select>
-                  </div>
-                  <Input
-                    placeholder="Чому цей день важливий?"
-                    value={newDay.reason}
-                    onChange={(e) =>
-                      setNewDay({ ...newDay, reason: e.target.value })
-                    }
-                    style={{ marginBottom: "5px" }}
-                  />
-                  <button
-                    style={{
-                      background: "#004cff",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "5px",
-                      padding: "8px",
-                      cursor: "pointer",
-                    }}
-                    disabled={
-                      !newDay.d ||
-                      !newDay.m ||
-                      !newDay.reason ||
-                      customDays.length >= 10
-                    }
-                    onClick={() => {
-                      const formattedDate = `${newDay.d.toString().padStart(2, "0")}.${newDay.m.toString().padStart(2, "0")}`;
-                      dispatch(
-                        addCustomDay({
-                          date: formattedDate,
-                          reason: newDay.reason,
-                        }),
-                      );
-                      setNewDay({ d: "", m: "", reason: "" });
-                    }}
-                  >
-                    Додати день
-                  </button>
-                  <div
-                    style={{
-                      marginTop: "10px",
-                      maxHeight: "150px",
-                      overflowY: "auto",
-                    }}
-                  >
-                    {customDays.map((day) => (
-                      <div
-                        key={day.date}
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                          background: "#f0f0f0",
-                          padding: "5px",
-                          marginBottom: "3px",
-                          borderRadius: "5px",
-                          fontSize: "12px",
-                        }}
-                      >
-                        <span style={{ color: "#004cff", fontWeight: "bold" }}>
-                          {day.date}
-                        </span>
-                        <span
-                          style={{ flex: 1, marginLeft: "10px", color: "#333" }}
+                    </ColorContainer>
+                  </Section>
+                );
+              } else if (section === "avatar") {
+                content = (
+                  <Section key="avatar">
+                    {renderSectionHeader(section, idx, "Аватар")}
+                    <div
+                      style={{
+                        fontSize: "12px",
+                        fontWeight: "bold",
+                        color: "black",
+                      }}
+                    >
+                      Аватар оберіть. Активуйте
+                      <AnimatedText>Стихія+</AnimatedText> яка, дає доступ до
+                      відео аватарів. Отримуйте з магазину доміно, за сезонний
+                      пропуск
+                    </div>
+                    <AvatarSlider>
+                      {availableAvatars.map((img, i) => (
+                        <AvatarOption
+                          key={i}
+                          $isSelected={formData.avatarIndex === i}
+                          $borderColor={formData.borderColor}
+                          onClick={() =>
+                            setFormData({ ...formData, avatarIndex: i })
+                          }
                         >
-                          {day.reason}
-                        </span>
-                        <button
-                          onClick={() => dispatch(removeCustomDay(day.date))}
+                          <img src={img} alt="avatar" />
+                        </AvatarOption>
+                      ))}
+                      {hasExternalAvatar && (
+                        <AvatarOption
+                          key="external"
+                          $isSelected={formData.avatarIndex === -1}
+                          $borderColor={formData.borderColor}
+                          title="Google аватарка"
+                          onClick={() =>
+                            setFormData({ ...formData, avatarIndex: -1 })
+                          }
+                        >
+                          <img src={user.avatar} alt="google-avatar" />
+                        </AvatarOption>
+                      )}
+                    </AvatarSlider>
+                  </Section>
+                );
+              } else if (section === "dateDisplay") {
+                content = (
+                  <Section key="dateDisplay">
+                    {renderSectionHeader(
+                      section,
+                      idx,
+                      "Налаштування годинника",
+                    )}
+                    <CheckboxRow>
+                      <input
+                        type="checkbox"
+                        checked={formData.showSeconds}
+                        onChange={(e) =>
+                          updateLivePreview({ showSeconds: e.target.checked })
+                        }
+                      />
+                      <label>Показувати секунди (17:23:17)</label>
+                    </CheckboxRow>
+                    <CheckboxRow>
+                      <input
+                        type="checkbox"
+                        checked={formData.hour12}
+                        onChange={(e) =>
+                          updateLivePreview({ hour12: e.target.checked })
+                        }
+                      />
+                      <label>12-годинний формат (AM/PM)</label>
+                    </CheckboxRow>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "5px",
+                        marginTop: "5px",
+                      }}
+                    >
+                      <Select
+                        value={formData.dateDisplayMode}
+                        onChange={(e) =>
+                          updateLivePreview({ dateDisplayMode: e.target.value })
+                        }
+                      >
+                        <option value="both">Час та Дата (разом)</option>
+                        <option value="time">Тільки Час</option>
+                        <option value="date">Тільки Дата</option>
+                      </Select>
+                    </div>
+                  </Section>
+                );
+              } else if (section === "customCalendar") {
+                content = (
+                  <Section key="customCalendar">
+                    <label style={{ fontSize: "13px", fontWeight: "bold" }}>
+                      Мої пам'ятні дні (макс. 10)
+                    </label>
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "5px",
+                        marginBottom: "10px",
+                      }}
+                    >
+                      <Select
+                        value={newDay.d}
+                        onChange={(e) =>
+                          setNewDay({ ...newDay, d: e.target.value })
+                        }
+                      >
+                        <option value="">День</option>
+                        {days.map((d) => (
+                          <option key={d} value={d}>
+                            {d}
+                          </option>
+                        ))}
+                      </Select>
+                      <Select
+                        value={newDay.m}
+                        onChange={(e) =>
+                          setNewDay({ ...newDay, m: e.target.value })
+                        }
+                      >
+                        <option value="">Місяць</option>
+                        {months.map((m, i) => (
+                          <option key={i} value={i + 1}>
+                            {m}
+                          </option>
+                        ))}
+                      </Select>
+                    </div>
+                    <Input
+                      placeholder="Чому цей день важливий?"
+                      value={newDay.reason}
+                      onChange={(e) =>
+                        setNewDay({ ...newDay, reason: e.target.value })
+                      }
+                      style={{ marginBottom: "5px" }}
+                    />
+                    <button
+                      style={{
+                        background: "#004cff",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "5px",
+                        padding: "8px",
+                        cursor: "pointer",
+                      }}
+                      disabled={
+                        !newDay.d ||
+                        !newDay.m ||
+                        !newDay.reason ||
+                        customDays.length >= 10
+                      }
+                      onClick={() => {
+                        const formattedDate = `${newDay.d.toString().padStart(2, "0")}.${newDay.m.toString().padStart(2, "0")}`;
+                        dispatch(
+                          addCustomDay({
+                            date: formattedDate,
+                            reason: newDay.reason,
+                          }),
+                        );
+                        setNewDay({ d: "", m: "", reason: "" });
+                      }}
+                    >
+                      Додати день
+                    </button>
+                    <div
+                      style={{
+                        marginTop: "10px",
+                        maxHeight: "150px",
+                        overflowY: "auto",
+                      }}
+                    >
+                      {customDays.map((day) => (
+                        <div
+                          key={day.date}
                           style={{
-                            background: "none",
-                            border: "none",
-                            color: "red",
-                            cursor: "pointer",
-                            fontWeight: "bold",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            background: "#f0f0f0",
+                            padding: "5px",
+                            marginBottom: "3px",
+                            borderRadius: "5px",
+                            fontSize: "12px",
                           }}
                         >
-                          ✕
-                        </button>
+                          <span
+                            style={{ color: "#004cff", fontWeight: "bold" }}
+                          >
+                            {day.date}
+                          </span>
+                          <span
+                            style={{
+                              flex: 1,
+                              marginLeft: "10px",
+                              color: "#333",
+                            }}
+                          >
+                            {day.reason}
+                          </span>
+                          <button
+                            onClick={() => dispatch(removeCustomDay(day.date))}
+                            style={{
+                              background: "none",
+                              border: "none",
+                              color: "red",
+                              cursor: "pointer",
+                              fontWeight: "bold",
+                            }}
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </Section>
+                );
+              } else if (section === "interfaceSettings") {
+                // New section for interface settings
+                content = (
+                  <Section key="interfaceSettings">
+                    {renderSectionHeader(
+                      section,
+                      idx,
+                      "Налаштування інтерфейсу",
+                    )}
+                    <CheckboxRow>
+                      <input
+                        type="checkbox"
+                        checked={formData.showUpdateTimer}
+                        onChange={(e) =>
+                          updateLivePreview({
+                            showUpdateTimer: e.target.checked,
+                          })
+                        }
+                      />
+                      <label>Показувати таймер оновлення погоди</label>
+                    </CheckboxRow>
+                  </Section>
+                );
+              } else if (section === "weatherLayout") {
+                content = (
+                  <Section key="weatherLayout">
+                    {renderSectionHeader(
+                      section,
+                      idx,
+                      "Налаштування картки погоди",
+                    )}
+                    <p
+                      style={{
+                        fontSize: "11px",
+                        color: "#666",
+                        margin: "0 0 5px 0",
+                      }}
+                    >
+                      Виберіть, які блоки відображати та в якому порядку.
+                    </p>
+                    {weatherCardLayout.map((block, idx) => (
+                      <div
+                        key={block.key}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          background: "rgba(255,255,255,0.3)",
+                          padding: "5px 10px",
+                          borderRadius: "8px",
+                          marginBottom: "4px",
+                        }}
+                      >
+                        <CheckboxRow style={{ flex: 1 }}>
+                          <input
+                            type="checkbox"
+                            checked={block.visible}
+                            onChange={() =>
+                              toggleWeatherBlockVisibility(block.key)
+                            }
+                          />
+                          <span style={{ fontSize: "12px", fontWeight: 500 }}>
+                            {WEATHER_BLOCK_LABELS[block.key]}
+                          </span>
+                        </CheckboxRow>
+                        <div style={{ display: "flex", gap: "2px" }}>
+                          <OrderButton
+                            style={{
+                              width: "22px",
+                              height: "22px",
+                              fontSize: "12px",
+                            }}
+                            disabled={idx === 0}
+                            onClick={() => moveWeatherBlock(idx, -1)}
+                          >
+                            ↑
+                          </OrderButton>
+                          <OrderButton
+                            style={{
+                              width: "22px",
+                              height: "22px",
+                              fontSize: "12px",
+                            }}
+                            disabled={idx === weatherCardLayout.length - 1}
+                            onClick={() => moveWeatherBlock(idx, 1)}
+                          >
+                            ↓
+                          </OrderButton>
+                        </div>
                       </div>
                     ))}
-                  </div>
-                </Section>
-              );
-            } else if (section === "interfaceSettings") { // New section for interface settings
-              content = (
-                <Section key="interfaceSettings">
-                  {renderSectionHeader(section, idx, "Налаштування інтерфейсу")}
-                  <CheckboxRow>
-                    <input
-                      type="checkbox"
-                      checked={formData.showUpdateTimer}
-                      onChange={(e) =>
-                        updateLivePreview({ showUpdateTimer: e.target.checked })
-                      }
-                    />
-                    <label>Показувати таймер оновлення погоди</label>
-                  </CheckboxRow>
-                </Section>
-              );
-            }  else if (section === "weatherLayout") {
-              content = (
-                <Section key="weatherLayout">
-                  {renderSectionHeader(section, idx, "Налаштування картки погоди")}
-                  <p style={{ fontSize: "11px", color: "#666", margin: "0 0 5px 0" }}>
-                    Виберіть, які блоки відображати та в якому порядку.
-                  </p>
-                  {weatherCardLayout.map((block, idx) => (
-                    <div key={block.key} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "rgba(255,255,255,0.3)", padding: "5px 10px", borderRadius: "8px", marginBottom: "4px" }}>
-                      <CheckboxRow style={{ flex: 1 }}>
-                        <input
-                          type="checkbox"
-                          checked={block.visible}
-                          onChange={() => toggleWeatherBlockVisibility(block.key)}
-                        />
-                        <span style={{ fontSize: "12px", fontWeight: 500 }}>{WEATHER_BLOCK_LABELS[block.key]}</span>
-                      </CheckboxRow>
-                      <div style={{ display: "flex", gap: "2px" }}>
-                        <OrderButton
-                          style={{ width: "22px", height: "22px", fontSize: "12px" }}
-                          disabled={idx === 0}
-                          onClick={() => moveWeatherBlock(idx, -1)}
-                        >
-                          ↑
-                        </OrderButton>
-                        <OrderButton
-                          style={{ width: "22px", height: "22px", fontSize: "12px" }}
-                          disabled={idx === weatherCardLayout.length - 1}
-                          onClick={() => moveWeatherBlock(idx, 1)}
-                        >
-                          ↓
-                        </OrderButton>
+                  </Section>
+                );
+              } else if (section === "newsLayout") {
+                content = (
+                  <Section key="newsLayout">
+                    {renderSectionHeader(section, idx, "Налаштування новин")}
+                    <p
+                      style={{
+                        fontSize: "11px",
+                        color: "#666",
+                        margin: "0 0 5px 0",
+                      }}
+                    >
+                      Виберіть, які елементи новин відображати.
+                    </p>
+                    {newsLayout.map((block) => (
+                      <div
+                        key={block.key}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          background: "rgba(255,255,255,0.3)",
+                          padding: "5px 10px",
+                          borderRadius: "8px",
+                          marginBottom: "4px",
+                        }}
+                      >
+                        <CheckboxRow style={{ flex: 1 }}>
+                          <input
+                            type="checkbox"
+                            checked={block.visible}
+                            onChange={() =>
+                              toggleNewsBlockVisibility(block.key)
+                            }
+                          />
+                          <span style={{ fontSize: "12px", fontWeight: 500 }}>
+                            {NEWS_BLOCK_LABELS[block.key]}
+                          </span>
+                        </CheckboxRow>
                       </div>
-                    </div>
-                  ))}
-                </Section>
-              );
-            } else if (section === "newsLayout") {
-              content = (
-                <Section key="newsLayout">
-                  {renderSectionHeader(section, idx, "Налаштування новин")}
-                  <p style={{ fontSize: "11px", color: "#666", margin: "0 0 5px 0" }}>
-                    Виберіть, які елементи новин відображати.
-                  </p>
-                  {newsLayout.map((block) => (
-                    <div key={block.key} style={{ display: "flex", alignItems: "center", background: "rgba(255,255,255,0.3)", padding: "5px 10px", borderRadius: "8px", marginBottom: "4px" }}>
-                      <CheckboxRow style={{ flex: 1 }}>
-                        <input
-                          type="checkbox"
-                          checked={block.visible}
-                          onChange={() => toggleNewsBlockVisibility(block.key)}
-                        />
-                        <span style={{ fontSize: "12px", fontWeight: 500 }}>{NEWS_BLOCK_LABELS[block.key]}</span>
-                      </CheckboxRow>
-                    </div>
-                  ))}
-                </Section>
-              );
-            }
-            return content;
-          })}
+                    ))}
+                  </Section>
+                );
+              }
+              return content;
+            })}
           </SectionsContainer>
-          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 4 }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              marginTop: 4,
+            }}
+          >
             <ResetOrderButton onClick={resetSectionsOrder}>
               Скинути порядок
             </ResetOrderButton>
