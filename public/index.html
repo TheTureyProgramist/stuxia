@@ -20,7 +20,7 @@
       name="description"
       content="Стихія — точний прогноз погоди в містах України та світу. Дізнавайтеся про температуру, опади та вітер у реальному часі."
     />
-    <link rel="apple-touch-icon" href="./realultra.jpg" />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/realultra.webp" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
     <title>
       Стихія: Погода надійніша з нами! Прогноз погоди по містах України та світу
@@ -35,5 +35,16 @@
   <body>
     <noscript>Для роботи цього додатка потрібно увімкнути JavaScript.</noscript>
     <div id="root"></div>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('%PUBLIC_URL%/sw.js').then(function(registration) {
+            console.log('ServiceWorker registration successful');
+          }).catch(function(error) {
+            console.log('ServiceWorker registration failed: ', error);
+          });
+        });
+      }
+    </script>
   </body>
 </html>
