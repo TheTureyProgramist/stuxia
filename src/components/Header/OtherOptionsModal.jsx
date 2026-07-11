@@ -1,28 +1,8 @@
-import React, { useState, useRef, useMemo } from "react";
+import React, { useState, useRef, useMemo, useEffect } from "react";
 import styled, { keyframes } from "styled-components";
 import songAiKnowledge from "../MusicPhoto/songAiKnowledge.json";
 import turkeysAudio from "../../mp3/turkeys.mp3";
-// Імпорти бібліотеки (приклад основних, додайте інші за аналогією)
-import dinofrozAudio from "../../mp3/dinofroz.mp3";
-import monodyAudio from "../../mp3/thefatrat-monody.mp3";
-import windAudio from "../../mp3/kolada.mp3";
-import unityAudio from "../../mp3/unity.mp3";
-import horseAudio from "../../mp3/horse.mp3";
-import hungerAudio from "../../mp3/thefatrat-hunger.mp3";
-import dragonoraAudio from "../../mp3/dragon.mp3";
-import soloveykoAudio from "../../mp3/soloveyko.mp3";
-import harmonyAudio from "../../mp3/harmonic-japan.mp3";
-import electrodynamixAudio from "../../mp3/electrodynamix.mp3";
-import clubstepAudio from "../../mp3/clubstep.mp3";
-import fingerbang from "../../mp3/mdk-fingerbang-full.mp3";
-import theorytwoAudio from "../../mp3/theoty-of-everything-ll.mp3";
-import theoryAudio from "../../mp3/theory-of-everyting.mp3";
-import deadlockedAudio from "../../mp3/deadlocked.mp3";
-import mechaAudio from "../../mp3/mechanik-kindom.mp3";
-import miaAudio from "../../mp3/mia-and-me.mp3";
-import humorAudio from "../../mp3/humor.mp3";
-import fadedAudio from "../../mp3/alan-walker-faded.mp3";
-import dominoAudio from "../../mp3/dominos-shop.mp3";
+import { assetMap } from "../MusicPhoto/MusicPhoto.assets";
 
 const slideIn = keyframes`
   0% { transform: translateY(100%) scale(0.5); opacity: 0; }
@@ -313,29 +293,6 @@ const SortSelect = styled.select`
   cursor: pointer;
 `;
 
-const assetMap = {
-  turkeyAudio: turkeysAudio,
-  dinofrozAudio,
-  monodyAudio,
-  windAudio,
-  unityAudio,
-  horseAudio,
-  hungerAudio,
-  dragonoraAudio,
-  soloveykoAudio,
-  harmonyAudio,
-  electrodynamixAudio,
-  clubstepAudio,
-  fingerbang,
-  theorytwoAudio,
-  theoryAudio,
-  deadlockedAudio,
-  mechaAudio,
-  miaAudio,
-  humorAudio,
-  fadedAudio,
-  domino: dominoAudio,
-};
 
 const OtherOptionsModal = ({
   onClose,
@@ -362,6 +319,8 @@ const OtherOptionsModal = ({
   setActiveBgTrackId = () => {},
   onResetBgPosition = () => {},
   isDarkMode,
+  bgAudioRef,
+  bgAudioRef2,
 }) => {
   const [isClosing, setIsClosing] = useState(false);
   const fileInputRef = useRef(null);
@@ -369,11 +328,61 @@ const OtherOptionsModal = ({
   const [libSearch, setLibSearch] = useState("");
   const [sortOrder, setSortOrder] = useState("default");
 
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+
+  useEffect(() => {
+    let animationFrameId;
+    const updateTime = () => {
+      const a1 = bgAudioRef?.current;
+      const a2 = bgAudioRef2?.current;
+      
+      let activeAudio = a1;
+      if (a1 && a2) {
+        if (!a2.paused && a2.volume >= a1.volume) activeAudio = a2;
+        else if (!a1.paused && a1.volume >= a2.volume) activeAudio = a1;
+      }
+      
+      if (activeAudio) {
+        setCurrentTime(activeAudio.currentTime || 0);
+        setDuration(activeAudio.duration || 0);
+      }
+      animationFrameId = requestAnimationFrame(updateTime);
+    };
+    updateTime();
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [bgAudioRef, bgAudioRef2]);
+
+  const handleSeek = (e) => {
+    const time = parseFloat(e.target.value);
+    const a1 = bgAudioRef?.current;
+    const a2 = bgAudioRef2?.current;
+    
+    let activeAudio = a1;
+    if (a1 && a2) {
+      if (!a2.paused && a2.volume >= a1.volume) activeAudio = a2;
+      else if (!a1.paused && a1.volume >= a2.volume) activeAudio = a1;
+    }
+    
+    if (activeAudio) {
+      activeAudio.currentTime = time;
+      setCurrentTime(time);
+    }
+  };
+
+  const formatTime = (timeInSeconds) => {
+    if (!timeInSeconds || isNaN(timeInSeconds)) return "0:00";
+    const minutes = Math.floor(timeInSeconds / 60);
+    const seconds = Math.floor(timeInSeconds % 60);
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+  };
+
   const libraryTracks = useMemo(() => {
     let tracks = songAiKnowledge.map((s) => ({
       id: s.id,
-      name: s.author,
+      name: s.text ? `${s.text} - ${s.author}` : s.author,
       file: assetMap[s.audio] || turkeysAudio,
+      image: assetMap[s.image],
     }));
 
     if (libSearch) {
@@ -550,6 +559,9 @@ const OtherOptionsModal = ({
               >
                 {[0, 1, 2].map((i) => (
                   <TrackRow key={i} $isDarkMode={isDarkMode}>
+                    <div style={{ width: "30px", height: "30px", borderRadius: "6px", background: isDarkMode ? "#333" : "#eee", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", flexShrink: 0 }}>
+                      🎵
+                    </div>
                     <SmallInput
                       $isDarkMode={isDarkMode}
                       placeholder="Назва..."
@@ -677,6 +689,17 @@ const OtherOptionsModal = ({
                     libraryBgSettings[t.id]) || { repeats: 1, enabled: true };
                   return (
                     <TrackRow key={t.id} $isDarkMode={isDarkMode}>
+                      {t.image ? (
+                        <img 
+                          src={t.image} 
+                          alt="" 
+                          style={{ width: "30px", height: "30px", borderRadius: "6px", objectFit: "cover", flexShrink: 0 }} 
+                        />
+                      ) : (
+                        <div style={{ width: "30px", height: "30px", borderRadius: "6px", background: isDarkMode ? "#333" : "#eee", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", flexShrink: 0 }}>
+                          🎵
+                        </div>
+                      )}
                       <ListButton
                         $isDarkMode={isDarkMode}
                         $active={bgMusicSource === t.file}
@@ -810,14 +833,34 @@ const OtherOptionsModal = ({
               />
             </OptionRow>
 
-            <OptionRow $isDarkMode={isDarkMode}>
-              <label>Позиція музики</label>
-              <ActionButton
-                onClick={onResetBgPosition}
-                style={{ fontSize: "11px", padding: "5px 10px" }}
-              >
-                ⏮ Почати спочатку
-              </ActionButton>
+            <OptionRow $isDarkMode={isDarkMode} style={{ flexDirection: "column", alignItems: "stretch", gap: "10px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <label>Позиція музики</label>
+                <div style={{ fontSize: "12px", color: isDarkMode ? "#ccc" : "#555" }}>
+                  {formatTime(currentTime)} / {formatTime(duration)}
+                </div>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <input
+                  type="range"
+                  min="0"
+                  max={duration || 100}
+                  step="0.1"
+                  value={currentTime}
+                  onChange={handleSeek}
+                  style={{
+                    flex: 1,
+                    cursor: "pointer",
+                    accentColor: "#ffb36c",
+                  }}
+                />
+                <ActionButton
+                  onClick={onResetBgPosition}
+                  style={{ fontSize: "11px", padding: "5px 10px", minWidth: "max-content" }}
+                >
+                  ⏮ Спочатку
+                </ActionButton>
+              </div>
             </OptionRow>
 
             <OptionRow $isDarkMode={isDarkMode}>

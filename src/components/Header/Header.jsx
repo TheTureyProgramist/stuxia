@@ -22,7 +22,7 @@ const fadeInHeader = keyframes`
 `;
 
 const HeaderDiv = styled.div`
-  height: 35px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -38,11 +38,6 @@ const HeaderDiv = styled.div`
   box-sizing: border-box;
   animation: ${fadeInHeader} 0.8s ease-out 5.3s both;
   margin: 0;
-
-  @media (min-width: 768px) {
-    height: 45px;
-    padding: 0 20px;
-  }
 `;
 
 const HeaderFix = styled.div`
@@ -50,10 +45,6 @@ const HeaderFix = styled.div`
   align-items: center;
   min-width: 0;
   gap: 5px;
-
-  @media (min-width: 768px) {
-    gap: 10px;
-  }
 `;
 
 const IconButton = styled.button`
@@ -75,10 +66,7 @@ const IconButton = styled.button`
 
 const EmojiWrapper = styled.span`
   display: inline-block;
-  font-size: 12px;
-  @media (min-width: 720px) {
-    font-size: 24px;
-  }
+  font-size: 18px;
 `;
 
 const UserName = styled.span`
@@ -92,11 +80,11 @@ const UserName = styled.span`
   flex-shrink: 2;
 
   @media (min-width: 400px) {
-    max-width: 100px;
+    max-width: 150px;
   }
   @media (min-width: 768px) {
-    font-size: 16px;
-    max-width: 250px;
+    font-size: 13px;
+    max-width: 450px;
   }
 
   ${(props) => {
@@ -115,8 +103,8 @@ const UserName = styled.span`
 `;
 
 const HeaderAvatar = styled.img`
-  width: 30px;
-  height: 30px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   min-width: 30px;
   margin-right: 0;
@@ -134,11 +122,6 @@ const HeaderAvatar = styled.img`
     props.$bColor?.includes("linear-gradient")
       ? "transparent"
       : props.$bColor || "transparent"};
-
-  @media (min-width: 768px) {
-    width: 42px;
-    height: 42px;
-  }
 `;
 
 const VipTextWrapper = styled.div`
@@ -232,10 +215,8 @@ const UltraText = styled.h1`
 const HeaderLogo = styled.img`
   border-radius: 50%;
   flex-shrink: 0;
-  @media (min-width: 768px) {
-    height: 42px;
-    width: 42px;
-  }
+    height: 38px;
+    width: 38px;
 `;
 const Spa = styled.span`
   font-size: 9px;
@@ -249,7 +230,7 @@ const ButtonsGroup = styled.div`
   gap: -3px;
 
   @media (min-width: 768px) {
-    gap: 12px;
+    gap: 5px;
   }
 `;
 
@@ -341,8 +322,8 @@ const LogoActionBtn = styled.button`
   visibility: hidden;
   transition: all 0.2s ease;
   z-index: 20;
-  padding: 1px 3px;
-  font-size: 8px;
+  padding: 2px;
+  font-size: 13px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -351,28 +332,23 @@ const LogoActionBtn = styled.button`
     background: #ffb36c;
     color: #1a1a1a;
   }
-
-  @media (min-width: 768px) {
-    font-size: 12px;
-    padding: 2px 5px;
-  }
 `;
 
 const PrintBtn = styled(LogoActionBtn)`
-  top: 2px;
+  top: 0px;
   left: 50%;
   transform: translateX(-50%);
 `;
 
 const DownloadBtn = styled(LogoActionBtn)`
   left: 2px;
-  top: 50%;
+  top: 70%;
   transform: translateY(-50%);
 `;
 
 const FullscreenBtn = styled(LogoActionBtn)`
-  right: 2px;
-  top: 50%;
+  right: -6px;
+  top: 70%;
   transform: translateY(-50%);
 `;
 

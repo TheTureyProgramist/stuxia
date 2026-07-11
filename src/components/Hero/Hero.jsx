@@ -186,7 +186,7 @@ const slideOut = keyframes`
   100% { transform: translateY(100%) scale(0.5); opacity: 0; }
 `;
 const slideUpHero = keyframes`
-  0% { transform: translateY(120px) scale(1.8); opacity: 0; }
+  0% { transform: translateY(120px) scale(1.5); opacity: 0; }
   100% { transform: translateY(0) scale(1); opacity: 1; }
 `;
 const fadeInContent = keyframes`
@@ -196,7 +196,7 @@ const fadeInContent = keyframes`
 const HeroDiv = styled.div`
   position: relative;
   width: 100%;
-  min-height: 712px;
+  min-height: 732px;
   margin-bottom: 10px;
   display: flex;
   flex-direction: column;
@@ -205,36 +205,23 @@ const HeroDiv = styled.div`
   align-items: center;
   overflow: hidden;
   z-index: 1;
-  @media (min-width: 768px) {
-    gap: 19px;
-    margin-bottom: 15px;
-    min-height: 712px;
-  }
 `;
 const HeroDecors = styled.div`
   display: block;
-  width: 170px;
-  height: 78px;
+  width: 255px;
+  height: 118px;
   background-image: url(${(props) => props.$image});
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   opacity: 0;
-  transform: translateY(120px) scale(1.8);
+  transform: translateY(120px) scale(1.5);
   animation: ${(props) =>
     props.$start
       ? css`
           ${slideUpHero} 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards
         `
       : "none"};
-  @media (min-width: 768px) {
-    width: 216px;
-    height: 100.5px;
-  }
-  @media (min-width: 1920px) {
-    width: 400px;
-    height: 180px;
-  }
 `;
 const DelayedContent = styled.div`
   display: flex;
@@ -250,15 +237,7 @@ const DelayedContent = styled.div`
         `
       : "none"};
   animation-delay: ${(props) => (props.$start ? "3s" : "0s")};
-  @media (min-width: 768px) {
-    gap: 25px;
-  }
-  @media (min-width: 1200px) {
-    gap: 50px;
-  }
-  @media (min-width: 1920px) {
-    gap: 80px;
-  }
+
 `;
 const panAnimation = keyframes`
   0% { background-position-x: 0%; }
@@ -392,13 +371,12 @@ const HeroFix = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 15px;
-  width: 100%;
+  gap: 5px;
 
   @media (min-width: 768px) {
     flex-direction: row;
+      justify-content: start;
     gap: 0;
-    width: 550px;
   }
 `;
 const HeroFi = styled.div`
@@ -409,7 +387,7 @@ const HeroFi = styled.div`
 const HeroTextLink = styled.a`
   color: #fff;
   font-family: var(--font-family);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 500;
   text-decoration: none;
   display: block;
@@ -421,23 +399,15 @@ const HeroTextLink = styled.a`
     0 0 10px rgba(0, 0, 0, 0.5);
 
   @media (min-width: 768px) {
-    font-size: 10px;
+    font-size: 18px;
     flex: 1;
     text-align: right;
     padding-right: 20px;
   }
-  @media (min-width: 1200px) {
-    font-size: 18px;
-    padding-right: 30px;
-  }
-  @media (min-width: 1920px) {
-    font-size: 30px;
-    padding-right: 50px;
-  }
 `;
 const HeroDate = styled.div`
-  color: #fff;
-  font-size: 8px;
+  color: rgb(255, 255, 255);
+  font-size: 12px;
   text-align: center;
   font-weight: 600;
   text-shadow:
@@ -450,21 +420,11 @@ const HeroDate = styled.div`
   gap: 8px;
 
   @media (min-width: 768px) {
-    font-size: 10px;
+    font-size: 18px;
     flex: 1;
     justify-content: center;
     padding-left: 0px;
     gap: 10px;
-  }
-  @media (min-width: 1200px) {
-    font-size: 18px;
-    padding-left: 30px;
-    gap: 15px;
-  }
-  @media (min-width: 1920px) {
-    font-size: 30px;
-    padding-left: 50px;
-    gap: 20px;
   }
 `;
 
@@ -492,8 +452,8 @@ const TimezoneButton = styled.button`
   &:hover {
     background: rgba(255, 179, 108, 0.4);
     border-color: #ffb36c;
-    transform: scale(1.1) rotate(360deg); /* Анімація обертання */
-    animation: ${rotateGear} 1s linear infinite; /* Застосовуємо анімацію */
+    transform: scale(1.1) rotate(360deg); 
+    animation: ${rotateGear} 1s linear infinite; 
   }
 
   @media (min-width: 768px) {
@@ -502,17 +462,6 @@ const TimezoneButton = styled.button`
     font-size: 16px;
   }
 
-  @media (min-width: 1200px) {
-    width: 22px;
-    height: 22px;
-    font-size: 11px;
-  }
-
-  @media (min-width: 1920px) {
-    width: 40px;
-    height: 40px;
-    font-size: 24px;
-  }
 `;
 
 const TimezoneMenu = styled.div`
@@ -529,17 +478,6 @@ const TimezoneMenu = styled.div`
   overflow-y: auto;
   z-index: 2000;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-
-  @media (min-width: 768px) {
-    width: 280px;
-    padding: 15px;
-  }
-
-  @media (min-width: 1920px) {
-    width: 350px;
-    padding: 20px;
-  }
-
   &::-webkit-scrollbar {
     width: 6px;
   }
@@ -561,7 +499,7 @@ const TimezoneOption = styled.button`
   color: ${(props) => (props.$selected ? "#ffb36c" : "#fff")};
   border: 1px solid ${(props) => (props.$selected ? "#ffb36c" : "transparent")};
   border-radius: 5px;
-  padding: 8px 10px;
+  padding: 4px 6px;
   margin-bottom: 5px;
   cursor: pointer;
   text-align: left;
@@ -573,46 +511,7 @@ const TimezoneOption = styled.button`
     background: rgba(255, 179, 108, 0.2);
     border-color: #ffb36c;
   }
-
-  @media (min-width: 1920px) {
-    font-size: 16px;
-    padding: 12px 15px;
-  }
 `;
-const DownloadAppsContainer = styled.div`
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  flex-wrap: wrap;
-  margin-top: 5px;
-
-  @media (min-width: 768px) {
-    gap: 20px;
-  }
-`;
-
-const DownloadAppButton = styled.a`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 12px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 179, 108, 0.5);
-  border-radius: 20px;
-  color: #fff;
-  text-decoration: none;
-  font-size: 10px;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(5px);
-
-  &:hover {
-    background: rgba(255, 179, 108, 0.2);
-    transform: translateY(-2px);
-    border-color: #ffb36c;
-  }
-`;
-
 const fireflyAnim = keyframes`
   0%, 100% { opacity: 0; transform: scale(0.5) translate(0, 0); }
   50% { opacity: 1; transform: scale(1.2) translate(var(--x), var(--y)); }
@@ -650,7 +549,6 @@ const FestiveOverlay = styled.div`
   transition: opacity 2s ease;
 
   &::after {
-    content: "${(props) => props.$label || "СЬОГОДНІ СВЯТО! 🎉"}";
     position: absolute;
     top: 20px;
     left: 20px;
@@ -727,6 +625,7 @@ const HeroCharCount = styled.span`
 const SearchWrapper = styled.div`
   position: relative;
   display: flex;
+  width: 100%;
   flex-direction: column;
   align-items: center;
   z-index: 99;
@@ -734,19 +633,9 @@ const SearchWrapper = styled.div`
 
 const SearchModeToggle = styled.div`
   display: flex;
-  gap: 10px;
-  margin-bottom: 15px;
+  gap: 5px;
+  margin-bottom: 75px;
   justify-content: center;
-
-  @media (min-width: 768px) {
-    gap: 15px;
-    margin-bottom: 20px;
-  }
-
-  @media (min-width: 1920px) {
-    gap: 20px;
-    margin-bottom: 30px;
-  }
 `;
 
 const ModeButton = styled.button`
@@ -775,10 +664,6 @@ const ModeButton = styled.button`
     padding: 10px 20px;
   }
 
-  @media (min-width: 1920px) {
-    font-size: 20px;
-    padding: 15px 30px;
-  }
 `;
 
 const CoordinatesContainer = styled.div`
@@ -787,11 +672,6 @@ const CoordinatesContainer = styled.div`
   flex-wrap: wrap;
   justify-content: center;
   margin-bottom: 15px;
-
-  @media (min-width: 1920px) {
-    gap: 20px;
-    margin-bottom: 20px;
-  }
 `;
 
 const CoordinateInput = styled.div`
@@ -805,10 +685,6 @@ const CoordinateInput = styled.div`
     font-size: 10px;
     font-weight: 600;
     text-align: center;
-
-    @media (min-width: 1920px) {
-      font-size: 18px;
-    }
   }
 
   input {
@@ -827,14 +703,6 @@ const CoordinateInput = styled.div`
       height: 25px;
       font-size: 12px;
     }
-
-    @media (min-width: 1920px) {
-      width: 200px;
-      height: 50px;
-      font-size: 18px;
-      padding: 10px 15px;
-    }
-
     &::placeholder {
       color: #888;
     }
@@ -882,11 +750,11 @@ const SearchContainer = styled.div`
 `;
 
 const HeroInput = styled.input`
-  width: 173px;
-  height: 20px;
+  width: 80%;
+  height: 30px;
   font-family: var(--font-family);
   font-weight: 500;
-  font-size: 9px;
+  font-size: 11px;
   color: #222;
   padding-left: 30px;
   background: #d9d9d9;
@@ -894,27 +762,14 @@ const HeroInput = styled.input`
   border: none;
   outline: none;
   @media (min-width: 768px) {
-    width: 402px;
-    height: 25px;
     font-size: 14px;
-  }
-  @media (min-width: 1200px) {
-    width: 629px;
-    height: 42px;
-  }
-  @media (min-width: 1920px) {
-    width: 1000px;
-    height: 90px;
-    font-size: 32px;
-    padding-left: 60px;
-    border-radius: 20px 0 0 20px;
   }
 `;
 const HeroButton = styled.button`
   position: relative;
   border-radius: 0 10px 10px 0;
-  width: 20px;
-  height: 22px;
+  width: 30px;
+  height: 33px;
   background: ${(props) => (props.disabled ? "#ccc" : "yellow")};
   cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
   border: 2px solid black;
@@ -947,33 +802,6 @@ const HeroButton = styled.button`
         justify-content: center;
       }
     `}
-
-  @media (min-width: 768px) {
-    width: 28px;
-    height: 26px;
-    font-size: 22px;
-    &:hover::after {
-      font-size: 24px;
-    }
-  }
-  @media (min-width: 1200px) {
-    width: 40px;
-    height: 43px;
-    font-size: 30px;
-    &:hover::after {
-      font-size: 34px;
-    }
-  }
-  @media (min-width: 1920px) {
-    width: 95px;
-    height: 94px;
-    border-radius: 0 20px 20px 0;
-    border-width: 4px;
-    font-size: 60px;
-    &:hover::after {
-      font-size: 70px;
-    }
-  }
 `;
 const SuggestionsList = styled.div`
   position: absolute;
@@ -1004,11 +832,6 @@ const SuggestionsList = styled.div`
     background: skyblue;
     border-radius: 10px;
   }
-  @media (min-width: 1920px) {
-    padding: 20px;
-    gap: 15px;
-    max-height: 500px;
-  }
 `;
 
 const SuggestionItem = styled.button`
@@ -1027,11 +850,6 @@ const SuggestionItem = styled.button`
     color: white;
     transform: translateX(5px);
   }
-  @media (min-width: 1920px) {
-    font-size: 26px;
-    padding: 20px 30px;
-    border-radius: 15px;
-  }
 `;
 
 const LoadMoreButton = styled.button`
@@ -1048,17 +866,12 @@ const LoadMoreButton = styled.button`
   &:hover {
     background: ${(props) => (props.disabled ? "#eee" : "#ffcc00")};
   }
-  @media (min-width: 1920px) {
-    font-size: 24px;
-    padding: 25px;
-    border-width: 4px;
-  }
 `;
 
 const ChangeBgButton = styled.button`
   position: absolute;
-  top: 60px;
-  right: 10px;
+  top: 50px;
+  right: 7px;
   background: rgba(0, 0, 0, 0.4);
   border: 1px solid rgba(255, 179, 108, 0.5);
   color: white;
@@ -1077,20 +890,6 @@ const ChangeBgButton = styled.button`
     background: #ffb36c;
     color: black;
     transform: scale(1.1);
-  }
-  @media (min-width: 720px) {
-    width: 42px;
-    height: 42px;
-    font-size: 20px;
-    right: 20px;
-    top: 60px;
-  }
-  @media (min-width: 1920px) {
-    width: 85px;
-    right: 60px;
-    height: 85px;
-    font-size: 50px;
-    top: 136px;
   }
 `;
 
@@ -1112,7 +911,7 @@ const ModalOverlay = styled.div`
 
 const ModalContent = styled.div`
   background: #1e1e1e;
-  padding: 20px;
+  padding: 5px;
   border-radius: 20px;
   width: 95%;
   max-width: 800px;
@@ -1126,12 +925,6 @@ const ModalContent = styled.div`
   position: relative;
   animation: ${(props) => (props.$isClosing ? slideOut : slideIn)} 0.4s
     cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-
-  @media (min-width: 768px) {
-    padding: 30px;
-    width: 90%;
-    gap: 20px;
-  }
 
   &::-webkit-scrollbar {
     width: 6px;
@@ -1955,8 +1748,6 @@ const Hero = ({
         };
       }
     }
-
-    // 2. Пріоритет: Важлива подія (Золотистий)
     const customDay = customDays.find((day) => day.date === todayStr);
     if (customDay) {
       return {
@@ -1966,10 +1757,9 @@ const Hero = ({
       };
     }
 
-    // 3. Пріоритет: Вихідний (Жовтий)
     const dayOfWeek = now.getDay(); // 0 - Sun, 6 - Sat
     if (dayOfWeek === 0 || dayOfWeek === 6) {
-      return { active: true, color: "#ffff00", label: "ВИХІДНИЙ! ☀️" };
+      return { active: true, color: "#ffff00" };
     }
 
     return { active: false, color: "#fff59d", label: "" };
@@ -2019,9 +1809,6 @@ const Hero = ({
       {isTodayHoliday && (
         <>
           <FestiveOverlay
-            $active={isTodayHoliday}
-            $color={todayHolidayInfo.color}
-            $label={todayHolidayInfo.label}
           />
           {fireflies.map((f) => (
             <Firefly
@@ -2175,7 +1962,7 @@ const Hero = ({
               href="https://www.facebook.com/groups/33984901414490236/?notif_id=1770630384341499&notif_t=group_milestone&ref=notif"
               target="_blank"
             >
-              Мій фейсбук канал
+              Фейсбук
             </HeroTextLink>
             <HeroFi>
               <HeroDate ref={timezoneMenuRef}>
@@ -2339,25 +2126,6 @@ const Hero = ({
             </HeroFi>
           </HeroFix>
         </HeroDecor>
-        {user && (
-          <DownloadAppsContainer>
-            <DownloadAppButton
-              href="/downloads/stykhiya-pc.exe"
-              download="stykhiya-pc.exe"
-              title="Завантажити для Windows"
-            >
-              💻 Скачати для ПК
-            </DownloadAppButton>
-            <DownloadAppButton
-              href="/downloads/stykhiya-mobile.apk"
-              download="stykhiya-mobile.apk"
-              title="Завантажити для Android"
-            >
-              📱 Мобільний додаток
-            </DownloadAppButton>
-          </DownloadAppsContainer>
-        )}
-
         <SearchWrapper ref={searchRef}>
           <SearchModeToggle>
             <ModeButton

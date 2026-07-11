@@ -49,7 +49,7 @@ import dinofrozVideo from "./mp3/dinofroz.mp4";
 import startImage from "./photos/hero-header/start-image.webp";
 import turkeysAudio from "./mp3/turkeys.mp3";
 import ultraImage from "./photos/vip-modal/realultra.webp";
-
+import { assetMap, songAiKnowledge } from "./components/MusicPhoto/MusicPhoto.assets";
 import { DEFAULT_SITE_SECTIONS } from "./components/Header/Menu.jsx";
 import axios from "axios";
 import "./App.css";
@@ -123,9 +123,7 @@ const AVAILABLE_AVATARS = [
   flame,
 ];
 
-// Дані для музичної бібліотеки (мають бути заповнені інформацією про треки)
-const songAiKnowledge = [];
-const assetMap = {};
+
 
 ChartJS.register(
   CategoryScale,
@@ -829,34 +827,48 @@ const App = () => {
     }
   }, [siteSections, isRoutingMode, isHydrated]);
 
+  const [currentAudioUrl, setCurrentAudioUrl] = useState("");
+  
+  useEffect(() => {
+    let url = bgMusicSource;
+    if (bgMusicSource instanceof Blob) {
+      url = URL.createObjectURL(bgMusicSource);
+    }
+    setCurrentAudioUrl(url);
+    return () => {
+      if (bgMusicSource instanceof Blob && url) {
+        URL.revokeObjectURL(url);
+      }
+    };
+  }, [bgMusicSource]);
+
+  const prevSourceRef = useRef(null);
+
   // Реалізація Crossfade
   useEffect(() => {
     const a1 = bgAudioRef.current;
     const a2 = bgAudioRef2.current;
     if (!a1 || !a2) return;
 
+    if (prevSourceRef.current !== currentAudioUrl) {
+      setTrackRepeatCounter(0);
+      prevSourceRef.current = currentAudioUrl;
+    }
+
     const shouldPlay = bgMusicEnabled && (!isFsActive || !autoMuteBgMusic);
     const targetVolume = shouldPlay ? bgMusicVolume : 0;
     const fadeStep = 0.02;
 
-    // Визначаємо, який плеєр зараз активний за джерелом
-    const currentSource =
-      bgMusicSource instanceof Blob
-        ? URL.createObjectURL(bgMusicSource)
-        : bgMusicSource;
-
-    // Виправлена логіка: якщо жоден плеєр не містить поточне джерело, використовуємо перший плеєр
     let activeAudio = a1;
     let inactiveAudio = a2;
 
-    if (a1.src && a1.src.includes(currentSource)) {
+    if (a1.src && currentAudioUrl && a1.src.includes(currentAudioUrl)) {
       activeAudio = a1;
       inactiveAudio = a2;
-    } else if (a2.src && a2.src.includes(currentSource)) {
+    } else if (a2.src && currentAudioUrl && a2.src.includes(currentAudioUrl)) {
       activeAudio = a2;
       inactiveAudio = a1;
     } else {
-      // Якщо жоден не містить джерело, використовуємо перший вільний (паузований) плеєр
       activeAudio = a1.paused || a1.volume === 0 ? a1 : a2;
       inactiveAudio = activeAudio === a1 ? a2 : a1;
     }
@@ -865,25 +877,29 @@ const App = () => {
       if (
         activeAudio.paused ||
         activeAudio.src === "" ||
-        !activeAudio.src.includes(currentSource)
+        !activeAudio.src.includes(currentAudioUrl)
       ) {
-        activeAudio.src = currentSource;
-        activeAudio.currentTime = 0;
+        activeAudio.src = currentAudioUrl;
+        
+        if (!bgPositionApplied.current && initialBgPosition > 0) {
+          activeAudio.currentTime = initialBgPosition;
+          bgPositionApplied.current = true;
+        } else {
+          activeAudio.currentTime = 0;
+        }
+        
         activeAudio.volume = 0;
         activeAudio.playbackRate = bgMusicSpeed;
         activeAudio.play().catch(() => {});
       } else if (activeAudio.paused) {
-        // Якщо плеєр вже має правильне джерело, але на паузі - просто запускаємо
         activeAudio.play().catch(() => {});
       }
     } else if (!shouldPlay) {
-      // Якщо музику вимкнули - паузуємо обидва
       if (!a1.paused) a1.pause();
       if (!a2.paused) a2.pause();
     }
 
     const crossfadeInterval = setInterval(() => {
-      // Плавне наростання активного
       if (activeAudio.volume < targetVolume) {
         activeAudio.volume = Math.min(
           targetVolume,
@@ -893,7 +909,6 @@ const App = () => {
         activeAudio.volume = targetVolume;
       }
 
-      // Плавне затухання неактивного
       if (inactiveAudio.volume > 0) {
         inactiveAudio.volume = Math.max(0, inactiveAudio.volume - fadeStep);
       } else {
@@ -910,7 +925,7 @@ const App = () => {
     bgMusicEnabled,
     isFsActive,
     autoMuteBgMusic,
-    bgMusicSource,
+    currentAudioUrl,
     bgMusicVolume,
     bgMusicSpeed,
     initialBgPosition,
@@ -942,87 +957,7 @@ const App = () => {
     bgPositionApplied.current = false;
   }, []);
 
-  useEffect(() => {
-    setTrackRepeatCounter(0);
 
-    // При зміні джерела, зупиняємо оба плеєри і скидаємо їх стан
-    if (bgAudioRef.current && bgAudioRef2.current) {
-      bgAudioRef.current.pause();
-      bgAudioRef2.current.pause();
-      bgAudioRef.current.currentTime = 0;
-      bgAudioRef2.current.currentTime = 0;
-    }
-
-    // Запускаємо новий трек, якщо музика увімкнена
-    if (bgMusicEnabled) {
-      setTimeout(() => {
-        const a1 = bgAudioRef.current;
-        const a2 = bgAudioRef2.current;
-        if (!a1 || !a2) return;
-
-        const currentSource =
-          bgMusicSource instanceof Blob
-            ? URL.createObjectURL(bgMusicSource)
-            : bgMusicSource;
-        const activeAudio = a1.paused || a1.volume === 0 ? a1 : a2;
-
-        if (activeAudio.src !== currentSource) {
-          activeAudio.src = currentSource;
-        }
-
-        // Застосовуємо збережену позицію тільки якщо це перша зміна джерела
-        if (!bgPositionApplied.current && initialBgPosition > 0) {
-          activeAudio.currentTime = initialBgPosition;
-          bgPositionApplied.current = true;
-        } else {
-          activeAudio.currentTime = 0;
-        }
-
-        activeAudio.volume = 0;
-        activeAudio.playbackRate = bgMusicSpeed;
-        activeAudio.play().catch(() => {});
-      }, 10);
-    }
-  }, [bgMusicSource, bgMusicEnabled, bgMusicSpeed, initialBgPosition]);
-
-  // Автоматичне відтворення музики після гідратації
-  useEffect(() => {
-    if (!isHydrated || !bgMusicEnabled || !bgMusicSource) return;
-
-    setTimeout(() => {
-      const a1 = bgAudioRef.current;
-      const a2 = bgAudioRef2.current;
-      if (!a1 || !a2) return;
-
-      const currentSource =
-        bgMusicSource instanceof Blob
-          ? URL.createObjectURL(bgMusicSource)
-          : bgMusicSource;
-      const activeAudio = a1.paused || a1.volume === 0 ? a1 : a2;
-
-      if (activeAudio.src !== currentSource) {
-        activeAudio.src = currentSource;
-      }
-
-      // Застосовуємо збережену позицію, якщо це перша загрузка
-      if (!bgPositionApplied.current && initialBgPosition > 0) {
-        activeAudio.currentTime = initialBgPosition;
-        bgPositionApplied.current = true;
-      } else {
-        activeAudio.currentTime = 0;
-      }
-
-      activeAudio.volume = 0;
-      activeAudio.playbackRate = bgMusicSpeed;
-      activeAudio.play().catch(() => {});
-    }, 100);
-  }, [
-    isHydrated,
-    bgMusicEnabled,
-    bgMusicSource,
-    initialBgPosition,
-    bgMusicSpeed,
-  ]);
 
   const handleBgMusicEnded = useCallback(() => {
     const a1 = bgAudioRef.current;
@@ -1030,12 +965,8 @@ const App = () => {
     if (!a1 || !a2) return;
 
     // Визначаємо активний плеєр - той, що насправді грав
-    const currentSource =
-      bgMusicSource instanceof Blob
-        ? URL.createObjectURL(bgMusicSource)
-        : bgMusicSource;
     let activeAudio = a1;
-    if (a2.src && a2.src.includes(currentSource)) {
+    if (a2.src && currentAudioUrl && a2.src.includes(currentAudioUrl)) {
       activeAudio = a2;
     }
 
@@ -1124,26 +1055,19 @@ const App = () => {
     bgMusicShuffle,
     activeBgTrackId,
     libraryBgSettings,
+    currentAudioUrl,
   ]);
 
   // При зміні режиму перезапускаємо трек, щоб новий режим застосувався відразу
   useEffect(() => {
-    if (bgMusicEnabled && bgAudioRef.current && !bgAudioRef.current.paused) {
-      bgAudioRef.current.currentTime = 0;
-    } else if (
-      bgMusicEnabled &&
-      bgAudioRef2.current &&
-      !bgAudioRef2.current.paused
-    ) {
-      bgAudioRef2.current.currentTime = 0;
+    if (bgMusicEnabled) {
+      if (bgAudioRef.current && !bgAudioRef.current.paused) {
+        bgAudioRef.current.currentTime = 0;
+      } else if (bgAudioRef2.current && !bgAudioRef2.current.paused) {
+        bgAudioRef2.current.currentTime = 0;
+      }
     }
-  }, [
-    bgMusicMode,
-    bgMusicEnabled,
-    bgMusicSource,
-    bgMusicSpeed,
-    initialBgPosition,
-  ]);
+  }, [bgMusicMode, bgMusicEnabled]);
 
   useEffect(() => {
     if (isHydrated) {
@@ -2238,6 +2162,8 @@ const App = () => {
 
             {isOtherOptionsOpen && (
               <OtherOptionsModal
+                bgAudioRef={bgAudioRef}
+                bgAudioRef2={bgAudioRef2}
                 onClose={() => setIsOtherOptionsOpen(false)}
                 bgMusicEnabled={bgMusicEnabled}
                 setBgMusicEnabled={setBgMusicEnabled}
