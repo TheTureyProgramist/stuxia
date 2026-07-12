@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import styled from "styled-components";
+import {
+  getHourlyForecastDayGroups
+} from "../../utils/hourlyForecast";
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -141,13 +144,15 @@ const HourlyTable = styled.div`
 
 const WeatherDetailsModal = ({ isOpen, onClose, card, isDarkMode }) => {
   const [activeTab, setActiveTab] = useState("current");
-  const [hourlyDayIndex, setHourlyDayIndex] = useState(0);
+  const [selectedHourlyDay, setSelectedHourlyDay] = useState(0);
 
   if (!isOpen || !card) return null;
 
   const current = card.current || {};
   const hourly = card.hourly || [];
   const daily = card.daily16 || [];
+  const hourlyDayGroups = getHourlyForecastDayGroups(hourly);
+  const visibleHourly = hourlyDayGroups[selectedHourlyDay]?.items || [];
 
   // Логування для діагностики
   console.log("WeatherDetailsModal card data:", {
@@ -369,23 +374,32 @@ const WeatherDetailsModal = ({ isOpen, onClose, card, isDarkMode }) => {
                 gap: "5px",
               }}
             >
-              <h3 style={{ margin: 0 }}>📊 Погодинні дані</h3>
-              {hourly.length > 24 && (
-                <div style={{ display: "flex", gap: "5px", flexWrap: "wrap" }}>
-                  {Array.from({ length: Math.ceil(hourly.length / 24) }).map(
-                    (_, i) => (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  gap: "6px",
+                  flexWrap: "wrap",
+                  marginBottom: "8px",
+                }}
+              >
+                <h3 style={{ margin: 0 }}>📊 Погодинні дані</h3>
+                {hourlyDayGroups.length > 1 && (
+                  <div style={{ display: "flex", gap: "5px", flexWrap: "wrap" }}>
+                    {hourlyDayGroups.map((group, index) => (
                       <button
-                        key={i}
-                        onClick={() => setHourlyDayIndex(i)}
+                        key={group.label}
+                        onClick={() => setSelectedHourlyDay(index)}
                         style={{
                           background:
-                            hourlyDayIndex === i
+                            selectedHourlyDay === index
                               ? "#00bfff"
                               : isDarkMode
                                 ? "#333"
                                 : "#ddd",
                           color:
-                            hourlyDayIndex === i
+                            selectedHourlyDay === index
                               ? "#000"
                               : isDarkMode
                                 ? "#fff"
@@ -398,14 +412,12 @@ const WeatherDetailsModal = ({ isOpen, onClose, card, isDarkMode }) => {
                           fontWeight: "bold",
                         }}
                       >
-                        {hourly[i * 24]?.date
-                          ? hourly[i * 24].date
-                          : `${i + 1} доба`}
+                        {group.title || group.label}
                       </button>
-                    ),
-                  )}
-                </div>
-              )}
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
             <HourlyTable $isDarkMode={isDarkMode}>
               <table>
@@ -422,9 +434,7 @@ const WeatherDetailsModal = ({ isOpen, onClose, card, isDarkMode }) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {hourly
-                    .slice(hourlyDayIndex * 24, (hourlyDayIndex + 1) * 24)
-                    .map((h, idx) => (
+                  {visibleHourly.map((h, idx) => (
                       <tr key={idx}>
                         <td>{h.time}</td>
                         <td>

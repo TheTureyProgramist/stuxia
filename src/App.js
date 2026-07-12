@@ -1271,6 +1271,8 @@ const App = () => {
         );
         if (hStartIndex === -1) hStartIndex = 0;
 
+        const hourlyForecastLimit = 7 * 24;
+
         setWeatherCards((prev) => {
           const id = isMain ? "main-card" : cityData?.id || Date.now();
           const existingCard = prev.find((c) => c.id === id);
@@ -1312,11 +1314,17 @@ const App = () => {
               iconPlaceholder: getWeatherIcon(d.current.weather_code),
             },
             hourly: (d.hourly?.time || [])
-              .slice(hStartIndex, hStartIndex + 24)
+              .slice(hStartIndex, hStartIndex + hourlyForecastLimit)
               .map((t, i) => {
                 const dataIdx = hStartIndex + i;
+                const timestamp = new Date(t);
                 return {
-                  time: new Date(t).getHours() + ":00",
+                  time: `${String(timestamp.getHours()).padStart(2, "0")}:00`,
+                  dateLabel: timestamp.toLocaleDateString("uk", {
+                    day: "2-digit",
+                    month: "2-digit",
+                  }),
+                  fullTime: t,
                   temp: `${Math.round(d.hourly?.temperature_2m?.[dataIdx] ?? 0)}°C`,
                   tempNum: Math.round(d.hourly?.temperature_2m?.[dataIdx] ?? 0),
                   feels_like: `${Math.round(d.hourly?.apparent_temperature?.[dataIdx] ?? 0)}°C`,

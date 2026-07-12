@@ -661,6 +661,7 @@ const Modal = ({ onClose, onRegister, availableAvatars = [] }) => {
                 )}
 
                 <Input
+                  name="signup-password-field"
                   type="password"
                   placeholder="Пароль"
                   onChange={(e) =>
@@ -668,6 +669,12 @@ const Modal = ({ onClose, onRegister, availableAvatars = [] }) => {
                   }
                   style={{ marginBottom: formData.password ? "4px" : "8px" }}
                   $isDarkMode={isDarkMode}
+                  autoComplete="new-password"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  data-form-type="other"
+                  data-lpignore="true"
                 />
                 {formData.password && (
                   <>
@@ -707,6 +714,7 @@ const Modal = ({ onClose, onRegister, availableAvatars = [] }) => {
                   </>
                 )}
                 <Input
+                  name="signup-confirm-password-field"
                   type="password"
                   placeholder="Підтвердіть пароль"
                   onChange={(e) =>
@@ -716,6 +724,12 @@ const Modal = ({ onClose, onRegister, availableAvatars = [] }) => {
                     })
                   }
                   $isDarkMode={isDarkMode}
+                  autoComplete="new-password"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  data-form-type="other"
+                  data-lpignore="true"
                 />
                 <CheckboxRow $isDarkMode={isDarkMode}>
                   <input

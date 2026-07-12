@@ -739,6 +739,13 @@ const Aihelp = ({ isDarkMode }) => {
             placeholder="Gemini API Key"
             value={personalApiKey}
             onChange={(e) => saveKeys("gemini", e.target.value)}
+            name="ai-help-gemini-key"
+            autoComplete="off"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            data-form-type="other"
+            data-lpignore="true"
           />
           {!personalApiKey && (
             <GetKeyLink
@@ -767,6 +774,13 @@ const Aihelp = ({ isDarkMode }) => {
             placeholder="OpenAI API Key"
             value={openaiApiKey}
             onChange={(e) => saveKeys("openai", e.target.value)}
+            name="ai-help-openai-key"
+            autoComplete="off"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            data-form-type="other"
+            data-lpignore="true"
           />
           {!openaiApiKey && (
             <GetKeyLink
@@ -798,6 +812,13 @@ const Aihelp = ({ isDarkMode }) => {
             placeholder="Groq API Key"
             value={groqApiKey}
             onChange={(e) => saveKeys("groq", e.target.value)}
+            name="ai-help-groq-key"
+            autoComplete="off"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            data-form-type="other"
+            data-lpignore="true"
           />
           {!groqApiKey && (
             <GetKeyLink

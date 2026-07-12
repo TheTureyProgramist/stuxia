@@ -302,8 +302,9 @@ const ActionButton = styled.button`
 
 const NavItem = styled.div`
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
   padding: 8px 5px;
   margin-bottom: 8px;
   background: ${(props) =>
@@ -537,7 +538,39 @@ const Menu = ({
   const [isRendered, setIsRendered] = useState(false);
   const [newPresetName, setNewPresetName] = useState("");
   const [draggedIndex, setDraggedIndex] = useState(null);
+  const [copiedSectionKey, setCopiedSectionKey] = useState(null);
   const navigate = useNavigate();
+
+  const buildSectionLink = (sectionPath) => {
+    if (typeof window === "undefined") return "";
+
+    const normalizedPath = sectionPath ? `/${sectionPath}`.replace(/\/+/g, "/") : "/";
+    const basePath = `${window.location.origin}${window.location.pathname}`.replace(/\/$/, "");
+    return `${basePath}#${normalizedPath}`;
+  };
+
+  const handleCopySectionLink = async (sectionKey, sectionPath) => {
+    const link = buildSectionLink(sectionPath || sectionKey);
+    if (!link) return;
+
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(link);
+      } else {
+        const tempInput = document.createElement("input");
+        tempInput.value = link;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand("copy");
+        document.body.removeChild(tempInput);
+      }
+
+      setCopiedSectionKey(sectionKey);
+      window.setTimeout(() => setCopiedSectionKey(null), 1500);
+    } catch (error) {
+      console.error("Не вдалося скопіювати посилання секції", error);
+    }
+  };
 
   const handleDragStart = (e, index) => {
     setDraggedIndex(index);
@@ -620,65 +653,118 @@ const Menu = ({
             <MenuSectionTitle>Навігація та порядок</MenuSectionTitle>
             <div style={{ marginTop: "10px" }}>
               {siteSections &&
-                siteSections.map((section, idx) => (
-                  <NavItem key={section.key} $isDarkMode={isDarkMode}>
-                    <NavButton
-                      $isDarkMode={isDarkMode}
-                      onClick={() => handleNavClick(section.key, section.path)}
-                    >
-                      {section.label}
-                    </NavButton>
-                    <ControlButtons>
-                      <OrderButton
-                        $isDarkMode={isDarkMode}
-                        onClick={() => onToggleSectionVisibility?.(section.key)}
-                        title={
-                          hiddenSections?.includes(section.key)
-                            ? "Показати"
-                            : "Приховати"
-                        }
-                        disabled={
-                          !hiddenSections?.includes(section.key) &&
-                          siteSections.length - (hiddenSections?.length || 0) <=
-                            2
-                        }
+                siteSections.map((section, idx) => {
+                  const sectionLink = buildSectionLink(section.path || section.key);
+
+                  return (
+                    <NavItem key={section.key} $isDarkMode={isDarkMode}>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          width: "100%",
+                          gap: "8px",
+                        }}
                       >
-                        {hiddenSections?.includes(section.key) ? "👁️‍🗨️" : "👁️"}
-                      </OrderButton>
-                    </ControlButtons>
-                    <ControlButtons>
-                      <OrderButton
-                        $isDarkMode={isDarkMode}
-                        onClick={() => onToggleSectionTheme?.(section.key)}
-                        title="Змінити тему секції"
+                        <NavButton
+                          $isDarkMode={isDarkMode}
+                          onClick={() => handleNavClick(section.key, section.path)}
+                        >
+                          {section.label}
+                        </NavButton>
+                        <ControlButtons>
+                          <OrderButton
+                            $isDarkMode={isDarkMode}
+                            onClick={() => onToggleSectionVisibility?.(section.key)}
+                            title={
+                              hiddenSections?.includes(section.key)
+                                ? "Показати"
+                                : "Приховати"
+                            }
+                            disabled={
+                              !hiddenSections?.includes(section.key) &&
+                              siteSections.length - (hiddenSections?.length || 0) <=
+                                2
+                            }
+                          >
+                            {hiddenSections?.includes(section.key) ? "👁️‍🗨️" : "👁️"}
+                          </OrderButton>
+                        </ControlButtons>
+                        <ControlButtons>
+                          <OrderButton
+                            $isDarkMode={isDarkMode}
+                            onClick={() => onToggleSectionTheme?.(section.key)}
+                            title="Змінити тему секції"
+                          >
+                            {(sectionThemes?.[section.key] ?? isDarkMode)
+                              ? "🌙"
+                              : "☀️"}
+                          </OrderButton>
+                        </ControlButtons>
+                        {section.key !== "hero" && (
+                          <ControlButtons>
+                            <OrderButton
+                              $isDarkMode={isDarkMode}
+                              disabled={idx <= 1}
+                              onClick={() => moveSiteSection(idx, -1)}
+                              title="Вище"
+                            >
+                              ↑
+                            </OrderButton>
+                            <OrderButton
+                              $isDarkMode={isDarkMode}
+                              disabled={idx === siteSections.length - 1}
+                              onClick={() => moveSiteSection(idx, 1)}
+                              title="Нижче"
+                            >
+                              ↓
+                            </OrderButton>
+                          </ControlButtons>
+                        )}
+                      </div>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexWrap: "wrap",
+                          alignItems: "center",
+                          gap: "6px",
+                          width: "100%",
+                        }}
                       >
-                        {(sectionThemes?.[section.key] ?? isDarkMode)
-                          ? "🌙"
-                          : "☀️"}
-                      </OrderButton>
-                    </ControlButtons>
-                    {section.key !== "hero" && (
-                      <ControlButtons>
-                        <OrderButton
-                          $isDarkMode={isDarkMode}
-                          disabled={idx <= 1}
-                          onClick={() => moveSiteSection(idx, -1)}
-                          title="Вище"
+                        <span
+                          style={{
+                            fontSize: "11px",
+                            color: isRoutingMode ? "#8a8a8a" : isDarkMode ? "#ffb36c" : "#ff005d",
+                            wordBreak: "break-all",
+                            flex: 1,
+                            minWidth: 0,
+                          }}
+                          title={sectionLink}
                         >
-                          ↑
-                        </OrderButton>
-                        <OrderButton
-                          $isDarkMode={isDarkMode}
-                          disabled={idx === siteSections.length - 1}
-                          onClick={() => moveSiteSection(idx, 1)}
-                          title="Нижче"
+                          {sectionLink}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleCopySectionLink(section.key, section.path)}
+                          style={{
+                            border: "none",
+                            borderRadius: "6px",
+                            padding: "4px 8px",
+                            background: isDarkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)",
+                            color: isDarkMode ? "#fff" : "#333",
+                            cursor: "pointer",
+                            fontSize: "11px",
+                            fontWeight: "600",
+                          }}
+                          title="Скопіювати посилання"
                         >
-                          ↓
-                        </OrderButton>
-                      </ControlButtons>
-                    )}
-                  </NavItem>
-                ))}
+                          {copiedSectionKey === section.key ? "✓ Скопійовано" : "📋 Копіювати"}
+                        </button>
+                      </div>
+                    </NavItem>
+                  );
+                })}
             </div>
 
             <button

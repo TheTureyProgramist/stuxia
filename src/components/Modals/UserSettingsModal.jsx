@@ -884,6 +884,7 @@ const UserSettingsModal = ({
                           }}
                         />
                         <Input
+                          name="settings-new-password"
                           type="password"
                           placeholder="Новий пароль"
                           onChange={(e) =>
@@ -895,6 +896,12 @@ const UserSettingsModal = ({
                           style={{
                             marginBottom: formData.newPassword ? "4px" : "8px",
                           }}
+                          autoComplete="new-password"
+                          autoCapitalize="none"
+                          autoCorrect="off"
+                          spellCheck={false}
+                          data-form-type="other"
+                          data-lpignore="true"
                         />
                         {formData.newPassword && (
                           <>
@@ -910,6 +917,7 @@ const UserSettingsModal = ({
                           </>
                         )}
                         <Input
+                          name="settings-confirm-password"
                           type="password"
                           placeholder="Підтвердіть новий пароль"
                           onChange={(e) =>
@@ -918,6 +926,12 @@ const UserSettingsModal = ({
                               confirmPassword: e.target.value,
                             })
                           }
+                          autoComplete="new-password"
+                          autoCapitalize="none"
+                          autoCorrect="off"
+                          spellCheck={false}
+                          data-form-type="other"
+                          data-lpignore="true"
                         />
                       </>
                     )}

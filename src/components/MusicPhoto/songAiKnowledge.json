@@ -1,7 +1,7 @@
 [
   {
     "id": 1,
-    "category": "хіти",
+
     "Режисер": "Орландо Корраді",
     "Актори": "Марко Вівіо, Джулиано Санті, Андреа Уорд, George Castiglia, Даніэль Ди Маттео, Олівьеро Дінеллі, Сільвио Ансельмо, Алессіо Уорд, Леонардо Канева, Патриція Салерно ",
     "Графік серій": "Динофроз - датм виходу серій 2сезону: 26 серія  The Last Secret(Остання таємниця) 2 грудня 2015, 25 серія  Over The Skies Of Rocketown(Над небесами Роктауну) 1 грудня 2015, 24 серія From Father To Son(Від батька до сина) 27 листопада 2015, 23 серія  Unexpected Proposal(Несподівана пропозиція) 26 листопада 2015, 22 серія  The Ive Prison 25 листопада 2015, 21 серія Tower Assault(Штурм вежі) 24 листопада 2015, 20 серія  Mission Incredible(Неймовірна місія) 16 жовтня 2015,  19 серія A New Alliance(Новий союз) 15 жовтня 2015, 18 серія  Face to Face(Віч-на-віч) 14 жовтня 2015, 17 серія  In the Lair of the Enemy(У лігві ворога) 13 жовтня 2015, 16 серія  Acquisition: Triceratops 9 жовтня 2015,  15 серія  The Shadow Of Betrayal(Тінь зради) 8 жовтня 2015,  14 серія  The Day of the Two Stars(День 2 зірок) 7 жовтня 2015, 13 серія  The Power of the DinoWatch 6 жовтня 2015, 12 серія  The Fury of Drakemon 2 жовтня 2015, 11 серія  Codename: Dominion Project 1 жовтня 2015, 10 серія  The Girl With The Jade Eyes(Дівина з Нефритовими очима) 30 вересня 2015,  9 серія  Race Against Time(Гонка проти часу) 29 вересня 2015, 8 серія  The Dragon Slayers 25 вересня 2015, 7 серія  Mystery At The Center Of The Earth(Таємниця в центрі Землі) 24 вересня 2015,  6 серія  The Dragon From The Swamp(Дракон з болота) 23 вересня 2015, 5 серія  The Legend of Firerock 22 вересня 2015, 4 серія  A New Dinofroz 18 вересня 2015, 3 серія  An Island in the Sky(Літаючий острів) 17 вересня 2015, 2 серія The Iron Dinosaur 16 вересня 2015,  1 серія  Return To The Past World(Повернення в доісторичний світ) 15 вересня 2015, 1 сезон 26 серія Все тільки починається(The End of the Beginning) 19 квітня 2014, 1 сезон 25 серія Віч-на-віч(Bare faced) 18 квітня 2014, 1 сезон 24 серія Останнє затемнення(The Last Eclipse) 14 грудня 2012, 1 сезон 23 серія Відчайдушна втеча(Desperate Escape) 13 грудня 2012, 1 сезон 22 серія Mission 'White Dragon' 12 грудня 2012, 1 сезон 21 серія (Тінь ворога)The Shadow of the Enemy 11 грудня 2012, 1 сезон 20 серія Повернення з темряви(Return from the Dark) 17 листопада 2012, 1 сезон 19 серія Зберігач озера(The Guardian of the Lake) 17 листопада 2012, 1 сезон 18 серія The Secret of James 16 листопада 2012, 1 сезон 17 серія Пригоди для шістьох(Adventure for Six) 16 листопада 2012, 1 сезон 16 серія Послання зминулого (Message From the Past) 15 листопада 2012, 1 сезон 15 серія Подвійний обман Double Deception 30 вересня 2012, 1 сезон 14 серія Повстання драконів(The Revolt of the Dragons) 29 вересня 2012,1 сезон 13 серія Hunt for General Treek 28 вересня 2012, 1 сезон 12 серія Місячний острів(The Island of the Moon) 27 вересня 2012, 1 сезон 11 серія Смертельна небезпека(Mortal Danger) 26 вересня 2012, 1 сезон 10 серія Несподівана допомога(An Unexpected Help) 22 вересня 2012, 1 сезон 9 серія Призначення(The Predestined) 21 вересня 2012, 1 сезон 8 серія Занедбаний храм(The Temple of Doom) 20 вересня 2012, 1 сезон 7 серія Жорстокий Ніцерон(Neceron the Mercyless) 19 вересня 2012, 1 сезон 6 серія Землі подрібнених лоз(In the Land of Crushing Liana) 18 вересня 2012, 1 сезон 5 серія Раптовий удар(Surprise Attack) 14 вересня 2012, 1 сезон 4 серія (Новий ворог)A New Enemy 13 вересня 2012, 1 сезон 3 серія The Rockfroz 12 вересня 2012, 1 сезон 2 серія Шаман(The Shaman) 11 вересня 2012, 1 сезон 1 серія Початок(The Origins) 11 вересня 2012 ",
@@ -90,7 +90,7 @@
   },
   {
     "id": 2,
-    "category": "хіти",
+
     "image": "turkeys",
     "audio": "humorAudio",
     "video": "humorVideo",
@@ -206,7 +206,7 @@
   },
   {
     "id": 4,
-    "category": "хіти",
+
     "image": "monody",
     "audio": "monodyAudio",
     "filters": [
@@ -388,7 +388,7 @@
   },
   {
     "id": 7,
-    "category": "хіти",
+
     "author": "SayGames - MyLittleUniverse(Estoty)",
     "text": "Dragonora",
     "audio": "dragonoraAudio",
@@ -396,7 +396,7 @@
   },
   {
     "id": 9,
-    "category": "хіти",
+
     "text": "Asium",
     "author": "SayGames - MyLittleUniverse(Estoty)",
     "audio": "harmonyAudio",
@@ -404,7 +404,7 @@
   },
   {
     "id": 10,
-    "category": "хіти",
+
     "text": "Factorium",
     "author": "SayGames - MyLittleUniverse(Estoty)",
     "audio": "mechaAudio",
@@ -412,7 +412,7 @@
   },
   {
     "id": 12,
-    "category": "хіти",
+
     "text": "Electrodynamix",
     "author": "DJ-Nate",
     "image": "electrodynamix",
@@ -755,9 +755,8 @@
     "image": "fingerdash",
     "symbols": ["♨"],
     "audio": "fingerbang",
-    "text": "Fingerbang(Fingerdash - Full)",
-    "author": "MDK",
-    "category": "хіти",
+    "text": "MDK: Fingerbang(Fingerdash - Full)",
+    "author": "GeometryDash",
     "duration": 140,
     "images": ["fingerdash"],
     "filters": [
@@ -805,7 +804,7 @@
     "image": "theorytwo",
     "audio": "theorytwoAudio",
     "author": "DJ-Nate",
-    "category": "хіти",
+
     "duration": 140,
     "text": "Theory of everything II",
     "images": ["theorytwo"],
@@ -973,9 +972,9 @@
     "id": 17,
     "image": "deadlocked",
     "audio": "deadlockedAudio",
-    "text": "Моторошна, але епічна пісня. Друг фанат цього рівня :).",
-    "author": "Deadlocked - F77(GeometryDash).",
-    "category": "хіти",
+    "text": "Deadlocked(F77)",
+    "author": "GeometryDash",
+
     "duration": 140,
     "images": [
       "deadlocked",
@@ -996,10 +995,7 @@
       "horrorseven",
       "horroreight"
     ],
-    "Чому ми в пісню вставили розмову персонажів?": "Найближчим часом, у Стихії з'явиться сюжет.",
-    "text": "Моторошна, але епічна пісня. Друг фанат цього рівня :).",
-    "author": "Deadlocked - F77(GeometryDash).",
-    "category": "хіти"
+    "Чому ми в пісню вставили розмову персонажів?": "Найближчим часом, у Стихії з'явиться сюжет."
   },
   {
     "id": 18,
@@ -1008,7 +1004,6 @@
     "text": "Theory of everything",
     "symbols": ["✦"],
     "author": "DJ-Nate",
-    "category": "хіти",
     "duration": 140,
     "images": ["theory"],
     "filters": [
@@ -1052,7 +1047,7 @@
     "audio": "unityAudio",
     "text": "Unity",
     "author": "TheFatRat",
-    "category": "хіти",
+
     "duration": 180,
     "images": ["unity"],
     "filters": [
@@ -1085,7 +1080,7 @@
     "audio": "hungerAudio",
     "author": "TheFatRat",
     "text": "Hunger",
-    "category": "хіти",
+
     "duration": 180,
     "images": ["hunger"],
     "Не співпадіння по субтитрам": "При додаванні, вони були змінені для рифми. ",
@@ -1176,7 +1171,7 @@
     "audio": "domino",
     "text": "Болотна крамниця",
     "author": "Моя робота :)",
-    "category": "хіти",
+
     "duration": 140,
     "images": ["horror", "horrortwo", "horrorthree"],
     "Які треки, я використав": "Авторські слова: Трохи свого, трохи з т/с Реальна містика, запис на секунду збився і вставило Ніцерона :) Коли я побачив мені було лінь міняти, то вставив уривок,мще уривок з Динофрозу, можливо це додасть у саунтрек таємничості.",
@@ -1195,7 +1190,7 @@
     "image": "turkeys",
     "audio": "turkeyAudio",
     "text": "Звуки індиків",
-    "category": "хіти",
+
     "duration": 60,
     "author": "Моя робота :)",
     "images": [
@@ -1228,7 +1223,7 @@
     "image": "faded",
     "audio": "fadedAudio",
     "text": "Faded",
-    "category": "хіти",
+
     "duration": 180,
     "images": ["faded"],
     "author": "Alan Walker",
@@ -1287,7 +1282,7 @@
     "image": "turkeys",
     "audio": "turkeyAudio",
     "text": "Звуки індиків",
-    "category": "хіти",
+
     "duration": 60,
     "author": "Моя робота :)",
     "images": [

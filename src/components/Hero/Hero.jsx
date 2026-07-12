@@ -201,7 +201,7 @@ const HeroDiv = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 65px;
+  gap: 15px;
   align-items: center;
   overflow: hidden;
   z-index: 1;
@@ -209,6 +209,7 @@ const HeroDiv = styled.div`
 const HeroDecors = styled.div`
   display: block;
   width: 255px;
+  margin-top: -200px;
   height: 118px;
   background-image: url(${(props) => props.$image});
   background-size: cover;
@@ -219,7 +220,7 @@ const HeroDecors = styled.div`
   animation: ${(props) =>
     props.$start
       ? css`
-          ${slideUpHero} 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards
+          ${slideUpHero} 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards
         `
       : "none"};
 `;
@@ -228,7 +229,7 @@ const DelayedContent = styled.div`
   flex-direction: column;
   align-items: center;
   width: 100%;
-  gap: 70px;
+  gap: 20px;
   opacity: 0;
   animation: ${(props) =>
     props.$start
@@ -236,7 +237,7 @@ const DelayedContent = styled.div`
           ${fadeInContent} 1s ease-out forwards
         `
       : "none"};
-  animation-delay: ${(props) => (props.$start ? "3s" : "0s")};
+  animation-delay: ${(props) => (props.$start ? "1.5s" : "0s")};
 
 `;
 const panAnimation = keyframes`
@@ -249,6 +250,16 @@ const isVideoSource = (src) => {
   if (src instanceof Blob) return src.type.startsWith("video/");
   if (typeof src !== "string") return false;
   return src.includes(".mp4") || src.startsWith("data:video/");
+};
+
+export const mergeCitySuggestions = (existingSuggestions = [], newSuggestions = []) => {
+  const seen = new Set();
+  return [...(existingSuggestions || []), ...(newSuggestions || [])].filter((city) => {
+    const key = `${city?.lat ?? ""}-${city?.lon ?? ""}-${city?.name ?? ""}-${city?.country ?? ""}`;
+    if (!city || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 };
 
 const BgLayerStyled = styled.div`
@@ -634,12 +645,12 @@ const SearchWrapper = styled.div`
 const SearchModeToggle = styled.div`
   display: flex;
   gap: 5px;
-  margin-bottom: 75px;
+  margin-bottom: 15px;
   justify-content: center;
 `;
 
 const ModeButton = styled.button`
-  padding: 8px 16px;
+  padding: 4px;
   background: ${(props) =>
     props.$active ? "#ffb36c" : "rgba(255, 255, 255, 0.1)"};
   color: ${(props) => (props.$active ? "#000" : "#fff")};
@@ -649,7 +660,7 @@ const ModeButton = styled.button`
   cursor: pointer;
   font-weight: 600;
   font-family: var(--font-family);
-  font-size: 12px;
+  font-size: 13px;
   transition: all 0.3s ease;
   backdrop-filter: blur(5px);
 
@@ -658,12 +669,6 @@ const ModeButton = styled.button`
       props.$active ? "#ffb36c" : "rgba(255, 179, 108, 0.2)"};
     border-color: #ffb36c;
   }
-
-  @media (min-width: 768px) {
-    font-size: 14px;
-    padding: 10px 20px;
-  }
-
 `;
 
 const CoordinatesContainer = styled.div`
@@ -688,21 +693,15 @@ const CoordinateInput = styled.div`
   }
 
   input {
-    width: 100px;
+    width: 150px;
     height: 20px;
     padding: 5px 10px;
-    font-size: 10px;
+    font-size: 11px;
     border-radius: 8px;
     border: 1px solid #ffb36c;
-    background: #d9d9d9;
+    background: #ffffff;
     color: #222;
     font-weight: 500;
-
-    @media (min-width: 768px) {
-      width: 120px;
-      height: 25px;
-      font-size: 12px;
-    }
     &::placeholder {
       color: #888;
     }
@@ -757,9 +756,10 @@ const HeroInput = styled.input`
   font-size: 11px;
   color: #222;
   padding-left: 30px;
-  background: #d9d9d9;
-  border-radius: 10px 0 0 10px;
+  background: #ffffff;
+  border-radius: 10px 0 0 0;
   border: none;
+   border-right: 2px solid black;
   outline: none;
   @media (min-width: 768px) {
     font-size: 14px;
@@ -767,17 +767,18 @@ const HeroInput = styled.input`
 `;
 const HeroButton = styled.button`
   position: relative;
-  border-radius: 0 10px 10px 0;
+  border-radius: 0 10px 0px 0;
   width: 30px;
-  height: 33px;
-  background: ${(props) => (props.disabled ? "#ccc" : "yellow")};
+  height: 30px;
+  background: ${(props) => (props.disabled ? "#ffffff" : "yellow")};
   cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
-  border: 2px solid black;
+  border-left: 1px solid black;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
+  margin-top: -1px;
   margin: 0;
   line-height: 1;
   font-size: 20px;
@@ -806,20 +807,19 @@ const HeroButton = styled.button`
 const SuggestionsList = styled.div`
   position: absolute;
   top: 100%;
-  left: 0;
-  width: calc(100% - 2px);
+  justify-content: center;
+  align-items: center;
+  width: 82.4%;
   background: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(10px);
   border-radius: 0 0 15px 15px;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
   z-index: 9999;
   display: flex;
   flex-direction: column;
-  padding: 10px;
-  gap: 8px;
-  max-height: 300px;
+  padding: 5px;
+  height: 230px;
   overflow-y: auto;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid rgb(0, 0, 0);
 
   &::-webkit-scrollbar {
     width: 8px;
@@ -1274,7 +1274,7 @@ const Hero = ({
   const [newDayInput, setNewDayInput] = useState({ date: "", reason: "" });
   const [inputValue, setInputValue] = useState("");
   const [suggestions, setSuggestions] = useState([]);
-  const [limit, setLimit] = useState(5);
+  const [limit, setLimit] = useState(3);
   const [showList, setShowList] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [visibleBgCount, setVisibleBgCount] = useState(30);
@@ -1573,9 +1573,10 @@ const Hero = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const fetchSuggestions = async (currentLimit, value) => {
+  const fetchSuggestions = async (currentLimit, value, append = false) => {
     if (value.trim().length < 3) {
       setSuggestions([]);
+      setShowList(false);
       return;
     }
     try {
@@ -1583,12 +1584,8 @@ const Hero = ({
         `https://api.openweathermap.org/geo/1.0/direct?q=${value}&limit=${currentLimit}&appid=${API_KEY}`,
       );
       const data = await response.json();
-      if (data.length < currentLimit) {
-        setHasMore(false);
-      } else {
-        setHasMore(true);
-      }
-      setSuggestions(data);
+      setHasMore(data.length >= currentLimit);
+      setSuggestions((prev) => (append ? mergeCitySuggestions(prev, data) : data));
       setShowList(true);
     } catch (error) {
       console.error("Помилка API:", error);
@@ -1596,10 +1593,10 @@ const Hero = ({
   };
 
   useEffect(() => {
-    setLimit(5);
+    setLimit(3);
     setHasMore(true);
     const timeoutId = setTimeout(() => {
-      if (inputValue) fetchSuggestions(5, inputValue);
+      if (inputValue) fetchSuggestions(3, inputValue, false);
     }, 500);
     return () => clearTimeout(timeoutId);
   }, [inputValue]);
@@ -1607,9 +1604,9 @@ const Hero = ({
   const handleLoadMore = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    const newLimit = limit + 5;
+    const newLimit = limit + 3;
     setLimit(newLimit);
-    fetchSuggestions(newLimit, inputValue);
+    fetchSuggestions(newLimit, inputValue, true);
   };
 
   useEffect(() => {
@@ -1650,8 +1647,6 @@ const Hero = ({
     }
 
     try {
-      // Обернене геокодування - отримуємо назву місця за координатами
-      // limit=10 щоб отримати варіанти поруч, якщо точних немає
       const response = await fetch(
         `https://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=10&appid=${API_KEY}`,
       );
@@ -1910,6 +1905,9 @@ const Hero = ({
               onChange={(e) =>
                 setNewDayInput({ ...newDayInput, date: e.target.value })
               }
+              autoComplete="off"
+              name="hero-custom-day-date"
+              data-form-type="other"
             />
             <StyledHeroInput
               type="text"
@@ -1917,6 +1915,10 @@ const Hero = ({
               $isError={customHolidayName.length > 12}
               value={customHolidayName}
               onChange={(e) => setCustomHolidayName(e.target.value)}
+              autoComplete="off"
+              name="hero-custom-day-name"
+              data-form-type="other"
+              data-lpignore="true"
             />
             <HeroCharCount $isError={customHolidayName.length > 12}>
               {customHolidayName.length}/12
@@ -2166,6 +2168,16 @@ const Hero = ({
                       : "Уведіть місто, село."
                   }
                   disabled={cooldown > 0}
+                  type="search"
+                  autoComplete="off"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  name="hero-city-search"
+                  inputMode="search"
+                  enterKeyHint="search"
+                  aria-label="Пошук міста"
+                  data-form-type="other"
+                  data-lpignore="true"
                 />
                 {showList && suggestions.length > 0 && (
                   <SuggestionsList>
@@ -2210,7 +2222,7 @@ const Hero = ({
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                gap: "15px",
+                gap: "5px",
                 position: "relative",
               }}
             >
@@ -2218,14 +2230,12 @@ const Hero = ({
                 <CoordinateInput>
                   <label>
                     🧭 Широта (N/S)
-                    <br />
-                    -90 до +90
                   </label>
                   <input
                     type="number"
                     value={latitude}
                     onChange={(e) => setLatitude(e.target.value)}
-                    placeholder="55.75"
+                    placeholder="55.75 від -90 до +90"
                     disabled={cooldown > 0}
                     min="-90"
                     max="90"
@@ -2235,14 +2245,12 @@ const Hero = ({
                 <CoordinateInput>
                   <label>
                     📍 Довгота (E/W)
-                    <br />
-                    -180 до +180
                   </label>
                   <input
                     type="number"
                     value={longitude}
                     onChange={(e) => setLongitude(e.target.value)}
-                    placeholder="37.62"
+                    placeholder="37.62 від -180 до +180"
                     disabled={cooldown > 0}
                     min="-180"
                     max="180"

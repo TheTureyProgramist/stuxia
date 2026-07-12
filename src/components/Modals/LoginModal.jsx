@@ -186,6 +186,7 @@ const LoginModal = ({ onClose, onLogin }) => {
         $isClosing={isClosing}
         onClick={(e) => e.stopPropagation()}
         onSubmit={handleLogin}
+        autoComplete="off"
       >
         <CloseButton onClick={handleClose}>&times;</CloseButton>
         <Title style={{ textAlign: "center" }}>Вхід</Title>
@@ -200,21 +201,28 @@ const LoginModal = ({ onClose, onLogin }) => {
           Використайте Gmail або натисніть «Увійти з Google»
         </div>
         <Input
-          name="email"
+          name="local-email-input"
           type="email"
           placeholder="Ваш Gmail (наприклад: you@gmail.com)"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          autoComplete="username"
+          autoComplete="off"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+          data-form-type="other"
+          data-lpignore="true"
           required
         />
         <Input
-          name="password"
+          name="local-password-input"
           type="password"
           placeholder="Пароль (локальний акаунт)"
           value={pass}
           onChange={(e) => setPass(e.target.value)}
-          autoComplete="current-password"
+          autoComplete="off"
+          data-form-type="other"
+          data-lpignore="true"
           required
         />
         {error && (

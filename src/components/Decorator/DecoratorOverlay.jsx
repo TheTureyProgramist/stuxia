@@ -25,7 +25,7 @@ const isIgnored = (el) => {
 };
 
 const DecoratorOverlay = () => {
-  const { isDecoratorMode, styleOverrides } = useDecorator();
+  const { isDecoratorMode } = useDecorator();
   const [hoveredEl, setHoveredEl] = useState(null);
   const [selectedEl, setSelectedEl] = useState(null);
 

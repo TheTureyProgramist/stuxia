@@ -1736,6 +1736,13 @@ const SongAiModal = ({ track, onClose, isDarkMode }) => {
                   type="password"
                   value={personalApiKey}
                   onChange={(e) => saveKeys("gemini", e.target.value)}
+                  name="music-photo-gemini-key"
+                  autoComplete="off"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  data-form-type="other"
+                  data-lpignore="true"
                   style={{
                     width: "100%",
                     padding: "4px",
@@ -1789,6 +1796,13 @@ const SongAiModal = ({ track, onClose, isDarkMode }) => {
                   type="password"
                   value={groqApiKey}
                   onChange={(e) => saveKeys("groq", e.target.value)}
+                  name="music-photo-groq-key"
+                  autoComplete="off"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  data-form-type="other"
+                  data-lpignore="true"
                   style={{
                     width: "100%",
                     padding: "4px",
@@ -1815,6 +1829,13 @@ const SongAiModal = ({ track, onClose, isDarkMode }) => {
                   type="password"
                   value={openaiApiKey}
                   onChange={(e) => saveKeys("openai", e.target.value)}
+                  name="music-photo-openai-key"
+                  autoComplete="off"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  data-form-type="other"
+                  data-lpignore="true"
                   style={{
                     width: "100%",
                     padding: "4px",

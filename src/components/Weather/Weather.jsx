@@ -9,6 +9,9 @@ import {
   removeCustomDay,
   addCustomDay,
 } from "../../features/counter/Counter.js";
+import {
+  getHourlyForecastDayGroups
+} from "../../utils/hourlyForecast";
 
 const fadeIn = keyframes`from { opacity: 0; } to { opacity: 1; }`;
 
@@ -269,6 +272,7 @@ const WeatherCardComponent = ({
   const [isEditingPrompt, setIsEditingPrompt] = useState(false);
   const [isSummaryExpanded, setIsSummaryExpanded] = useState(false);
   const [hasOverflow, setHasOverflow] = useState(false);
+  const [selectedHourlyDay, setSelectedHourlyDay] = useState(0);
   const summaryRef = useRef(null);
 
   useEffect(() => {
@@ -431,17 +435,21 @@ const WeatherCardComponent = ({
     }
   };
 
+  const hourlyDayGroups = getHourlyForecastDayGroups(card.hourly || []);
+  const visibleHourly = hourlyDayGroups[selectedHourlyDay]?.items || [];
+  const hourlyChartWidth = Math.max(900, (visibleHourly?.length || 24) * 42);
+
   const hourlyChartData = {
-    labels: card.hourly?.map((h) => h.time) || [],
+    labels: visibleHourly?.map((h) => (h.dateLabel ? `${h.dateLabel} ${h.time}` : h.time)) || [],
     datasets: [
       {
         label: "Температура (°C)",
-        data: card.hourly?.map((h) => h.tempNum ?? 0) || [],
+        data: visibleHourly?.map((h) => h.tempNum ?? 0) || [],
         fill: true,
         backgroundColor: "rgba(255, 179, 108, 0.2)",
         borderColor: "rgba(255, 179, 108, 1)",
         pointRadius: 12,
-        pointStyle: card.hourly?.map((h) => {
+        pointStyle: visibleHourly?.map((h) => {
           let danger = null;
           if ((h.tempNum ?? 0) > 30) danger = "#ff0000";
           else if ((h.tempNum ?? 0) < -30) danger = "#004cff";
@@ -453,13 +461,13 @@ const WeatherCardComponent = ({
       },
       {
         label: "Вітер (м/с)",
-        data: card.hourly?.map((h) => h.windNum ?? 0) || [],
+        data: visibleHourly?.map((h) => h.windNum ?? 0) || [],
         borderColor: "rgba(0, 190, 235, 1)",
         backgroundColor: "rgba(0, 190, 235, 0.1)",
         pointRadius: 8,
         pointStyle: "circle",
         pointBackgroundColor:
-          card.hourly?.map((h) =>
+          visibleHourly?.map((h) =>
             (h.windNum ?? 0) > 10 ? "#ff6a00" : "rgba(0, 190, 235, 1)",
           ) || [],
         tension: 0.4,
@@ -665,7 +673,7 @@ const WeatherCardComponent = ({
           },
           afterLabel: (context) => {
             const index = context.dataIndex;
-            const hourlyData = card.hourly?.[index];
+            const hourlyData = visibleHourly?.[index];
             if (context.datasetIndex === 0 && hourlyData) {
               return `${hourlyData.iconPlaceholder} ${getWeatherDescription(parseInt(hourlyData.iconPlaceholder.charCodeAt(0)))}`;
             }
@@ -1316,10 +1324,51 @@ const WeatherCardComponent = ({
             )}
           </AiSummaryBox>
         )}
-        <h4 style={{ margin: "0 0 10px 0" }}>Годинний прогноз:</h4>
-        {card.hourly && card.hourly.length > 0 && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: "10px",
+            margin: "0 0 10px 0",
+            flexWrap: "wrap",
+          }}
+        >
+          <h4 style={{ margin: 0 }}>Годинний прогноз:</h4>
+        </div>
+        {hourlyDayGroups.length > 1 && (
+          <div
+            style={{
+              display: "flex",
+              gap: "6px",
+              marginBottom: "10px",
+              flexWrap: "wrap",
+            }}
+          >
+            {hourlyDayGroups.map((group, index) => (
+              <button
+                key={group.label}
+                onClick={() => setSelectedHourlyDay(index)}
+                style={{
+                  padding: "4px 8px",
+                  borderRadius: "6px",
+                  border: "none",
+                  cursor: "pointer",
+                  background:
+                    selectedHourlyDay === index ? "#00bfff" : isDarkMode ? "#333" : "#ddd",
+                  color: selectedHourlyDay === index ? "#000" : isDarkMode ? "#fff" : "#000",
+                  fontSize: "12px",
+                  fontWeight: "bold",
+                }}
+              >
+                {group.title || group.label}
+              </button>
+            ))}
+          </div>
+        )}
+        {visibleHourly && visibleHourly.length > 0 && (
           <ChartScrollWrapper>
-            <ChartInnerContainer $width={1200} $height="220px">
+            <ChartInnerContainer $width={hourlyChartWidth} $height="220px">
               <Line options={chartOptions} data={hourlyChartData} />
             </ChartInnerContainer>
           </ChartScrollWrapper>
