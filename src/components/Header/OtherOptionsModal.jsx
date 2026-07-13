@@ -815,24 +815,6 @@ const OtherOptionsModal = ({
                 }}
               />
             </OptionRow>
-
-            <OptionRow $isDarkMode={isDarkMode}>
-              <label>Швидкість: {bgMusicSpeed}x</label>
-              <input
-                type="range"
-                min="0.5"
-                max="2"
-                step="0.1"
-                value={bgMusicSpeed}
-                onChange={(e) => setBgMusicSpeed(parseFloat(e.target.value))}
-                style={{
-                  cursor: "pointer",
-                  accentColor: "#ffb36c",
-                  width: "100px",
-                }}
-              />
-            </OptionRow>
-
             <OptionRow $isDarkMode={isDarkMode} style={{ flexDirection: "column", alignItems: "stretch", gap: "10px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <label>Позиція музики</label>

@@ -326,7 +326,7 @@ const AnswerContent = styled.div`
 
 const AcceptBtn = styled.button`
   margin-top: 5px;
-  padding: 6px 20px;
+  padding: 6px 10px;
   background: #8a2be2;
   color: white;
   border: none;
@@ -447,10 +447,10 @@ const ClearBtn = styled.button`
   }
 `;
 
-const InfoModal = ({ onClose, isOpen }) => {
+const InfoModal = ({ onClose, isOpen, initialFaqQuestion }) => {
   const [isClosing, setIsClosing] = useState(false);
   const customDays = useSelector((state) => state.calendar?.customDays || []);
-  const [activeIndex, setActiveIndex] = useState(null);
+  const [activeIndexes, setActiveIndexes] = useState([]);
   const [ratings, setRatings] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("faq");
@@ -588,13 +588,14 @@ const InfoModal = ({ onClose, isOpen }) => {
       .slice(0, 5);
   }, [customDays]);
 
-  if (!isOpen && !isClosing) return null;
-
   const toggleAccordion = (index) => {
-    setActiveIndex(activeIndex === index ? null : index);
+    setActiveIndexes((prev) =>
+      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
+    );
   };
 
-  const faqData = [
+  const faqData = React.useMemo(() => {
+    const baseFaqData = [
     {
       q: "Останнє оновлення",
       a: "Тут текст про нову версію, виправлення помилок та покращення стабільності.",
@@ -618,9 +619,8 @@ const InfoModal = ({ onClose, isOpen }) => {
 3. Авторські права та Комерція
 
 3.1. Платформа надає технічний інструментарій для прослуховування аудіовізуального(Виняток: відеовізуального: Динофроз) контенту. Адміністрація не є власником розміщених треків(Виняток: TheTurkeyStudio) та використовує їх виключно в ознайомчих цілях. Усі права належать їх законним власникам.
-3.2. Генерації користувача: Ви отримуєте право власності на результати своєї творчості, створені за допомогою інструментів сервісу (фан-арти, тексти), та маєте право на їх комерційне використання (продаж у розрукованому вигляді, а у віртуальному з умовою посилання на Стихію). 
-3.3. Зображення оригінальні(але я підняв для напруги, у деяких контрасність, а також чіткість.)
-3.4. Для правовласників, я використовув їхні пісні з метою мотивації переглянути офіційний ресурс. У випадку якщо ви проти розміщення пишіть на емеіл theturkeystudio@gmail.com. Примітка: якщо не вийде домовитись, з розміщенням на сайті ми видалимо пісню через 24год. За умови, доказів, що ви дісно з компанії, а не користувач, що видає себе за неї. Якщо, після скарги ми відправили відповідь, але не отримували відповідь протягом 12днів, ми вважатимемо, що ви передумали.      
+3.2. Генерації користувача: Ви отримуєте право власності на результати своєї творчості, створені за допомогою інструментів деяких сервісу, та маєте право на їх комерційне використання (продаж у друкованому вигляді, а у віртуальному лише показ, без реклами з умовою посилання на Стихію) Роздрукований вигляд повинен мати в кутку ім'я автора, якого ви дістали з сайту.
+3.3. Для правовласників, я використовув їхні пісні з метою мотивації переглянути офіційний ресурс. У випадку якщо ви проти розміщення пишіть на email theturkeystudio@gmail.com. Примітка: якщо не вийде домовитись, з розміщенням на сайті ми видалимо пісню через 24год. За умови, доказів, що ви дійсно представляєте компанію, а не користувач, що видає себе за неї. Якщо, після скарги ми відправили відповідь, але не отримували відповідь протягом 12днів, ми вважатимемо, що ви передумали.      
 
 4. Конфіденційність та Дані
 
@@ -650,10 +650,10 @@ const InfoModal = ({ onClose, isOpen }) => {
       image: preview,
     },
     {
-      q: "Примітки підписок і конвертів",
+      q: "Примітки підписок",
       a: `1.Mісячний/Річний тариф перемикається автоматично! 
       При активній Стихія+ ви можете миттєво перейти на Ultra. 
-      Скасування Ultra, повертає Plus на решту терміну. Помилки оплати повертають гроші 
+      Скасування Ultra, повертає Plus на решту терміну. Помилки оплати повертають гроші.
           2.Коли підписка закінчиться привілегії зникнуть. 
           3.Переваги Plus оптимізовані в Стихія Ultrа, ті що не були вказані в Стихія Ultra(присутні, але ті самі як в Plus)
           4.Початок нової доби о 0:00 за Київським часом.
@@ -672,12 +672,12 @@ const InfoModal = ({ onClose, isOpen }) => {
     },
     {
       q: "Співпраця та поради. Можливсості сайту.",
-      a: "Так! Я можу підказати через email, як отримати доступ до API сайтів та плагінів, які я використовую. А ось можливості сайту: Погода, музика, фан-арти, ШІ, системи: 🧧, 🏆.",
+      a: "Так! Я можу підказати через email, як отримати доступ до API сайтів та плагінів, які я використовую. А ось можливості сайту: Погода, музика, фан-арти, ШІ і т.д.",
       image: might,
     },
     {
       q: "Погода: навчання",
-      a: "Ми маємо прогноз, що зараз, на 24години та на 16днів. За якої умови, прогнозна інформація червона. Якщо прямо зараз температура > 30°C або < -30°C, вітер > 10 м/с або УФ-індекс > 7. Умови попереджень, в наступних версіях, будуть корректніші, якщо ви дасте пораду в зміні лімітів. При вводі міста, дають мітку Червоний знак (!): з'являється, якщо прямо зараз, порушення умови. Оранжевий знак (!): з'являється, якщо такі умови очікуються хоча б в один із найближчих 3-х днів.",
+      a: "Ми маємо прогноз, що зараз, 24годинний(на 7днів, кожнаа доба окремо) та на 16днів. За якої умови, прогнозна інформація червона. Якщо прямо зараз температура > 30°C або < -30°C, вітер > 10 м/с або УФ-індекс > 7. Умови попереджень, в наступних версіях, будуть корректніші, якщо ви дасте пораду в зміні лімітів. При вводі міста, дають мітку Червоний знак (!): з'являється, якщо прямо зараз, порушення умови. Оранжевий знак (!): з'являється, якщо такі умови очікуються хоча б в один із найближчих 3-х днів.",
       image: hills,
     },
     {
@@ -686,8 +686,47 @@ const InfoModal = ({ onClose, isOpen }) => {
       image: logofix,
     },
     {
-      q: "Я втратив акаунт. Чому?",
-      a: "Ваші дані в безпеці, бо ми не зберігаємо їх постійно. Через довготривалу відсутність (2роки) ваш акаунт видаляється.",
+      q: "Навчання по управлінню новинами",
+      a: `У Стихії в розділі новини, ви можете додавати власні новинні сайти: RSS-стрічку. 
+      А у налаштуваннях, ви можете налаштувати автоскрол новин при відкритті сайту, і прибрати заголовок та опис новини
+Примітка: Новини з елементами 18+ казино або політикою, не відображаються. У разі якщо сайт показав політичний елемент, ви можете надіслати скаргу на email! Ми хочемо щоб користувачі Стихії могли бачити к-ка погодних місць одночасно, ностальгувати, слухати музику без лімітів і реклами, а також щоб політичні новини(більшість з яких погані) не псували вам день. 
+Примітка: Якість RSS: Деякі сайти мають "биті" або порожні RSS-стрічки. Якщо ви спробуєте додати таку, вам видасться помилка або нічого не покаже.
+Для перевірки необхідно використати безкоштовні онлайн-валідатори, як-от W3C Feed Validation Service або просто відкрити посилання в браузері.
+Обмеження, які важливо враховувати:
+RSS-формат: Якщо сайт просто "новинний", але не має RSS (наприклад, Facebook або Twitter), ви не зможете його додати. Йому потрібно буде шукати спеціальні сервіси, що конвертують сторінки в RSS (наприклад, RSS.app), але це зазвичай платні послуги.
+Мітка Нове: Видима 1хв після скролу до новини.
+Для тих хто має Google АІ Key, є функція ШІ виклад, чат-бот в плані новини, 1новина=10останніх повідомлень, повне очищення через 24год відсутності питань.
+
+Наука та технології:
+ScienceDaily (Top News): [https://www.sciencedaily.com/rss/top/science.xml](https://www.sciencedaily.com/rss/top/science.xml)
+Nature (Research Highlights): [https://www.nature.com/nature.rss](https://www.nature.com/nature.rss)
+Wired (Technology): [https://www.wired.com/feed/category/science/feed/](https://www.wired.com/feed/category/science/feed/)
+TechCrunch: [https://techcrunch.com/feed/](https://techcrunch.com/feed/)
+NASA (Breaking News): [https://www.nasa.gov/rss/dyn/breaking_news.rss](https://www.nasa.gov/rss/dyn/breaking_news.rss)
+The Verge: [https://www.theverge.com/rss/index.xml](https://www.theverge.com/rss/index.xml)
+
+Світові новини та аналітика:
+BBC News (World): [https://feeds.bbci.co.uk/news/world/rss.xml](https://feeds.bbci.co.uk/news/world/rss.xml)
+Reuters (Top News): [https://feeds.reuters.com/reuters/topNews](https://feeds.reuters.com/reuters/topNews)
+Al Jazeera (English): [https://www.aljazeera.com/xml/rss/all.xml](https://www.aljazeera.com/xml/rss/all.xml)
+The Economist (World): [https://www.economist.com/world/rss.xml](https://www.economist.com/world/rss.xml)
+
+Україна (Українською):
+Українська правда: [https://www.pravda.com.ua/rss/](https://www.pravda.com.ua/rss/)
+NV.ua: [https://nv.ua/rss/all.xml](https://nv.ua/rss/all.xml)
+Суспільне Новини: [https://suspilne.media/feed/news/rss-uk.xml](https://suspilne.media/feed/news/rss-uk.xml)
+Укрінформ: [https://www.ukrinform.ua/rss](https://www.ukrinform.ua/rss)
+
+Бізнес та Економіка:
+Bloomberg (Technology): [https://feeds.bloomberg.com/technology/news.rss](https://feeds.bloomberg.com/technology/news.rss)
+Harvard Business Review: [https://hbr.org/rss/topics/leadership](https://hbr.org/rss/topics/leadership)
+
+Розваги, Культура та Інше:
+IGN (Games): [https://feeds.feedburner.com/ign/news](https://feeds.feedburner.com/ign/news)
+National Geographic: [https://feeds.feedburner.com/ng/science](https://feeds.feedburner.com/ng/science)
+TED Talks: [https://feeds.feedburner.com/TEDTalks_video](https://feeds.feedburner.com/TEDTalks_video)
+Lifehacker: [https://lifehacker.com/rss](https://lifehacker.com/rss)
+`,
       image: null,
     },
     {
@@ -732,18 +771,53 @@ Clubstep: рандомні фільтри.
 `,
       image: null,
     },
-  ];
+    ];
 
-  if (pastEvents.length > 0) {
-    const pastText = pastEvents
-      .map((e) => `• ${e.date}: ${e.reason}`)
-      .join("\n");
-    faqData.unshift({
-      q: "📚 Архів минулих подій (ліміт 5)",
-      a: `Це події, які ви додавали, але їх час уже минув:\n\n${pastText}`,
-      image: null,
-    });
-  }
+    if (pastEvents.length > 0) {
+      const pastText = pastEvents
+        .map((e) => `• ${e.date}: ${e.reason}`)
+        .join("\n");
+      baseFaqData.unshift({
+        q: "📚 Архів минулих подій (ліміт 5)",
+        a: `Це події, які ви додавали, але їх час уже минув:\n\n${pastText}`,
+        image: null,
+      });
+    }
+
+    return baseFaqData;
+  }, [pastEvents]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setActiveIndexes([]);
+      return;
+    }
+
+    const newActiveIndexes = [];
+
+    if (initialFaqQuestion) {
+      const matchingIndex = faqData.findIndex(
+        (item) => item.q === initialFaqQuestion,
+      );
+      if (matchingIndex >= 0) {
+        newActiveIndexes.push(matchingIndex);
+        setActiveTab("faq");
+      }
+    }
+
+    const latestUpdateIndex = faqData.findIndex(
+      (item) => item.q === "Останнє оновлення",
+    );
+
+    if (latestUpdateIndex >= 0 && !newActiveIndexes.includes(latestUpdateIndex)) {
+      newActiveIndexes.push(latestUpdateIndex);
+      setActiveTab("faq");
+    }
+
+    setActiveIndexes(newActiveIndexes);
+  }, [faqData, initialFaqQuestion, isOpen]);
+
+  if (!isOpen && !isClosing) return null;
 
   const handleAskAi = async () => {
     if (!searchQuery.trim() || isAiLoading) return;
@@ -775,9 +849,9 @@ Clubstep: рандомні фільтри.
           const lyricsSum =
             s.lyrics && Array.isArray(s.lyrics)
               ? s.lyrics
-                  .map((l) => `${l.time}s:${l.text}`)
-                  .join("|")
-                  .substring(0, 100)
+                .map((l) => `${l.time}s:${l.text}`)
+                .join("|")
+                .substring(0, 100)
               : "no";
           const filtersSum =
             s.filters && Array.isArray(s.filters)
@@ -947,7 +1021,7 @@ Clubstep: рандомні фільтри.
                 </StopBtn>
               ) : (
                 <AcceptBtn
-                  style={{ marginTop: 0, padding: "0 15px" }}
+                  style={{ marginTop: 0, padding: "0 4px" }}
                   onClick={handleAskAi}
                 >
                   Запитати
@@ -994,11 +1068,11 @@ Clubstep: рандомні фільтри.
                             <IoHeartDislikeSharp />
                           )}
                         </LikeButton>
-                        <Arrow $isOpen={activeIndex === originalIndex}>▼</Arrow>
+                        <Arrow $isOpen={activeIndexes.includes(originalIndex)}>▼</Arrow>
                       </ArrowContainer>
                     </QuestionContent>
                   </Question>
-                  <Answer $isOpen={activeIndex === originalIndex}>
+                  <Answer $isOpen={activeIndexes.includes(originalIndex)}>
                     <AnswerContent>
                       {item.image && (
                         <>

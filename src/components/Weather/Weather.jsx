@@ -15,12 +15,12 @@ import {
 
 const fadeIn = keyframes`from { opacity: 0; } to { opacity: 1; }`;
 
-const AihelpTitle = styled.div`
+export const AihelpTitle = styled.div`
   font-size: 14px;
   text-align: center;
   font-family: var(--font-family);
   font-weight: 600;
-  color: ${(props) => (props.$isDarkMode ? "black" : "white")};
+  color: ${(props) => (props.$isDarkMode ? "white" : "#000")};
   margin-bottom: 15px;
   @media (min-width: 768px) {
     font-size: 24px;
@@ -814,7 +814,6 @@ const WeatherCardComponent = ({
     <div
       style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
     >
-      <AihelpTitle>Погода</AihelpTitle>
       <OrderControls $isDarkMode={isDarkMode}>
         <button
           disabled={index === 0}

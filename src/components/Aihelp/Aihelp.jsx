@@ -98,17 +98,39 @@ const GetKeyLink = styled.a`
 
 const LengthSettings = styled.div`
   display: flex;
-  gap: 15px;
+  gap: 8px;
   margin-top: 5px;
   border-top: 1px dashed rgba(128, 128, 128, 0.3);
   padding-top: 10px;
+  flex-wrap: wrap;
+`;
 
-  label {
-    font-size: 11px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    cursor: pointer;
+const SettingsGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 180px;
+`;
+
+const GroupLabel = styled.div`
+  font-size: 11px;
+  font-weight: 700;
+  color: orange;
+`;
+
+const LengthButton = styled.button`
+  border: 1px solid orange;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 11px;
+  cursor: pointer;
+  background: ${(props) => (props.$active ? "orange" : "transparent")};
+  color: ${(props) => (props.$active ? "#000" : props.$isDarkMode ? "white" : "black")};
+  font-weight: ${(props) => (props.$active ? "700" : "500")};
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: translateY(-1px);
   }
 `;
 
@@ -292,6 +314,26 @@ const ErrorBox = styled.div`
   gap: 10px;
 `;
 
+export const getResponseLengthInstruction = (responseLength) => {
+  if (responseLength === "detailed") {
+    return { label: "Більше", instruction: "Докладно." };
+  }
+  if (responseLength === "normal") {
+    return { label: "Нормально", instruction: "Нормально." };
+  }
+  return { label: "Менше", instruction: "Коротко." };
+};
+
+export const getResponseStyleInstruction = (responseStyle) => {
+  if (responseStyle === "scientific") {
+    return { label: "Науково", instruction: "Використовуй науковий стиль, чітко, з термінами і логікою." };
+  }
+  if (responseStyle === "friendly") {
+    return { label: "Дружньо", instruction: "Використовуй дружній, теплий і простий стиль." };
+  }
+  return { label: "Стандартно", instruction: "Використовуй нейтральний стиль." };
+};
+
 const Aihelp = ({ isDarkMode }) => {
   const [prompt, setPrompt] = useState("");
   const [messages, setMessages] = useState([]);
@@ -302,7 +344,8 @@ const Aihelp = ({ isDarkMode }) => {
   const [groqKeyStatus, setGroqKeyStatus] = useState("idle");
   const [geminiModel, setGeminiModel] = useState("gemini-2.5-flash");
 
-  const [responseLength, setResponseLength] = useState("concise");
+  const [responseLength, setResponseLength] = useState("normal");
+  const [responseStyle, setResponseStyle] = useState("friendly");
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState("");
@@ -569,9 +612,13 @@ const Aihelp = ({ isDarkMode }) => {
         const genAI = new GoogleGenerativeAI(personalApiKey);
         const model = genAI.getGenerativeModel({ model: geminiModel });
 
-        const lengthInstr =
-          responseLength === "detailed" ? "Докладно." : "Коротко.";
-        const fullPrompt = `${lengthInstr} Запитання: ${originalPrompt}`;
+        const { instruction: lengthInstr } = getResponseLengthInstruction(
+          responseLength,
+        );
+        const { instruction: styleInstr } = getResponseStyleInstruction(
+          responseStyle,
+        );
+        const fullPrompt = `${lengthInstr} ${styleInstr} Запитання: ${originalPrompt}`;
 
         let parts = [{ text: fullPrompt }];
         for (const fileObj of selectedFiles) {
@@ -626,7 +673,9 @@ const Aihelp = ({ isDarkMode }) => {
                 content:
                   responseLength === "detailed"
                     ? "Ти відповідаєш максимально докладно."
-                    : "Ти відповідаєш максимально стисло.",
+                    : responseLength === "normal"
+                      ? "Ти відповідаєш нормально, у середньому обсязі."
+                      : "Ти відповідаєш максимально стисло.",
               },
               ...conversation,
             ],
@@ -832,24 +881,65 @@ const Aihelp = ({ isDarkMode }) => {
         </ProviderRow>
 
         <LengthSettings>
-          <label>
-            <input
-              type="radio"
-              name="len"
-              checked={responseLength === "concise"}
-              onChange={() => setResponseLength("concise")}
-            />
-            Стисла відповідь
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="len"
-              checked={responseLength === "detailed"}
-              onChange={() => setResponseLength("detailed")}
-            />
-            Докладна відповідь
-          </label>
+          <SettingsGroup>
+            <GroupLabel>Обсяг</GroupLabel>
+            <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+              <LengthButton
+                type="button"
+                $active={responseLength === "concise"}
+                $isDarkMode={isDarkMode}
+                onClick={() => setResponseLength("concise")}
+              >
+                Менше
+              </LengthButton>
+              <LengthButton
+                type="button"
+                $active={responseLength === "normal"}
+                $isDarkMode={isDarkMode}
+                onClick={() => setResponseLength("normal")}
+              >
+                Нормально
+              </LengthButton>
+              <LengthButton
+                type="button"
+                $active={responseLength === "detailed"}
+                $isDarkMode={isDarkMode}
+                onClick={() => setResponseLength("detailed")}
+              >
+                Більше
+              </LengthButton>
+            </div>
+          </SettingsGroup>
+
+          <SettingsGroup>
+            <GroupLabel>Стиль</GroupLabel>
+            <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+              <LengthButton
+                type="button"
+                $active={responseStyle === "friendly"}
+                $isDarkMode={isDarkMode}
+                onClick={() => setResponseStyle("friendly")}
+              >
+                Дружньо
+              </LengthButton>
+              <LengthButton
+                type="button"
+                $active={responseStyle === "standard"}
+                $isDarkMode={isDarkMode}
+                onClick={() => setResponseStyle("standard")}
+              >
+                Стандартно
+              </LengthButton>
+              <LengthButton
+                type="button"
+                $active={responseStyle === "scientific"}
+                $isDarkMode={isDarkMode}
+                onClick={() => setResponseStyle("scientific")}
+              >
+                Науково
+              </LengthButton>
+            </div>
+          </SettingsGroup>
         </LengthSettings>
       </SettingsPanel>
 
@@ -956,10 +1046,10 @@ const Aihelp = ({ isDarkMode }) => {
           )}
           <MiniButton
             onClick={clearHistory}
-            title="Очистити чат"
+            title="Видалити всі повідомлення"
             $isDarkMode={isDarkMode}
           >
-            🗑️
+            🧹 Видалити всі
           </MiniButton>
           <MiniButton
             $primary

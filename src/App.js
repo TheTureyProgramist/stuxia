@@ -15,7 +15,7 @@ import localforage from "localforage";
 import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 //import { useSelector } from "react-redux";
 import Loader from "./components/Loader/Loader.jsx";
-import WeatherCardComponent from "./components/Weather/Weather.jsx";
+import WeatherCardComponent, { AihelpTitle } from "./components/Weather/Weather.jsx";
 import NotFound from "./components/NotFound.jsx";
 import fogBackground from "./photos/hero-header/fogtwo.webp";
 import {
@@ -316,6 +316,7 @@ const SectionContent = memo(
     if (section.key === "weather") {
       return (
         <div id="weather">
+          <AihelpTitle $isDarkMode={isDarkMode}>Погода</AihelpTitle>
           <WeatherCardsContainer>
             {weatherCards.map((card, index) => {
               const isExtremeTemp =
@@ -359,7 +360,7 @@ const SectionContent = memo(
       <div id={section.key}>
         {section.key === "map" && <ClimateMap />}
         {section.key === "aihelp" && <Aihelp isDarkMode={isDarkMode} />}
-        {section.key === "news" && <News />}
+        {section.key === "news" && <News user={user} $isDarkMode={isDarkMode} />}
         {section.key === "music" && (
           <MusicPhoto
             user={user}

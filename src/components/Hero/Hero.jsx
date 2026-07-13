@@ -816,8 +816,7 @@ const SuggestionsList = styled.div`
   z-index: 9999;
   display: flex;
   flex-direction: column;
-  padding: 5px;
-  height: 230px;
+  height: 150px;
   overflow-y: auto;
   border: 1px solid rgb(0, 0, 0);
 
@@ -837,7 +836,7 @@ const SuggestionsList = styled.div`
 const SuggestionItem = styled.button`
   width: 100%;
   text-align: left;
-  padding: 10px 15px;
+  padding: 2px;
   background: white;
   border: 1px solid #eee;
   border-radius: 8px;
@@ -854,14 +853,13 @@ const SuggestionItem = styled.button`
 
 const LoadMoreButton = styled.button`
   width: 100%;
-  padding: 12px;
+  padding: 8px;
   background: ${(props) => (props.disabled ? "#eee" : "gold")};
   color: ${(props) => (props.disabled ? "#999" : "black")};
   border: 2px solid ${(props) => (props.disabled ? "#ccc" : "#b8860b")};
   border-radius: 8px;
   font-weight: bold;
   cursor: ${(props) => (props.disabled ? "default" : "pointer")};
-  margin-top: 5px;
   font-size: 13px;
   &:hover {
     background: ${(props) => (props.disabled ? "#eee" : "#ffcc00")};

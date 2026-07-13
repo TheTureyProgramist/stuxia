@@ -514,6 +514,7 @@ const UserSettingsModal = ({
     hour12: user?.hour12 === true,
     voiceActingMode: user?.voiceActingMode || "malyatko",
     showUpdateTimer: showUpdateTimer !== false,
+    newsAutoScroll: user?.newsAutoScroll || false,
   });
   const [showTerms, setShowTerms] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
@@ -590,6 +591,7 @@ const UserSettingsModal = ({
       voiceActingMode: newFormData.voiceActingMode,
       showUpdateTimer: newFormData.showUpdateTimer,
       newsLayout: updates.newsLayout || newsLayout,
+      newsAutoScroll: updates.newsAutoScroll ?? newFormData.newsAutoScroll,
     });
   };
 
@@ -650,6 +652,7 @@ const UserSettingsModal = ({
       voiceActingMode: formData.voiceActingMode,
       showUpdateTimer: formData.showUpdateTimer, // Save new setting
       newsLayout: newsLayout,
+      newsAutoScroll: formData.newsAutoScroll,
       ...(formData.newPassword
         ? {
             oldPassword: formData.oldPassword,
@@ -698,13 +701,7 @@ const UserSettingsModal = ({
   };
 
   const toggleNewsBlockVisibility = (key) => {
-    const visibleCount = newsLayout.filter((b) => b.visible).length;
-    const block = newsLayout.find((b) => b.key === key);
-
-    if (block.visible && visibleCount <= 1) {
-      alert("Має бути видимим хоча б один елемент!");
-      return;
-    }
+    if (key === "image") return;
 
     const newLayout = newsLayout.map((b) =>
       b.key === key ? { ...b, visible: !b.visible } : b,
@@ -1306,32 +1303,50 @@ const UserSettingsModal = ({
                     >
                       Виберіть, які елементи новин відображати.
                     </p>
-                    {newsLayout.map((block) => (
-                      <div
-                        key={block.key}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          background: "rgba(255,255,255,0.3)",
-                          padding: "5px 10px",
-                          borderRadius: "8px",
-                          marginBottom: "4px",
-                        }}
-                      >
-                        <CheckboxRow style={{ flex: 1 }}>
-                          <input
-                            type="checkbox"
-                            checked={block.visible}
-                            onChange={() =>
-                              toggleNewsBlockVisibility(block.key)
-                            }
-                          />
-                          <span style={{ fontSize: "12px", fontWeight: 500 }}>
-                            {NEWS_BLOCK_LABELS[block.key]}
-                          </span>
-                        </CheckboxRow>
-                      </div>
-                    ))}
+                    <CheckboxRow style={{ marginBottom: "6px" }}>
+                      <input
+                        type="checkbox"
+                        checked={formData.newsAutoScroll}
+                        onChange={(e) =>
+                          updateLivePreview({ newsAutoScroll: e.target.checked })
+                        }
+                      />
+                      <span style={{ fontSize: "12px", fontWeight: 500 }}>
+                        Автопрокрутка до новин при відкритті сайту
+                      </span>
+                    </CheckboxRow>
+                    {newsLayout.map((block) => {
+                      const isImageBlock = block.key === "image";
+                      return (
+                        <div
+                          key={block.key}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            background: "rgba(255,255,255,0.3)",
+                            padding: "5px 10px",
+                            borderRadius: "8px",
+                            marginBottom: "4px",
+                          }}
+                        >
+                          <CheckboxRow style={{ flex: 1 }}>
+                            <input
+                              type="checkbox"
+                              checked={isImageBlock || block.visible}
+                              disabled={isImageBlock}
+                              onChange={() =>
+                                toggleNewsBlockVisibility(block.key)
+                              }
+                            />
+                            <span style={{ fontSize: "12px", fontWeight: 500 }}>
+                              {isImageBlock
+                                ? `${NEWS_BLOCK_LABELS[block.key]} (завжди видно)`
+                                : NEWS_BLOCK_LABELS[block.key]}
+                            </span>
+                          </CheckboxRow>
+                        </div>
+                      );
+                    })}
                   </Section>
                 );
               }
@@ -1356,16 +1371,12 @@ const UserSettingsModal = ({
               readOnly
               style={{ accentColor: "#ffb36c" }}
             />
-            <label>
+            <span>
               Ви погодились з{" "}
-              <TermsBtn
-                onClick={(e) => {
-                  setShowTerms(true);
-                }}
-              >
+              <TermsBtn onClick={() => setShowTerms(true)}>
                 Угодою
               </TermsBtn>
-            </label>
+            </span>
           </CheckboxRow>
           <div style={{ display: "flex", gap: "4px", marginTop: "3px" }}>
             <CancelButton onClick={handleCancel}>Скасувати</CancelButton>

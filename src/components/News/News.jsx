@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import localforage from "localforage";
 import rainbow from "../../photos/vip-images/stars.webp";
 import NewsAiModal from "./NewsAiModal";
+import InfoModal from "../Modals/UserSearchModal.jsx";
 
 const fadeIn = keyframes`
   from { opacity: 0; }
@@ -52,7 +53,7 @@ const AihelpTitle = styled.div`
   text-align: center;
   font-family: var(--font-family);
   font-weight: 600;
-  color: ${(props) => (props.$isDarkMode ? "black" : "white")};
+  color: ${(props) => (props.$isDarkMode ? "white" : "black")};
   margin-bottom: 15px;
   @media (min-width: 768px) {
     font-size: 24px;
@@ -337,7 +338,7 @@ const FilterContainer = styled.div`
 
 const FilterBtn = styled.button`
   background: ${(props) => (props.$active ? "#ffb36c" : "transparent")};
-  color: ${(props) => (props.$active ? "#000" : props.$isDarkMode ? "#666" : "#ccc")};
+  color: ${(props) => (props.$active ? "#000" : props.$isDarkMode ? "#ffffff" : "#000000")};
   border: 1px solid #ffb36c;
   border-radius: 20px;
   padding: 4px 10px;
@@ -356,12 +357,12 @@ const FilterBtn = styled.button`
 const RefreshBtn = styled.button`
   background: none;
   border: 1px solid
-    ${(props) => (props.$isDarkMode ? "rgba(0,0,0,0.2)" : "rgba(255,255,255,0.3)")};
-  color: ${(props) => (props.$isDarkMode ? "#666" : "#ccc")};
+    ${(props) => (props.$isDarkMode ? "rgba(255, 255, 255, 0.2)" : "rgba(0, 0, 0, 0.3)")};
+  color: ${(props) => (props.$isDarkMode ? "#ffffff" : "#000000")};
   border-radius: 12px;
   padding: 2px 10px;
   font-size: 11px;
-  margin-left: 12px;
+  margin-left: 4px;
   cursor: pointer;
   transition: all 0.2s ease;
   font-weight: 500;
@@ -410,6 +411,7 @@ const News = ({ $isDarkMode, user }) => {
 
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [selectedNews, setSelectedNews] = useState(null);
+  const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
 
   const [customSources, setCustomSources] = useState([]);
   const [newUrl, setNewUrl] = useState("");
@@ -417,6 +419,7 @@ const News = ({ $isDarkMode, user }) => {
 
   // 1. Стан розмонтування для Memory Leak Protection
   const isMounted = useRef(true);
+  const newsSectionRef = useRef(null);
 
   useEffect(() => {
     isMounted.current = true;
@@ -429,6 +432,19 @@ const News = ({ $isDarkMode, user }) => {
       isMounted.current = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (!user?.newsAutoScroll) return;
+
+    const timer = window.setTimeout(() => {
+      newsSectionRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 300);
+
+    return () => window.clearTimeout(timer);
+  }, [user?.newsAutoScroll]);
 
   const getData = useCallback(async (showLoader = false) => {
     if (showLoader && isMounted.current) {
@@ -723,25 +739,25 @@ const News = ({ $isDarkMode, user }) => {
   const layout = user?.newsLayout || [];
   const isVisible = (key) =>
     layout.find((item) => item.key === key)?.visible !== false;
-  const showImage = isVisible("image");
+  const showImage = true;
   const showTitle = isVisible("title");
   const showDescription = isVisible("description");
 
   return (
-    <NewsDiv>
+    <NewsDiv ref={newsSectionRef}>
       <AihelpTitle $isDarkMode={$isDarkMode}>
-        Новини та реклама
+        Новини
         {lastUpdated && (
           <span
             style={{
               fontSize: "0.55em",
               opacity: 0.6,
-              marginLeft: "12px",
+              marginLeft: "5px",
               fontWeight: "400",
               verticalAlign: "middle",
             }}
           >
-            (Оновлено:{" "}
+            (UPD:{" "}
             {lastUpdated.toLocaleTimeString("uk-UA", {
               hour: "2-digit",
               minute: "2-digit",
@@ -765,6 +781,13 @@ const News = ({ $isDarkMode, user }) => {
               ? `⏳ ${cooldown}с`
               : "🔄 Оновити"}
         </RefreshBtn>
+        <FilterBtn
+          $isDarkMode={$isDarkMode}
+          onClick={() => setIsHelpModalOpen(true)}
+          style={{ marginLeft: "1px", padding: "2px 10px", fontSize: "11px" }}
+        >
+          📘 Шаблони новин
+        </FilterBtn>
       </AihelpTitle>
       <FilterContainer>
         <FilterBtn
@@ -955,6 +978,13 @@ const News = ({ $isDarkMode, user }) => {
           onClose={() => setIsAiModalOpen(false)}
           newsItem={selectedNews}
           isDarkMode={$isDarkMode}
+        />
+      )}
+      {isHelpModalOpen && (
+        <InfoModal
+          isOpen={isHelpModalOpen}
+          onClose={() => setIsHelpModalOpen(false)}
+          initialFaqQuestion="Навчання по управлінню новинами"
         />
       )}
     </NewsDiv>
