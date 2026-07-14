@@ -7,6 +7,8 @@ import {
 import styled, { keyframes, css } from "styled-components";
 import InfoModal from "./UserSearchModal.jsx";
 import KatSceneModal from "./KatSceneModal";
+import { auth, googleProvider } from "../../firebase";
+import { linkWithPopup } from "firebase/auth";
 const slideIn = keyframes`
   0% { 
     transform: translateY(100%) scale(0.5);
@@ -489,12 +491,20 @@ const UserSettingsModal = ({
   const customDays = useSelector((state) => state.calendar?.customDays || []);
   const [newDay, setNewDay] = useState({ d: "", m: "", reason: "" });
 
-  const [y, m, d] = user?.birthDate ? user.birthDate.split("-") : ["", "", ""];
+  let initialY = "", initialM = "", initialD = "";
+  if (user?.birthDate) {
+    if (user.birthDate.includes("-")) {
+      [initialY, initialM, initialD] = user.birthDate.split("-");
+    } else if (user.birthDate.includes(".")) {
+      [initialD, initialM, initialY] = user.birthDate.split(".");
+    }
+  }
+
   const [formData, setFormData] = useState({
     name: user?.firstName || "",
-    day: parseInt(d) || "",
-    month: parseInt(m) || "",
-    year: parseInt(y) || "",
+    day: parseInt(initialD) || "",
+    month: parseInt(initialM) || "",
+    year: parseInt(initialY) || "",
     oldPassword: "",
     newPassword: "",
     confirmPassword: "",
@@ -509,6 +519,7 @@ const UserSettingsModal = ({
           : 0,
     textColor: user?.textColor || "grey",
     borderColor: user?.borderColor || "grey",
+    fontFamily: user?.fontFamily || "",
     showSeconds: user?.showSeconds !== false,
     dateDisplayMode: user?.dateDisplayMode || "both",
     hour12: user?.hour12 === true,
@@ -585,6 +596,7 @@ const UserSettingsModal = ({
       birthDate: `${newFormData.year}-${newFormData.month.toString().padStart(2, "0")}-${newFormData.day.toString().padStart(2, "0")}`,
       textColor: newFormData.textColor,
       borderColor: newFormData.borderColor,
+      fontFamily: newFormData.fontFamily,
       showSeconds: newFormData.showSeconds,
       dateDisplayMode: newFormData.dateDisplayMode,
       hour12: newFormData.hour12,
@@ -604,6 +616,19 @@ const UserSettingsModal = ({
       date.getDate() !== parseInt(formData.day)
     );
   }, [formData.day, formData.month, formData.year]);
+
+  const calculateAge = (d, m, y) => {
+    if (!d || !m || !y) return null;
+    const today = new Date();
+    const birth = new Date(y, m - 1, d);
+    if (isNaN(birth.getTime())) return null;
+    let age = today.getFullYear() - birth.getFullYear();
+    const mDiff = today.getMonth() - birth.getMonth();
+    if (mDiff < 0 || (mDiff === 0 && today.getDate() < birth.getDate())) age--;
+    return age;
+  };
+  const currentAge = calculateAge(formData.day, formData.month, formData.year);
+
   const getPasswordStrength = (password) => {
     if (!password) return { width: "0%", color: "transparent", label: "" };
     let score = 0;
@@ -646,6 +671,7 @@ const UserSettingsModal = ({
       birthDate: `${formData.year}-${formData.month.toString().padStart(2, "0")}-${formData.day.toString().padStart(2, "0")}`,
       textColor: formData.textColor,
       borderColor: formData.borderColor,
+      fontFamily: formData.fontFamily,
       showSeconds: formData.showSeconds,
       dateDisplayMode: formData.dateDisplayMode,
       hour12: formData.hour12,
@@ -809,7 +835,11 @@ const UserSettingsModal = ({
               } else if (section === "birthDate") {
                 content = (
                   <Section key="birthDate">
-                    {renderSectionHeader(section, idx, "Дата народження")}
+                    {renderSectionHeader(
+                      section, 
+                      idx, 
+                      `Дата народження ${currentAge !== null && !isInvalidDate ? `(Вік: ${currentAge})` : ""}`
+                    )}
                     <DateRow>
                       <Select
                         value={formData.day}
@@ -868,6 +898,37 @@ const UserSettingsModal = ({
                       </div>
                     ) : (
                       <>
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            if (!auth.currentUser) return alert("Потрібно авторизуватись в системі!");
+                            try {
+                              await linkWithPopup(auth.currentUser, googleProvider);
+                              alert("Google акаунт успішно прив'язано!");
+                            } catch (error) {
+                              if (error.code === 'auth/credential-already-in-use') {
+                                alert("Цей Google акаунт вже прив'язаний до іншого профілю!");
+                              } else if (error.code === 'auth/cancelled-popup-request' || error.code === 'auth/popup-closed-by-user') {
+                                // Ігноруємо скасування користувачем
+                              } else {
+                                alert("Помилка прив'язки: " + error.message);
+                              }
+                            }
+                          }}
+                          style={{
+                            background: "#4285f4",
+                            color: "white",
+                            border: "none",
+                            padding: "8px",
+                            borderRadius: "8px",
+                            fontWeight: "bold",
+                            cursor: "pointer",
+                            marginBottom: "10px",
+                            fontSize: "14px",
+                          }}
+                        >
+                          🔗 Прив'язати Google
+                        </button>
                         <Input
                           type="password"
                           placeholder="Поточний пароль"
@@ -951,6 +1012,14 @@ const UserSettingsModal = ({
                         />
                       ))}
                     </ColorContainer>
+                    <Input
+                      placeholder="Власний колір (напр. rgba(255, 0, 0, 0.5) або #ff00ff)"
+                      value={formData.textColor}
+                      onChange={(e) =>
+                        setFormData({ ...formData, textColor: e.target.value })
+                      }
+                      style={{ marginTop: "5px" }}
+                    />
                   </Section>
                 );
               } else if (section === "borderColor") {
@@ -973,6 +1042,14 @@ const UserSettingsModal = ({
                         />
                       ))}
                     </ColorContainer>
+                    <Input
+                      placeholder="Власний колір (напр. rgba(255, 0, 0, 0.5) або #ff00ff)"
+                      value={formData.borderColor}
+                      onChange={(e) =>
+                        setFormData({ ...formData, borderColor: e.target.value })
+                      }
+                      style={{ marginTop: "5px" }}
+                    />
                   </Section>
                 );
               } else if (section === "avatar") {
@@ -1218,6 +1295,17 @@ const UserSettingsModal = ({
                       />
                       <label>Показувати таймер оновлення погоди</label>
                     </CheckboxRow>
+                    <div style={{ marginTop: "10px" }}>
+                      <label style={{ fontSize: "13px", fontWeight: "bold" }}>Власний шрифт (Google Fonts)</label>
+                      <Input
+                        placeholder="Назва шрифту (напр. Roboto, Open Sans)"
+                        value={formData.fontFamily}
+                        onChange={(e) =>
+                          updateLivePreview({ fontFamily: e.target.value })
+                        }
+                        style={{ marginTop: "5px" }}
+                      />
+                    </div>
                   </Section>
                 );
               } else if (section === "weatherLayout") {

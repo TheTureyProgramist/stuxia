@@ -434,7 +434,7 @@ const News = ({ $isDarkMode, user }) => {
   }, []);
 
   useEffect(() => {
-    if (!user?.newsAutoScroll) return;
+    if (user?.newsAutoScroll !== true) return;
 
     const timer = window.setTimeout(() => {
       newsSectionRef.current?.scrollIntoView({

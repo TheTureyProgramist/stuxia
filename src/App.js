@@ -736,6 +736,27 @@ const App = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  // Підключення власного шрифту
+  useEffect(() => {
+    if (user?.fontFamily) {
+      const fontName = user.fontFamily.trim().replace(/ /g, "+").replace(/['"]/g, '');
+      const linkId = "custom-google-font";
+      let link = document.getElementById(linkId);
+      if (!link) {
+        link = document.createElement("link");
+        link.id = linkId;
+        link.rel = "stylesheet";
+        document.head.appendChild(link);
+      }
+      link.href = `https://fonts.googleapis.com/css2?family=${fontName}:wght@400;700;900&display=swap`;
+      
+      document.documentElement.style.setProperty('--font-family', `"${user.fontFamily.replace(/['"]/g, '')}", sans-serif`);
+    } else {
+      document.getElementById("custom-google-font")?.remove();
+      document.documentElement.style.removeProperty('--font-family');
+    }
+  }, [user?.fontFamily]);
+
   // Відстеження взаємодії (клік або скрол)
   useEffect(() => {
     const handleInteraction = () => {
@@ -1675,7 +1696,7 @@ const App = () => {
 
       const timePart =
         mode === "time" || mode === "both"
-          ? `${p("hour")}:${p("minute")}${showSeconds ? ":" + p("second") : ""}`
+          ? `${p("hour")}:${p("minute")}${showSeconds ? ":" + p("second") : ""}${hour12 && p("dayPeriod") ? " " + p("dayPeriod") : ""}`
           : "";
       const datePart =
         mode === "date" || mode === "both"

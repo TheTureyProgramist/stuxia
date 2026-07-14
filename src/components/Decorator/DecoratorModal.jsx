@@ -212,6 +212,12 @@ const EDITABLE_PROPS = [
   { key: "border", label: "border", type: "text" },
   { key: "borderRadius", label: "border-radius", type: "text" },
   { key: "boxShadow", label: "box-shadow", type: "text" },
+  { key: "textShadow", label: "text-shadow", type: "text" },
+  { key: "backdropFilter", label: "backdrop-filter", type: "text" },
+  { key: "filter", label: "filter", type: "text" },
+  { key: "outline", label: "outline", type: "text" },
+  { key: "textDecoration", label: "text-decoration", type: "text" },
+  { key: "cursor", label: "cursor", type: "text" },
 ];
 
 const rgbToHex = (rgb) => {

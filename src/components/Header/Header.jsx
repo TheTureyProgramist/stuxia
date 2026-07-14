@@ -4,7 +4,7 @@ import logo from "../../photos/hero-header/logo.webp";
 import { BsMoonStarsFill } from "react-icons/bs";
 import BurgerMenu from "./Menu.jsx";
 import { IoIosEye } from "react-icons/io";
-import { GiShop, GiExitDoor, GiAchievement } from "react-icons/gi";
+import { GiShop, GiExitDoor } from "react-icons/gi";
 import { FaSun } from "react-icons/fa";
 import { MdSettingsSuggest, MdMore } from "react-icons/md";
 import bell from "../../mp3/modals/bell.mp3";
@@ -512,13 +512,13 @@ const Header = ({
                     <GiShop />
                   </Spa>
                 </IconButton>
-
+{/* 
                 <IconButton
                   onClick={onOpenAchievements}
                   $isDarkMode={isDarkMode}
                 >
                   <GiAchievement />
-                </IconButton>
+                </IconButton> */}
 
                 <IconButton
                   onClick={onOpenOtherOptions}

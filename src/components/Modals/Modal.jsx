@@ -420,7 +420,7 @@ const Modal = ({ onClose, onRegister, availableAvatars = [] }) => {
   const [showTerms, setShowTerms] = useState(false);
   const [error, setError] = useState("");
   const [isClosing, setIsClosing] = useState(false);
-  const [showKatScene, setShowKatScene] = useState(false);
+  const [showKatScene] = useState(false);
   const { isDarkMode } = { isDarkMode: false };
   const handleClose = (e) => {
     if (e) e.stopPropagation();
@@ -505,7 +505,8 @@ const Modal = ({ onClose, onRegister, availableAvatars = [] }) => {
       return setError("Акаунт з таким Gmail вже існує!");
     }
 
-    setShowKatScene(true);
+    // setShowKatScene(true);
+    await completeRegistration();
   };
 
   const handleGoogleAuth = async (e) => {

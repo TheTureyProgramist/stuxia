@@ -206,34 +206,118 @@
   },
   {
     "id": 4,
-
     "image": "monody",
     "audio": "monodyAudio",
     "filters": [
       {
-        "start": 71,
-        "end": 89,
+        "start": 0,
+        "end": 18,
+        "symbols": "⬦",
+        "type": "symbols",
+        "intensity": 20,
+        "speed": 0.1
+      },
+      {
+        "start": 18,
+        "end": 52,
+        "symbols": "⬣",
         "type": "symbols",
         "intensity": 60,
-        "speed": 0.4,
+        "speed": 2,
+        "blur": 1.3
+      },
+            {
+        "start": 53,
+        "end": 72,
+        "type": "symbols",
+        "intensity": 200,
+        "speed": 6.5
+      },
+                  {
+        "start": 72,
+        "end": 89,
+        "symbols": "✧",
+        "type": "symbols",
+        "intensity": 100,
+        "speed": 3.5
+      },
+                  {
+        "start": 89,
+        "end": 107,
+        "type": "symbols",
+        "intensity": 200,
+        "speed": 6.5
+      },
+                        {
+        "start": 107,
+        "end": 124,
+        "symbols": "✷",
+        "type": "symbols",
+        "intensity": 100,
+        "speed": 3.5
+      },
+                  {
+        "start": 124,
+        "end": 144,
+        "symbols": "⬡",
+        "type": "symbols",
+        "intensity": 60,
+        "speed": 2,
+        "blur": 1.3
+      }, 
+                  {
+        "start": 144,
+        "end": 159,
+        "symbols": "✦",
+        "type": "symbols",
+        "intensity": 100,
+        "speed": 3.5
+      },
+                  {
+        "start": 168,
+        "end": 196,
+        "symbols": "❅",
+        "type": "symbols",
+        "intensity": 20,
+        "speed": 0.1
+      },
+                        {
+        "start": 196,
+        "end": 223,
+        "symbols": "⬣",
+        "type": "symbols",
+        "intensity": 60,
+        "speed": 2,
+        "blur": 1.3
+      },
+                        {
+        "start": 227,
+        "end": 243,
+        "type": "symbols",
+        "intensity": 200,
+        "speed": 6.5
+      },
+                              {
+        "start": 243,
+        "end": 262,
+        "symbols": "✷",
+        "type": "symbols",
+        "intensity": 100,
+        "speed": 3.5
+      },
+                              {
+        "start": 262,
+        "end": 278,
+        "symbols": "⬡",
+        "type": "symbols",
+        "intensity": 60,
+        "speed": 2,
         "blur": 1.3
       },
       {
-        "start": 8,
-        "end": 16,
-        "type": "purple",
-        "opacity": 0.25
-      },
-      {
-        "start": 16,
-        "end": 16.4,
-        "type": "flash",
-        "opacity": 1
-      },
-      {
-        "start": 26,
+        "start": 18,
         "end": 45,
-        "type": "синій",
+        "type": "green",
         "opacity": 0.25
       },
       {
@@ -254,14 +338,20 @@
         "type": "ultrachaos",
         "opacity": 0.25
       },
+            {
+        "start": 71,
+        "end": 89,
+        "type": "orange",
+        "opacity": 0.25
+      },
       {
         "start": 89,
-        "end": 104,
+        "end": 107,
         "type": "chaos",
         "opacity": 0.25
       },
       {
-        "start": 104,
+        "start": 107,
         "end": 124,
         "type": "orange",
         "opacity": 0.25
@@ -287,7 +377,7 @@
       {
         "start": 196,
         "end": 208,
-        "type": "purple",
+        "type": "green",
         "opacity": 0.25
       },
       {
@@ -311,7 +401,7 @@
       {
         "start": 262,
         "end": 278,
-        "type": "orange",
+        "type": "green",
         "opacity": 0.25
       },
       {
@@ -453,7 +543,7 @@
             {
         "start": 60,
         "end": 75,
-        "symbols": "✧",
+        "symbols": "✷",
         "type": "symbols",
         "intensity": 100,
         "speed": 3.5
@@ -461,7 +551,7 @@
             {
         "start": 75,
         "end": 97,
-        "symbols": "⬦",
+        "symbols": "❅",
         "type": "symbols",
         "intensity": 20,
         "speed": 0.1
@@ -472,6 +562,31 @@
         "type": "symbols",
         "intensity": 200,
         "speed": 6.5
+      },
+                  {
+        "start": 136,
+        "end": 150,
+        "symbols": " ✦",
+        "type": "symbols",
+        "intensity": 100,
+        "speed": 3.5
+      },
+                  {
+        "start": 152,
+        "end": 185,
+        "symbols": "⬡",
+        "type": "symbols",
+        "intensity": 60,
+        "speed": 2,
+        "blur": 1.3
+      },
+                  {
+        "start": 185,
+        "end": 207,
+        "symbols": "⬦",
+        "type": "symbols",
+        "intensity": 20,
+        "speed": 0.1
       },
       {
         "start": 1,
@@ -615,12 +730,30 @@
   },
   {
     "id": 14,
-    "symbols": ["⏧"],
     "author": "DJ-Nate",
     "image": "clubstep",
     "text": "Clubstep",
     "audio": "clubstepAudio",
     "filters": [
+        {
+        "start": 0,
+        "end": 18,
+        "symbols": "⬦",
+        "type": "symbols",
+        "intensity": 60,
+        "speed": 2,
+        "blur": 1.3
+      },
+      {
+        "start": 23,
+        "end": 38,
+        "symbols": "⬡",
+        "type": "symbols",
+          "intensity": 60,
+        "speed": 2,
+        "blur": 1.3
+      },
+      
       {
         "start": 37,
         "end": 49,
@@ -629,17 +762,59 @@
         "minIntensity": 100,
         "maxIntensity": 160,
         "isRandomSpeed": true,
-        "minSpeed": 0.8,
-        "maxSpeed": 2,
+        "minSpeed": 0.05,
+        "maxSpeed": 7,
         "isRandomBlurSymbols": true,
         "minBlurSymbols": 0,
         "maxBlurSymbols": 2.5
       },
       {
-        "start": 0.1,
-        "end": 0.4,
-        "type": "flash",
-        "opacity": 1
+        "start": 49,
+        "end": 71,
+        "symbols": "⬣",
+        "type": "symbols",
+          "intensity": 60,
+        "speed": 2,
+        "blur": 1.3
+      },
+       {
+        "start": 71,
+        "end": 87,
+        "type": "symbols",
+        "isRandomIntensity": true,
+        "minIntensity": 100,
+        "maxIntensity": 160,
+        "isRandomSpeed": true,
+        "minSpeed": 0.05,
+        "maxSpeed": 7,
+        "isRandomBlurSymbols": true,
+        "minBlurSymbols": 0,
+        "maxBlurSymbols": 2.5
+      },
+      {
+        "start": 87,
+        "end": 100,
+        "symbols": "✧",
+        "type": "symbols",
+        "intensity": 100,
+        "speed": 3.5
+      },
+            {
+        "start": 103,
+        "end": 133,
+        "symbols": "✦",
+        "type": "symbols",
+        "intensity": 100,
+        "speed": 3.5
+      },
+             
+            {
+        "start": 135,
+        "end": 195,
+        "symbols": "❅",
+        "type": "symbols",
+        "intensity": 20,
+        "speed": 0.1
       },
       {
         "start": 7,
@@ -656,16 +831,26 @@
       {
         "start": 21,
         "end": 37,
-        "randomColor": true,
-        "colorOptions": ["red", "green"],
+        "type": "green",
         "isRandom": true,
-        "minOpacity": 0.1,
-        "maxOpacity": 0.25,
+        "minOpacity": 0.15,
+        "maxOpacity": 0.3,
         "isRandomBlur": true,
         "minBlur": 0,
         "maxBlur": 3
       },
-      { "start": 49.7, "end": 50, "type": "flash", "opacity": 1 },
+       {
+        "start": 37,
+        "end": 50,
+        "randomColor": true,
+        "colorOptions": ["ultrachaos", "chaos"],
+        "isRandom": true,
+        "minOpacity": 0.3,
+        "maxOpacity": 0.6,
+        "isRandomBlur": true,
+        "minBlur": 1,
+        "maxBlur": 2
+      },
       {
         "start": 50,
         "end": 55,
@@ -706,10 +891,10 @@
         "start": 72,
         "end": 87,
         "randomColor": true,
-        "colorOptions": ["purple", "blue"],
+        "colorOptions": ["ultrachaos", "chaos"],
         "isRandom": true,
-        "minOpacity": 0.1,
-        "maxOpacity": 0.25,
+        "minOpacity": 0.3,
+        "maxOpacity": 0.6,
         "isRandomBlur": true,
         "minBlur": 1,
         "maxBlur": 2
@@ -718,7 +903,7 @@
         "start": 87,
         "end": 100,
         "randomColor": true,
-        "colorOptions": ["brown", "orange"],
+        "colorOptions": ["cyan", "orange"],
         "isRandom": true,
         "minOpacity": 0.1,
         "maxOpacity": 0.25,
@@ -731,7 +916,7 @@
         "start": 103,
         "end": 133,
         "randomColor": true,
-        "colorOptions": ["ultrachaos", "chaos"],
+        "colorOptions": ["cyan", "orange"],
         "isRandom": true,
         "minOpacity": 0.1,
         "maxOpacity": 0.25,
@@ -739,15 +924,7 @@
         "minBlur": 1,
         "maxBlur": 2
       },
-      { "start": 133, "end": 135, "type": "grayscale", "opacity": 1 },
-      {
-        "start": 135,
-        "end": 166,
-        "type": "red",
-        "minOpacity": 0.15,
-        "isRandom": true,
-        "maxOpacity": 0.3
-      }
+      { "start": 133, "end": 135, "type": "grayscale", "opacity": 1 }
     ]
   },
   {
@@ -854,7 +1031,7 @@
       },
       {
         "start": 52,
-        "end": 69,
+        "end": 63,
         "symbols": "❅",
         "type": "symbols",
         "intensity": 20,
@@ -1034,51 +1211,97 @@
       {
         "start": 55,
         "end": 65,
-        "symbols": "⬣",
+        "symbols": "⬡",
         "type": "symbols",
-        "intensity": 20,
-        "speed": 0.1
+          "intensity": 60,
+        "speed": 2,
+        "blur": 1.3
       },
       {
-        "start": 70,
-        "end": 83,
+        "start": 65,
+        "end": 80,
         "type": "symbols",
         "intensity": 200,
         "speed": 6.5
       },
       {
-        "start": 122,
-        "end": 129,
-        "symbols": "⬣",
-        "type": "symbols",
-        "intensity": 60,
-        "speed": 2,
-        "blur": 1.3
-      },
-      {
-        "start": 129,
-        "end": 154,
-        "symbols": "⬦",
+        "start": 83,
+        "end": 104,
+        "symbols": "❅",
         "type": "symbols",
         "intensity": 20,
         "speed": 0.1
       },
       {
-        "start": 154,
-        "end": 168,
-        "symbols": "✧",
+        "start": 104,
+        "end": 118,
+        "symbols": "✦",
         "type": "symbols",
         "intensity": 100,
         "speed": 3.5
       },
-      {
-        
-        "start": 65,
-        "end": 81,
+            {
+        "start": 120,
+        "end": 132,
         "type": "symbols",
-        "intensity": 150,
-        "speed": 0.6,
+        "intensity": 200,
+        "speed": 6.5
+      },
+                  {
+        "start": 134,
+        "end": 150,
+        "type": "symbols",
+        "intensity": 200,
+        "speed": 6.5
+      },
+            {
+        "start": 150,
+        "end": 165,
+        "symbols": "⬦",
+        "type": "symbols",
+        "intensity": 20,
+        "speed": 0.1
+      },
+            {
+        "start": 165,
+        "end": 179,
+        "symbols": "⬣",
+        "type": "symbols",
+           "intensity": 60,
+        "speed": 2,
         "blur": 1.3
+      },
+      
+      {
+        "start": 179,
+        "end": 191,
+        "symbols": "✷",
+        "type": "symbols",
+        "intensity": 100,
+        "speed": 3.5
+      },
+                  {
+        "start": 191,
+        "end": 218,
+        "symbols": "❅",
+        "type": "symbols",
+        "intensity": 20,
+        "speed": 0.1
+      },
+                        {
+        "start": 223,
+        "end": 238,
+        "type": "symbols",
+        "intensity": 200,
+        "speed": 6.5
+      },
+            {
+        "start": 238,
+        "end": 260,
+        "symbols": "✧",
+        "type": "symbols",
+        "intensity": 100,
+        "speed": 3.5
       },
       { "start": 254, "end": 274, "type": "flicker", "opacity": 0.15 },
       { "start": 22, "end": 37, "type": "green", "opacity": 0.15 },
@@ -1091,12 +1314,10 @@
       { "start": 118, "end": 120, "type": "grayscale", "opacity": 1 },
       { "start": 120, "end": 132, "type": "purple", "opacity": 0.2 },
       { "start": 132, "end": 134, "type": "grayscale", "opacity": 1 },
-      { "start": 134, "end": 146, "type": "ultrachaos", "opacity": 0.2 },
-      { "start": 146, "end": 150, "type": "chaos", "opacity": 0.28 },
-      { "start": 150, "end": 162, "type": "black", "opacity": 0.67 },
-      { "start": 162, "end": 179, "type": "purple", "opacity": 0.2 },
+      { "start": 134, "end": 150, "type": "ultrachaos", "opacity": 0.2 },
+      { "start": 150, "end": 165, "type": "black", "opacity": 0.67 },
+      { "start": 162, "end": 179, "type": "green", "opacity": 0.2 },
       { "start": 179, "end": 191, "type": "orange", "opacity": 0.15 },
-      { "start": 191, "end": 208, "type": "blue", "opacity": 0.15 },
       { "start": 208, "end": 218, "type": "brown", "opacity": 0.15 },
       { "start": 218, "end": 223, "type": "black", "opacity": 1 },
       { "start": 223, "end": 238, "type": "purple", "opacity": 0.2 },
@@ -1116,15 +1337,112 @@
     "images": ["unity"],
     "filters": [
       { "start": 170, "end": 191, "type": "flicker", "opacity": 0.3 },
-      {
-        "start": 81,
-        "end": 100,
+  {
+        "start": 0,
+        "end": 8,
+        "symbols": "⬦",
         "type": "symbols",
-        "intensity": 140,
-        "speed": 1.4,
-        "blur": 0.5
+        "intensity": 20,
+        "speed": 0.1
       },
-      { "start": 8, "end": 27, "type": "purple", "opacity": 0.25 },
+      {
+        "start":8,
+        "end": 45,
+        "symbols": "⬣",
+        "type": "symbols",
+        "intensity": 60,
+        "speed": 2,
+        "blur": 1.3
+      },
+            {
+        "start": 53,
+        "end": 72,
+        "type": "symbols",
+        "intensity": 200,
+        "speed": 6.5
+      },
+                  {
+        "start": 72,
+        "end": 89,
+        "symbols": "✧",
+        "type": "symbols",
+        "intensity": 100,
+        "speed": 3.5
+      },
+                  {
+        "start": 89,
+        "end": 107,
+        "type": "symbols",
+        "intensity": 200,
+        "speed": 6.5
+      },
+                        {
+        "start": 107,
+        "end": 124,
+        "symbols": "✷",
+        "type": "symbols",
+        "intensity": 100,
+        "speed": 3.5
+      },
+                  {
+        "start": 124,
+        "end": 144,
+        "symbols": "⬡",
+        "type": "symbols",
+        "intensity": 60,
+        "speed": 2,
+        "blur": 1.3
+      }, 
+                  {
+        "start": 144,
+        "end": 159,
+        "symbols": "✦",
+        "type": "symbols",
+        "intensity": 100,
+        "speed": 3.5
+      },
+                  {
+        "start": 168,
+        "end": 196,
+        "symbols": "❅",
+        "type": "symbols",
+        "intensity": 20,
+        "speed": 0.1
+      },
+                        {
+        "start": 196,
+        "end": 223,
+        "symbols": "⬣",
+        "type": "symbols",
+        "intensity": 60,
+        "speed": 2,
+        "blur": 1.3
+      },
+                        {
+        "start": 227,
+        "end": 243,
+        "type": "symbols",
+        "intensity": 200,
+        "speed": 6.5
+      },
+                              {
+        "start": 243,
+        "end": 262,
+        "symbols": "✷",
+        "type": "symbols",
+        "intensity": 100,
+        "speed": 3.5
+      },
+                              {
+        "start": 262,
+        "end": 278,
+        "symbols": "⬡",
+        "type": "symbols",
+        "intensity": 60,
+        "speed": 2,
+        "blur": 1.3
+      },
+      { "start": 8, "end": 27, "type": "green", "opacity": 0.25 },
       { "start": 27, "end": 27.5, "type": "flash", "opacity": 1 },
       { "start": 45, "end": 63, "type": "blue", "opacity": 0.2 },
       { "start": 100, "end": 116, "type": "orange", "opacity": 0.2 },
