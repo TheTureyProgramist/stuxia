@@ -38,8 +38,8 @@ const flow = keyframes`
 
 const LogoActionsRow = styled.div`
   display: flex;
-  gap: 10px;
-  margin-bottom: 15px;
+  gap: 3px;
+  margin-bottom: 5px;
 `;
 
 const MiniLogoButton = styled.button`
@@ -67,7 +67,7 @@ const MiniLogoButton = styled.button`
 const SubsMenuItem = styled.button`
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 5px;
   width: 100%;
   background: ${(props) =>
     props.$isUltra ? "rgba(113, 0, 151, 0.05)" : "rgba(255, 179, 108, 0.05)"};
@@ -1216,6 +1216,7 @@ const Menu = ({
                   Скинути всі фільтри ↺
                 </ResetFiltersBtn>
               </li>
+              <LogoActionsRow>
               <li>
                 <ActionButton
                   $isDarkMode={isDarkMode}
@@ -1224,7 +1225,7 @@ const Menu = ({
                     onClose();
                   }}
                 >
-                  <span className="icon">🛒</span> Магазин Доміно
+                 Магазин
                 </ActionButton>
               </li>
               <li>
@@ -1235,18 +1236,7 @@ const Menu = ({
                     onClose();
                   }}
                 >
-                  <span className="icon">⋯</span> Інші опції
-                </ActionButton>
-              </li>
-              <li>
-                <ActionButton
-                  $isDarkMode={isDarkMode}
-                  onClick={() => {
-                    onOpenAchievements();
-                    onClose();
-                  }}
-                >
-                  <span className="icon">🏆</span> Досягнення
+                  Опції
                 </ActionButton>
               </li>
               <li>
@@ -1257,7 +1247,7 @@ const Menu = ({
                     onClose();
                   }}
                 >
-                  <span className="icon">⚙️</span> Налаштування
+                  Налаштування
                 </ActionButton>
               </li>
               <li>
@@ -1268,7 +1258,7 @@ const Menu = ({
                     onClose();
                   }}
                 >
-                  <span className="icon">❓</span> Навчання
+                   Навчання
                 </ActionButton>
               </li>
               <li>
@@ -1279,9 +1269,10 @@ const Menu = ({
                     onClose();
                   }}
                 >
-                  <span className="icon">🚪</span> Вихід
+                 Вихід
                 </ActionButton>
               </li>
+              </LogoActionsRow>
             </LegendList>
           </div>
         </BurgerContentGrid>

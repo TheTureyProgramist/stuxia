@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   addCustomDay,
@@ -491,20 +491,11 @@ const UserSettingsModal = ({
   const customDays = useSelector((state) => state.calendar?.customDays || []);
   const [newDay, setNewDay] = useState({ d: "", m: "", reason: "" });
 
-  let initialY = "", initialM = "", initialD = "";
-  if (user?.birthDate) {
-    if (user.birthDate.includes("-")) {
-      [initialY, initialM, initialD] = user.birthDate.split("-");
-    } else if (user.birthDate.includes(".")) {
-      [initialD, initialM, initialY] = user.birthDate.split(".");
-    }
-  }
-
   const [formData, setFormData] = useState({
     name: user?.firstName || "",
-    day: parseInt(initialD) || "",
-    month: parseInt(initialM) || "",
-    year: parseInt(initialY) || "",
+    day: "",
+    month: "",
+    year: "",
     oldPassword: "",
     newPassword: "",
     confirmPassword: "",
@@ -540,6 +531,49 @@ const UserSettingsModal = ({
 
   // Зберігаємо початковий стан користувача для відкату у разі скасування без збереження
   const initialUser = useMemo(() => ({ ...user }), [user]);
+
+  useEffect(() => {
+    // Синхронізуємо весь formData при зміні user або доступних аватарок
+    if (!user) return;
+
+    let initialY = "", initialM = "", initialD = "";
+    if (user.birthDate) {
+      if (user.birthDate.includes("-")) {
+        [initialY, initialM, initialD] = user.birthDate.split("-");
+      } else if (user.birthDate.includes(".")) {
+        [initialD, initialM, initialY] = user.birthDate.split(".");
+      }
+    }
+
+    const avatarIndex =
+      availableAvatars.indexOf(user?.avatar) !== -1
+        ? availableAvatars.indexOf(user?.avatar)
+        : user?.avatar &&
+          typeof user.avatar === "string" &&
+          user.avatar.startsWith("http")
+        ? -1
+        : 0;
+
+    setFormData({
+      name: user?.firstName || "",
+      day: initialD ? String(parseInt(initialD)) : "",
+      month: initialM ? String(parseInt(initialM)) : "",
+      year: initialY ? String(parseInt(initialY)) : "",
+      oldPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+      avatarIndex: avatarIndex,
+      textColor: user?.textColor || "grey",
+      borderColor: user?.borderColor || "grey",
+      fontFamily: user?.fontFamily || "",
+      showSeconds: user?.showSeconds !== false,
+      dateDisplayMode: user?.dateDisplayMode || "both",
+      hour12: user?.hour12 === true,
+      voiceActingMode: user?.voiceActingMode || "malyatko",
+      showUpdateTimer: showUpdateTimer !== false,
+      newsAutoScroll: user?.newsAutoScroll || false,
+    });
+  }, [user, availableAvatars, showUpdateTimer]);
 
   const finishClosing = (e) => {
     if (e && e.stopPropagation) e.stopPropagation();
@@ -617,6 +651,17 @@ const UserSettingsModal = ({
     );
   }, [formData.day, formData.month, formData.year]);
 
+  const formattedBirthDate = useMemo(() => {
+    const day = formData.day ? String(formData.day).padStart(2, "0") : "";
+    const month = formData.month ? String(formData.month).padStart(2, "0") : "";
+    const year = formData.year ? String(formData.year) : "";
+    
+    if (!day || !month || !year) return "";
+    if (isInvalidDate) return "";
+
+    return `${day}.${month}.${year}`;
+  }, [formData.day, formData.month, formData.year, isInvalidDate]);
+
   const calculateAge = (d, m, y) => {
     if (!d || !m || !y) return null;
     const today = new Date();
@@ -649,6 +694,10 @@ const UserSettingsModal = ({
   const handleSubmit = () => {
     if (isInvalidDate) {
       alert("Введена некоректна дата!");
+      return;
+    }
+    if (!formData.day || !formData.month || !formData.year) {
+      alert("Будь ласка, виберіть дату народження!");
       return;
     }
     if (formData.newPassword) {
@@ -776,7 +825,7 @@ const UserSettingsModal = ({
   return (
     <>
       {showKatScene && <KatSceneModal onClose={handleKatSceneClose} />}
-      <ModalOverlay $isClosing={isClosing} onClick={handleCancel}>
+      <ModalOverlay $isClosing={isClosing} onClick={() => finishClosing()}>
         <ModalContent
           $isClosing={isClosing}
           onClick={(e) => e.stopPropagation()}
@@ -836,8 +885,8 @@ const UserSettingsModal = ({
                 content = (
                   <Section key="birthDate">
                     {renderSectionHeader(
-                      section, 
-                      idx, 
+                      section,
+                      idx,
                       `Дата народження ${currentAge !== null && !isInvalidDate ? `(Вік: ${currentAge})` : ""}`
                     )}
                     <DateRow>
@@ -885,6 +934,18 @@ const UserSettingsModal = ({
                       <span style={{ color: "red", fontSize: "11px" }}>
                         Такої дати не існує!
                       </span>
+                    )}
+                    {!isInvalidDate && formattedBirthDate && (
+                      <div
+                        style={{
+                          marginTop: "6px",
+                          fontSize: "12px",
+                          fontWeight: "600",
+                          color: formData.textColor || "inherit",
+                        }}
+                      >
+                        Дата народження: {formattedBirthDate} • Вік: {currentAge}
+                      </div>
                     )}
                   </Section>
                 );
@@ -1115,16 +1176,6 @@ const UserSettingsModal = ({
                       />
                       <label>Показувати секунди (17:23:17)</label>
                     </CheckboxRow>
-                    <CheckboxRow>
-                      <input
-                        type="checkbox"
-                        checked={formData.hour12}
-                        onChange={(e) =>
-                          updateLivePreview({ hour12: e.target.checked })
-                        }
-                      />
-                      <label>12-годинний формат (AM/PM)</label>
-                    </CheckboxRow>
                     <div
                       style={{
                         display: "flex",
@@ -1133,6 +1184,18 @@ const UserSettingsModal = ({
                         marginTop: "5px",
                       }}
                     >
+                      <label style={{ fontSize: "12px", fontWeight: "bold" }}>
+                        Формат часу
+                      </label>
+                      <Select
+                        value={formData.hour12 ? "12" : "24"}
+                        onChange={(e) =>
+                          updateLivePreview({ hour12: e.target.value === "12" })
+                        }
+                      >
+                        <option value="24">24-годинний формат</option>
+                        <option value="12">12-годинний формат (AM/PM)</option>
+                      </Select>
                       <Select
                         value={formData.dateDisplayMode}
                         onChange={(e) =>

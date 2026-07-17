@@ -1,6 +1,6 @@
 const fs = require("fs");
 const path = require("path");
-const possibleDirs = ["src/photos/vip-modal"];
+const possibleDirs = ["src/photos/fan-art"];
 // node find-unused.js
 let imagesDir = "";
 for (const dir of possibleDirs) {

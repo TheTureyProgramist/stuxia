@@ -28,6 +28,8 @@ export const getDailyCommentQuotaLeft = (
 
 export const buildCommentPayload = ({
   trackId,
+  trackAuthor,
+  trackText,
   user,
   text,
   avatar,
@@ -39,6 +41,8 @@ export const buildCommentPayload = ({
       ? crypto.randomUUID()
       : `${Date.now()}-${Math.random()}`,
   trackId,
+  trackAuthor: trackAuthor || "",
+  trackText: trackText || "",
   text: String(text || "").trim(),
   createdAt: Date.now(),
   user: {
@@ -62,11 +66,17 @@ export const getInitialCommentStats = () => ({
 
 export const toSocialTarget = (track) => {
   if (!track) return null;
+  const author = track.author || track.artist || "";
+  const text = track.text || track.title || "";
+  const fallbackId = `${author || "unknown"}-${text || "song"}`;
+  const id = track.id != null ? String(track.id) : String(fallbackId).replace(/\s+/g, "-");
   return {
-    id: track.id,
-    text: track.text || track.title || "",
-    isGeneral: track.isGeneral || false,
-    author: track.author || "",
+    id,
+    author,
+    text,
+    title: text,
+    duration: track.duration || 0,
+    isGeneral: track.isGeneral || String(id) === "general",
   };
 };
 

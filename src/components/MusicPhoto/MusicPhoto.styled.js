@@ -1655,21 +1655,17 @@ export const AuthorPreviewCard = styled.div`
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  min-height: 500px;
-
-  @media (max-width: 768px) {
-    min-height: auto;
-  }
+  min-height: 560px;
 `;
 
 export const AuthorPreviewImage = styled.div`
-  position: absolute; /* Картинка стає фоном на всю ширину і висоту */
+  position: absolute; 
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   overflow: hidden;
-  z-index: 1; /* Ховаємо під контент */
+  z-index: 1; 
 
   @media (max-width: 768px) {
     position: relative;
@@ -1731,28 +1727,22 @@ export const AuthorPreviewBody = styled.div`
   z-index: 2;
 `;
 export const AuthorPreviewSection = styled.div`
-  background: rgba(
-    15,
-    34,
-    96,
-    0.6
-  ); /* Темніший підклад, щоб текст не губився на картинці */
-  backdrop-filter: blur(4px); /* Ефект матового скла */
+  /* ... (попередні стилі залишаються без змін) ... */
+  background: rgba(15, 34, 96, 0.6);
+  backdrop-filter: blur(4px);
   border-radius: 10px;
   padding: 10px 14px;
   border-left: 3px solid ${(props) => props.$accent || "#667eea"};
   cursor: pointer;
   transition: all 0.2s;
 
-  /* Перетворюємо контейнер на flex-рядок */
   display: flex;
   flex-direction: row;
-  align-items: center; /* Вирівнювання по центру вертикалі */
-  overflow: hidden; /* Обов'язково для обрізання тексту */
+  align-items: center; 
 
   &:hover {
     background: rgba(15, 34, 96, 0.85);
-    transform: translateX(3px); /* Легкий ефект при наведенні */
+    transform: translateX(3px);
   }
 
   .section-label {
@@ -1762,22 +1752,27 @@ export const AuthorPreviewSection = styled.div`
     letter-spacing: 1.2px;
     color: ${(props) => props.$accent || "#667eea"};
     margin-right: 6px;
-    white-space: nowrap; /* Щоб заголовок НІКОЛИ не переносився */
+    white-space: nowrap; /* Мітка категорії завжди в 1 рядок */
     display: flex;
     align-items: center;
     gap: 4px;
+
+    flex-shrink: 0;
   }
 
   .section-text {
     font-size: 13px;
     color: rgba(255, 255, 255, 0.9);
     margin: 0;
+    line-height: 1.4; 
 
-    /* Стандартне надійне обрізання тексту в 1 рядок */
-    white-space: nowrap;
-    overflow: hidden;
+    display: -webkit-box;  
+    -webkit-line-clamp: 4;  
+    -webkit-box-orient: vertical;
+    overflow: hidden;       
     text-overflow: ellipsis;
-    flex: 1; /* Займає весь доступний простір, що залишився */
+    flex: 1; 
+    min-width: 0;
   }
 `;
 export const AuthorPreviewActions = styled.div`

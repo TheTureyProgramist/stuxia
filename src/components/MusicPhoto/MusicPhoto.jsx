@@ -1115,7 +1115,8 @@ const SongAiModal = ({ track, onClose, isDarkMode }) => {
 
   useEffect(() => {
     const loadHistory = async () => {
-      const history = await localforage.getItem(`song_ai_history_${track.id}`);
+     const safeTrackId = track.id || `${track.author}-${track.text}`.replace(/\s+/g, "-");
+const history = await localforage.getItem(`song_ai_history_${safeTrackId}`);
       const savedModel = await localforage.getItem(`song_ai_hf_model`);
       const savedKey = await localforage.getItem("gemini_api_key");
       const savedOaiKey = await localforage.getItem("openai_api_key");
@@ -1145,7 +1146,7 @@ const SongAiModal = ({ track, onClose, isDarkMode }) => {
         );
     };
     loadHistory();
-  }, [track.id, track.author]);
+  }, [track.id, track.author, track.text]);
 
   // Scroll to bottom when messages or streaming text updates
   useEffect(() => {
@@ -1983,10 +1984,10 @@ const FullScreenPlayer = ({
   backgroundMode,
   onToggleBackgroundMode,
   onUpdateUser,
+  onSocialReaction,
   isDarkMode, // Added isDarkMode prop
 }) => {
   const isDinofroz = !!track.video;
-
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(track.initialTime || 0);
   const [buffered, setBuffered] = useState(0);
@@ -2149,30 +2150,23 @@ const FullScreenPlayer = ({
   const [socialReactionState, setSocialReactionState] = useState(0);
   const [socialCommentCount, setSocialCommentCount] = useState(0);
   const activeSocialTrack = socialTargetTrack || track;
-  // Normalize various shapes into a consistent social target object
-  const toSocialTarget = (t) => {
-    if (!t) return null;
-    if (typeof t === "string")
-      return {
-        id: String(t),
-        author: "",
-        text: "",
-        isGeneral: String(t) === "general",
-      };
-    const id = t.id || t.trackId || (t && t.id === 0 ? 0 : undefined);
-    if (id !== undefined)
-      return {
-        ...t,
-        id: String(id),
-        isGeneral: t.isGeneral || String(id) === "general",
-      };
-    return {
-      id: String(t),
-      author: t.author || "",
-      text: t.text || "",
-      isGeneral: false,
-    };
-  };
+const toSocialTarget = (t) => {
+ if (!t) return null;
+ if (typeof t === "string") {
+   return {
+     id: t.replace(/\s+/g, "-"),
+     author: t.split("-")[0]?.trim() || "",
+     text: t.split("-")[1]?.trim() || "",
+     isGeneral: t === "general",
+   };
+ }
+ const id = t.id || t.trackId || `${t.author}-${t.text}`.replace(/\s+/g, "-");
+ return {
+   ...t,
+   id: String(id),
+   isGeneral: t.isGeneral || String(id) === "general",
+ };
+};
 
   const getAvatarSrc = (a) => {
     if (!a) return null;
@@ -2412,6 +2406,8 @@ const FullScreenPlayer = ({
 
       const payload = buildCommentPayload({
         trackId: String(activeSocialTrack.id),
+        trackAuthor: activeSocialTrack?.author || "",
+        trackText: activeSocialTrack?.text || activeSocialTrack?.title || "",
         user: currentUser,
         text,
         avatar: currentUser.avatar || currentUser.photoURL || "",
@@ -2449,14 +2445,17 @@ const FullScreenPlayer = ({
     } finally {
       setSocialLoading(false);
     }
-  }, [
-    activeSocialTrack?.id,
-    getSocialQuotaKey,
-    socialAuthUser,
-    socialCommentText,
-    socialStats.comments,
-    user,
-  ]);
+}, [
+activeSocialTrack?.id,
+activeSocialTrack?.author,
+activeSocialTrack?.text,
+activeSocialTrack?.title,
+getSocialQuotaKey,
+socialAuthUser,
+socialCommentText,
+socialStats.comments,
+user,
+]);
 
   const handleSocialReaction = useCallback(
     async (nextValue) => {
@@ -3643,7 +3642,24 @@ const FullScreenPlayer = ({
         <div style={{ display: "flex", gap: "8px" }}>
           <ActButton
             onClick={() => {
-              if (canPerformAction()) onRate(track.id);
+              if (canPerformAction()) {
+                const currentRating = rating || 0;
+                let nextRating;
+                if (currentRating === 0) nextRating = 1;
+                else if (currentRating === 1) nextRating = 2;
+                else if (currentRating === 2) nextRating = -1;
+                else nextRating = 0;
+                onRate(track.id);
+                if (onSocialReaction) {
+                  if (nextRating === 1 || nextRating === 2) {
+                    onSocialReaction(track, 1);
+                  } else if (nextRating === -1) {
+                    onSocialReaction(track, -1);
+                  } else {
+                    onSocialReaction(track, 0);
+                  }
+                }
+              }
             }}
             title={(() => {
               if (rating === 2) return "2 бали — ❤️ Лайк";
@@ -5093,6 +5109,7 @@ const FullScreenPlayer = ({
                 : `🎵 ${socialTargetTrack?.author || ""} — ${socialTargetTrack?.text || ""}`}
             </h3>
             <div style={{ display: "grid", gap: 12, marginBottom: 16 }}>
+              {!socialTargetTrack?.isGeneral && (
               <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
                 <span
                   style={{
@@ -5101,7 +5118,7 @@ const FullScreenPlayer = ({
                     borderRadius: 999,
                   }}
                 >
-                  Тривалість: {Math.floor(duration || 0)}с
+                  Тривалість: {Math.floor((duration || 0) / 60)}:{String(Math.floor((duration || 0) % 60)).padStart(2, "0")}
                 </span>
                 <span
                   style={{
@@ -5140,6 +5157,8 @@ const FullScreenPlayer = ({
                   Коментарі: {socialCommentCount}
                 </span>
               </div>
+              )}
+              {!socialTargetTrack?.isGeneral && (
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                 <button
                   onClick={() => handleSocialReaction(1)}
@@ -5170,6 +5189,7 @@ const FullScreenPlayer = ({
                   👎 Дизлайк
                 </button>
               </div>
+              )}
             </div>
             <div
               style={{
@@ -5447,16 +5467,16 @@ const FullScreenPlayer = ({
                             </div>
                           )}
                         </div>
-                        <div>
-                          <div style={{ fontWeight: 700 }}>
-                            {comment.user?.name || "Гість"}
+                          <div>
+                            <div style={{ fontWeight: 700 }}>
+                              {comment.user?.name || "Гість"}
+                            </div>
+                            <div style={{ fontSize: 11, opacity: 0.7 }}>
+                              {comment.trackId
+                                ? `Пісня ${comment.trackAuthor || comment.author || "невідома"} - ${comment.trackText || comment.text || ""}`
+                                : "Загальний чат"}
+                            </div>
                           </div>
-                          <div style={{ fontSize: 11, opacity: 0.7 }}>
-                            {comment.trackId
-                              ? `Пісня #${comment.trackId}`
-                              : "Усі пісні"}
-                          </div>
-                        </div>
                       </div>
                       <div
                         style={{
@@ -5698,6 +5718,7 @@ const MusicCard = ({
   onOpenAi = () => {},
   onOpenSocial = () => {},
   onOpenInfo = () => {},
+  onSocialReaction,
   checkpoint,
   checkpointsEnabled,
 }) => {
@@ -5747,7 +5768,24 @@ const MusicCard = ({
           })()}
           onClick={(e) => {
             e.stopPropagation();
-            onRate && onRate(id);
+            if (onRate) {
+              const currentRating = rating || 0;
+              let nextRating;
+              if (currentRating === 0) nextRating = 1;
+              else if (currentRating === 1) nextRating = 2;
+              else if (currentRating === 2) nextRating = -1;
+              else nextRating = 0;
+              onRate(id);
+              if (onSocialReaction) {
+                if (nextRating === 1 || nextRating === 2) {
+                  onSocialReaction(cardData, 1);
+                } else if (nextRating === -1) {
+                  onSocialReaction(cardData, -1);
+                } else {
+                  onSocialReaction(cardData, 0);
+                }
+              }
+            }
           }}
         >
           {rating === 2 || rating === 1 ? "❤️" : rating === -1 ? "💔" : "🤍"}
@@ -5759,6 +5797,7 @@ const MusicCard = ({
         <ActionButtonsContainer className="card-overlay-buttons">
           {cardData.lyrics && (
             <ActionButton
+              type="button"
               title="Текст пісні"
               onClick={(e) => {
                 e.stopPropagation();
@@ -5771,6 +5810,7 @@ const MusicCard = ({
             </ActionButton>
           )}
           <ActionButton
+            type="button"
             title="Відкрити плеєр"
             onClick={(e) => {
               e.stopPropagation();
@@ -5782,6 +5822,7 @@ const MusicCard = ({
             </svg>
           </ActionButton>
           <ActionButton
+            type="button"
             title="Запитати ШІ"
             onClick={(e) => {
               e.stopPropagation();
@@ -5791,6 +5832,7 @@ const MusicCard = ({
             ✨
           </ActionButton>
           <ActionButton
+            type="button"
             title="Чат і статистика"
             onClick={(e) => {
               e.stopPropagation();
@@ -5799,10 +5841,15 @@ const MusicCard = ({
           >
             <BsWechat />
           </ActionButton>
-          <ActionButton title="Завантажити" onClick={handleDownloadTrack}>
+          <ActionButton
+            type="button"
+            title="Завантажити"
+            onClick={handleDownloadTrack}
+          >
             ⇩
           </ActionButton>
           <ActionButton
+            type="button"
             title="Роздрукувати обкладинку"
             onClick={handlePrintCover}
           >
@@ -5810,6 +5857,7 @@ const MusicCard = ({
           </ActionButton>
           {deezerLink && (
             <ActionButton
+              type="button"
               title="Слухати на Deezer"
               onClick={(e) => {
                 e.stopPropagation();
@@ -6757,6 +6805,8 @@ const PlaylistModal = ({
 
       const payload = buildCommentPayload({
         trackId: String(socialTargetTrack.id),
+        trackAuthor: socialTargetTrack?.author || "",
+        trackText: socialTargetTrack?.text || socialTargetTrack?.title || "",
         user: currentUser,
         text,
         avatar: currentUser.avatar || currentUser.photoURL || "",
@@ -6795,14 +6845,16 @@ const PlaylistModal = ({
       setSocialLoading(false);
     }
   }, [
-    getSocialQuotaKey,
-    socialCommentText,
-    socialStats.comments,
-    socialTargetTrack?.id,
-    socialAuthUser,
-    user,
-  ]);
-
+getSocialQuotaKey,
+socialCommentText,
+socialStats.comments,
+socialTargetTrack?.id,
+socialTargetTrack?.author,
+socialTargetTrack?.text,
+socialTargetTrack?.title,
+socialAuthUser,
+user,
+]);
   const handleSocialReaction = useCallback(
     async (nextValue) => {
       if (!socialTargetTrack?.id) return;
@@ -6842,6 +6894,42 @@ const PlaylistModal = ({
       }
     },
     [socialAuthUser, socialReactionState, socialTargetTrack?.id, user],
+  );
+
+  // Окрема функція для оновлення Firebase реакції з картки пісні (без залежності від socialTargetTrack стейту)
+  const handleSocialReactionForCard = useCallback(
+    async (cardData, reactionValue) => {
+      const target = toSocialTarget(cardData);
+      if (!target?.id) return;
+      const currentUser = socialAuthUser || user;
+      if (!currentUser) return;
+
+      const normalized = normalizeLikeValue(reactionValue);
+      const reactionKey = `${String(target.id)}:${currentUser.uid || currentUser.id || currentUser.account}`;
+      const previous = await localforage.getItem(reactionKey);
+      const prevNormalized = normalizeLikeValue(previous);
+      const currentState = reactionValue === 0 ? 0 : normalized;
+
+      await localforage.setItem(reactionKey, currentState);
+
+      try {
+        const statsRef = doc(db, "music_social_stats", String(target.id));
+        const snapshot = await getDoc(statsRef);
+        const data = snapshot.exists()
+          ? snapshot.data()
+          : getInitialCommentStats();
+        const likes =
+          (data.likes || 0) +
+          (currentState === 1 ? 1 : prevNormalized === 1 ? -1 : 0);
+        const dislikes =
+          (data.dislikes || 0) +
+          (currentState === -1 ? 1 : prevNormalized === -1 ? -1 : 0);
+        await setDoc(statsRef, { ...data, likes, dislikes }, { merge: true });
+      } catch (error) {
+        console.error("Card reaction update failed", error);
+      }
+    },
+    [socialAuthUser, user],
   );
 
   const voiceActingMode = user?.voiceActingMode || "malyatko";
@@ -7333,6 +7421,7 @@ const PlaylistModal = ({
                                   });
                                 }} // Pass player open handler
                                 onRate={handleToggleFavorite} // Pass rating handler
+                                onSocialReaction={handleSocialReactionForCard}
                                 onOpenAi={onOpenAi} // Pass AI handler
                                 onOpenSocial={(selectedCard) => {
                                   setSocialTargetTrack(
@@ -7790,6 +7879,7 @@ const PlaylistModal = ({
                 : `🎵 ${socialTargetTrack?.author || ""} — ${socialTargetTrack?.text || ""}`}
             </h3>
             <div style={{ display: "grid", gap: 12, marginBottom: 16 }}>
+              {!socialTargetTrack?.isGeneral && (
               <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
                 <span
                   style={{
@@ -7798,7 +7888,7 @@ const PlaylistModal = ({
                     borderRadius: 999,
                   }}
                 >
-                  Тривалість: {Math.floor(socialTargetTrack.duration || 0)}с
+                  Тривалість: {Math.floor((socialTargetTrack.duration || 0) / 60)}:{String(Math.floor((socialTargetTrack.duration || 0) % 60)).padStart(2, "0")}
                 </span>
                 <span
                   style={{
@@ -7837,6 +7927,8 @@ const PlaylistModal = ({
                   Коментарі: {socialCommentCount}
                 </span>
               </div>
+              )}
+              {!socialTargetTrack?.isGeneral && (
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                 <button
                   onClick={() => handleSocialReaction(1)}
@@ -7867,6 +7959,7 @@ const PlaylistModal = ({
                   👎 Дизлайк
                 </button>
               </div>
+              )}
             </div>
 
             <div
@@ -8177,16 +8270,16 @@ const PlaylistModal = ({
                             </div>
                           )}
                         </div>
-                        <div>
-                          <div style={{ fontWeight: 700 }}>
-                            {comment.user?.name || "Гість"}
+                          <div>
+                            <div style={{ fontWeight: 700 }}>
+                              {comment.user?.name || "Гість"}
+                            </div>
+                            <div style={{ fontSize: 11, opacity: 0.7 }}>
+                              {comment.trackId
+                                ? `Пісня ${comment.trackAuthor || comment.author || "невідома"} - ${comment.trackText || comment.text || ""}`
+                                : "Загальний чат"}
+                            </div>
                           </div>
-                          <div style={{ fontSize: 11, opacity: 0.7 }}>
-                            {comment.trackId
-                              ? `Пісня #${comment.trackId}`
-                              : "Усі пісні"}
-                          </div>
-                        </div>
                       </div>
                       <div
                         style={{
@@ -8220,6 +8313,7 @@ const PlaylistModal = ({
           user={user}
           rating={getRating(fullScreenTrack.id)}
           onRate={handleToggleFavorite}
+          onSocialReaction={handleSocialReactionForCard}
           isShuffle={isShuffle}
           onSetShuffle={setIsShuffle}
           onMiniPlayer={(time, isPlaying, vol, spd) => {

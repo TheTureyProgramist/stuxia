@@ -74,7 +74,7 @@ import horror from "../../photos/vip-images/horror/horror.webp";
 import horrorsix from "../../photos/vip-images/horror/horrorsix.webp";
 import horrorseven from "../../photos/vip-images/horror/horrorseven.webp";
 import horroreight from "../../photos/vip-images/horror/horroreight.webp";
-//Динофроз
+//Дракони
 import dinofrozone from "../../photos/vip-images/dinofroz/vip-dinofroz.webp";
 import dinofrozthree from "../../photos/vip-images/dinofroz/dinofrozthree.webp";
 import dinofrozfour from "../../photos/vip-images/dinofroz/dinofrozfour.webp";
@@ -89,6 +89,9 @@ import nicerone from "../../photos/vip-images/dinofroz/nicerone.webp";
 import mia from "../../photos/vip-images/mia/miaandme.webp";
 import volcano from "../../photos/vip-images/fire.webp";
 import clubstepVideo from "../../mp4/clubstep.mp4";
+//pesimistic future
+import titanic from "../../photos/cursors/titanic.webp";
+import smit from "../../photos/cursors/smit.webp"
 export const DEFAULT_BGS = [
   // Основні / Головні
   { src: hills, name: "Туманний ліс", category: "Стихія" },
@@ -97,24 +100,24 @@ export const DEFAULT_BGS = [
   {
     src: dinofrozVideo,
     name: "Динофроз (Відео-шпалери)",
-    category: "Динофроз",
+    category: "Дракони",
   },
-  { src: dinofrozone, name: "Імператор Ніцерон", category: "Динофроз" },
-  { src: dinofroztwo, name: "Генерал Влад (2 сезон)", category: "Динофроз" },
-  { src: dinofrozthree, name: "Прев'ю мультфільму", category: "Динофроз" },
-  { src: dinofrozfour, name: "Драгемон (2 сезон)", category: "Динофроз" },
-  { src: dinofrozfive, name: "Мелтстон", category: "Динофроз" },
-  { src: dinofrozsix, name: "Динофроз (Епізод)", category: "Динофроз" },
-  { src: dinofrozseven, name: "Генерал Влад (1 сезон)", category: "Динофроз" },
-  { src: dinofrozeight, name: "Генерал Трік (1 сезон)", category: "Динофроз" },
-  { src: dinofroznine, name: "Погляд у Рокфроз", category: "Динофроз" },
-  { src: fingerdash, name: "Замок Ніцерона", category: "Динофроз" },
-  { src: nicerone, name: "Іще варіант", category: "Динофроз" },
+  { src: dinofrozone, name: "Імператор Ніцерон", category: "Дракони" },
+  { src: dinofroztwo, name: "Генерал Влад (2 сезон)", category: "Дракони" },
+  { src: dinofrozthree, name: "Прев'ю мультфільму", category: "Дракони" },
+  { src: dinofrozfour, name: "Драгемон (2 сезон)", category: "Дракони" },
+  { src: dinofrozfive, name: "Мелтстон", category: "Дракони" },
+  { src: dinofrozsix, name: "Дракони (Епізод)", category: "Дракони" },
+  { src: dinofrozseven, name: "Генерал Влад (1 сезон)", category: "Дракони" },
+  { src: dinofrozeight, name: "Генерал Трік (1 сезон)", category: "Дракони" },
+  { src: dinofroznine, name: "Погляд у Рокфроз", category: "Дракони" },
+  { src: fingerdash, name: "Замок Ніцерона", category: "Дракони" },
+  { src: nicerone, name: "Іще варіант", category: "Дракони" },
   // Тварини та Істоти (Індики, Коні)
   { src: horse, name: "Кінь", category: "Тварини" },
   { src: horsetwo, name: "Армія козаків", category: "Тварини" },
   { src: horsethree, name: "Лицар", category: "Тварини" },
-  { src: turkeys, name: "Індичка Кейт (VIP)", category: "Тварини" },
+  { src: turkeys, name: "Індичка Кейт", category: "Тварини" },
   { src: turkeysone, name: "Мале бундюче стадо", category: "Тварини" },
   { src: turkeytwo, name: "Малий, але впевнений", category: "Тварини" },
   { src: turkeythree, name: "Дивись мені в очі!", category: "Тварини" },
@@ -168,6 +171,9 @@ export const DEFAULT_BGS = [
   { src: chess, name: "Шахи", category: "Аркада" },
   { src: swampthree, name: "Підказка свічки", category: "Аркада" },
   { src: swampsix, name: "Печера кристалів", category: "Аркада" },
+//Pesimism
+    { src: titanic, name: "Титанік", category: "Майбутне" },
+    { src: smit, name: "Агент Сміт(Матриця)", category: "Майбутне" },
 ];
 const fadeIn = keyframes`
   from { opacity: 0; }
@@ -2846,13 +2852,14 @@ const Hero = ({
                     }}
                   >
                     <option value="all">Усі</option>
-                    <option value="Динофроз">Динофроз</option>
+                    <option value="Дракони">Дракони</option>
                     <option value="Тварини">Тварини</option>
                     <option value="Стихія">Стихія</option>
                     <option value="Локації">Локації</option>
                     <option value="Фентезі">Фентезі</option>
                     <option value="Хоррор">Хоррор</option>
-                    <option value="Аркада">Аркада</option>
+                    <option value="Аркада">Стиль</option>
+                    <option value="Майбутне">Песимізм</option>
                     <option value="Скріншоти">Скріншоти</option>
                     <option value="custom">Ваші завантажені</option>
                   </select>

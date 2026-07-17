@@ -56,7 +56,7 @@ const PlaylistItem = styled.div`
 
 const PlaylistImageWrapper = styled.div`
   position: relative;
-  width: 170px;
+  width: 130px;
   height: 100px;
   border-radius: 15px;
   overflow: hidden;
@@ -795,12 +795,13 @@ const FanArt = ({
   const [selectedPlaylist, setSelectedPlaylist] = useState(null);
 
   const playlists = [
-    "Динофроз",
+    "Дракони",
     "Тварини",
     "Локації",
     "Фентезі",
     "Хоррор",
     "Аркада",
+        "Майбутне",
     "ваші картинки",
   ];
 
