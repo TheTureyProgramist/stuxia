@@ -818,7 +818,7 @@ const Menu = ({
           <div>
             <MenuSectionTitle>Керування</MenuSectionTitle>
             <LegendList>
-              <li>
+              <li  style={{ display: "none" }}>
                 <SubsMenuItem
                   $isUltra={showUltra}
                   onClick={() => {
@@ -1218,7 +1218,7 @@ const Menu = ({
               </li>
               <LogoActionsRow>
               <li>
-                <ActionButton
+                <ActionButton style={{ display: "none" }}
                   $isDarkMode={isDarkMode}
                   onClick={() => {
                     onOpenShop();

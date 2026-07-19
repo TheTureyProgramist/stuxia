@@ -83,7 +83,7 @@ const UIOverlay = styled.div`
   text-align: center;
 `;
 const InfoText = styled.div`
-  margin-top: 14px;
+  margin-top: 12px;
   color: #fff;
   font-family: "Inter", sans-serif;
 `;
@@ -122,15 +122,15 @@ const PhraseText = styled.p`
 
 const TopRightContainer = styled.div`
   position: absolute;
-  top: 6px;
-  right: 15px;
+  top: 22px;
+  right: -1px;
   z-index: 3;
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 5px;
   background: rgba(0, 0, 0, 0.5);
-  padding: 12px 20px;
-  border-radius: 20px;
+  padding: 6px;
+  border-radius: 10px;
   backdrop-filter: blur(5px);
   border: 1px solid rgba(255, 255, 255, 0.03);
 `;
@@ -149,12 +149,12 @@ const DotGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 10px);
   grid-template-rows: repeat(3, 10px);
-  gap: 5px;
+  gap: 3px;
 `;
 
 const Dot = styled.div`
-  width: 5px;
-  height: 5px;
+  width: 3px;
+  height: 3px;
   background-color: #ffffff;
   animation: ${dotFade} 0.8s infinite linear;
   &:nth-child(1) {

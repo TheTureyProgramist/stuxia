@@ -36,7 +36,7 @@ const HeaderDiv = styled.div`
   z-index: 1000;
   transition: background-color 0.3s ease;
   box-sizing: border-box;
-  animation: ${fadeInHeader} 0.8s ease-out 5.3s both;
+  animation: ${fadeInHeader} 0.8s ease-out 4.3s both;
   margin: 0;
 `;
 
@@ -55,18 +55,21 @@ const IconButton = styled.button`
   color: ${(props) => (props.$isDarkMode ? "#fff" : "#1a1a1a")};
   align-items: center;
   justify-content: center;
-  padding: 4px;
+  padding: 2px;
   flex-shrink: 0;
-  font-size: 9px;
-
+  font-size: 16px;
   @media (min-width: 768px) {
-    font-size: 22px;
+    font-size: 19px;
+  padding: 3px;
   }
 `;
 
 const EmojiWrapper = styled.span`
   display: inline-block;
-  font-size: 18px;
+  font-size: 16px;
+    @media (min-width: 768px) {
+    font-size: 19px;
+  }
 `;
 
 const UserName = styled.span`
@@ -83,7 +86,7 @@ const UserName = styled.span`
     max-width: 150px;
   }
   @media (min-width: 768px) {
-    font-size: 13px;
+    font-size: 12px;
     max-width: 450px;
   }
 
@@ -128,18 +131,19 @@ const VipTextWrapper = styled.div`
   display: grid;
   cursor: pointer;
   align-items: center;
-  margin-left: 5px;
+  margin-left: 2px;
   flex-shrink: 0;
 `;
 
 const RainbowText = styled.h1`
   font-family: "Inter", sans-serif;
-  font-size: 7px;
+  font-size: 6px;
   font-weight: bold;
   display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
-  padding: 1.3px 0px;
+  padding: 0px;
   border: 2px solid;
   border-image-source: linear-gradient(
     45deg,
@@ -174,7 +178,7 @@ const RainbowText = styled.h1`
 
 const UltraText = styled.h1`
   font-family: "Inter", sans-serif;
-  font-size: 7px;
+  font-size: 6px;
   border: 2px solid;
   border-image-source: linear-gradient(
     270deg,
@@ -195,7 +199,7 @@ const UltraText = styled.h1`
     #feffb7,
     #58e2c2
   );
-  padding: 1px 8px;
+  padding: 0 4px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -207,6 +211,7 @@ const UltraText = styled.h1`
   transition: opacity 0.5s ease-in-out;
   opacity: ${(props) => (props.$show ? 1 : 0)};
   grid-area: 1/1;
+    display: none;
   @media (min-width: 768px) {
     font-size: 15px;
   }
@@ -218,19 +223,12 @@ const HeaderLogo = styled.img`
     height: 38px;
     width: 38px;
 `;
-const Spa = styled.span`
-  font-size: 9px;
-  @media (min-width: 768px) {
-    font-size: 18px;
-  }
-`;
 const ButtonsGroup = styled.div`
   display: flex;
   align-items: center;
-  gap: -3px;
 
   @media (min-width: 768px) {
-    gap: 5px;
+    gap: 3px;
   }
 `;
 
@@ -242,20 +240,20 @@ const VisualSettingsPanel = styled.div`
     props.$isDarkMode ? "rgba(18, 18, 18, 0.95)" : "rgba(255, 255, 255, 0.95)"};
   border: 1px solid ${(props) => (props.$isDarkMode ? "#444" : "#ddd")};
   backdrop-filter: blur(5px);
-  padding: 15px;
+  padding: 5px;
   border-radius: 10px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   z-index: 2000;
   width: 220px;
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 5px;
 
-  @media (min-width: 768px) {
-    top: 85px;
-    width: 280px;
-    right: 20px;
-  }
+  // @media (min-width: 768px) {
+  //   top: 85px;
+  //   width: 280px;
+  //   right: 20px;
+  // }
 `;
 
 const VisualLabel = styled.label`
@@ -265,9 +263,9 @@ const VisualLabel = styled.label`
   display: flex;
   justify-content: space-between;
   margin-bottom: 5px;
-  @media (min-width: 768px) {
-    font-size: 14px;
-  }
+  // @media (min-width: 768px) {
+  //   font-size: 14px;
+  // }
 `;
 
 const VisualRange = styled.input`
@@ -507,10 +505,8 @@ const Header = ({
                   <EmojiWrapper style={{ fontWeight: 900 }}>?</EmojiWrapper>
                 </IconButton>
 
-                <IconButton onClick={onOpenShop} $isDarkMode={isDarkMode}>
-                  <Spa>
-                    <GiShop />
-                  </Spa>
+                <IconButton style={{ display: "none" }} onClick={onOpenShop} $isDarkMode={isDarkMode}>
+                    <GiShop/>
                 </IconButton>
 {/* 
                 <IconButton

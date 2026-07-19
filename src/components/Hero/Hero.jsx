@@ -214,9 +214,9 @@ const HeroDiv = styled.div`
 `;
 const HeroDecors = styled.div`
   display: block;
-  width: 255px;
+  width: 192px;
   margin-top: -200px;
-  height: 118px;
+  height: 88px;
   background-image: url(${(props) => props.$image});
   background-size: cover;
   background-position: center;

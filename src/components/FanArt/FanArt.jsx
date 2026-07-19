@@ -5,41 +5,72 @@ import { motion, AnimatePresence } from "framer-motion";
 import localforage from "localforage";
 import { LuWallpaper } from "react-icons/lu";
 import * as fabric from "fabric";
+import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
+import JSZip from "jszip";
 import monody from "../../photos/vip-images/asium/vip-forest.webp";
 import { DEFAULT_BGS } from "../Hero/Hero";
 import { ImFolderDownload } from "react-icons/im";
 const isVideoSource = (src) => {
+  if (src instanceof Blob) return true;
+
+  if (typeof src === "object" && src !== null) {
+    const nestedType = src.type || src.mimeType || "";
+    if (typeof nestedType === "string" && nestedType.includes("video/")) {
+      return true;
+    }
+    return isVideoSource(src.src || src.url || "");
+  }
+
   if (typeof src !== "string") return false;
-  return src.includes(".mp4") || src.startsWith("data:video/");
+
+  const normalized = src.toLowerCase();
+  return (
+    /\.(mp4|webm|ogg|ogv|mov|avi|mkv|3gp)(\?|$)/.test(normalized) ||
+    normalized.startsWith("data:video/") ||
+    normalized.startsWith("blob:video/") ||
+    normalized.includes("/video/")
+  );
 };
 
 const FanArtDiv = styled.div`
-  margin-top: 35px;
   display: flex;
   flex-direction: column;
   align-items: center;
 `;
 
 const FanArtTitle = styled.div`
-  font-size: 15px;
+  font-size: 22px;
   text-align: center;
   font-family: var(--font-family);
   font-weight: 600;
   color: ${(props) => (props.$isDarkMode ? "white" : "black")};
-  margin-bottom: 35px;
-  @media (min-width: 768px) {
-    font-size: 25px;
-  }
+  margin-bottom: 15px;
 `;
 
 const PlaylistContainer = styled.div`
   display: flex;
   flex-wrap: nowrap;
-  justify-content: center;
+  justify-content: flex-start;
+  align-items: center;
   gap: 5px;
-  margin-bottom: 20px;
+  margin-bottom: 40px;
   width: 100%;
+  padding: 0 12px;
   overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+  scroll-padding-left: 12px;
+  scroll-padding-right: 12px;
+  &::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
 `;
 
 const PlaylistItem = styled.div`
@@ -94,29 +125,37 @@ const PlaylistTextOverlay = styled.div`
 
 const ModalOverlay = styled.div`
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
+  inset: 0;
   background: rgba(0, 0, 0, 0.8);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  padding: 16px 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   z-index: 1000;
+
+  &::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
 `;
 
 const ModalContent = styled.div`
   background: ${(props) => (props.$isDarkMode ? "#1e1e1e" : "#f9f9f9")};
   padding: 5px;
   border-radius: 20px;
-  width: 90%;
+  width: min(90%, 1200px);
   max-width: 1200px;
-  max-height: 90vh;
-  overflow-y: auto;
+  margin: 0 auto 16px;
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
+  box-sizing: border-box;
+  min-height: 0;
 `;
 
 const CloseButton = styled.button`
@@ -199,7 +238,6 @@ const ImageTitleStrip = styled.div`
   font-weight: bold;
   z-index: 2;
   opacity: 0;
-  transform: translateY(-10px);
   transition: all 0.3s ease;
   white-space: nowrap;
   overflow: hidden;
@@ -218,23 +256,34 @@ const ActionButtonsContainer = styled.div`
   opacity: 0;
   transform: translateY(10px);
   transition: all 0.3s ease;
+
+  @media (hover: none) {
+    opacity: 1;
+    transform: translateY(0);
+  }
 `;
 
 const ActionButton = styled.button`
   background: #000000;
   border: none;
   border-radius: 8px;
-  padding: 4px 15px;
-  width: 50px;
+  padding: 4px 10px;
+  min-width: 48px;
+  height: 32px;
   cursor: pointer;
-  font-size: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: background 0.2s;
   &:hover {
     background: #00539b;
   }
 `;
 
-const SearchStatusText = styled.p`
+const SearchStatusText = styled.div`
   color: ${(props) => (props.$isDarkMode ? "#ccc" : "#555")};
   margin-top: 10px;
 `;
@@ -767,9 +816,19 @@ const FanArt = ({
   const [isCooldown, setIsCooldown] = useState(false);
   const [cooldownTime, setCooldownTime] = useState(0);
   const [fullscreenIndex, setFullscreenIndex] = useState(null);
+  const [preview3D, setPreview3D] = useState(null);
+  const previewCanvasRef = useRef(null);
+  const previewRendererRef = useRef(null);
+  const previewSceneRef = useRef(null);
+  const previewCameraRef = useRef(null);
+  const previewControlsRef = useRef(null);
+  const previewAnimationFrameRef = useRef(null);
+  const previewGroupRef = useRef(null);
 
   const allImagesData = DEFAULT_BGS;
   const combinedImages = [...allImagesData, ...customImages];
+  const getRenderableImages = (images = []) =>
+    images.filter((img) => !isVideoSource(img?.src));
 
   useEffect(() => {
     const hydrate = async () => {
@@ -813,7 +872,9 @@ const FanArt = ({
   }, []);
 
   const imagesForPlaylist = selectedPlaylist
-    ? combinedImages.filter((img) => img.category === selectedPlaylist)
+    ? getRenderableImages(
+        combinedImages.filter((img) => img.category === selectedPlaylist),
+      )
     : [];
 
   const handleKeyDown = useCallback(
@@ -858,12 +919,361 @@ const FanArt = ({
       onOpenRegister();
       return;
     }
-    const printWindow = window.open("", "_blank");
-    printWindow.document.write(
-      `<html><head><title>Print Fan Art</title></head><body style="text-align:center;"><img src="${imgSrc}" style="max-width:100%;" onload="window.print();window.close()" /></body></html>`,
-    );
-    printWindow.document.close();
+
+    const html = `
+      <html>
+        <head>
+          <title>Print Fan Art</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 0; padding: 24px; background: #fff; color: #000; text-align: center; }
+            img { max-width: 100%; max-height: 90vh; display: block; margin: 0 auto; }
+          </style>
+        </head>
+        <body>
+          <img src="${imgSrc}" alt="Fan art" />
+        </body>
+      </html>
+    `;
+
+    const frame = document.createElement("iframe");
+    frame.style.position = "fixed";
+    frame.style.right = "0";
+    frame.style.bottom = "0";
+    frame.style.width = "0";
+    frame.style.height = "0";
+    frame.style.border = "0";
+    frame.style.opacity = "0";
+    frame.srcdoc = html;
+    document.body.appendChild(frame);
+
+    frame.onload = () => {
+      try {
+        frame.contentWindow.focus();
+        frame.contentWindow.print();
+      } catch (error) {
+        console.error("Print failed:", error);
+      } finally {
+        setTimeout(() => {
+          if (frame.parentNode) {
+            frame.parentNode.removeChild(frame);
+          }
+        }, 800);
+      }
+    };
   };
+
+  const createVoxelModelFromImage = async (imgSrc, title) => {
+    const image = new Image();
+    image.crossOrigin = "anonymous";
+    image.src = imgSrc;
+
+    await new Promise((resolve, reject) => {
+      image.onload = resolve;
+      image.onerror = reject;
+    });
+
+    if (image.naturalWidth === 0 || image.naturalHeight === 0) {
+      throw new Error("Image has no dimensions");
+    }
+
+    const width = 140;
+    const height = 100;
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(image, 0, 0, width, height);
+
+    const imageData = ctx.getImageData(0, 0, width, height).data;
+    const modelWidth = 4;
+    const modelHeight = 3;
+    const baseThickness = 0.35;
+    const reliefAmplitude = 0.4;
+    
+    const voxelW = modelWidth / width;
+    const voxelH = modelHeight / height;
+    const halfWidth = modelWidth / 2;
+    const halfHeight = modelHeight / 2;
+
+    const geometries = [];
+
+    // Базова підложка сірого кольору
+    const baseGeometry = new THREE.BoxGeometry(modelWidth + 0.08, modelHeight + 0.08, baseThickness);
+    const baseOffset = new THREE.Matrix4().makeTranslation(0, 0, -baseThickness / 2);
+    baseGeometry.applyMatrix4(baseOffset);
+    
+    const baseColors = [];
+    for (let i = 0; i < baseGeometry.attributes.position.count; i++) {
+        baseColors.push(0.5, 0.5, 0.5);
+    }
+    baseGeometry.setAttribute('color', new THREE.Float32BufferAttribute(baseColors, 3));
+    geometries.push(baseGeometry);
+
+    const unitBox = new THREE.BoxGeometry(voxelW, voxelH, 1);
+
+    for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+            const pixelIndex = (y * width + x) * 4;
+            const r = imageData[pixelIndex] || 0;
+            const g = imageData[pixelIndex + 1] || 0;
+            const b = imageData[pixelIndex + 2] || 0;
+            const a = imageData[pixelIndex + 3] || 0;
+            
+            if (a < 128) continue; // Пропускаємо прозорі пікселі
+
+            const brightness = (r + g + b) / (255 * 3);
+            const invertedBrightness = 1.0 - brightness;
+            
+            const voxelHeight = baseThickness + (invertedBrightness * reliefAmplitude);
+            
+            const boxGeom = unitBox.clone();
+            boxGeom.scale(1, 1, voxelHeight);
+            
+            const posX = (x * voxelW) - halfWidth + (voxelW / 2);
+            const posY = -(y * voxelH) + halfHeight - (voxelH / 2);
+            const posZ = voxelHeight / 2 - baseThickness; 
+            
+            boxGeom.translate(posX, posY, posZ);
+
+            const rNorm = r / 255;
+            const gNorm = g / 255;
+            const bNorm = b / 255;
+            
+            const colors = [];
+            for (let i = 0; i < boxGeom.attributes.position.count; i++) {
+                colors.push(rNorm, gNorm, bNorm);
+            }
+            boxGeom.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+            
+            geometries.push(boxGeom);
+        }
+    }
+
+    const mergedGeometry = mergeGeometries(geometries, false);
+    
+    const material = new THREE.MeshStandardMaterial({
+        vertexColors: true,
+        roughness: 0.7,
+        metalness: 0.02,
+    });
+
+    const mergedMesh = new THREE.Mesh(mergedGeometry, material);
+    const group = new THREE.Group();
+    group.add(mergedMesh);
+
+    return { group, title };
+  };
+
+  const exportGroupTo3MF = useCallback(async (group) => {
+    let mergedGeometry = null;
+    
+    group.traverse((child) => {
+        if (child.isMesh && child.geometry) {
+            mergedGeometry = child.geometry;
+        }
+    });
+
+    if (!mergedGeometry) throw new Error("No geometry found for 3MF export");
+    
+    const positions = mergedGeometry.attributes.position;
+    const colors = mergedGeometry.attributes.color;
+    let indices = mergedGeometry.getIndex();
+
+    if (!indices) {
+        const newIndices = [];
+        for (let i = 0; i < positions.count; i++) {
+            newIndices.push(i);
+        }
+        mergedGeometry.setIndex(newIndices);
+        indices = mergedGeometry.getIndex();
+    }
+
+    const colorMap = new Map(); 
+    const uniqueColors = [];
+    const trianglesXML = [];
+    
+    for (let i = 0; i < indices.count; i += 3) {
+        const a = indices.getX(i);
+        const b = indices.getX(i + 1);
+        const c = indices.getX(i + 2);
+        
+        const r = Math.round(colors.getX(a) * 255);
+        const g = Math.round(colors.getY(a) * 255);
+        const bColor = Math.round(colors.getZ(a) * 255);
+        
+        const hexColor = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${bColor.toString(16).padStart(2, '0')}FF`.toUpperCase();
+        
+        let colorIndex = colorMap.get(hexColor);
+        if (colorIndex === undefined) {
+            colorIndex = uniqueColors.length;
+            colorMap.set(hexColor, colorIndex);
+            uniqueColors.push(hexColor);
+        }
+        
+        trianglesXML.push(`<triangle v1="${a}" v2="${b}" v3="${c}" pid="1" p1="${colorIndex}"/>`);
+    }
+    
+    const verticesXML = [];
+    for (let i = 0; i < positions.count; i++) {
+        verticesXML.push(`<vertex x="${positions.getX(i).toFixed(5)}" y="${positions.getY(i).toFixed(5)}" z="${positions.getZ(i).toFixed(5)}"/>`);
+    }
+    
+    const colorsXML = uniqueColors.map((color) => `<color color="${color}"/>`).join('\n          ');
+    
+    const modelXML = `<?xml version="1.0" encoding="UTF-8"?>
+<model unit="millimeter" xml:lang="en-US" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02" xmlns:m="http://schemas.microsoft.com/3dmanufacturing/material/2015/02">
+  <resources>
+    <m:colorgroup id="1">
+      ${colorsXML}
+    </m:colorgroup>
+    <object id="2" type="model">
+      <mesh>
+        <vertices>
+          ${verticesXML.join('\n          ')}
+        </vertices>
+        <triangles>
+          ${trianglesXML.join('\n          ')}
+        </triangles>
+      </mesh>
+    </object>
+  </resources>
+  <build>
+    <item objectid="2"/>
+  </build>
+</model>`;
+
+    const contentTypesXML = `<?xml version="1.0" encoding="UTF-8"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Default Extension="model" ContentType="application/vnd.ms-package.3dmanufacturing-3dmodel+xml"/>
+</Types>`;
+
+    const relsXML = `<?xml version="1.0" encoding="UTF-8"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Target="/3D/3dmodel.model" Id="rel-1" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel"/>
+</Relationships>`;
+
+    const zip = new JSZip();
+    zip.file("[Content_Types].xml", contentTypesXML);
+    zip.folder("_rels").file(".rels", relsXML);
+    zip.folder("3D").file("3dmodel.model", modelXML);
+    
+    return await zip.generateAsync({ type: "blob", compression: "DEFLATE" });
+  }, []);
+
+  const handlePrint3D = async (imgSrc, imgData) => {
+    if (!user) {
+      onOpenRegister();
+      return;
+    }
+
+    const title = imgData?.name || imgData?.title || "Фанарт";
+    setPreview3D({ imgSrc, title });
+  };
+
+  const handleDownloadPreviewStl = useCallback(async () => {
+    if (!preview3D?.imgSrc) return;
+
+    try {
+      const { group } = await createVoxelModelFromImage(preview3D.imgSrc, preview3D.title);
+      const blob = await exportGroupTo3MF(group);
+
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${preview3D.title.replace(/[^a-zA-Z0-9._-]+/g, "_") || "fanart"}.3mf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      setTimeout(() => URL.revokeObjectURL(url), 4000);
+    } catch (error) {
+      console.error("3D export failed:", error);
+      alert("Не вдалося згенерувати 3MF. Спробуйте інше зображення.");
+    }
+  }, [preview3D, exportGroupTo3MF]);
+
+  useEffect(() => {
+    if (!preview3D?.imgSrc || !previewCanvasRef.current) return;
+
+    const container = previewCanvasRef.current;
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    container.innerHTML = "";
+    container.appendChild(renderer.domElement);
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0f1116);
+    const camera = new THREE.PerspectiveCamera(35, container.clientWidth / container.clientHeight, 0.1, 100);
+    camera.position.set(0, 0, 6);
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1.3);
+    directionalLight.position.set(3, 4, 6);
+    scene.add(ambientLight, directionalLight);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.enablePan = false;
+    controls.minDistance = 3;
+    controls.maxDistance = 12;
+
+    const loadPreview = async () => {
+      try {
+        const { group } = await createVoxelModelFromImage(preview3D.imgSrc, preview3D.title);
+        group.rotation.x = -0.35;
+        group.rotation.y = 0.4;
+        scene.add(group);
+        previewSceneRef.current = scene;
+        previewCameraRef.current = camera;
+        previewControlsRef.current = controls;
+        previewRendererRef.current = renderer;
+        previewGroupRef.current = group;
+      } catch (error) {
+        console.error("Preview setup failed:", error);
+      }
+    };
+
+    loadPreview();
+
+    const animate = () => {
+      previewAnimationFrameRef.current = requestAnimationFrame(animate);
+      if (previewGroupRef.current) {
+        previewGroupRef.current.rotation.y += 0.005;
+      }
+      controls.update();
+      renderer.render(scene, camera);
+    };
+    animate();
+
+    const handleResize = () => {
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+      renderer.setSize(width, height);
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      if (previewAnimationFrameRef.current) {
+        cancelAnimationFrame(previewAnimationFrameRef.current);
+      }
+      controls.dispose();
+      renderer.dispose();
+      if (container) {
+        container.innerHTML = "";
+      }
+      previewRendererRef.current = null;
+      previewSceneRef.current = null;
+      previewCameraRef.current = null;
+      previewControlsRef.current = null;
+      previewGroupRef.current = null;
+    };
+  }, [preview3D?.imgSrc, preview3D?.title]);
 
   useEffect(() => {
     const cooldownEndTime = localStorage.getItem("fanart_cooldown_end");
@@ -1270,8 +1680,9 @@ const FanArt = ({
 
             <FanBlock>
               <AnimatePresence>
-                {combinedImages
-                  .filter((img) => img.category === selectedPlaylist)
+                {getRenderableImages(
+                  combinedImages.filter((img) => img.category === selectedPlaylist),
+                )
                   .slice(0, visibleCount)
                   .map((imgData, idx) => (
                     <FanArtCard
@@ -1301,13 +1712,26 @@ const FanArt = ({
                             <ImFolderDownload />
                           </ActionButton>
                           <ActionButton
-                            onClick={() => handlePrint(imgData.src)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handlePrint(imgData.src);
+                            }}
                             title="Роздрукувати"
                           >
                             <MdPrint />
                           </ActionButton>
                           <ActionButton
-                            onClick={() => {
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handlePrint3D(imgData.src, imgData);
+                            }}
+                            title="3D-друк (плоский друк, тверда картина)"
+                          >
+                            3D
+                          </ActionButton>
+                          <ActionButton
+                            onClick={(e) => {
+                              e.stopPropagation();
                               setHeroBg(imgData.src);
                               setCustomHeroBgs((prev) => {
                                 if (prev.some((bg) => bg.src === imgData.src))
@@ -1392,6 +1816,66 @@ const FanArt = ({
             )}
           </ModalContent>
         </ModalOverlay>
+      )}
+
+      {preview3D && (
+        <div
+          onClick={() => setPreview3D(null)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0, 0, 0, 0.88)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 20,
+            zIndex: 2000,
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: "min(100%, 980px)",
+              background: "#121212",
+              border: "1px solid #ffb36c",
+              borderRadius: 18,
+              padding: 16,
+              color: "white",
+              display: "flex",
+              flexDirection: "column",
+              gap: 12,
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <h3 style={{ margin: 0 }}>3D-preview: {preview3D.title}</h3>
+              <button
+                onClick={() => setPreview3D(null)}
+                style={{ background: "transparent", border: "none", color: "white", fontSize: 24, cursor: "pointer" }}
+              >
+                ×
+              </button>
+            </div>
+            <div
+              ref={previewCanvasRef}
+              style={{
+                width: "100%",
+                height: "min(65vh, 520px)",
+                borderRadius: 12,
+                overflow: "hidden",
+                background: "linear-gradient(135deg, #1b1b1b, #080808)",
+                border: "1px solid rgba(255, 179, 108, 0.3)",
+              }}
+            />
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 10, justifyContent: "center" }}>
+              <button onClick={handleDownloadPreviewStl} style={{ background: "#ffb36c", color: "#111", border: "none", borderRadius: 999, padding: "8px 14px", fontWeight: 700, cursor: "pointer" }}>
+                ⬇️ Завантажити 3MF (з кольорами)
+              </button>
+              <button onClick={() => setPreview3D(null)} style={{ background: "#ffb36c", color: "#111", border: "none", borderRadius: 999, padding: "8px 14px", fontWeight: 700, cursor: "pointer" }}>
+                Закрити
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       <AnimatePresence>

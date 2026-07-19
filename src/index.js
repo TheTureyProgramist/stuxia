@@ -6,13 +6,24 @@ import { Provider } from "react-redux";
 import { store } from "./app/store.js";
 import "./index.css";
 import App from "./App.js";
+window.addEventListener('error', (e) => {
+  if (e.message.includes('AbortError') || e.message.includes('aborted')) {
+    e.preventDefault();
+    return false;
+  }
+});
+
+window.addEventListener('unhandledrejection', (e) => {
+  if (e.reason?.name === 'AbortError' || e.reason?.message?.includes('aborted')) {
+    e.preventDefault();
+    return false;
+  }
+});
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <React.StrictMode>
     <Provider store={store}>
       <HashRouter>
         <App />
       </HashRouter>
     </Provider>
-  </React.StrictMode>,
 );

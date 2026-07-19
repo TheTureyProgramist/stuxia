@@ -5,14 +5,7 @@ import localforage from "localforage";
 // import { motion } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 
-const BANNED_KEYWORDS = [
-  "війна",
-  "вибори",
-  "депутат",
-  "рецепт",
-  "порно",
-  "казино",
-];
+import { hasBannedContent } from "../../utils/contentFilter";
 
 const AihelpDiv = styled.div`
   margin-top: 10px;
@@ -21,24 +14,17 @@ const AihelpDiv = styled.div`
   align-items: center;
   gap: 5px;
   padding: 0 5px;
-  @media (min-width: 768px) {
-    margin-top: 20px;
-  }
 `;
 
 const AihelpTitle = styled.div`
-  font-size: 14px;
+  font-size: 22px;
   text-align: center;
   font-family: var(--font-family);
   font-weight: 600;
   color: ${(props) => (props.$isDarkMode ? "white" : "black")};
   margin-bottom: 10px;
-  @media (min-width: 768px) {
-    font-size: 25px;
-  }
 `;
 
-// НОВИЙ БЛОК НАЛАШТУВАНЬ
 const SettingsPanel = styled.div`
   width: 100%;
   max-width: 1200px;
@@ -582,11 +568,10 @@ const Aihelp = ({ isDarkMode }) => {
     }
 
     if (originalPrompt) {
-      const lowerQuery = originalPrompt.toLowerCase();
-      if (BANNED_KEYWORDS.some((word) => lowerQuery.includes(word))) {
+      if (hasBannedContent(originalPrompt)) {
         setMessages((prev) => [
           ...prev,
-          { text: "Запит містить заборонені слова.", isBot: true },
+          { text: "Запит містить заборонені слова або теми.", isBot: true },
         ]);
         return;
       }

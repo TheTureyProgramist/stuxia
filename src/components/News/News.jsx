@@ -5,6 +5,9 @@ import localforage from "localforage";
 import rainbow from "../../photos/vip-images/stars.webp";
 import NewsAiModal from "./NewsAiModal";
 import InfoModal from "../Modals/UserSearchModal.jsx";
+import { hasBannedContent } from "../../utils/contentFilter";
+import { db } from "../../firebase";
+import { doc, getDoc, setDoc, updateDoc, arrayUnion, collection, getDocs } from "firebase/firestore";
 
 const fadeIn = keyframes`
   from { opacity: 0; }
@@ -20,44 +23,17 @@ const SOURCES = [
   },
 ];
 
-const STOP_WORDS = [
-  "війна",
-  "політика",
-  "кримінал",
-  "суд",
-  "затримано",
-  "казино",
-  "ставки",
-  "корупція",
-];
-
-const translateText = async (text) => {
-  if (!text || text.length < 3) return text;
-  try {
-    const res = await fetch(
-      `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=uk&dt=t&q=${encodeURIComponent(text)}`,
-    );
-    const data = await res.json();
-    return data[0].map((s) => s[0]).join("");
-  } catch {
-    return text;
-  }
-};
-
 const NewsDiv = styled.div`
   position: relative;
 `;
 
 const AihelpTitle = styled.div`
-  font-size: 14px;
+  font-size: 22px;
   text-align: center;
   font-family: var(--font-family);
   font-weight: 600;
   color: ${(props) => (props.$isDarkMode ? "white" : "black")};
   margin-bottom: 15px;
-  @media (min-width: 768px) {
-    font-size: 24px;
-  }
 `;
 
 const Grid = styled.div`
@@ -184,6 +160,78 @@ const AiSummaryBtn = styled.button`
   }
 `;
 
+const ReportBtn = styled.button`
+  position: absolute;
+  top: 35px;
+  right: ${(props) => (props.$hasNewBadge ? "60px" : "10px")};
+  background: rgba(255, 77, 77, 0.9);
+  color: white;
+  border: none;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  z-index: 6;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s;
+  &:hover {
+    background: #ff4d4d;
+    transform: scale(1.05);
+  }
+`;
+
+const BlockOverlay = styled.div`
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(5px);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  text-align: center;
+  color: white;
+`;
+
+const ModalOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  padding: 20px;
+  backdrop-filter: blur(5px);
+`;
+
+const ModalContent = styled.div`
+  background: ${(props) => (props.$isDarkMode ? "#222" : "#fff")};
+  color: ${(props) => (props.$isDarkMode ? "#fff" : "#000")};
+  padding: 20px;
+  border-radius: 16px;
+  max-width: 500px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  border: 1px solid #ffb36c;
+  position: relative;
+`;
+
+const CloseButton = styled.button`
+  background: #ffb36c;
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  padding: 5px 15px;
+  cursor: pointer;
+  float: right;
+  font-weight: 600;
+`;
+
 const NewsCard = ({
   item,
   $isDarkMode,
@@ -191,6 +239,7 @@ const NewsCard = ({
   showTitle,
   showDescription,
   onAiSummaryClick,
+  onReportClick,
 }) => {
   const cardRef = useRef(null);
   const [isVisible, setIsVisible] = useState(item.isNew);
@@ -205,13 +254,16 @@ const NewsCard = ({
           const timer = setTimeout(async () => {
             setIsVisible(false);
             // Оновлюємо список побачених в localforage
-            const seenLinks =
-              (await localforage.getItem("seen_news_links")) || [];
-            if (!seenLinks.includes(item.link)) {
-              await localforage.setItem("seen_news_links", [
-                ...seenLinks,
-                item.link,
-              ]);
+            try {
+              const seenLinks =
+                (await localforage.getItem("seen_news_links")) || [];
+              if (!seenLinks.includes(item.link)) {
+                await localforage.setItem("seen_news_links", [
+                  ...seenLinks,
+                  item.link,
+                ]);
+              }
+            } catch (err) {
             }
           }, 60000); // 60000мс = 1 хвилина
 
@@ -225,6 +277,19 @@ const NewsCard = ({
     if (cardRef.current) observer.observe(cardRef.current);
     return () => observer.disconnect();
   }, [item.isNew, item.link]);
+
+  if (item.isBlocked) {
+    return (
+      <Card $isDarkMode={$isDarkMode} style={{ cursor: "not-allowed", position: "relative" }} as="div">
+        <BlockOverlay>
+          <span style={{ fontSize: "40px", marginBottom: "10px" }}>🔒</span>
+          <h4 style={{ margin: 0, fontSize: "14px", lineHeight: "1.4" }}>
+            Дана новина була неправомірна, і ви не можете її переглянути.
+          </h4>
+        </BlockOverlay>
+      </Card>
+    );
+  }
 
   return (
     <Card
@@ -265,6 +330,15 @@ const NewsCard = ({
         >
           ✨ ШІ Виклад
         </AiSummaryBtn>
+        <ReportBtn
+          $hasNewBadge={isVisible}
+          onClick={(e) => {
+            if (onReportClick) onReportClick(item, e);
+          }}
+          title="Поскаржитися на цю новину"
+        >
+          🚩 Поскаржитися
+        </ReportBtn>
         {showImage && (
           <NewsImg
             src={item.displayImage}
@@ -408,7 +482,17 @@ const News = ({ $isDarkMode, user }) => {
   const [filterSource, setFilterSource] = useState("all");
   const [lastUpdated, setLastUpdated] = useState(null);
   const [cooldown, setCooldown] = useState(0);
-
+const translateText = async (text) => {
+    if (!text || text.length < 3) return text;
+    try {
+      const res = await fetch(`...`);
+      if (!isMounted.current) return text; // Тепер isMounted доступний!
+      const data = await res.json();
+      return data[0].map((s) => s[0]).join("");
+    } catch {
+      return text;
+    }
+  };
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [selectedNews, setSelectedNews] = useState(null);
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
@@ -416,6 +500,10 @@ const News = ({ $isDarkMode, user }) => {
   const [customSources, setCustomSources] = useState([]);
   const [newUrl, setNewUrl] = useState("");
   const [isAddingSource, setIsAddingSource] = useState(false);
+//blockedNewsUrls
+  const [, setBlockedNewsUrls] = useState([]);
+  const [blockedSources, setBlockedSources] = useState([]);
+  const [showBlacklist, setShowBlacklist] = useState(false);
 
   // 1. Стан розмонтування для Memory Leak Protection
   const isMounted = useRef(true);
@@ -424,8 +512,12 @@ const News = ({ $isDarkMode, user }) => {
   useEffect(() => {
     isMounted.current = true;
     const loadCustomSources = async () => {
-      const saved = await localforage.getItem("custom_news_sources");
-      if (saved) setCustomSources(saved);
+      try {
+        const saved = await localforage.getItem("custom_news_sources");
+        if (saved) setCustomSources(saved);
+      } catch (err) {
+       
+      }
     };
     loadCustomSources();
     return () => {
@@ -447,6 +539,8 @@ const News = ({ $isDarkMode, user }) => {
   }, [user?.newsAutoScroll]);
 
   const getData = useCallback(async (showLoader = false) => {
+    const controller = new AbortController();
+  const signal = controller.signal;
     if (showLoader && isMounted.current) {
       setLoading(true);
       setLoadProgress(5);
@@ -457,10 +551,43 @@ const News = ({ $isDarkMode, user }) => {
       const savedCustom =
         (await localforage.getItem("custom_news_sources")) || [];
       const allSources = [...SOURCES, ...savedCustom];
+
+      // Отримуємо списки заблокованих
+      let bNews = [];
+      let bSourcesList = [];
+      try {
+        const newsSnapshot = await getDocs(collection(db, "news_reports"));
+        const rssSnapshot = await getDocs(collection(db, "rss_reports"));
+        const now = Date.now();
+        const oneDay = 24 * 60 * 60 * 1000;
+        
+        newsSnapshot.forEach(docSnap => {
+          if ((docSnap.data().reports || []).filter(ts => now - ts < oneDay).length >= 10) bNews.push(docSnap.id);
+        });
+        
+        const blockedSourcesArr = [];
+        rssSnapshot.forEach(docSnap => {
+          const data = docSnap.data();
+          if ((data.reports || []).filter(ts => now - ts < oneDay).length >= 20) {
+            blockedSourcesArr.push({ id: docSnap.id, url: decodeURIComponent(docSnap.id), name: data.name || "Джерело" });
+            bSourcesList.push(decodeURIComponent(docSnap.id));
+          }
+        });
+        
+        if (isMounted.current) {
+          setBlockedNewsUrls(bNews);
+          setBlockedSources(blockedSourcesArr);
+        }
+      } catch (e) {
+        
+      }
+
       for (const source of allSources) {
+        if (bSourcesList.includes(source.url)) continue;
         try {
           const res = await fetch(
             `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(source.url)}`,
+            { signal }
           );
           const data = await res.json();
           if (data.status === "ok" && data.items.length > 0) {
@@ -470,6 +597,7 @@ const News = ({ $isDarkMode, user }) => {
               sourceName: source.name,
               sourceFlag: source.flag,
               sourceHome: source.home,
+              sourceUrl: source.url,
             }));
             allItems = [...allItems, ...itemsWithSource];
           }
@@ -477,20 +605,21 @@ const News = ({ $isDarkMode, user }) => {
           continue;
         }
       }
-
-      // 1. Якщо жодне джерело не повернуло дані — викликаємо помилку для UI
-      if (allItems.length === 0) {
-        throw new Error("Не вдалося завантажити жодне джерело новин");
-      }
-
+if (allItems.length === 0) {
+  if (isMounted.current) {
+    setHasError(true);
+    setLoadProgress(100);
+    setLoading(false);
+  }
+  return; 
+}
       if (showLoader && isMounted.current) setLoadProgress(25);
 
-      // 1. Сортування об'єднаного списку новин за датою (найсвіжіші зверху)
       allItems.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
 
       const clean = allItems.filter((i) => {
-        const content = (i.title + (i.description || "")).toLowerCase();
-        return !STOP_WORDS.some((word) => content.includes(word));
+        const content = i.title + " " + (i.description || "");
+        return !hasBannedContent(content);
       });
 
       // Збільшуємо кількість новин до 15
@@ -514,7 +643,9 @@ const News = ({ $isDarkMode, user }) => {
             sourceName: item.sourceName,
             sourceFlag: item.sourceFlag,
             sourceHome: item.sourceHome,
+            sourceUrl: item.sourceUrl,
             isNew,
+            isBlocked: bNews.includes(encodeURIComponent(item.link)),
           };
         } else {
           const cleanDesc = (item.description || "")
@@ -585,7 +716,9 @@ const News = ({ $isDarkMode, user }) => {
               sourceName: item.sourceName,
               sourceFlag: item.sourceFlag,
               sourceHome: item.sourceHome,
+              sourceUrl: item.sourceUrl,
               isNew: !seenLinks.includes(item.link),
+              isBlocked: bNews.includes(encodeURIComponent(item.link)),
             };
 
             await localforage.setItem(
@@ -614,49 +747,53 @@ const News = ({ $isDarkMode, user }) => {
         setItems(results);
         setLastUpdated(new Date());
       }
-    } catch (e) {
-      console.error("Помилка завантаження новин:", e);
-      if (showLoader && isMounted.current) {
+} catch (e) {
+  if (e.name === 'AbortError' || e.message?.includes('aborted')) {
+    console.log("Запит було скасовано очікувано"); 
+    return; 
+  }
+  console.error("Справжня помилка завантаження:", e);      
+  if (isMounted.current) {
         setHasError(true);
         setLoadProgress(100);
-        // Даємо користувачу 2.5 секунди побачити червоний прогрес-бар
-        await new Promise((resolve) => setTimeout(resolve, 2500));
+        if (showLoader) {
+          setLoading(true); 
+          await new Promise((resolve) => setTimeout(resolve, 2500));
+        }
       }
     } finally {
-      if (showLoader && isMounted.current) setLoading(false);
+      if (isMounted.current) {
+        setLoading(false);
+      }
     }
-  }, []);
+  }, []); 
 
   useEffect(() => {
     const init = async () => {
-      // Перевірка збереженого таймера обмеження в localforage
-      const endTime = await localforage.getItem("news_refresh_cooldown_end");
-      if (endTime) {
-        const remaining = Math.ceil((endTime - Date.now()) / 1000);
-        if (remaining > 0) setCooldown(remaining);
+      try {
+        // Перевірка збереженого таймера обмеження в localforage
+        const endTime = await localforage.getItem("news_refresh_cooldown_end");
+        if (endTime) {
+          const remaining = Math.ceil((endTime - Date.now()) / 1000);
+          if (remaining > 0) setCooldown(remaining);
+        }
+      } catch (err) {
       }
       // Перший запуск із показом лоадера
       getData(true);
     };
 
     init();
-
-    // Налаштування інтервалу оновлення (60 хвилин = 3600000 мс)
     const interval = setInterval(() => getData(false), 60 * 60 * 1000);
-
-    // Очищення інтервалу при видаленні компонента
     return () => {
       clearInterval(interval);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // getData стабільна (useCallback []), тому ми можемо безпечно прибрати її звідси
-
-  // Скидаємо кількість видимих новин при зміні джерела
+  }, []);
   useEffect(() => {
     setCurrentPage(1);
   }, [filterSource]);
 
-  // Таймер для cooldown кнопки оновлення
   useEffect(() => {
     if (cooldown > 0) {
       const timer = setTimeout(() => setCooldown(cooldown - 1), 1000);
@@ -671,7 +808,10 @@ const News = ({ $isDarkMode, user }) => {
     if (cooldown > 0) return;
     getData(true);
     // Зберігаємо час закінчення (зараз + 60 секунд)
-    await localforage.setItem("news_refresh_cooldown_end", Date.now() + 60000);
+    try {
+      await localforage.setItem("news_refresh_cooldown_end", Date.now() + 60000);
+    } catch (err) {
+    }
     setCooldown(60); // Встановлюємо 60 секунд обмеження
   };
 
@@ -713,16 +853,63 @@ const News = ({ $isDarkMode, user }) => {
     }
   };
 
+  const handleReport = async (item, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const isUltra = e.shiftKey;
+    const reportCount = isUltra ? 2 : 1; 
+    
+    if (isUltra) {
+      alert("⚠️ УЛЬТРАСКАРГА застосована! Щоб зробити звичайну скаргу, просто не затискайте Shift під час кліку.");
+    } else {
+      if (!window.confirm("Ви дійсно хочете поскаржитися на цю новину? (Якщо скарг буде багато, вона буде заблокована)")) return;
+    }
+    
+    const newsId = encodeURIComponent(item.link);
+    const sourceId = encodeURIComponent(item.sourceUrl);
+    const now = Date.now();
+    const timestamps = Array(reportCount).fill(now);
+    
+    try {
+      const newsRef = doc(db, "news_reports", newsId);
+      const newsDoc = await getDoc(newsRef);
+      if (newsDoc.exists()) {
+        await updateDoc(newsRef, { reports: arrayUnion(...timestamps) });
+      } else {
+        await setDoc(newsRef, { reports: timestamps });
+      }
+      
+      const rssRef = doc(db, "rss_reports", sourceId);
+      const rssDoc = await getDoc(rssRef);
+      if (rssDoc.exists()) {
+        await updateDoc(rssRef, { reports: arrayUnion(...timestamps) });
+      } else {
+        await setDoc(rssRef, { reports: timestamps, name: item.sourceName });
+      }
+      
+      alert(isUltra ? "Заблоковано (ультраскарга)." : "Скаргу прийнято. Дякуємо!");
+      getData(true);
+    } catch (err) {
+      alert("Помилка відправки скарги.");
+    }
+  };
+
   const handleRemoveSource = async (urlToRemove) => {
     if (!window.confirm("Видалити це джерело новин?")) return;
-    const saved = (await localforage.getItem("custom_news_sources")) || [];
-    const updated = saved.filter((s) => s.url !== urlToRemove);
-    await localforage.setItem("custom_news_sources", updated);
-    setCustomSources(updated);
-    if (filterSource === saved.find((s) => s.url === urlToRemove)?.name) {
-      setFilterSource("all");
+    try {
+      const saved = (await localforage.getItem("custom_news_sources")) || [];
+      const updated = saved.filter((s) => s.url !== urlToRemove);
+      await localforage.setItem("custom_news_sources", updated);
+      setCustomSources(updated);
+      if (filterSource === saved.find((s) => s.url === urlToRemove)?.name) {
+        setFilterSource("all");
+      }
+      getData(true);
+    } catch (err) {
+      console.error("Localforage error:", err);
+      alert("Помилка видалення джерела.");
     }
-    getData(true);
   };
 
   const filteredItems = items.filter((item) => {
@@ -840,6 +1027,13 @@ const News = ({ $isDarkMode, user }) => {
             {isAddingSource ? "Скасувати" : "+ Додати джерело"}
           </FilterBtn>
         )}
+        <FilterBtn
+          $isDarkMode={$isDarkMode}
+          onClick={() => setShowBlacklist(true)}
+          style={{ background: 'rgba(255, 77, 77, 0.2)', borderColor: '#ff4d4d', color: '#ff4d4d' }}
+        >
+          🛑 Чорний список ({blockedSources.length})
+        </FilterBtn>
         <PaginationSide $isDarkMode={$isDarkMode}>
           <PageArrow
             disabled={currentPage === 1}
@@ -960,6 +1154,7 @@ const News = ({ $isDarkMode, user }) => {
                       setSelectedNews(news);
                       setIsAiModalOpen(true);
                     }}
+                    onReportClick={handleReport}
                   />
                 ))}
               </Grid>
@@ -986,6 +1181,29 @@ const News = ({ $isDarkMode, user }) => {
           onClose={() => setIsHelpModalOpen(false)}
           initialFaqQuestion="Навчання по управлінню новинами"
         />
+      )}
+      {showBlacklist && (
+        <ModalOverlay onClick={() => setShowBlacklist(false)}>
+          <ModalContent $isDarkMode={$isDarkMode} onClick={e => e.stopPropagation()}>
+            <CloseButton onClick={() => setShowBlacklist(false)}>✕</CloseButton>
+            <h2 style={{ marginTop: 0 }}>Чорний список (карантин 24 год)</h2>
+            <p style={{ fontSize: "13px", opacity: 0.8 }}>
+              Ці RSS-джерела отримали багато скарг і тимчасово відключені для всіх користувачів.
+            </p>
+            {blockedSources.length === 0 ? (
+              <p>Наразі немає заблокованих джерел.</p>
+            ) : (
+              <ul style={{ paddingLeft: "20px", marginTop: "15px" }}>
+                {blockedSources.map(s => (
+                  <li key={s.id} style={{ marginBottom: "15px" }}>
+                    <strong style={{ fontSize: "16px" }}>{s.name}</strong><br/>
+                    <a href={s.url} target="_blank" rel="noreferrer" style={{ fontSize: "12px", color: "#ffb36c", wordBreak: "break-all" }}>{s.url}</a>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </ModalContent>
+        </ModalOverlay>
       )}
     </NewsDiv>
   );

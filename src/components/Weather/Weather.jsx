@@ -16,15 +16,12 @@ import {
 const fadeIn = keyframes`from { opacity: 0; } to { opacity: 1; }`;
 
 export const AihelpTitle = styled.div`
-  font-size: 14px;
+  font-size: 22px;
   text-align: center;
   font-family: var(--font-family);
   font-weight: 600;
   color: ${(props) => (props.$isDarkMode ? "white" : "#000")};
   margin-bottom: 15px;
-  @media (min-width: 768px) {
-    font-size: 24px;
-  }
 `;
 
 const WeatherCard = styled.div`

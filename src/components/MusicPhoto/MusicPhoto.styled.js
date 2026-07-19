@@ -504,7 +504,6 @@ export const LoadMoreButton = styled.button`
   cursor: pointer;
   margin-top: 5px;
 `;
-
 export const FilterOverlay = styled.div`
   position: absolute;
   top: 0;
@@ -513,7 +512,7 @@ export const FilterOverlay = styled.div`
   height: 100%;
   pointer-events: none;
   z-index: 10;
-  transition: /* Changed for dark mode */
+  transition: 
     background-color ${(props) => (props.$type === "flash" ? "0.05s" : "0.5s")}
       ease,
     opacity 0.5s ease,
@@ -556,66 +555,6 @@ export const FilterOverlay = styled.div`
         `
       }
       ${
-        props.$type === "vignette" &&
-        css`
-          background: radial-gradient(
-            circle,
-            transparent 40%,
-            rgba(0, 0, 0, ${props.$opacity || 0.8}) 100%
-          );
-        `
-      }
-      ${
-        props.$type === "cinemascope" &&
-        css`
-          &::before,
-          &::after {
-            content: "";
-            position: absolute;
-            left: 0;
-            width: 100%;
-            background: black;
-            z-index: 100;
-          }
-          &::before {
-            top: 0;
-            animation: ${cinemascopeTop} 1s ease forwards;
-          }
-          &::after {
-            bottom: 0;
-            animation: ${cinemascopeBottom} 1s ease forwards;
-          }
-        `
-      }
-      ${
-        props.$type === "vintage" &&
-        css`
-          animation: ${oldFilmShake} 0.15s infinite;
-
-          /* Вертикальні лінії (шум) */
-          &::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background-image: repeating-linear-gradient(
-              90deg,
-              transparent,
-              transparent 150px,
-              rgba(255, 255, 255, 0.05) 150px,
-              rgba(255, 255, 255, 0.05) 151px,
-              transparent 151px,
-              transparent 300px,
-              rgba(0, 0, 0, 0.05) 300px,
-              rgba(0, 0, 0, 0.05) 301px
-            );
-            background-size: 200% 100%;
-            animation: ${oldFilmNoise} 0.2s steps(5) infinite;
-            pointer-events: none;
-            z-index: 5;
-          }
-        `
-      }
-      ${
         props.$type === "chaos" &&
         css`
           --chaos-opacity: ${props.$opacity || 0.4};
@@ -651,7 +590,6 @@ export const FilterOverlay = styled.div`
       }
     `}
 `;
-
 export const StyledSymbol = styled.span`
   position: absolute;
   color: rgba(255, 255, 255, 0.91);
@@ -872,15 +810,12 @@ export const ActionButton = styled.button`
 `;
 
 export const AihelpTitle = styled.div`
-  font-size: 14px;
+  font-size: 22px;
   text-align: center;
   font-family: var(--font-family);
   font-weight: 600;
   color: ${(props) => (props.$isDarkMode ? "black" : "white")};
   margin-bottom: 10px;
-  @media (min-width: 768px) {
-    font-size: 25px;
-  }
 `;
 export const ActButton = styled.button`
   background: rgba(0, 0, 0, 0.43);

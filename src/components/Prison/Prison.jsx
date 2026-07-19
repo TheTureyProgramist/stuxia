@@ -220,6 +220,7 @@ const PrisonDiv = styled.div`
   transform: translateX(-50%);
   min-height: 360px;
   display: flex;
+    display: none;
   background-size: cover;
   background-image:
     linear-gradient(to right, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),

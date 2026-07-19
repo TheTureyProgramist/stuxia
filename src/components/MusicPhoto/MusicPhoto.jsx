@@ -2252,40 +2252,46 @@ const toSocialTarget = (t) => {
       limit(MAX_TOTAL_COMMENTS * 10),
     );
 
-    const unsubscribeStats = onSnapshot(statsRef, (snapshot) => {
-      if (snapshot.exists()) {
-        const data = snapshot.data();
-        setSocialStats({
-          views: data.views || 0,
-          likes: data.likes || 0,
-          dislikes: data.dislikes || 0,
-          comments: data.comments || 0,
-        });
-      } else {
-        setSocialStats(getInitialCommentStats());
-      }
-    });
+    let unsubscribeStats = () => {};
+    let unsubscribeComments = () => {};
+    let unsubscribeGlobalComments = () => {};
 
-    const unsubscribeComments = onSnapshot(commentsRef, (snapshot) => {
-      const next = snapshot.docs.map((docSnap) => ({
-        id: docSnap.id,
-        ...docSnap.data(),
-      }));
-      setSocialComments(next);
-      setSocialCommentCount(next.length);
-    });
+    const timer = setTimeout(() => {
+      unsubscribeStats = onSnapshot(statsRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const data = snapshot.data();
+          setSocialStats({
+            views: data.views || 0,
+            likes: data.likes || 0,
+            dislikes: data.dislikes || 0,
+            comments: data.comments || 0,
+          });
+        } else {
+          setSocialStats(getInitialCommentStats());
+        }
+      });
 
-    const unsubscribeGlobalComments = onSnapshot(
-      globalCommentsRef,
-      (snapshot) => {
+      unsubscribeComments = onSnapshot(commentsRef, (snapshot) => {
         const next = snapshot.docs.map((docSnap) => ({
           id: docSnap.id,
           ...docSnap.data(),
         }));
-        setSocialGlobalComments(next.slice(0, MAX_TOTAL_COMMENTS));
-        setSocialGlobalCommentCount(next.length);
-      },
-    );
+        setSocialComments(next);
+        setSocialCommentCount(next.length);
+      });
+
+      unsubscribeGlobalComments = onSnapshot(
+        globalCommentsRef,
+        (snapshot) => {
+          const next = snapshot.docs.map((docSnap) => ({
+            id: docSnap.id,
+            ...docSnap.data(),
+          }));
+          setSocialGlobalComments(next.slice(0, MAX_TOTAL_COMMENTS));
+          setSocialGlobalCommentCount(next.length);
+        },
+      );
+    }, 50);
 
     const updateView = async () => {
       try {
@@ -2305,6 +2311,7 @@ const toSocialTarget = (t) => {
 
     updateView();
     return () => {
+      clearTimeout(timer);
       unsubscribeStats();
       unsubscribeComments();
       unsubscribeGlobalComments();
@@ -6648,43 +6655,49 @@ const PlaylistModal = ({
       limit(MAX_TOTAL_COMMENTS * 10),
     );
 
-    const unsubscribeStats = onSnapshot(statsRef, (snapshot) => {
-      if (snapshot.exists()) {
-        const data = snapshot.data();
-        setSocialStats({
-          views: data.views || 0,
-          likes: data.likes || 0,
-          dislikes: data.dislikes || 0,
-          comments: data.comments || 0,
-        });
-      } else {
-        setSocialStats(getInitialCommentStats());
-      }
-    });
+    let unsubscribeStats = () => {};
+    let unsubscribeTrackComments = () => {};
+    let unsubscribeGlobalComments = () => {};
 
-    const unsubscribeTrackComments = onSnapshot(
-      trackCommentsRef,
-      (snapshot) => {
-        const next = snapshot.docs.map((docSnap) => ({
-          id: docSnap.id,
-          ...docSnap.data(),
-        }));
-        setSocialComments(next);
-        setSocialCommentCount(next.length);
-      },
-    );
+    const timer = setTimeout(() => {
+      unsubscribeStats = onSnapshot(statsRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const data = snapshot.data();
+          setSocialStats({
+            views: data.views || 0,
+            likes: data.likes || 0,
+            dislikes: data.dislikes || 0,
+            comments: data.comments || 0,
+          });
+        } else {
+          setSocialStats(getInitialCommentStats());
+        }
+      });
 
-    const unsubscribeGlobalComments = onSnapshot(
-      globalCommentsRef,
-      (snapshot) => {
-        const next = snapshot.docs.map((docSnap) => ({
-          id: docSnap.id,
-          ...docSnap.data(),
-        }));
-        setSocialGlobalComments(next.slice(0, MAX_TOTAL_COMMENTS));
-        setSocialGlobalCommentCount(next.length);
-      },
-    );
+      unsubscribeTrackComments = onSnapshot(
+        trackCommentsRef,
+        (snapshot) => {
+          const next = snapshot.docs.map((docSnap) => ({
+            id: docSnap.id,
+            ...docSnap.data(),
+          }));
+          setSocialComments(next);
+          setSocialCommentCount(next.length);
+        },
+      );
+
+      unsubscribeGlobalComments = onSnapshot(
+        globalCommentsRef,
+        (snapshot) => {
+          const next = snapshot.docs.map((docSnap) => ({
+            id: docSnap.id,
+            ...docSnap.data(),
+          }));
+          setSocialGlobalComments(next.slice(0, MAX_TOTAL_COMMENTS));
+          setSocialGlobalCommentCount(next.length);
+        },
+      );
+    }, 50);
 
     const updateView = async () => {
       try {
@@ -6704,6 +6717,7 @@ const PlaylistModal = ({
 
     updateView();
     return () => {
+      clearTimeout(timer);
       unsubscribeStats();
       unsubscribeTrackComments();
       unsubscribeGlobalComments();
@@ -6904,29 +6918,33 @@ user,
       const currentUser = socialAuthUser || user;
       if (!currentUser) return;
 
-      const normalized = normalizeLikeValue(reactionValue);
-      const reactionKey = `${String(target.id)}:${currentUser.uid || currentUser.id || currentUser.account}`;
-      const previous = await localforage.getItem(reactionKey);
-      const prevNormalized = normalizeLikeValue(previous);
-      const currentState = reactionValue === 0 ? 0 : normalized;
-
-      await localforage.setItem(reactionKey, currentState);
-
       try {
-        const statsRef = doc(db, "music_social_stats", String(target.id));
-        const snapshot = await getDoc(statsRef);
-        const data = snapshot.exists()
-          ? snapshot.data()
-          : getInitialCommentStats();
-        const likes =
-          (data.likes || 0) +
-          (currentState === 1 ? 1 : prevNormalized === 1 ? -1 : 0);
-        const dislikes =
-          (data.dislikes || 0) +
-          (currentState === -1 ? 1 : prevNormalized === -1 ? -1 : 0);
-        await setDoc(statsRef, { ...data, likes, dislikes }, { merge: true });
+        const normalized = normalizeLikeValue(reactionValue);
+        const reactionKey = `${String(target.id)}:${currentUser.uid || currentUser.id || currentUser.account}`;
+        const previous = await localforage.getItem(reactionKey);
+        const prevNormalized = normalizeLikeValue(previous);
+        const currentState = reactionValue === 0 ? 0 : normalized;
+
+        await localforage.setItem(reactionKey, currentState);
+
+        try {
+          const statsRef = doc(db, "music_social_stats", String(target.id));
+          const snapshot = await getDoc(statsRef);
+          const data = snapshot.exists()
+            ? snapshot.data()
+            : getInitialCommentStats();
+          const likes =
+            (data.likes || 0) +
+            (currentState === 1 ? 1 : prevNormalized === 1 ? -1 : 0);
+          const dislikes =
+            (data.dislikes || 0) +
+            (currentState === -1 ? 1 : prevNormalized === -1 ? -1 : 0);
+          await setDoc(statsRef, { ...data, likes, dislikes }, { merge: true });
+        } catch (error) {
+          console.error("Card reaction update failed", error);
+        }
       } catch (error) {
-        console.error("Card reaction update failed", error);
+        console.error("Card local reaction failed", error);
       }
     },
     [socialAuthUser, user],

@@ -19,7 +19,11 @@ const slideIn = keyframes`
   0% { transform: translateY(100%) scale(0.9); opacity: 0; }
   100% { transform: translateY(0%) scale(1); opacity: 1; }
 `;
-
+// content: [
+//   { type: "image", src: imageSrc, alt: "..." },
+//   { type: "text", value: "Перший текст" },
+//   { type: "text", value: "Другий текст" }
+// ]
 const slideOut = keyframes`
   0% { transform: translateY(0%) scale(1); opacity: 1; }
   100% { transform: translateY(100%) scale(0.9); opacity: 0; }
@@ -689,7 +693,7 @@ const InfoModal = ({ onClose, isOpen, initialFaqQuestion }) => {
       q: "Навчання по управлінню новинами",
       a: `У Стихії в розділі новини, ви можете додавати власні новинні сайти: RSS-стрічку. 
       А у налаштуваннях, ви можете налаштувати автоскрол новин при відкритті сайту, і прибрати заголовок та опис новини
-Примітка: Новини з елементами 18+ казино або політикою, не відображаються. У разі якщо сайт показав політичний елемент, ви можете надіслати скаргу на email! Ми хочемо щоб користувачі Стихії могли бачити к-ка погодних місць одночасно, ностальгувати, слухати музику без лімітів і реклами, а також щоб політичні новини(більшість з яких погані) не псували вам день. 
+Примітка: Новини з елементами: війни, політики, 18+, порно, сексу, еротики, криміналу, суду, затримання, казино, корупції, релігії(виняток привітання зі святом, у погодних картках), таємних товариств(конспірологія або теорії змови), теракту, секти. Не відображаються. У разі якщо сайт показав вище перечислений елемент, ви можете(навіть мусите) надіслати скаргу на email! Ми хочемо щоб користувачі Стихії могли бачити к-ка погодних місць одночасно, ностальгувати, слухати музику без лімітів і реклами, а також щоб новини(більшість з яких погані) не псували вам день. 
 Примітка: Якість RSS: Деякі сайти мають "биті" або порожні RSS-стрічки. Якщо ви спробуєте додати таку, вам видасться помилка або нічого не покаже.
 Для перевірки необхідно використати безкоштовні онлайн-валідатори, як-от W3C Feed Validation Service або просто відкрити посилання в браузері.
 Обмеження, які важливо враховувати:
@@ -726,6 +730,8 @@ IGN (Games): [https://feeds.feedburner.com/ign/news](https://feeds.feedburner.co
 National Geographic: [https://feeds.feedburner.com/ng/science](https://feeds.feedburner.com/ng/science)
 TED Talks: [https://feeds.feedburner.com/TEDTalks_video](https://feeds.feedburner.com/TEDTalks_video)
 Lifehacker: [https://lifehacker.com/rss](https://lifehacker.com/rss)
+
+Якщо ви помітили, що якась новина не оновлюється або посилання не працює — будь ласка, повідомте нам. Ми постійно оновлюємо список джерел.
 `,
       image: null,
     },
@@ -932,6 +938,126 @@ Clubstep: рандомні фільтри.
     });
   };
 
+  const renderAnswerBlocks = (item) => {
+    if (item.content && Array.isArray(item.content) && item.content.length > 0) {
+      return item.content.map((block, index) => {
+        if (block.type === "image") {
+          const imgSrc = block.src || block.image;
+          const altText = block.alt || item.q || "FAQ image";
+
+          return (
+            <div key={`image-${index}`} style={{ position: "relative", marginBottom: "10px" }}>
+              <AnswerImage
+                src={imgSrc}
+                alt={altText}
+                $isHovered={hoveredImage === imgSrc}
+                $isPinned={isActionsPinned}
+                onClick={() => setPreviewImage(imgSrc)}
+                onMouseEnter={() => setHoveredImage(imgSrc)}
+                onMouseLeave={() => setHoveredImage(null)}
+              />
+              <ImageActionsContainer
+                $isHovered={hoveredImage === imgSrc}
+                $isPinned={isActionsPinned}
+                onMouseEnter={() => setHoveredImage(imgSrc)}
+                onMouseLeave={() => setHoveredImage(null)}
+              >
+                <AnswerActionButton
+                  onClick={togglePin}
+                  title={isActionsPinned ? "Відкріпити кнопки" : "Закріпити кнопки"}
+                >
+                  {isActionsPinned ? "📌" : "📍"}
+                </AnswerActionButton>
+                <AnswerActionButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDownloadImage(imgSrc);
+                  }}
+                >
+                  ⇩ Скачати
+                </AnswerActionButton>
+                <AnswerActionButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handlePrintImage(imgSrc);
+                  }}
+                >
+                  🖨️ Друкувати
+                </AnswerActionButton>
+              </ImageActionsContainer>
+            </div>
+          );
+        }
+
+        if (block.type === "text") {
+          const textValue = block.value || block.text || "";
+          return (
+            <div
+              key={`text-${index}`}
+              dangerouslySetInnerHTML={{
+                __html: String(textValue).replace(/\n/g, "<br/>"),
+              }}
+            />
+          );
+        }
+
+        return null;
+      });
+    }
+
+    return (
+      <>
+        {item.image && (
+          <>
+            <AnswerImage
+              src={item.image}
+              alt={item.q}
+              $isHovered={hoveredImage === item.image}
+              $isPinned={isActionsPinned}
+              onClick={() => setPreviewImage(item.image)}
+              onMouseEnter={() => setHoveredImage(item.image)}
+              onMouseLeave={() => setHoveredImage(null)}
+            />
+            <ImageActionsContainer
+              $isHovered={hoveredImage === item.image}
+              $isPinned={isActionsPinned}
+              onMouseEnter={() => setHoveredImage(item.image)}
+              onMouseLeave={() => setHoveredImage(null)}
+            >
+              <AnswerActionButton
+                onClick={togglePin}
+                title={isActionsPinned ? "Відкріпити кнопки" : "Закріпити кнопки"}
+              >
+                {isActionsPinned ? "📌" : "📍"}
+              </AnswerActionButton>
+              <AnswerActionButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDownloadImage(item.image);
+                }}
+              >
+                ⇩ Скачати
+              </AnswerActionButton>
+              <AnswerActionButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handlePrintImage(item.image);
+                }}
+              >
+                🖨️ Друкувати
+              </AnswerActionButton>
+            </ImageActionsContainer>
+          </>
+        )}
+        <div
+          dangerouslySetInnerHTML={{
+            __html: (item.a || "").replace(/\n/g, "<br/>"),
+          }}
+        />
+      </>
+    );
+  };
+
   const sortedFaqData = [...faqData]
     .filter((item) => {
       if (!searchQuery) return true;
@@ -1120,12 +1246,7 @@ Clubstep: рандомні фільтри.
                           </ImageActionsContainer>
                         </>
                       )}
-                      {/* Вставляємо як HTML, якщо потрібно підтримувати теги */}
-                      <div
-                        dangerouslySetInnerHTML={{
-                          __html: item.a.replace(/\n/g, "<br/>"),
-                        }}
-                      />
+                      {renderAnswerBlocks(item)}
                     </AnswerContent>
                   </Answer>
                 </AccordionItem>
