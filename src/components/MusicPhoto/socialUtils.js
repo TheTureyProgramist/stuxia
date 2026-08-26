@@ -1,0 +1,105 @@
+export const MAX_DAILY_COMMENTS = 3;
+export const MAX_VISIBLE_COMMENTS = 100;
+export const MAX_TOTAL_COMMENTS = 100;
+export const MAX_DAILY_TRACKS = 10;
+export const LIKE_VALUE_TO_SCORE = {
+  1: 1,
+  2: 2,
+};
+
+export const normalizeLikeValue = (value) => {
+  if (value === 2 || value === "2" || value === 1 || value === "1") return 1;
+  if (value === -1 || value === "-1") return -1;
+  return 0;
+};
+
+export const getLikeStateLabel = (value) => {
+  const normalized = normalizeLikeValue(value);
+  if (normalized === 1) return "like";
+  if (normalized === -1) return "dislike";
+  return "none";
+};
+
+export const getDailyCommentQuotaLeft = (
+  limit = MAX_DAILY_COMMENTS,
+  used = 0,
+) => {
+  return Math.max(0, limit - used);
+};
+
+export const buildCommentPayload = ({
+  trackId,
+  trackAuthor,
+  trackText,
+  user,
+  text,
+  avatar,
+  color,
+  supporterName,
+}) => ({
+  id:
+    typeof crypto !== "undefined" && crypto.randomUUID
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random()}`,
+  trackId,
+  trackAuthor: trackAuthor || "",
+  trackText: trackText || "",
+  text: String(text || "").trim(),
+  createdAt: Date.now(),
+  user: {
+    uid: user?.uid || user?.id || "guest",
+    email: user?.account || user?.email || "",
+    name: supporterName || user?.firstName || user?.name || "Гість",
+    avatar: avatar || user?.avatar || user?.avatarUrl || "",
+    color: color || user?.borderColor || user?.textColor || "#ffb36c",
+  },
+  likes: 0,
+  dislikes: 0,
+  score: 0,
+});
+
+export const getInitialCommentStats = () => ({
+  views: 0,
+  likes: 0,
+  dislikes: 0,
+  comments: 0,
+});
+
+export const toSocialTarget = (track) => {
+  if (!track) return null;
+  const author = track.author || track.artist || "";
+  const text = track.text || track.title || "";
+  const fallbackId = `${author || "unknown"}-${text || "song"}`;
+  const id =
+    track.id != null
+      ? String(track.id)
+      : String(fallbackId).replace(/\s+/g, "-");
+  return {
+    id,
+    author,
+    text,
+    title: text,
+    duration: track.duration || 0,
+    isGeneral: track.isGeneral || String(id) === "general",
+  };
+};
+
+export const getAvatarSrc = (avatar) => {
+  return avatar || "";
+};
+
+export const toFirestoreDocId = (value) => {
+  const normalized = String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  return normalized || "item";
+};
+
+export const canCommentUser = (user) => {
+  if (!user) return false;
+  if (user.isBanned || user.banned) return false;
+  return true;
+};

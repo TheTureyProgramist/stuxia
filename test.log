@@ -1,0 +1,13 @@
+
+> react-weather-music-project@0.9.9 test
+> react-scripts test --watch=false --runInBand src/utils/wikipediaUtils.test.js --verbose
+
+PASS src/utils/wikipediaUtils.test.js
+  buildWikipediaSearchUrl
+    √ encodes a query and uses the Ukrainian Wikipedia API (1 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       1 passed, 1 total
+Snapshots:   0 total
+Time:        1.285 s
+Ran all test suites matching /src\\utils\\wikipediaUtils.test.js/i.

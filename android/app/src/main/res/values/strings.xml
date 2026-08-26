@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Стихія 1.0</string>
+    <string name="title_activity_main">Стихія 1.0</string>
+    <string name="package_name">com.stuxia.app</string>
+    <string name="custom_url_scheme">com.stuxia.app</string>
+</resources>

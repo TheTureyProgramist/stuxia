@@ -1,0 +1,842 @@
+import React, { useState, useEffect } from "react";
+import styled, { keyframes, css } from "styled-components";
+import time from "../../photos/vip-images/mechannic.webp";
+import dinofroz from "../../photos/vip-images/dinofroz/vip-dinofroz.webp";
+import turkeys from "../../photos/vip-images/collectors-edition.webp";
+import ultra from "../../photos/vip-modal/buton.webp";
+import turkey from "../../photos/vip-images/turkeys/ultra-vip-turkeys.webp";
+import shop from "../../photos/hero-header/shop.webp";
+import VipModal from "./VipModal";
+import InfoModal from "./UserSearchModal";
+import dominoVideo from "../../mp4/shop.mp4";
+
+const slideIn = keyframes`
+  0% { transform: translateY(100%) scale(0.5); opacity: 0; }
+  100% { transform: translateY(0%) scale(1); opacity: 1; }
+`;
+
+const slideOut = keyframes`
+  0% { transform: translateY(0%) scale(1); opacity: 1; }
+  100% { transform: translateY(100%) scale(0.5); opacity: 0; }
+`;
+
+const rainbowText = keyframes`
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+`;
+
+const pulse = keyframes`
+  0% { box-shadow: 0 0 0 0 rgba(255, 108, 108, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(255, 108, 108, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 108, 108, 0); }
+`;
+
+const fadeIn = keyframes`
+  from { opacity: 0; }
+  to { opacity: 1; }
+`;
+
+const Overlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.85);
+  display: flex;
+  justify-content: center;
+  backdrop-filter: blur(3px);
+  align-items: center;
+  z-index: 2000;
+  padding: 10px;
+`;
+
+const ShopContainer = styled.div`
+  background-color: #3a1a1a;
+  color: #fff;
+  width: 90%;
+  max-width: 850px;
+  max-height: 95vh;
+  padding: 9px;
+  border-radius: 20px;
+  position: relative;
+  border: 2px solid #ff6c6c;
+  overflow-y: auto;
+  animation: ${(props) => (props.$isClosing ? slideOut : slideIn)} 0.5s ease-out
+    forwards;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #ff6c6c;
+    border-radius: 10px;
+  }
+
+  @media (min-width: 1900px) {
+    max-width: 1300px;
+    padding: 20px;
+  }
+`;
+
+const CloseButton = styled.button`
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: transparent;
+  border: none;
+  color: #ff6c6c;
+  font-size: 36px;
+  cursor: pointer;
+  z-index: 20;
+  transition: 0.3s;
+  &:hover {
+    transform: scale(1.1) rotate(90deg);
+    color: #fff;
+  }
+  @media (max-width: 768px) {
+    top: 10px;
+    font-size: 19px;
+    right: 10px;
+  }
+  @media (min-width: 1900px) {
+    font-size: 45px;
+    top: 20px;
+    right: 25px;
+  }
+`;
+
+const ToggleButton = styled.button`
+  position: absolute;
+  top: 10px;
+  left: 15px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  z-index: 20;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  transition: transform 0.2s;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  .icon {
+    font-size: 32px;
+    line-height: 1;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  }
+
+  .text {
+    font-size: 10px;
+    color: #ff6c6c;
+    margin-top: 4px;
+    font-weight: bold;
+    text-align: center;
+    max-width: 90px;
+    line-height: 1.2;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  }
+
+  @media (min-width: 1900px) {
+    top: 20px;
+    left: 25px;
+    .icon {
+      font-size: 45px;
+    }
+    .text {
+      font-size: 14px;
+      max-width: 140px;
+    }
+  }
+`;
+
+const ShopTitle = styled.h2`
+  color: #ff6c6c;
+  letter-spacing: 2px;
+  margin-bottom: 25px;
+  margin-left: 60%;
+  font-size: 13px;
+  @media (min-width: 720px) {
+    font-size: 24px;
+    text-align: center;
+    margin-left: 0px;
+  }
+  @media (min-width: 1900px) {
+    font-size: 36px;
+    margin-bottom: 40px;
+    letter-spacing: 5px;
+  }
+`;
+
+const Badge = styled.div`
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background: linear-gradient(135deg, #ffb36c 0%, #ff6c6c 100%);
+  color: #3a1a1a;
+  padding: 3px 6px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 900;
+  z-index: 10;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+
+  @media (min-width: 1900px) {
+    font-size: 13px;
+    padding: 6px 12px;
+  }
+`;
+const PackGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  @media (max-width: 650px) {
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 1900px) {
+    gap: 30px;
+    margin-bottom: 40px;
+  }
+`;
+const PackCard = styled.div`
+  position: relative;
+  background: #2a121215;
+  border: 1px solid #ff6c6c;
+  border-radius: 15px;
+  padding: ${(props) => (props.$isCharacter ? "10px 10px 90px" : "10px")};
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 160px;
+  animation: ${(props) => (props.$isSpecial ? pulse : "none")} 2s infinite;
+  transition: 0.3s;
+  z-index: 1;
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url(${(props) => props.$bgImage});
+    background-size: cover;
+    background-position: center;
+    opacity: ${(props) => (props.$isCharacter ? 1 : 0.25)};
+    z-index: -1;
+    transition: opacity 0.3s ease;
+  }
+
+  ${(props) =>
+    props.$isSub &&
+    css`
+      &::before {
+        opacity: ${(p) => (p.$activeImg === "turkeys" ? 0.4 : 0)};
+        background-image: url(${turkeys});
+        transition: opacity 1.5s ease-in-out;
+      }
+      &::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: url(${ultra});
+        background-size: cover;
+        background-position: center;
+        opacity: ${(p) => (p.$activeImg === "ultra" ? 0.4 : 0)};
+        z-index: -1;
+        transition: opacity 1.5s ease-in-out;
+      }
+    `}
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    &::before,
+    &::after {
+      opacity: ${(props) => (props.$isSub ? 0.6 : 0.4)};
+    }
+  }
+
+  @media (min-width: 1900px) {
+    padding: 25px;
+    gap: 20px;
+    min-height: 350px;
+  }
+`;
+
+const PackInfo = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.13);
+`;
+
+const PackContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+`;
+
+const PackLabel = styled.div`
+  font-size: 15px;
+  color: #ff6c6c;
+  font-weight: 900;
+  @media (min-width: 1900px) {
+    font-size: 20px;
+  }
+`;
+
+const PackName = styled.div`
+  font-weight: bold;
+  font-size: 18px;
+  @media (min-width: 1900px) {
+    font-size: 24px;
+  }
+`;
+
+const BuyButton = styled.button`
+  width: 100%;
+  padding: 2px;
+  background: #ff6c6c;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: 0.2s;
+  z-index: 2;
+
+  .old-price {
+    text-decoration: line-through;
+    font-size: 11px;
+    opacity: 0.8;
+  }
+
+  span {
+    font-size: 14px;
+  }
+
+  &:hover {
+    background: #ff8585;
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+`;
+
+const InfoSection = styled.div`
+  margin-top: 5px;
+  padding: 5px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 15px;
+  border: 1px dashed #ff6c6c;
+`;
+
+const InfoTitle = styled.h3`
+  color: #ff6c6c;
+  font-size: 18px;
+  margin-bottom: 15px;
+  border-bottom: 1px solid rgba(255, 108, 108, 0.2);
+  padding-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`;
+
+const InfoGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const InfoList = styled.ul`
+  list-style: none;
+  padding: 0;
+  margin: 0;
+`;
+
+const InfoItem = styled.li`
+  font-size: 13px;
+  margin-bottom: 5px;
+  color: #e0e0e0;
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 10px;
+  line-height: 1.5;
+
+  .price {
+    color: #ff6c6c;
+    font-weight: bold;
+    background: rgba(255, 108, 108, 0.1);
+    padding: 4px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+    align-self: flex-start;
+  }
+`;
+
+const RainbowSpan = styled.span`
+  font-weight: bold;
+  font-size: inherit;
+  background: linear-gradient(
+    to right,
+    #ff7eb3,
+    #ff758c,
+    #7afcff,
+    #feffb7,
+    #58e2c2,
+    #ff7eb3
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: ${rainbowText} 3s linear infinite;
+`;
+
+const CharacterFrame = styled.div`
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 3px;
+  background: rgba(0, 0, 0, 0.45);
+  color: #f8f1c6;
+  font-size: 10px;
+  line-height: 1.4;
+  text-align: center;
+  backdrop-filter: blur(6px);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 3;
+`;
+
+const VideoBackground = styled.video`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 15px;
+  z-index: 0;
+`;
+
+const SeasonOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.95);
+  z-index: 3000;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  overflow-y: auto;
+  animation: ${fadeIn} 0.3s ease-out;
+`;
+
+const SeasonCardGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 15px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+`;
+
+const SeasonCard = styled.div`
+  background: #2a1212;
+  border: 1px solid #ff6c6c;
+  border-radius: 12px;
+  position: relative;
+  aspect-ratio: 1;
+  padding: 10px;
+  display: flex;
+  align-items: flex-end;
+  font-size: 11px;
+  font-weight: bold;
+  background-image: url(${(props) => props.$img});
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.2s;
+  &:hover {
+    transform: scale(1.03);
+  }
+`;
+
+const SeasonLabel = styled.div`
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: #ff6c6c;
+  color: white;
+  font-size: 8px;
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-weight: 900;
+  text-transform: uppercase;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+`;
+
+const CHARACTER_PHRASES = [
+  "Мене звати Доміно, я люблю ностальгічне кіно(Титанік, Матриця - чудові фільми, але є один який лише я бачив... ЙІ чому його ніде немає? Ех не пам'ятаю назву)",
+  "Жодних новин про політику. Це традиція! (Його рід, як і ворони, мав гарну пам'ять і прихід Колумба, зробив індиків популярними на весь світ, але вони не хочуть бути стравою для людей :( Тому він не любить тему політики.",
+  "О привіт, погода ж чудова? Але ж поганої не буває? Вірно?(І що його змотивувало, на погоду?)",
+  "Пірати Карибського моря. Б-р-р, ми воду не любимо. Але за ідею на якусь відсилку у сайті, дякую.",
+  "Чому ми маємо кнопку друку. Касети ж стали щойно можними, а друковані книги, це вже історія. Але ж ми любимо історію, тому і кнопка тут.",
+  "Ми любимо музику, але не любимо коли її слухають без нас. Тому ми зробили кнопку музики, щоб ви могли слухати її разом з нами.",
+  "Чому ми не дали ШІ на нашому сайті ім'я Домініц(Добрий - як Доміно, а Ніц... - Ніцерон? Ні навряд чи це цікаво)",
+  "Чому всі хочуть фільми жахів? Ех, по ходу через сюжет, але ж у нас і так є Марта.",
+    "Кейт: Де ж мій новий артефакт з фільму Інтерстеллар? Доміно: Слухай у нас кліент(До вас): сходиш у підвал. Якщо світло заблимає, і картини почорніють сховайся, це жарт. (За спиною Кейт: Доміно, я хочу кліента який вийде живим з замку, а не залишиться там як картина)",
+];
+
+const THIRD_OPEN_PHRASES = [
+  "Знову ти? Я вже почав сумувати за тобою... (Цікаво ви вийшли і зайлши, просто, щоб побачити цю фразу)",
+  "Кейт швидко бігає, але вона моя по долі... Але ти не бігай, бо я тебе знайду(Чи може хтось інший... Загадковим голосом)",
+  "Тихо, ти був в підвалі? Бо там одна картина жива, і хоче зробити з чорних квадратів, портрет когось, хто туди ходить!(Цю картину звати Марта)",
+  "Туди-сюди, ти точно не був в підвалі замку? (Пробачте, скрімера ми не покажемо :)",
+];
+
+const LATE_WARNING_PHRASE =
+  "Доміно: Люблю коли ти підтримуєш мене, але не забудь про інші фонди, бо вони теж важливі! (Ну дійсно, сайт погоди, повинен мати лінки які підтримають екологію)";
+const getRandomItem = (items) =>
+  items[Math.floor(Math.random() * items.length)];
+
+const getRandomPhrases = (items, count) =>
+  Array.from({ length: count }, () => getRandomItem(items));
+
+const AnimatedContent = styled.div`
+  animation: ${fadeIn} 0.4s ease-out;
+`;
+
+const ShopModal = ({ onClose }) => {
+  const [isClosing, setIsClosing] = useState(false);
+  const [activeSubImg, setActiveSubImg] = useState("turkeys");
+  const [showVipModal, setShowVipModal] = useState(false);
+  const [showInfo, setShowInfo] = useState(false);
+  const [characterPhrases, setCharacterPhrases] = useState([]);
+  const [showLateMessage, setShowLateMessage] = useState(false);
+  const [showLearning, setShowLearning] = useState(false);
+  const [showDominoVideo, setShowDominoVideo] = useState(false);
+  const [showSeasonModal, setShowSeasonModal] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveSubImg((prev) => (prev === "turkeys" ? "ultra" : "turkeys"));
+    }, 6000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const currentCount = (window.__shopModalOpenCount || 0) + 1;
+    window.__shopModalOpenCount = currentCount;
+
+    if (currentCount >= 3) {
+      setCharacterPhrases(getRandomPhrases(THIRD_OPEN_PHRASES, 1));
+    } else {
+      setCharacterPhrases([getRandomItem(CHARACTER_PHRASES)]);
+    }
+
+    const lateTimer = setTimeout(() => setShowLateMessage(true), 20000);
+    return () => clearTimeout(lateTimer);
+  }, []);
+
+  const seasonCards = Array.from({ length: 25 }, (_, i) => ({
+    id: i,
+    title: `Сезонна нагорода ${i + 1}`,
+    label: ["моя робота", "жахи", "різновид"][i % 3],
+    img: shop,
+  }));
+
+  const handleClose = () => {
+    setIsClosing(true);
+    setTimeout(onClose, 500);
+  };
+
+  const packs = [
+    {
+      name: "Доміно",
+      count: "Власник магазину",
+      img: shop,
+      isCharacter: true,
+    },
+    {
+      name: "Спонсорський",
+      img: time,
+      count:
+        "Ви поліпшите Стихію! Та дасте знати, що я роблю це не надарма! Дякую! Без:",
+      buttonText: "Будь-яка ціна",
+      badge: "Підтримайте мене",
+    },
+    {
+      name: "Підписка",
+      count: "Стихія+ та Стихія Ultra",
+      img: null,
+      special: true,
+      buttonText: "Розблокувати",
+      badge: "Преміум",
+      isSub: true,
+    },
+    {
+      name: "Сезонний: Сонцестояння",
+      count: 500,
+      img: time,
+      buttonText: "24.99грн",
+      badge: "Раз/сезон",
+    },
+    {
+      name: "Бундючий",
+      count: 1000,
+      img: turkey,
+      buttonText: "14.99грн",
+      badge: "∞ в лімітах",
+    },
+    {
+      name: "Ніцероновий",
+      count: 2000,
+      img: dinofroz,
+      special: true,
+      oldPrice: "30.00грн",
+      buttonText: "19.99грн",
+      badge: "-30%! Найвигідніший, Раз/3доби",
+    },
+  ];
+
+  if (showVipModal) {
+    return <VipModal onClose={() => setShowVipModal(false)} />;
+  }
+
+  return (
+    <Overlay onClick={handleClose}>
+      <ShopContainer
+        $isClosing={isClosing}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <CloseButton onClick={handleClose}>&times;</CloseButton>
+        <ToggleButton onClick={() => setShowInfo(!showInfo)}>
+          <span className="icon">{showInfo ? "🎫" : "🧧"}</span>
+          <span className="text">
+            {showInfo
+              ? "Повернутись до наборів"
+              : "Джерела отримання та витрат"}
+          </span>
+        </ToggleButton>
+        <ShopTitle>Магазин Доміно</ShopTitle>
+        {!showInfo ? (
+          <AnimatedContent key="packs">
+            <PackGrid>
+              {packs.map((pack) => (
+                <PackCard
+                  key={pack.name}
+                  $isSpecial={pack.special}
+                  $bgImage={pack.img}
+                  $isSub={pack.isSub}
+                  $isCharacter={pack.isCharacter}
+                  $activeImg={activeSubImg}
+                  onClick={() => {
+                    if (pack.isCharacter) setShowDominoVideo(true);
+                    if (pack.name.includes("Сезонний"))
+                      setShowSeasonModal(true);
+                  }}
+                  style={{
+                    cursor:
+                      pack.isCharacter || pack.name.includes("Сезонний")
+                        ? "pointer"
+                        : "default",
+                  }}
+                >
+                  {pack.isCharacter && showDominoVideo && (
+                    <VideoBackground
+                      src={dominoVideo}
+                      autoPlay
+                      onEnded={() => setShowDominoVideo(false)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowDominoVideo(false);
+                      }}
+                    />
+                  )}
+                  {pack.badge && <Badge>{pack.badge}</Badge>}
+                  <PackInfo>
+                    <PackContent>
+                      <PackLabel>{pack.name}</PackLabel>
+                      <PackName>
+                        {pack.isSub ? pack.count : `${pack.count} 🧧`}
+                      </PackName>
+                    </PackContent>
+                  </PackInfo>
+                  {pack.isCharacter &&
+                    (characterPhrases.length > 0 || showLateMessage) && (
+                      <CharacterFrame>
+                        {characterPhrases.map((text, index) => (
+                          <span key={index}>{text}</span>
+                        ))}
+                        {showLateMessage && (
+                          <span
+                            style={{
+                              color: "#ff6c6c",
+                              fontWeight: "bold",
+                              marginTop: "4px",
+                            }}
+                          >
+                            {LATE_WARNING_PHRASE}
+                          </span>
+                        )}
+                      </CharacterFrame>
+                    )}
+                  <BuyButton
+                    onClick={() => pack.isSub && setShowVipModal(true)}
+                  >
+                    {pack.oldPrice && (
+                      <span className="old-price">{pack.oldPrice}</span>
+                    )}
+                    <span>{pack.buttonText}</span>
+                  </BuyButton>
+                </PackCard>
+              ))}
+            </PackGrid>
+          </AnimatedContent>
+        ) : (
+          <AnimatedContent key="info">
+            <InfoSection>
+              <InfoGrid>
+                <div>
+                  <InfoTitle>🎫 Як витратити:</InfoTitle>
+                  <InfoList>
+                    <InfoItem>
+                      <span>
+                        Створення, видалення погодної картки(окремо за кожний
+                        процес). Зміни в налаштуваннях. 1 безкоштовна/тиждень.
+                        Доступ до JPS/доба.
+                      </span>
+                      <span className="price">2 🧧</span>
+                    </InfoItem>
+                    <InfoItem>
+                      <span>
+                        3 Спец-аватари, кольори імені та автару (випадково в
+                        ціні). Поліпшіть з <RainbowSpan>Підписками</RainbowSpan>
+                        .
+                      </span>
+                      <span className="price">20-40 🧧</span>
+                    </InfoItem>
+                    <InfoItem>
+                      <span>
+                        Запит до ШІ (спроби за 🧧, далі 🧧 + гроші). Прискорення
+                        перезарядки кнопок(регулюється к-сть) 1 🧧 = -10с.
+                        Поліпшіть з <RainbowSpan>Підписками</RainbowSpan>.
+                      </span>
+                      <span className="price">8 🧧</span>
+                    </InfoItem>
+                  </InfoList>
+                </div>
+                <div>
+                  <InfoTitle>🎁 Як отримати:</InfoTitle>
+                  <InfoList>
+                    <InfoItem>
+                      <span>
+                        Щоденний безкоштовнй бонус за вхід(10), проходження
+                        головоломки(залежить від важкості, і типу головоломки).
+                        Поліпшіть <RainbowSpan>Підписками</RainbowSpan>.
+                      </span>
+                      <span className="price">1-10 🧧</span>
+                    </InfoItem>
+                    <InfoItem>
+                      <span>
+                        🏆 Поліпшіть з<RainbowSpan>Підписками</RainbowSpan>.
+                      </span>
+                      <span className="price">20-40 🧧</span>
+                    </InfoItem>
+                    <InfoItem>
+                      <span>
+                        Стартовий набір, усі зібрані аватари(колекція їх
+                        обводок), стилі імені. Поліпшіть з{" "}
+                        <RainbowSpan>Підписками</RainbowSpan>. Джекпот з шансом
+                        20%(можливий на початку доби). Покращіть{" "}
+                        <RainbowSpan>Підписками</RainbowSpan>.
+                      </span>
+                      <span className="price">+40 🧧</span>
+                    </InfoItem>
+                  </InfoList>
+                </div>
+              </InfoGrid>
+            </InfoSection>
+          </AnimatedContent>
+        )}
+        <div
+          style={{
+            textAlign: "center",
+            marginTop: "20px",
+            fontSize: "12px",
+            color: "#ff5e5e",
+            fontStyle: "italic",
+            lineHeight: "1.6",
+            opacity: 0.9,
+            cursor: "pointer",
+          }}
+          onClick={() => setShowLearning(true)}
+        >
+          Усі примітки, розміщені в навчанні, кнопка ? вгорі, як і питання про
+          внутрішньоігрові валюти. Натисніть тут!
+        </div>
+      </ShopContainer>
+      {showLearning && (
+        <InfoModal
+          isOpen={showLearning}
+          onClose={() => setShowLearning(false)}
+        />
+      )}
+
+      {showSeasonModal && (
+        <SeasonOverlay>
+          <CloseButton onClick={() => setShowSeasonModal(false)}>
+            &times;
+          </CloseButton>
+          <ShopTitle style={{ marginTop: "40px" }}>
+            Сезон Сонцестояння: Колекція
+          </ShopTitle>
+          <SeasonCardGrid>
+            {seasonCards.map((card) => (
+              <SeasonCard key={card.id} $img={card.img}>
+                <SeasonLabel>{card.label}</SeasonLabel>
+                <span style={{ textShadow: "0 2px 4px black" }}>
+                  {card.title}
+                </span>
+              </SeasonCard>
+            ))}
+          </SeasonCardGrid>
+          <div style={{ textAlign: "center", marginTop: "30px" }}>
+            <BuyButton
+              style={{ maxWidth: "200px", margin: "0 auto" }}
+              onClick={() => setShowSeasonModal(false)}
+            >
+              <span>Закрити колекцію</span>
+            </BuyButton>
+          </div>
+        </SeasonOverlay>
+      )}
+    </Overlay>
+  );
+};
+
+export default ShopModal;
