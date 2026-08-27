@@ -48,18 +48,18 @@
     "wavesurfer.js": "^7.12.11",
     "web-vitals": "^6.0.0"
   },
-"scripts": {
-  "dev": "vite",
-  "build": "bun x vite build",
-  "lint": "eslint .",
-  "preview": "vite preview",
-  "backup": "powershell -Command \"$date = Get-Date -Format 'yyyy-MM-dd_HH-mm'; Get-ChildItem -Path './*' -Exclude 'node_modules', 'server', '.next', '.git', 'out', 'dist', '.env*' | Compress-Archive -DestinationPath ('../stykhiya-backup-' + $date + '.zip')\"",
-  "predeploy": "node generate-deploy-id.js && bun run build",
-  "deploy": "gh-pages -r https://github.com/TheTureyProgramist/react-weather-music-project.git -d dist",
-  "deploy:cpanel": "npm run build && node deploy.js",
-  "test": "react-scripts test",
-  "star": "node server/index.js"
-},
+  "scripts": {
+    "dev": "vite",
+    "build": "bun x vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "backup": "powershell -Command \"$date = Get-Date -Format 'yyyy-MM-dd_HH-mm'; Get-ChildItem -Path './*' -Exclude 'node_modules', 'server', '.next', '.git', 'out', 'dist', '.env*' | Compress-Archive -DestinationPath ('../stykhiya-backup-' + $date + '.zip')\"",
+    "predeploy": "node generate-deploy-id.js && bun run build",
+    "deploy": "gh-pages -d dist",
+    "deploy:cpanel": "npm run build && node deploy.js",
+    "test": "react-scripts test",
+    "star": "node server/index.js"
+  },
   "eslintConfig": {
     "extends": [
       "react-app",
