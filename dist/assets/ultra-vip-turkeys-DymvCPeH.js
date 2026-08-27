@@ -1,1 +1,0 @@
-var e=`/assets/ultra-vip-turkeys--dWdDrjz.webp`;export{e as t};
