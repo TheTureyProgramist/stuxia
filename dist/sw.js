@@ -1,9 +1,23 @@
-// Це простий Service Worker, який необхідний для того, щоб браузер
-// розпізнав сайт як PWA (Progressive Web App) і дозволив його встановлювати.
-self.addEventListener("install", (e) => {
+const CACHE_NAME = 'stuxia-v1';
+
+self.addEventListener('install', (e) => {
   self.skipWaiting();
 });
 
-self.addEventListener("fetch", (e) => {
-  // Порожній обробник fetch є достатнім для виконання вимог PWA щодо встановлення
+self.addEventListener('activate', (e) => {
+  e.waitUntil(
+    caches.keys().then((keys) =>
+      Promise.all(
+        keys.map((key) => {
+          if (key !== CACHE_NAME) {
+            return caches.delete(key);
+          }
+        })
+      )
+    ).then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener('fetch', (e) => {
+  // Порожній fetch для підтримки PWA
 });
