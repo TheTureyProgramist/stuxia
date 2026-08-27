@@ -1,0 +1,1 @@
+var e=`/assets/mechannic-B4qHsIdf.webp`;export{e as t};

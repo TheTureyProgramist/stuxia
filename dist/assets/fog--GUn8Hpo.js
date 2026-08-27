@@ -1,0 +1,1 @@
+var e=`/assets/fog-Cew27ml4.webp`;export{e as t};

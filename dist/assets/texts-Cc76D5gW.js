@@ -1,0 +1,1 @@
+var e=`/assets/texts-Dh_WKfAx.webp`;export{e as t};
