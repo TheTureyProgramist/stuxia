@@ -366,11 +366,30 @@ const chartActionButtonStyle = {
 const AiSummaryBox = styled(motion.div)`
   background: rgba(39, 27, 50, 0.74);
   border: 1px solid rgba(138, 43, 226, 0.3);
-  padding: 1px;
+  padding: 8px;
   font-size: 12px;
   line-height: 1.5;
   color: ${(props) => (props.$isDarkMode ? "#efefff" : "#4a4a4a")};
-  animation: ${fadeIn} 0.5s ease-out;
+  width: 300px;
+  height: 290px;
+  overflow-y: auto;
+  box-sizing: border-box;
+`;
+
+const AiPlaceholderBox = styled.div`
+  background: rgba(39, 27, 50, 0.74);
+  border: 1px solid rgba(138, 43, 226, 0.3);
+  padding: 8px;
+  font-size: 12px;
+  color: ${(props) => (props.$isDarkMode ? "#efefff" : "#4a4a4a")};
+  width: 300px;
+  height: 290px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  text-align: center;
 `;
 
 const SummaryText = styled.div`
@@ -525,6 +544,8 @@ const WeatherCardComponent = ({
   const [isCustomDatesModalOpen, setIsCustomDatesModalOpen] = useState(false);
   const [newCustomDate, setNewCustomDate] = useState({ date: "", time: "", reason: "", duration: 1, durationUnit: "hours", targetCard: "all" });
   const [isCardSettingsOpen, setIsCardSettingsOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("current");
+  const [isAiModalOpen, setIsAiModalOpen] = useState(false);
 
   useEffect(() => {
     // Only main card responds to tutorial
@@ -538,6 +559,8 @@ const WeatherCardComponent = ({
       window.removeEventListener('domino-close-weather-settings', closeSettings);
     };
   }, [card.isMain]);
+
+
   const [useGlobalLayout, setUseGlobalLayout] = useState(true);
   const [localLayout, setLocalLayout] = useState([
     { key: "current", visible: true },
@@ -1036,7 +1059,7 @@ const WeatherCardComponent = ({
     try {
       const genAI = new GoogleGenerativeAI(key);
       const model = genAI.getGenerativeModel({
-        model: "gemini-2.0-flash-lite",
+        model: "gemini-3.5-flash-lite",
       });
 
       const current = card.current;
@@ -1121,6 +1144,34 @@ const WeatherCardComponent = ({
       checkAndUpdate();
     }
   }, [card, checkAndUpdate]);
+
+  useEffect(() => {
+    const handleKeyChange = (e) => {
+      const newKey = e.detail;
+      if (!newKey) {
+        setAiSummary("Потрібен ключ ШІ (Gemini API) для роботи цієї функції.");
+      } else if (!aiSummary || aiSummary.includes("Потрібен ключ")) {
+        generateWeatherSummary();
+      }
+    };
+    window.addEventListener("geminiKeyChanged", handleKeyChange);
+    return () => window.removeEventListener("geminiKeyChanged", handleKeyChange);
+  }, [aiSummary, generateWeatherSummary]);
+
+  useEffect(() => {
+    if (activeTab === "ai") {
+      localforage.getItem("gemini_api_key").then((key) => {
+        if (key) {
+          if (!aiSummary || aiSummary.includes("Потрібен ключ")) {
+            generateWeatherSummary();
+          }
+        } else {
+          setAiSummary("Потрібен ключ ШІ (Gemini API) для роботи цієї функції.");
+        }
+      });
+    }
+  }, [activeTab, aiSummary, generateWeatherSummary]);
+
 
   const [isEditingReason, setIsEditingReason] = useState(false);
   const [tempReason, setTempReason] = useState("");
@@ -2123,459 +2174,191 @@ const HOLIDAYS_2027 = {
           </ActionButtons>
         </CardHeader>
         <CustomTimersDisplay customDays={customDays} cardId={card.id} />
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr 1fr 1fr",
+            borderBottom: "1px solid rgb(0,238,255)",
+          }}
+        >
+          {[
+            { key: "current", label: "Зараз" },
+            { key: "hourly",  label: "Годинна" },
+            { key: "daily",   label: "Місячна" },
+            { key: "ai",      label: "ШІ" },
+          ].map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              style={{
+                padding: "4px 2px",
+                border: "none",
+                borderBottom: activeTab === tab.key ? "2px solid #00eeff" : "2px solid transparent",
+                background: "transparent",
+                color: activeTab === tab.key ? "#00eeff" : isDarkMode ? "#aaa" : "#555",
+                fontWeight: activeTab === tab.key ? 700 : 400,
+                fontSize: "11px",
+                cursor: "pointer",
+                transition: "all 0.2s",
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
 
         <div style={{ display: "flex", flexDirection: "column" }}>
-          {(useGlobalLayout ? layout : localLayout).map((block) => {
-            if (!block.visible) return null;
-            if (block.key === "current") {
-              return (
-                <CurrentWeatherBanner
-                  key="current"
-                  $image={cityImage || card.cityImage}
+
+          {activeTab === "current" && (
+            <CurrentWeatherBanner
+              $image={cityImage || card.cityImage}
+              style={{ height: "auto", minHeight: "270px", borderRadius: 0 }}
+            >
+              <CurrentWeatherBanne
+                style={{
+                  position: "relative",
+                  borderRadius: 0,
+                  padding: "2px",
+                  background: "rgba(0,0,0,0.6)",
+                }}
+              >
+                <div
                   style={{
-                    height: "auto",
-                    minHeight: "150px",
-                    borderRadius: 0,
+                    display: "grid",
+                    gridTemplateColumns: "1fr",
+                    fontSize: "13px",
+                    width: "300px",
                   }}
                 >
-                  <CurrentWeatherBanne
+                  <ImagePlaceholder width="300px">
+                   {card.current.iconPlaceholder}
+                  </ImagePlaceholder>
+                  <h1
                     style={{
-                      position: "relative",
-                      borderRadius: 0,
-                      padding: "2px",
-                      background: "rgba(0,0,0,0.6)",
+                      margin: "0",
+                      color: isExtremeTemp ? "#ff4d4d" : "inherit",
                     }}
                   >
-                    <div
-                      style={{
-                        display: "grid",
-                        gridTemplateColumns: "1fr 1fr",
-                        gap: "1px",
-                        fontSize: "11px",
-                        width: "100%",
-                      }}
-                    >
-                      <ImagePlaceholder width="150px">
-                        {card.current.iconPlaceholder}
-                      </ImagePlaceholder>
-                      <h1
-                        style={{
-                          margin: "0",
-                          color: isExtremeTemp ? "#ff4d4d" : "inherit",
-                          fontSize: "13px",
-                        }}
-                      >
-                        Зараз: {card.current.temp}
-                      </h1>
-                      <p style={{ margin: "0", fontSize: "11px", opacity: 1 }}>
-                        Відчувається: {card.current.feels_like}
-                      </p>
-                      <div>
-                        Вологість: <b>{card.current.humidity ?? "—"}</b>
-                      </div>
-                      <div
-                        style={{ color: isExtremeWind ? "#ff4d4d" : "inherit" }}
-                      >
-                        {" "}
-                        Вітер: <b>{card.current.wind_speed ?? "0 м/с"}</b>
-                      </div>
-                      <div>
-                        Напрямок вітру:{" "}
-                        <b>{card.current.wind_direction_10m}° ({getWindDirectionText(card.current.wind_direction_10m)})</b>
-                      </div>
-                      <div>
-                        Пориви вітру: <b>{card.current.wind_gusts_10m} м/с</b>
-                      </div>
-                      <div>
-                        Точка роси: <b>{card.current.dew_point_2m}°C</b>
-                      </div>
-                      <div>
-                        Тиск: <b>{card.current.pressure ?? "—"}</b>
-                      </div>
-                      <div>
-                        Хмарність: <b>{card.current.cloud_cover}%</b>
-                      </div>
-                      <div>
-                        Видимість:{" "}
-                        <b>
-                          {card.current.visibility !== undefined
-                            ? (card.current.visibility / 1000).toFixed(1)
-                            : "—"}{" "}
-                          км
-                        </b>
-                      </div>
-                      <div
-                        style={{ color: isExtremeUV ? "#ff4d4d" : "inherit" }}
-                      >
-                        {" "}
-                        УФ-індекс: <b>{card.current.uv_index ?? 0}</b>
-                      </div>
-                    </div>
-                    
-                  </CurrentWeatherBanne>
-                </CurrentWeatherBanner>
-              );
-            }
-            if (block.key === "ai" && aiSummary) {
-              return (
-                <AiSummaryBox key="ai" $isDarkMode={isDarkMode} layout>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "flex-start",
-                    }}
-                  >
-                    <span
-                      className="ai-header-text"
-                      style={{
-                        fontWeight: 800,
-                        color: "#b362ff",
-                        fontSize: "11px",
-                        letterSpacing: "1px",
-                      }}
-                    >
-                      Прогноз ШІ
-                    </span>
+                    Зараз: {card.current.temp}
+                  </h1>
+                  <p style={{ margin: "0", opacity: 1 }}>
+                    Відчувається: {card.current.feels_like}
+                  </p>
+                  <div>
+                    Вологість: <b>{card.current.humidity ?? "—"}</b>
+                  </div>
+                  <div style={{ color: isExtremeWind ? "#ff4d4d" : "inherit" }}>
+                    {" "}
+                    Вітер: <b>{card.current.wind_speed ?? "0 м/с"}</b>
+                  </div>
+                  <div>
+                    Напрямок вітру:{" "}
+                    <b>{card.current.wind_direction_10m}° ({getWindDirectionText(card.current.wind_direction_10m)})</b>
+                  </div>
+                  <div>
+                    Пориви вітру: <b>{card.current.wind_gusts_10m} м/с</b>
+                  </div>
+                  <div>
+                    Точка роси: <b>{card.current.dew_point_2m}°C</b>
+                  </div>
+                  <div>
+                    Тиск: <b>{card.current.pressure ?? "—"}</b>
+                  </div>
+                  <div>
+                    Хмарність: <b>{card.current.cloud_cover}%</b>
+                  </div>
+                  <div>
+                    Видимість:{" "}
+                    <b>
+                      {card.current.visibility !== undefined
+                        ? (card.current.visibility / 1000).toFixed(1)
+                        : "—"}{" "}
+                      км
+                    </b>
+                  </div>
+                  <div style={{ color: isExtremeUV ? "#ff4d4d" : "inherit" }}>
+                    {" "}
+                    УФ-індекс: <b>{card.current.uv_index ?? 0}</b>
+                  </div>
+                </div>
+              </CurrentWeatherBanne>
+            </CurrentWeatherBanner>
+          )}
+
+          {/* Годинний прогноз */}
+          {activeTab === "hourly" && (
+            <div>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  flexWrap: "wrap",
+                }}
+              >
+                <h4 style={{ margin: 0 }}>Годинний прогноз</h4>
+              </div>
+              {hourlyDayGroups.length > 1 && (
+                <div style={{ display: "flex", gap: "1px", flexWrap: "wrap" }}>
+                  {hourlyDayGroups.map((group, index) => (
                     <button
-                      className="ai-edit-btn"
-                      onClick={() => setIsEditingPrompt(!isEditingPrompt)}
+                      key={group.label}
+                      onClick={() => setSelectedHourlyDay(index)}
                       style={{
-                        background: "none",
+                        padding: "2px",
+                        borderRadius: "3px",
                         border: "none",
                         cursor: "pointer",
-                        fontWeight: 900,
-                        fontSize: "12px",
-                        color: "#8a2be2",
-                        padding: 0,
+                        background:
+                          selectedHourlyDay === index
+                            ? "#00bfff"
+                            : isDarkMode
+                              ? "#333"
+                              : "#ddd",
+                        color:
+                          selectedHourlyDay === index
+                            ? "#000"
+                            : isDarkMode
+                              ? "#fff"
+                              : "#000",
+                        fontSize: "11.8px",
+                        fontWeight: "bold",
                       }}
-                      title="Редагувати умову промпту"
                     >
-                      {isEditingPrompt ? "✕" : "✎ Умова"}
+                      {group.title || group.label}
                     </button>
-                  </div>
-                  {isEditingPrompt ? (
-                    <PromptEditor $isDarkMode={isDarkMode}>
-                      <label style={{ fontSize: "10px", fontWeight: "bold" }}>
-                        Своя інструкція:
-                      </label>
-                      <PromptTextarea
-                        $isDarkMode={isDarkMode}
-                        value={customAiPrompt}
-                        onChange={(e) => setCustomAiPrompt(e.target.value)}
-                        placeholder="Наприклад: Дай поради для рибалки на основі вітру та тиску..."
-                      />
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                        }}
-                      >
-                        <select
-                          value={responseLength}
-                          onChange={(e) => setResponseLength(e.target.value)}
-                          style={{
-                            fontSize: "10px",
-                            padding: "2px",
-                            borderRadius: "4px",
-                            background: isDarkMode ? "#333" : "#fff",
-                            color: isDarkMode ? "#fff" : "#000",
-                          }}
-                        >
-                          <option value="concise">Стисло</option>
-                          <option value="extensive">Обширно</option>
-                        </select>
-                        <select
-                          value={aiStyle}
-                          onChange={(e) => setAiStyle(e.target.value)}
-                          style={{
-                            fontSize: "10px",
-                            padding: "2px",
-                            borderRadius: "4px",
-                            background: isDarkMode ? "#333" : "#fff",
-                            color: isDarkMode ? "#fff" : "#000",
-                          }}
-                        >
-                          <option value="friendly">Дружній</option>
-                          <option value="scientific">Науковий</option>
-                          <option value="sarcastic">Саркастичний</option>
-                        </select>
-                        <button
-                          onClick={async () => {
-                            await localforage.setItem(
-                              `ai_custom_prompt_${card.id}`,
-                              customAiPrompt,
-                            );
-                            await localforage.setItem(
-                              `ai_response_length_${card.id}`,
-                              responseLength,
-                            );
-                            await localforage.setItem(
-                              `ai_style_${card.id}`,
-                              aiStyle,
-                            );
-                            setIsEditingPrompt(false);
-                            generateWeatherSummary();
-                          }}
-                          style={{
-                            background: "#8a2be2",
-                            color: "white",
-                            border: "none",
-                            borderRadius: "4px",
-                            padding: "4px 8px",
-                            fontSize: "10px",
-                            cursor: "pointer",
-                            fontWeight: "bold",
-                          }}
-                        >
-                          Зберегти та оновити
-                        </button>
-                      </div>
-                    </PromptEditor>
-                  ) : (
-                    <>
-                      <motion.div layout transition={{ duration: 0.3 }}>
-                        <SummaryText
-                          ref={summaryRef}
-                          $isExpanded={isSummaryExpanded}
-                        >
-                          {aiSummary}
-                        </SummaryText>
-                      </motion.div>
-                      {hasOverflow && (
-                        <ShowMoreBtn
-                          onClick={() =>
-                            setIsSummaryExpanded(!isSummaryExpanded)
-                          }
-                        >
-                          {isSummaryExpanded ? "Згорнути" : "Читати далі..."}
-                        </ShowMoreBtn>
-                      )}
-                    </>
-                  )}
-                </AiSummaryBox>
-              );
-            }
-            if (block.key === "hourly") {
-              return (
-                <div key="hourly">
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      flexWrap: "wrap",
-                    }}
-                  >
-                    <h4 style={{ margin: 0 }}>Годинний прогноз</h4>
-                  </div>
-                  {hourlyDayGroups.length > 1 && (
-                    <div
-                      style={{
-                        display: "flex",
-                        gap: "1px",
-                        flexWrap: "wrap",
-                      }}
-                    >
-                      {hourlyDayGroups.map((group, index) => (
-                        <button
-                          key={group.label}
-                          onClick={() => setSelectedHourlyDay(index)}
-                          style={{
-                            padding: "2px",
-                            borderRadius: "3px",
-                            border: "none",
-                            cursor: "pointer",
-                            background:
-                              selectedHourlyDay === index
-                                ? "#00bfff"
-                                : isDarkMode
-                                  ? "#333"
-                                  : "#ddd",
-                            color:
-                              selectedHourlyDay === index
-                                ? "#000"
-                                : isDarkMode
-                                  ? "#fff"
-                                  : "#000",
-                            fontSize: "11.8px",
-                            fontWeight: "bold",
-                          }}
-                        >
-                          {group.title || group.label}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                  {visibleHourly && visibleHourly.length > 0 && (
-                    <div
-                      ref={hourlyChartPanelRef}
-                      style={{
-                        position: "relative",
-                        width: "100%",
-                        minHeight: fullscreenChart === "hourly" ? (isCapturing ? `${window.innerHeight}px` : "100vh") : undefined,
-                        padding: fullscreenChart === "hourly" ? "16px" : undefined,
-                        boxSizing: "border-box",
-                        background: fullscreenChart === "hourly"
-                          ? isDarkMode ? "#000" : "#f5f5f5"
-                          : "transparent",
-                      }}
-                    >
-                      {renderChartHeader("hourly", hourlyChartPanelRef, [
-                        { key: "day", label: "Температура", color: "#ffb36c" },
-                        { key: "wind", label: "Вітер", color: "#0099ff" },
-                      ])}
-
-                      <div style={{ position: "relative", width: "100%" }}>
-                      <ChartScrollWrapper>
-                        <ChartInnerContainer
-                          $width={fullscreenChart === "hourly" ? `max(100%, ${hourlyChartWidth}px)` : hourlyChartWidth}
-                          $height={fullscreenChart === "hourly" ? (isCapturing ? `${window.innerHeight - 90}px` : "calc(100vh - 90px)") : "150px"}
-                        >
-                          <Line
-                            key={`hourly-${fullscreenChart || "normal"}`}
-                            ref={hourlyChartInstanceRef}
-                            options={chartOptions}
-                            data={hourlyChartData}
-                          />
-                        </ChartInnerContainer>
-                      </ChartScrollWrapper>
-                      <div
-                        style={{
-                          position: "absolute",
-                          top: 0,
-                          left: 0,
-                          width: "50px",
-                          height: "calc(100% - 29px)",
-                          background: isDarkMode ? "#000" : "#f5f5f5",
-                          overflow: "hidden",
-                          pointerEvents: "none",
-                          display: fullscreenChart === "hourly" ? "none" : "block",
-                        }}
-                      >
-                        <ChartInnerContainer
-                          $width={hourlyChartWidth}
-                          $height="150px"
-                        >
-                          <Line
-                            options={{
-                              ...chartOptions,
-                              plugins: {
-                                ...chartOptions.plugins,
-                                tooltip: { enabled: false },
-                              },
-                            }}
-                            data={hourlyChartData}
-                          />
-                        </ChartInnerContainer>
-                      </div>
-                      <div
-                        style={{
-                          position: "absolute",
-                          top: 0,
-                          right: 0,
-                          width: "50px",
-                          height: "calc(100% - 29px)",
-                          background: isDarkMode ? "#000" : "#f5f5f5",
-                          overflow: "hidden",
-                          pointerEvents: "none",
-                          display: fullscreenChart === "hourly" ? "none" : "block",
-                        }}
-                      >
-                        <div
-                          style={{
-                            position: "absolute",
-                            top: 0,
-                            right: 0,
-                            width: `${hourlyChartWidth}px`,
-                            height: "150px",
-                          }}
-                        >
-                          <ChartInnerContainer
-                            $width={hourlyChartWidth}
-                            $height="150px"
-                          >
-                            <Line
-                              options={{
-                                ...chartOptions,
-                                plugins: {
-                                  ...chartOptions.plugins,
-                                  tooltip: { enabled: false },
-                                },
-                              }}
-                              data={hourlyChartData}
-                            />
-                          </ChartInnerContainer>
-                        </div>
-                      </div>
-                      </div>
-                    </div>
-                  )}
+                  ))}
                 </div>
-              );
-            }
-            if (block.key === "daily") {
-              return (
-                <div key="daily">
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
-                    <h4 style={{ margin: 0, fontSize: "14px" }}>
-                      Прогноз на 16 днів (включаючи 2 минулі дні)
-                    </h4>
-                  </div>
-                  
-                  {/* Липка легенда + кнопки в один рядок */}
-                  <div style={{
-                    position: "sticky",
-                    top: 0,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    gap: "8px",
-                    padding: "6px 8px",
-                    background: isDarkMode ? "rgba(0, 0, 0, 0.7)" : "rgba(255, 255, 255, 0.7)",
-                    backdropFilter: "blur(4px)",
-                    borderBottom: "1px solid #ffb36c",
-                    zIndex: 100,
-                  }}>
-                    {renderChartLegend([
-                      { key: "day", label: "День", color: "#ffb36c" },
-                      { key: "night", label: "Ніч", color: "#ff1493" },
-                      { key: "wind", label: "Вітер", color: "#0099ff" },
-                    ])}
-                    {renderChartActions("daily", dailyChartPanelRef)}
-                  </div>
-                  
-                  <div
-                    ref={dailyChartPanelRef}
-                    style={{
-                      position: "relative",
-                      width: "100%",
-                      minHeight: fullscreenChart === "daily" ? (isCapturing ? `${window.innerHeight}px` : "100vh") : undefined,
-                      padding: fullscreenChart === "daily" ? "16px" : undefined,
-                      boxSizing: "border-box",
-                      background: fullscreenChart === "daily"
-                        ? isDarkMode ? "#000" : "#f5f5f5"
-                        : "transparent",
-                    }}
-                  >
-                    {fullscreenChart === "daily" && renderChartHeader("daily", dailyChartPanelRef, [
-                      { key: "day", label: "День", color: "#ffb36c" },
-                      { key: "night", label: "Ніч", color: "#ff1493" },
-                      { key: "wind", label: "Вітер", color: "#0099ff" },
-                    ])}
-
-                    <div style={{ position: "relative", width: "100%" }}>
-                    <ChartScrollWrapper ref={dailyChartRef}>
+              )}
+              {visibleHourly && visibleHourly.length > 0 && (
+                <div
+                  ref={hourlyChartPanelRef}
+                  style={{
+                    position: "relative",
+                    width: "100%",
+                    minHeight: fullscreenChart === "hourly" ? (isCapturing ? `${window.innerHeight}px` : "100vh") : undefined,
+                    padding: fullscreenChart === "hourly" ? "16px" : undefined,
+                    boxSizing: "border-box",
+                    background: fullscreenChart === "hourly"
+                      ? isDarkMode ? "#000" : "#f5f5f5"
+                      : "transparent",
+                  }}
+                >
+                  {renderChartHeader("hourly", hourlyChartPanelRef, [
+                    { key: "day", label: "Температура", color: "#ffb36c" },
+                    { key: "wind", label: "Вітер", color: "#0099ff" },
+                  ])}
+                  <div style={{ position: "relative", width: "100%" }}>
+                    <ChartScrollWrapper>
                       <ChartInnerContainer
-                        $width={fullscreenChart === "daily" ? "max(100%, 900px)" : 900}
-                        $height={fullscreenChart === "daily" ? (isCapturing ? `${window.innerHeight - 120}px` : "calc(100vh - 120px)") : "150px"}
+                        $width={fullscreenChart === "hourly" ? `max(100%, ${hourlyChartWidth}px)` : hourlyChartWidth}
+                        $height={fullscreenChart === "hourly" ? (isCapturing ? `${window.innerHeight - 90}px` : "calc(100vh - 90px)") : "150px"}
                       >
-                          <Line
-                            key={`daily-${fullscreenChart || "normal"}`}
-                            ref={dailyChartInstanceRef}
-                          options={dailyChartOptions}
-                          data={dailyChartData}
+                        <Line
+                          key={`hourly-${fullscreenChart || "normal"}`}
+                          ref={hourlyChartInstanceRef}
+                          options={chartOptions}
+                          data={hourlyChartData}
                         />
                       </ChartInnerContainer>
                     </ChartScrollWrapper>
@@ -2585,23 +2368,17 @@ const HOLIDAYS_2027 = {
                         top: 0,
                         left: 0,
                         width: "50px",
-                       height: "calc(100% - 29px)",
+                        height: "calc(100% - 29px)",
                         background: isDarkMode ? "#000" : "#f5f5f5",
                         overflow: "hidden",
                         pointerEvents: "none",
-                        display: fullscreenChart === "daily" ? "none" : "block",
+                        display: fullscreenChart === "hourly" ? "none" : "block",
                       }}
                     >
-                      <ChartInnerContainer $width={1300} $height="150px">
+                      <ChartInnerContainer $width={hourlyChartWidth} $height="150px">
                         <Line
-                          options={{
-                            ...dailyChartOptions,
-                            plugins: {
-                              ...dailyChartOptions.plugins,
-                              tooltip: { enabled: false },
-                            },
-                          }}
-                          data={dailyChartData}
+                          options={{ ...chartOptions, plugins: { ...chartOptions.plugins, tooltip: { enabled: false } } }}
+                          data={hourlyChartData}
                         />
                       </ChartInnerContainer>
                     </div>
@@ -2615,41 +2392,321 @@ const HOLIDAYS_2027 = {
                         background: isDarkMode ? "#000" : "#f5f5f5",
                         overflow: "hidden",
                         pointerEvents: "none",
-                        display: fullscreenChart === "daily" ? "none" : "block",
+                        display: fullscreenChart === "hourly" ? "none" : "block",
                       }}
                     >
-                      <div
-                        style={{
-                          position: "absolute",
-                          top: 0,
-                          right: 0,
-                          width: "1300px",
-                          height: "150px",
-                        }}
-                      >
-                        <ChartInnerContainer $width={1300} $height="150px">
+                      <div style={{ position: "absolute", top: 0, right: 0, width: `${hourlyChartWidth}px`, height: "150px" }}>
+                        <ChartInnerContainer $width={hourlyChartWidth} $height="150px">
                           <Line
-                            options={{
-                              ...dailyChartOptions,
-                              plugins: {
-                                ...dailyChartOptions.plugins,
-                                tooltip: { enabled: false },
-                              },
-                            }}
-                            data={dailyChartData}
+                            options={{ ...chartOptions, plugins: { ...chartOptions.plugins, tooltip: { enabled: false } } }}
+                            data={hourlyChartData}
                           />
                         </ChartInnerContainer>
                       </div>
                     </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+          {activeTab === "daily" && (
+            <div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "10px" }}>
+                <h4 style={{ margin: 0, fontSize: "14px" }}>
+                  Прогноз на 16 днів (включаючи 2 минулі дні)
+                </h4>
+              </div>
+              <div style={{
+                position: "sticky",
+                top: 0,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: "8px",
+                padding: "6px 8px",
+                background: isDarkMode ? "rgba(0, 0, 0, 0.7)" : "rgba(255, 255, 255, 0.7)",
+                backdropFilter: "blur(4px)",
+                borderBottom: "1px solid #ffb36c",
+                zIndex: 100,
+              }}>
+                {renderChartLegend([
+                  { key: "day", label: "День", color: "#ffb36c" },
+                  { key: "night", label: "Ніч", color: "#ff1493" },
+                  { key: "wind", label: "Вітер", color: "#0099ff" },
+                ])}
+                {renderChartActions("daily", dailyChartPanelRef)}
+              </div>
+              <div
+                ref={dailyChartPanelRef}
+                style={{
+                  position: "relative",
+                  width: "100%",
+                  minHeight: fullscreenChart === "daily" ? (isCapturing ? `${window.innerHeight}px` : "100vh") : undefined,
+                  padding: fullscreenChart === "daily" ? "16px" : undefined,
+                  boxSizing: "border-box",
+                  background: fullscreenChart === "daily"
+                    ? isDarkMode ? "#000" : "#f5f5f5"
+                    : "transparent",
+                }}
+              >
+                {fullscreenChart === "daily" && renderChartHeader("daily", dailyChartPanelRef, [
+                  { key: "day", label: "День", color: "#ffb36c" },
+                  { key: "night", label: "Ніч", color: "#ff1493" },
+                  { key: "wind", label: "Вітер", color: "#0099ff" },
+                ])}
+                <div style={{ position: "relative", width: "100%" }}>
+                  <ChartScrollWrapper ref={dailyChartRef}>
+                    <ChartInnerContainer
+                      $width={fullscreenChart === "daily" ? "max(100%, 900px)" : 900}
+                      $height={fullscreenChart === "daily" ? (isCapturing ? `${window.innerHeight - 120}px` : "calc(100vh - 120px)") : "190px"}
+                    >
+                      <Line
+                        key={`daily-${fullscreenChart || "normal"}`}
+                        ref={dailyChartInstanceRef}
+                        options={dailyChartOptions}
+                        data={dailyChartData}
+                      />
+                    </ChartInnerContainer>
+                  </ChartScrollWrapper>
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "50px",
+                      height: "calc(100% - 29px)",
+                      background: isDarkMode ? "#000" : "#f5f5f5",
+                      overflow: "hidden",
+                      pointerEvents: "none",
+                      display: fullscreenChart === "daily" ? "none" : "block",
+                    }}
+                  >
+                    <ChartInnerContainer $width={1300} $height="150px">
+                      <Line
+                        options={{ ...dailyChartOptions, plugins: { ...dailyChartOptions.plugins, tooltip: { enabled: false } } }}
+                        data={dailyChartData}
+                      />
+                    </ChartInnerContainer>
+                  </div>
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      right: 0,
+                      width: "50px",
+                      height: "calc(100% - 29px)",
+                      background: isDarkMode ? "#000" : "#f5f5f5",
+                      overflow: "hidden",
+                      pointerEvents: "none",
+                      display: fullscreenChart === "daily" ? "none" : "block",
+                    }}
+                  >
+                    <div style={{ position: "absolute", top: 0, right: 0, width: "1300px", height: "150px" }}>
+                      <ChartInnerContainer $width={1300} $height="150px">
+                        <Line
+                          options={{ ...dailyChartOptions, plugins: { ...dailyChartOptions.plugins, tooltip: { enabled: false } } }}
+                          data={dailyChartData}
+                        />
+                      </ChartInnerContainer>
                     </div>
                   </div>
                 </div>
-              );
-            }
-            return null;
-          })}
+              </div>
+            </div>
+          )}
+
+          {/* Аналіз ШІ */}
+          {activeTab === "ai" && aiSummary && (
+            <AiSummaryBox $isDarkMode={isDarkMode} layout>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "flex-start",
+                }}
+              >
+                <span
+                  className="ai-header-text"
+                  style={{
+                    fontWeight: 800,
+                    color: "#b362ff",
+                    fontSize: "11px",
+                    letterSpacing: "1px",
+                  }}
+                >
+                  Прогноз ШІ
+                </span>
+                <button
+                  className="ai-edit-btn"
+                  onClick={() => setIsEditingPrompt(!isEditingPrompt)}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    fontWeight: 900,
+                    fontSize: "12px",
+                    color: "#8a2be2",
+                    padding: 0,
+                  }}
+                  title="Редагувати умову промпту"
+                >
+                  {isEditingPrompt ? "✕" : "✎ Умова"}
+                </button>
+              </div>
+              {isEditingPrompt ? (
+                <PromptEditor $isDarkMode={isDarkMode}>
+                  <label style={{ fontSize: "10px", fontWeight: "bold" }}>
+                    Своя інструкція:
+                  </label>
+                  <PromptTextarea
+                    $isDarkMode={isDarkMode}
+                    value={customAiPrompt}
+                    onChange={(e) => setCustomAiPrompt(e.target.value)}
+                    placeholder="Наприклад: Дай поради для рибалки на основі вітру та тиску..."
+                  />
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
+                    <select
+                      value={responseLength}
+                      onChange={(e) => setResponseLength(e.target.value)}
+                      style={{
+                        fontSize: "10px",
+                        padding: "2px",
+                        borderRadius: "4px",
+                        background: isDarkMode ? "#333" : "#fff",
+                        color: isDarkMode ? "#fff" : "#000",
+                      }}
+                    >
+                      <option value="concise">Стисло</option>
+                      <option value="extensive">Обширно</option>
+                    </select>
+                    <select
+                      value={aiStyle}
+                      onChange={(e) => setAiStyle(e.target.value)}
+                      style={{
+                        fontSize: "10px",
+                        padding: "2px",
+                        borderRadius: "4px",
+                        background: isDarkMode ? "#333" : "#fff",
+                        color: isDarkMode ? "#fff" : "#000",
+                      }}
+                    >
+                      <option value="friendly">Дружній</option>
+                      <option value="scientific">Науковий</option>
+                      <option value="sarcastic">Саркастичний</option>
+                    </select>
+                    <button
+                      onClick={async () => {
+                        await localforage.setItem(`ai_custom_prompt_${card.id}`, customAiPrompt);
+                        await localforage.setItem(`ai_response_length_${card.id}`, responseLength);
+                        await localforage.setItem(`ai_style_${card.id}`, aiStyle);
+                        setIsEditingPrompt(false);
+                        generateWeatherSummary();
+                      }}
+                      style={{
+                        background: "#8a2be2",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "4px",
+                        padding: "4px 8px",
+                        fontSize: "10px",
+                        cursor: "pointer",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      Зберегти та оновити
+                    </button>
+                  </div>
+                </PromptEditor>
+              ) : (
+                <>
+                  <motion.div layout transition={{ duration: 0.3 }}>
+                    <SummaryText ref={summaryRef} $isExpanded={false}>
+                      {aiSummary}
+                    </SummaryText>
+                  </motion.div>
+                  {hasOverflow && (
+                    <ShowMoreBtn onClick={() => setIsAiModalOpen(true)}>
+                      Читати далі...
+                    </ShowMoreBtn>
+                  )}
+                </>
+              )}
+            </AiSummaryBox>
+          )}
+          {activeTab === "ai" && isAiLoading && (
+            <AiPlaceholderBox $isDarkMode={isDarkMode}>
+              <div style={{ color: "#b362ff" }}>
+                ⏳ Генерація прогнозу ШІ...
+              </div>
+            </AiPlaceholderBox>
+          )}
+          {activeTab === "ai" && !aiSummary && !isAiLoading && (
+            <AiPlaceholderBox $isDarkMode={isDarkMode}>
+              <div style={{ color: isDarkMode ? "#aaa" : "#555" }}>
+                ШІ-аналіз недоступний. Перевірте ключ Gemini API.
+              </div>
+            </AiPlaceholderBox>
+          )}
+
         </div>
       </WeatherCard>
+
+      {/* Модалка повного тексту ШІ */}
+      {isAiModalOpen && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            background: "rgba(0,0,0,0.75)",
+            zIndex: 4000,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+          onClick={() => setIsAiModalOpen(false)}
+        >
+          <div
+            style={{
+              background: isDarkMode ? "#1a1a2e" : "#fff",
+              border: "1px solid rgba(138,43,226,0.5)",
+              borderRadius: "12px",
+              padding: "20px",
+              width: "90%",
+              maxWidth: "480px",
+              maxHeight: "80vh",
+              overflowY: "auto",
+              color: isDarkMode ? "#efefff" : "#222",
+              fontSize: "13px",
+              lineHeight: 1.6,
+              whiteSpace: "pre-line",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+              <span style={{ fontWeight: 800, color: "#b362ff", fontSize: "13px", letterSpacing: "1px" }}>
+                Прогноз ШІ — повний текст
+              </span>
+              <button
+                onClick={() => setIsAiModalOpen(false)}
+                style={{ background: "none", border: "none", color: "#b362ff", fontSize: "18px", cursor: "pointer" }}
+              >
+                ✕
+              </button>
+            </div>
+            {aiSummary}
+          </div>
+        </div>
+      )}
+
 
       {isCustomDatesModalOpen && (
         <CustomDatesModal
@@ -2673,154 +2730,26 @@ const HOLIDAYS_2027 = {
             justifyContent: "center",
             alignItems: "center",
           }}
+          onClick={() => setIsCardSettingsOpen(false)}
         >
           <div
             ref={(el) => { if (card.isMain && registerRef) registerRef('weatherModal', el); }}
             style={{
               background: isDarkMode ? "#222" : "#fff",
               borderRadius: "10px",
+              padding: "20px",
               width: "90%",
               maxWidth: "350px",
               color: isDarkMode ? "#fff" : "#000",
             }}
+            onClick={(e) => e.stopPropagation()}
           >
             <h3 style={{ margin: "0 0 15px 0" }}>Налаштування картки</h3>
-
-            <label
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "10px",
-                marginBottom: "15px",
-                cursor: "pointer",
-              }}
-            >
-              <input
-                type="checkbox"
-                checked={useGlobalLayout}
-                onChange={(e) => setUseGlobalLayout(e.target.checked)}
-              />
-              <span style={{ fontSize: "13px" }}>
-                Автоматично змінити, коли ви зміните загальні налаштування
-              </span>
-            </label>
-
-            {!useGlobalLayout && (
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "10px",
-                  marginBottom: "15px",
-                  border: "1px solid #444",
-                  borderRadius: "5px",
-                }}
-              >
-                <p
-                  style={{
-                    margin: "0 0 5px 0",
-                    fontSize: "12px",
-                    color: "#aaa",
-                  }}
-                >
-                  Виберіть блоки та їх порядок:
-                </p>
-                {localLayout.map((block, idx) => (
-                  <div
-                    key={block.key}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "10px",
-                      background: isDarkMode ? "#333" : "#eee",
-                      padding: "5px 10px",
-                      borderRadius: "5px",
-                    }}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={block.visible}
-                      onChange={(e) => {
-                        const newLayout = [...localLayout];
-                        newLayout[idx].visible = e.target.checked;
-                        setLocalLayout(newLayout);
-                      }}
-                    />
-                    <span style={{ flex: 1, fontSize: "13px" }}>
-                      {block.key === "current"
-                        ? "Температура та іконка"
-                        : block.key === "ai"
-                          ? "Підсумок ШІ"
-                          : block.key === "hourly"
-                            ? "Годинний графік"
-                            : "Прогноз на 16 днів"}
-                    </span>
-                    <div style={{ display: "flex", gap: "5px" }}>
-                      <button
-                        disabled={idx === 0}
-                        onClick={() => {
-                          const newLayout = [...localLayout];
-                          [newLayout[idx - 1], newLayout[idx]] = [
-                            newLayout[idx],
-                            newLayout[idx - 1],
-                          ];
-                          setLocalLayout(newLayout);
-                        }}
-                        style={{
-                          background: "transparent",
-                          border: "none",
-                          color:
-                            idx === 0 ? "#555" : isDarkMode ? "#fff" : "#000",
-                          cursor: idx === 0 ? "default" : "pointer",
-                        }}
-                      >
-                        ↑
-                      </button>
-                      <button
-                        disabled={idx === localLayout.length - 1}
-                        onClick={() => {
-                          const newLayout = [...localLayout];
-                          [newLayout[idx + 1], newLayout[idx]] = [
-                            newLayout[idx],
-                            newLayout[idx + 1],
-                          ];
-                          setLocalLayout(newLayout);
-                        }}
-                        style={{
-                          background: "transparent",
-                          border: "none",
-                          color:
-                            idx === localLayout.length - 1
-                              ? "#555"
-                              : isDarkMode
-                                ? "#fff"
-                                : "#000",
-                          cursor:
-                            idx === localLayout.length - 1
-                              ? "default"
-                              : "pointer",
-                        }}
-                      >
-                        ↓
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
+            <p style={{ fontSize: "13px", color: isDarkMode ? "#aaa" : "#555", marginBottom: "15px" }}>
+              Картка тепер використовує вкладки: Зараз / Годинна / Місячна / ШІ.
+            </p>
             <button
-              onClick={async () => {
-                await localforage.setItem(
-                  `useGlobalLayout_${card.id}`,
-                  useGlobalLayout,
-                );
-                await localforage.setItem(
-                  `localLayout_${card.id}`,
-                  localLayout,
-                );
-                setIsCardSettingsOpen(false);
-              }}
+              onClick={() => setIsCardSettingsOpen(false)}
               style={{
                 width: "100%",
                 padding: "10px",
@@ -2832,11 +2761,12 @@ const HOLIDAYS_2027 = {
                 cursor: "pointer",
               }}
             >
-              Зберегти
+              Закрити
             </button>
           </div>
         </div>
       )}
+
       {isBgModalOpen && (
         <BgModalOverlay onClick={() => setIsBgModalOpen(false)}>
           <BgModalContent onClick={(e) => e.stopPropagation()}>

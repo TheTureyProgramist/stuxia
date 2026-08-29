@@ -663,22 +663,6 @@ const ClimateMap = ({ isDarkMode, isStickyBgMode }) => {
             Закріпити
             </ActionButton>
 
-            {/* ─── Пресети ─── */}
-            <div
-              style={{
-                height: "1px",
-                background: "rgba(255,255,255,0.2)",
-                margin: "4px 0",
-              }}
-            />
-
-            <ActionButton
-              onClick={(e) => { e.stopPropagation(); setPresetsOpen(!presetsOpen); }}
-              $active={presetsOpen}
-            >
-              🗂 Пресети
-            </ActionButton>
-
             {presetsOpen && (
               <PresetSection onClick={(e) => e.stopPropagation()}>
                 <OverlayLabel>Поточний режим: <strong style={{color:"#7fd6ff"}}>{overlay}</strong></OverlayLabel>

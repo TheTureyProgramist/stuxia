@@ -8,6 +8,7 @@ import React, {
 import slivki from "../../photos/programs/youtub/slivki.webp";
 import weather from "../../photos/programs/youtub/weather.webp";
 import planes from "../../photos/programs/youtub/planes.webp";
+import meridian from "../../photos/programs/meridian/meridian.webp"
 import { GiPalette } from "react-icons/gi";
 import { BsPinAngle } from "react-icons/bs";
 import styled, { keyframes, css } from "styled-components";
@@ -23,6 +24,7 @@ import hills from "../../photos/hero-header/fog.webp";
 import { BsPinAngleFill } from "react-icons/bs";
 import herotext from "../../photos/hero-header/herotext.webp";
 import customLinksData from "./customLinks.json";
+import village from "../../photos/fan-art/village.webp"
 import {
   buildWikipediaSearchUrl,
   parseWikipediaSnippet,
@@ -1382,7 +1384,9 @@ const imageMap = {
   planes: planes,
   weather: weather,
   slivki: slivki,
+  village: village,
   herotext: herotext,
+  meridian: meridian,
   hills: hills,
   youtube: youtube,
 };
@@ -2058,7 +2062,6 @@ const Hero = ({
     };
 
     try {
-      // Перший запит — точні координати
       setNearbySearchStatus("🔍 Шукаємо за вказаними координатами...");
       const response = await fetch(
         `https://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=10&appid=${API_KEY}`,
@@ -2066,18 +2069,15 @@ const Hero = ({
       const data = await response.json();
 
       if (data && data.length > 0) {
-        // Знайшли результати одразу
         setCoordinateSuggestions([currentPoint, ...data]);
         setShowCoordinateSuggestions(true);
         setNearbySearchStatus("");
         return;
       }
-
-      // Не знайшли — запускаємо спіральний пошук
       setIsSearchingNearby(true);
       setShowCoordinateSuggestions(true);
       setCoordinateSuggestions([currentPoint]);
-      setNearbySearchStatus("🌍 Нічого не знайшли точно — шукаємо найближче...");
+      setNearbySearchStatus("Нічого не знайшли точно — шукаємо найближче...");
 
       const TIMEOUT_MS = 10000;
       const startTime = Date.now();
@@ -2550,13 +2550,13 @@ const Hero = ({
                   {showModeDropdown && (
                     <ModeDropdown>
                       <ModeDropdownItem $active={searchMode === "city"} onClick={() => { setSearchMode("city"); setShowModeDropdown(false); setLatitude(""); setLongitude(""); setSuggestions([]); setShowList(false); }}>
-                        🏠 За назвою міста
+                       За назвою міста
                       </ModeDropdownItem>
                       <ModeDropdownItem $active={searchMode === "coordinates"} onClick={() => { setSearchMode("coordinates"); setShowModeDropdown(false); setInputValue(""); setSuggestions([]); setShowList(false); }}>
-                        📍 Координати
+                        Координати
                       </ModeDropdownItem>
                       <ModeDropdownItem $active={searchMode === "links"} onClick={() => { setSearchMode("links"); setShowModeDropdown(false); setInputValue(""); setSuggestions([]); setShowList(false); setExpandedLinkId(null); }}>
-                        🔗 Посилання
+                        Посилання
                       </ModeDropdownItem>
                     </ModeDropdown>
                   )}

@@ -25,7 +25,7 @@ const fadeInHeader = keyframes`
 `;
 
 const HeaderDiv = styled.div`
-  height: 40px;
+  height: 37px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -51,7 +51,6 @@ const HeaderFix = styled.div`
   display: flex;
   align-items: center;
   min-width: 0;
-  gap: 2px;
 `;
 
 const IconButton = styled.button`
@@ -68,7 +67,7 @@ const IconButton = styled.button`
 
 const EmojiWrapper = styled.span`
   display: inline-block;
-  font-size: 19px;
+  font-size: 15px;
 `;
 
 const UserName = styled.span`
@@ -102,9 +101,8 @@ const UserName = styled.span`
 `;
 
 const HeaderAvatar = styled.img`
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
+  width: 35px;
+  height: 35px;
   min-width: 30px;
   margin-right: 0;
   object-fit: cover;
@@ -349,6 +347,7 @@ const Header = ({
                 <IconButton
                   onClick={handleThemeToggle}
                   $isDarkMode={isDarkMode}
+                  aria-label="Змінити тему"
                 >
                   <EmojiWrapper style={{ fontSize: "17px" }}>
                     {isDarkMode ? <FaSun /> : <BsMoonStarsFill />}
@@ -359,7 +358,7 @@ const Header = ({
                 <IconButton
                   onClick={handleStickyBgToggle}
                   $isDarkMode={isDarkMode}
-                  title="Фон на увесь сайт!"
+                  aria-label="Фон на увесь сайт"
                 >
                   <EmojiWrapper>
                     <MdWallpaper
@@ -368,11 +367,11 @@ const Header = ({
                   </EmojiWrapper>
                 </IconButton>
 
-                {/* Налаштування вигляду (Око) */}
+                {/* Налаштування вигляду */}
                 <IconButton
                   onClick={handleEyeToggle}
                   $isDarkMode={isDarkMode}
-                  title="Налаштування вигляду"
+                  aria-label="Налаштування вигляду"
                 >
                   <EmojiWrapper style={{ marginTop: "2px", fontSize: "20px" }}>
                     <IoIosEye />
@@ -380,7 +379,11 @@ const Header = ({
                 </IconButton>
 
                 {/* Допомога (?) */}
-                <IconButton onClick={handleHelpClick} $isDarkMode={isDarkMode}>
+                <IconButton 
+                  onClick={handleHelpClick} 
+                  $isDarkMode={isDarkMode}
+                  aria-label="Допомога"
+                >
                   <EmojiWrapper style={{ fontWeight: 900 }}>?</EmojiWrapper>
                 </IconButton>
 
@@ -389,6 +392,7 @@ const Header = ({
                   style={{ display: "none" }}
                   onClick={handleShopClick}
                   $isDarkMode={isDarkMode}
+                  aria-label="Магазин"
                 >
                   <GiShop />
                 </IconButton>
@@ -397,7 +401,7 @@ const Header = ({
                 <IconButton
                   onClick={handleOtherOptionsClick}
                   $isDarkMode={isDarkMode}
-                  title="Інші опції(Фонова музика)"
+                  aria-label="Інші опції та фонова музика"
                 >
                   <EmojiWrapper style={{ fontSize: "17px", marginTop: "2px" }}>
                     <MdMore />
@@ -405,14 +409,22 @@ const Header = ({
                 </IconButton>
 
                 {/* Налаштування */}
-                <IconButton onClick={handleSettingsClick} $isDarkMode={isDarkMode}>
-                 <EmojiWrapper>
-                  <MdSettingsSuggest />
+                <IconButton 
+                  onClick={handleSettingsClick} 
+                  $isDarkMode={isDarkMode}
+                  aria-label="Налаштування"
+                >
+                  <EmojiWrapper>
+                    <MdSettingsSuggest />
                   </EmojiWrapper>
                 </IconButton>
 
                 {/* Вихід */}
-                <IconButton onClick={handleLogoutClick} $isDarkMode={isDarkMode}>
+                <IconButton 
+                  onClick={handleLogoutClick} 
+                  $isDarkMode={isDarkMode}
+                  aria-label="Вихід з акаунта"
+                >
                   <EmojiWrapper>
                     <GiExitDoor />
                   </EmojiWrapper>
@@ -422,6 +434,7 @@ const Header = ({
                 <IconButton
                   onClick={handleBurgerOpen}
                   $isDarkMode={isDarkMode}
+                  aria-label="Відкрити меню"
                 >
                   <EmojiWrapper>☰</EmojiWrapper>
                 </IconButton>
@@ -432,7 +445,11 @@ const Header = ({
           ) : (
             <ButtonsGroup ref={(el) => registerRef('headerBgTheme', el)}>
               {/* Незалогінений користувач */}
-              <IconButton onClick={handleThemeToggle} $isDarkMode={isDarkMode}>
+              <IconButton 
+                onClick={handleThemeToggle} 
+                $isDarkMode={isDarkMode}
+                aria-label="Змінити тему"
+              >
                 <EmojiWrapper style={{ fontSize: "18px" }}>
                   {isDarkMode ? <FaSun /> : <BsMoonStarsFill />}
                 </EmojiWrapper>
@@ -441,7 +458,7 @@ const Header = ({
               <IconButton
                 onClick={handleStickyBgToggle}
                 $isDarkMode={isDarkMode}
-                title="Фон на увесь сайт!"
+                aria-label="Фон на увесь сайт"
               >
                 <EmojiWrapper>
                   <MdWallpaper
@@ -453,7 +470,7 @@ const Header = ({
               <IconButton
                 onClick={handleEyeToggle}
                 $isDarkMode={isDarkMode}
-                title="Налаштування вигляду"
+                aria-label="Налаштування вигляду"
               >
                 <EmojiWrapper>
                   <IoIosEye />
@@ -463,7 +480,7 @@ const Header = ({
               <IconButton
                 onClick={handleHelpClick}
                 $isDarkMode={isDarkMode}
-                title="Навчання"
+                aria-label="Навчання"
               >
                 <EmojiWrapper style={{ fontWeight: 900 }}>?</EmojiWrapper>
               </IconButton>
@@ -471,7 +488,7 @@ const Header = ({
               <IconButton
                 onClick={handleOtherOptionsClick}
                 $isDarkMode={isDarkMode}
-                title="Інші опції"
+                aria-label="Інші опції"
               >
                 <EmojiWrapper>
                   <MdMore />
@@ -510,7 +527,6 @@ const Header = ({
             </ButtonsGroup>
           )}
         </HeaderFix>
-
         {showVisualSettings && (
           <VisualSettingsPanel $isDarkMode={isDarkMode}>
             <div>

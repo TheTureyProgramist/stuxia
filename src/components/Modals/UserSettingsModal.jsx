@@ -102,11 +102,11 @@ const ModalOverlay = styled.div`
 `;
 
 const ModalContent = styled.div`
-  background: ${(props) => (props.$isDarkMode ? "#2e1d30" : "#d3b0d3")};
+  background: violet;
   color: ${(props) => (props.$isDarkMode ? "#ffffff" : "inherit")};
   border: 2px solid #a929ff;
   border-radius: 10px;
-  width: 90%;
+  width: 95%;
   max-width: 1200px;
   position: relative;
   display: flex;
@@ -129,7 +129,8 @@ const SectionsContainer = styled.div`
   display: grid;
   grid-template-columns: 1fr;
   gap: 1px;
-  margin-top: -40px;
+  margin-top: -25px;
+    margin-bottom: -15px;
   @media (max-width: 767px) {
     display: none;
   }
@@ -146,24 +147,27 @@ const MobileStickyBar = styled.div`
   @media (max-width: 767px) {
     display: flex;
     align-items: center;
+    padding: 8px;
+    border-radius: 3px;
+    background: violet;
     gap: 4px;
     position: sticky;
     top: 0;
     z-index: 20;
-    background: #8300c9;
-    padding: 5px 8px;
-    border-radius: 8px;
     margin-bottom: 6px;
     flex-wrap: wrap;
+  } 
+      @media (min-width: 366px) {
+    margin-bottom: -42px;
   }
 `;
 
 const MobileViewToggle = styled.button`
-  padding: 4px 10px;
+  padding: 3px 7px;
   border-radius: 6px;
-  border: 2px solid ${(props) => (props.$active ? '#ffb36c' : 'rgba(255,255,255,0.3)')};
+  border: 2px solid rgb(13, 13, 13);
   background: ${(props) => (props.$active ? '#ffb36c' : 'transparent')};
-  color: ${(props) => (props.$active ? '#000' : '#fff')};
+  color: #000;
   font-size: 11px;
   font-weight: bold;
   cursor: pointer;
@@ -174,9 +178,9 @@ const CarouselPageBtn = styled.button`
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  border: 2px solid ${(props) => (props.$active ? '#ffb36c' : 'rgba(255,255,255,0.4)')};
+  border: 2px solid rgb(6, 6, 6);
   background: ${(props) => (props.$active ? '#ffb36c' : 'transparent')};
-  color: ${(props) => (props.$active ? '#000' : '#fff')};
+  color: #000;
   font-size: 11px;
   font-weight: bold;
   cursor: pointer;
@@ -199,22 +203,10 @@ const MobileOnlySections = styled.div`
     gap: 1px;
   }
 `;
-const CloseButton = styled.button`
-  position: absolute;
-  top: -7px;
-  right: 2px;
-  background: none;
-  border: none;
-  font-size: 34px;
-  cursor: pointer;
-  color: ${(props) => (props.$isDarkMode ? "#ffffff" : "#000000")};
-  &:hover {
-    color: #00e1ff;
-  }
-`;
 
 const Section = styled.div`
   display: flex;
+  height: 100%;
   flex-direction: column;
   padding: 3px;
   background: ${(props) => (props.$isDarkMode ? "rgba(255, 255, 255, 0.1)" : "rgba(129, 39, 255, 0.4)")};
@@ -234,16 +226,16 @@ const SectionHeader = styled.div`
 `;
 
 const Input = styled.input`
-  padding: 6px;
+  padding: 4px;
   border: 2px solid #000000;
   border-radius: 5px;
   font-size: 13px;
   width: 100%;
-  background: transparent;
-  color: ${(props) => (props.$isDarkMode ? "#ffffff" : "black")};
+  background: #420093;
+  color: #ffffff;
   box-sizing: border-box;
   &::placeholder {
-    color: ${(props) => (props.$isDarkMode ? "rgba(255, 255, 255, 0.6)" : "#000000")};
+  rgba(255, 255, 255, 0.6);
     font-style: italic;
     font-weight: 900;
     font-size: 13px;
@@ -506,17 +498,18 @@ const Label = styled.label`
   color: ${(props) => (props.$isDarkMode ? "#ffffff" : "black")};
 `;
 const ResetOrderButton = styled.button`
-  padding: 2px;
+  padding: 0 2px;
   border-radius: 2px;
     position: absolute;
   top: 6px;
-  right: 57px;
+  right: 104px;
   border: 2px solid;
   ${(props) => (props.$isDarkMode ? "rgba(255, 255, 255, 0.5)" : "#000")};
   background: transparent;
   color: ${(props) => (props.$isDarkMode ? "#ffffff" : "black")};
   font-weight: bold;
   cursor: pointer;
+  font-size: 10px;
   transition: all 0.2s;
   box-shadow: 0 2px 0
     ${(props) => (props.$isDarkMode ? "rgba(255, 255, 255, 0.5)" : "#000")};
@@ -563,7 +556,6 @@ const DEFAULT_SECTIONS = [
   "voiceActing",
   "dateDisplay",
   "interfaceSettings", 
-  "weatherLayout",
   "newsLayout",
 ];
 const WEATHER_BLOCK_LABELS = {
@@ -981,48 +973,45 @@ const UserSettingsModal = ({
       </div>
     </SectionHeader>
   );
-
-  // Shared section content renderer — used by both desktop grid and mobile scroll/carousel
   const renderSectionContent = (section, idx) => {
     if (section === "name") {
       return (
         <Section key="name">
           {renderSectionHeader(section, idx, "Ім'я")}
           <NameInput
-            $textColor={formData.textColor}
             value={formData.name}
             onChange={(e) =>
               setFormData({ ...formData, name: e.target.value })
             }
           />
-          {renderSectionHeader(section, idx, "Колір рамки аватара")}
-          <ColorContainer>
-            {COLORS.map((color, i) => (
-              <ColorCircle
+                    {renderSectionHeader(section, idx, "Оберіть аватар")}
+          <AvatarSlider>
+            {availableAvatars.map((img, i) => (
+              <AvatarOption
                 key={i}
-                $color={color.value}
-                $isSelected={formData.borderColor === color.value}
-                title={color.name}
+                $isSelected={formData.avatarIndex === i}
+                $borderColor={formData.borderColor}
                 onClick={() =>
-                  setFormData({
-                    ...formData,
-                    borderColor: color.value,
-                  })
+                  setFormData({ ...formData, avatarIndex: i })
                 }
-              />
+              >
+                <img src={img} alt="avatar" />
+              </AvatarOption>
             ))}
-          </ColorContainer>
-          <Input
-            placeholder="Власний колір (напр. rgba(255, 0, 0, 0.5) або #ff00ff)"
-            value={formData.borderColor}
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                borderColor: e.target.value,
-              })
-            }
-            style={{ marginTop: "5px" }}
-          />
+            {hasExternalAvatar && (
+              <AvatarOption
+                key="external"
+                $isSelected={formData.avatarIndex === -1}
+                $borderColor={formData.borderColor}
+                title="Google аватарка"
+                onClick={() =>
+                  setFormData({ ...formData, avatarIndex: -1 })
+                }
+              >
+                <img src={user.avatar} alt="google-avatar" />
+              </AvatarOption>
+            )}
+          </AvatarSlider>
         </Section>
       );
     } else if (section === "birthDate") {
@@ -1079,6 +1068,51 @@ const UserSettingsModal = ({
               Такої дати не існує!
             </span>
           )}
+            {renderSectionHeader(
+            section,
+            idx,
+            "Налаштування годинника",
+          )}
+          <CheckboxRow>
+            <input
+              type="checkbox"
+              checked={formData.showSeconds}
+              onChange={(e) =>
+                updateLivePreview({ showSeconds: e.target.checked })
+              }
+            />
+            <label style={{fontWeight: "900", fontSize: "11px"}}>Показувати секунди (17:23:17)</label>
+          </CheckboxRow>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "1px",
+            }}
+          >
+            <label style={{ fontSize: "12px", fontWeight: "bold", color: "#000" }}>
+              Формат часу
+            </label>
+            <Select
+              value={formData.hour12 ? "12" : "24"}
+              onChange={(e) =>
+                updateLivePreview({ hour12: e.target.value === "12" })
+              }
+            >
+              <option value="24">24-годинний формат</option>
+              <option value="12">12-годинний формат (AM/PM)</option>
+            </Select>
+            <Select
+              value={formData.dateDisplayMode}
+              onChange={(e) =>
+                updateLivePreview({ dateDisplayMode: e.target.value })
+              }
+            >
+              <option value="both">Час та Дата (разом)</option>
+              <option value="time">Тільки Час</option>
+              <option value="date">Тільки Дата</option>
+            </Select>
+          </div>
         </Section>
       );
     } else if (section === "security") {
@@ -1201,120 +1235,10 @@ const UserSettingsModal = ({
           )}
         </Section>
       );
-    } else if (section === "textColor") {
-      return (
-        <Section key="textColor">
-          {renderSectionHeader(section, idx, "Колір тексту")}
-          <ColorContainer>
-            {COLORS.map((color, i) => (
-              <ColorCircle
-                key={i}
-                $color={color.value}
-                $isSelected={formData.textColor === color.value}
-                title={color.name}
-                onClick={() =>
-                  setFormData({ ...formData, textColor: color.value })
-                }
-              />
-            ))}
-          </ColorContainer>
-          <Input
-            placeholder="Власний колір (напр. rgba(255, 0, 0, 0.5) або #ff00ff)"
-            value={formData.textColor}
-            onChange={(e) =>
-              setFormData({ ...formData, textColor: e.target.value })
-            }
-            style={{ marginTop: "5px" }}
-          />
-        </Section>
-      );
     } else if (section === "borderColor") {
-      return null; // borderColor is embedded in the "name" section
-    } else if (section === "avatar") {
-      return (
-        <Section key="avatar">
-          {renderSectionHeader(section, idx, "Оберіть аватар")}
-          <AvatarSlider>
-            {availableAvatars.map((img, i) => (
-              <AvatarOption
-                key={i}
-                $isSelected={formData.avatarIndex === i}
-                $borderColor={formData.borderColor}
-                onClick={() =>
-                  setFormData({ ...formData, avatarIndex: i })
-                }
-              >
-                <img src={img} alt="avatar" />
-              </AvatarOption>
-            ))}
-            {hasExternalAvatar && (
-              <AvatarOption
-                key="external"
-                $isSelected={formData.avatarIndex === -1}
-                $borderColor={formData.borderColor}
-                title="Google аватарка"
-                onClick={() =>
-                  setFormData({ ...formData, avatarIndex: -1 })
-                }
-              >
-                <img src={user.avatar} alt="google-avatar" />
-              </AvatarOption>
-            )}
-          </AvatarSlider>
-        </Section>
-      );
+      return null; 
     } else if (section === "voiceActing") {
-      return null; // no separate voiceActing section UI in this version
-    } else if (section === "dateDisplay") {
-      return (
-        <Section key="dateDisplay">
-          {renderSectionHeader(
-            section,
-            idx,
-            "Налаштування годинника",
-          )}
-          <CheckboxRow>
-            <input
-              type="checkbox"
-              checked={formData.showSeconds}
-              onChange={(e) =>
-                updateLivePreview({ showSeconds: e.target.checked })
-              }
-            />
-            <label style={{fontWeight: "900", fontSize: "11px"}}>Показувати секунди (17:23:17)</label>
-          </CheckboxRow>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "1px",
-            }}
-          >
-            <label style={{ fontSize: "12px", fontWeight: "bold", color: "#000" }}>
-              Формат часу
-            </label>
-            <Select
-              value={formData.hour12 ? "12" : "24"}
-              onChange={(e) =>
-                updateLivePreview({ hour12: e.target.value === "12" })
-              }
-            >
-              <option value="24">24-годинний формат</option>
-              <option value="12">12-годинний формат (AM/PM)</option>
-            </Select>
-            <Select
-              value={formData.dateDisplayMode}
-              onChange={(e) =>
-                updateLivePreview({ dateDisplayMode: e.target.value })
-              }
-            >
-              <option value="both">Час та Дата (разом)</option>
-              <option value="time">Тільки Час</option>
-              <option value="date">Тільки Дата</option>
-            </Select>
-          </div>
-        </Section>
-      );
+      return null;
     } else if (section === "interfaceSettings") {
       return (
         <Section key="interfaceSettings">
@@ -1399,10 +1323,9 @@ const UserSettingsModal = ({
             />
             <label style={{fontWeight: 900, fontSize: "11px"}}>Швидкий відгук на кліки (без затримки)</label>
           </CheckboxRow>
-
-          <div style={{ borderTop: "1px solid rgba(255,255,255,0.2)", paddingTop: "6px", marginTop: "4px" }}>
-            <label style={{ fontSize: "12px", fontWeight: "bold", color: "#000", display: "block", marginBottom: "4px" }}>
-              🪞 Дзеркальність сайту (скидається при перезавантаженні)
+          <div>
+            <label style={{ fontSize: "12px", fontWeight: "bold", color: "#000", display: "block"}}>
+              Дзеркальність сайту (скидається при перезавантаженні)
             </label>
             <CheckboxRow>
               <input
@@ -1411,7 +1334,7 @@ const UserSettingsModal = ({
                 checked={mirrorX}
                 onChange={(e) => setMirrorX(e.target.checked)}
               />
-              <label htmlFor="mirrorX" style={{ fontWeight: 900, fontSize: "11px" }}>↔️ По горизонталі (ліво↔право)</label>
+              <label htmlFor="mirrorX" style={{ fontWeight: 900, fontSize: "11px" }}>По горизонталі (ліво↔право)</label>
             </CheckboxRow>
             <CheckboxRow>
               <input
@@ -1420,7 +1343,7 @@ const UserSettingsModal = ({
                 checked={mirrorY}
                 onChange={(e) => setMirrorY(e.target.checked)}
               />
-              <label htmlFor="mirrorY" style={{ fontWeight: 900, fontSize: "11px" }}>↕️ По вертикалі (верх↕низ)</label>
+              <label htmlFor="mirrorY" style={{ fontWeight: 900, fontSize: "11px" }}>По вертикалі (верх↕низ)</label>
             </CheckboxRow>
             {(mirrorX || mirrorY) && (
               <button
@@ -1441,80 +1364,6 @@ const UserSettingsModal = ({
               </button>
             )}
           </div>
-        </Section>
-      );
-    } else if (section === "weatherLayout") {
-      return (
-        <Section key="weatherLayout">
-          {renderSectionHeader(
-            section,
-            idx,
-            "Налаштування картки погоди",
-          )}
-          <p
-            style={{
-              fontSize: "11px",
-              fontWeight: 900,
-              color: "#000",
-            }}
-          >
-            Виберіть, які блоки відображати та в якому порядку.
-          </p>
-          {weatherCardLayout
-            .filter((block) => WEATHER_BLOCK_LABELS[block.key])
-            .map((block, bIdx) => (
-              <div
-                key={block.key}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  background: "rgba(244, 240, 244, 0.09)",
-                  padding: "1px",
-                  borderRadius: "8px",
-                  marginBottom: "4px",
-                }}
-              >
-                <CheckboxRow style={{ flex: 1 }}>
-                  <input
-                    type="checkbox"
-                    checked={block.visible}
-                    onChange={() =>
-                      toggleWeatherBlockVisibility(block.key)
-                    }
-                  />
-                  <span style={{ fontSize: "12px", fontWeight: 500 }}>
-                    {WEATHER_BLOCK_LABELS[block.key]}
-                  </span>
-                </CheckboxRow>
-                <div style={{ display: "flex" }}>
-                  <OrderButton
-                    style={{
-                      width: "22px",
-                      height: "22px",
-                      fontWeight: 900,
-                      fontSize: "19px",
-                    }}
-                    disabled={bIdx === 0}
-                    onClick={() => moveWeatherBlock(bIdx, -1)}
-                  >
-                    ⬆
-                  </OrderButton>
-                  <OrderButton
-                    style={{
-                      width: "22px",
-                      fontWeight: 900,
-                      height: "22px",
-                      fontSize: "19px",
-                    }}
-                    disabled={bIdx === weatherCardLayout.length - 1}
-                    onClick={() => moveWeatherBlock(bIdx, 1)}
-                  >
-                    ⬇
-                  </OrderButton>
-                </div>
-              </div>
-            ))}
         </Section>
       );
     } else if (section === "newsLayout") {
@@ -1592,11 +1441,10 @@ const UserSettingsModal = ({
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              marginBottom: "10px",
+              marginBottom: "22px",
               background: "violet",
               position: "sticky",
               flexWrap: "wrap",
-              gap: "10px",
             }}
           >
             <div style={{ display: "flex", flexDirection: "column" }}>
@@ -1606,41 +1454,29 @@ const UserSettingsModal = ({
               </div>
             </div>
             <ResetOrderButton
-              style={{ fontSize: "9px" }}
               onClick={resetSectionsOrder}
             >
-              Скинути порядок
+              Змінити лад
             </ResetOrderButton>
-            <button
-              style={{
-                color: "#000",
-                border: "none",
-                marginBottom: "15px",
-                marginRight: "28px",
-                fontWeight: 600,
-                fontSize: 20,
-                cursor: "pointer",
-              }}
+            <ResetOrderButton
+             style={{ right: "59px" }}
               onClick={() => setShowKatScene(true)}
             >
-              📹︎
-            </button>
-            <CloseButton onClick={handleCancel}>&times;</CloseButton>
-          </div>
-
-          {/* Mobile-only sticky bar: view mode + carousel page buttons */}
-          <MobileStickyBar>
+              Титри
+            </ResetOrderButton>
+            <ResetOrderButton  style={{ right: "2px" }} onClick={handleCancel}>Закрити</ResetOrderButton>
+          <MobileStickyBar >
             <MobileViewToggle
               $active={mobileViewMode === 'scroll'}
               onClick={() => { setMobileViewMode('scroll'); setCarouselPage(0); }}
             >
-              📜 Скрол
+              Скрол
             </MobileViewToggle>
             <MobileViewToggle
               $active={mobileViewMode === 'carousel'}
               onClick={() => { setMobileViewMode('carousel'); setCarouselPage(0); }}
             >
-              🎠 Карусель
+             Карусель
             </MobileViewToggle>
             {mobileViewMode === 'carousel' &&
               Array.from({ length: totalPages }).map((_, p) => (
@@ -1654,8 +1490,7 @@ const UserSettingsModal = ({
               ))
             }
           </MobileStickyBar>
-
-          {/* DESKTOP: normal multi-column grid (hidden on mobile via CSS) */}
+                    </div>
           <SectionsContainer>
             {sectionsOrder.map((section, idx) => {
               const content = renderSectionContent(section, idx);
@@ -1667,8 +1502,6 @@ const UserSettingsModal = ({
               );
             })}
           </SectionsContainer>
-
-          {/* MOBILE: single-column scroll or paged carousel (hidden on desktop via CSS) */}
           <MobileOnlySections>
             {mobileViewMode === 'scroll' ? (
               sectionsOrder.map((section, idx) => {

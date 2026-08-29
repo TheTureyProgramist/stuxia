@@ -55,7 +55,7 @@
     "preview": "vite preview",
     "backup": "powershell -Command \"$date = Get-Date -Format 'yyyy-MM-dd_HH-mm'; Get-ChildItem -Path './*' -Exclude 'node_modules', 'server', '.next', '.git', 'out', 'dist', '.env*' | Compress-Archive -DestinationPath ('../stykhiya-backup-' + $date + '.zip')\"",
     "predeploy": "node generate-deploy-id.js && bun run build",
-    "deploy": "gh-pages -d dist",
+    "deploy": "bun run build && bun x gh-pages -d dist -f --cname stuxia.com",
     "deploy:cpanel": "npm run build && node deploy.js",
     "test": "react-scripts test",
     "star": "node server/index.js"
@@ -81,12 +81,15 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@vitejs/plugin-react-swc": "^4.3.3",
+    "esbuild": "^0.28.2",
     "eslint": "^9.39.5",
     "eslint-plugin-react": "^7.37.5",
     "ftp-deploy": "^2.4.7",
     "gh-pages": "^6.3.0",
     "globals": "^17.8.0",
-    "nodemon": "^3.1.14"
+    "nodemon": "^3.1.14",
+    "sharp": "^0.35.4",
+    "vite-plugin-image-optimizer": "^2.0.3"
   },
   "description": "",
   "main": "index.js",

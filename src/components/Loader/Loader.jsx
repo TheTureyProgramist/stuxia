@@ -2,12 +2,12 @@ import React, { useEffect, useState } from "react";
 import styled, { keyframes } from "styled-components";
 import loadtwo from "../../photos/hero-header/fogtwo.webp";
 
-const PHASE_1_INTERVAL_MS = 100;
+const PHASE_1_INTERVAL_MS = 300;
 const PHASE_1_PHRASES = [
   "Цей сайт це реальна містика :)",
   "Хочеш відсилку? :)",
   "Індики схожі?",
-  "Доміно на Ні????на",
+  "Доміно на Др?????са",
   "Точно ні, він чорний, а Доміно чорно-білий :)",
 ];
 

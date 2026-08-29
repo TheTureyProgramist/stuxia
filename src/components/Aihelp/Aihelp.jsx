@@ -635,7 +635,7 @@ const Aihelp = ({ isDarkMode, isStickyBgMode }) => {
   const [prompt, setPrompt] = useState("");
   const [messages, setMessages] = useState([]);
   const [personalApiKey, setPersonalApiKey] = useState("");
-  const [geminiModel, setGeminiModel] = useState("gemini-2.5-flash");
+  const [geminiModel, setGeminiModel] = useState("gemini-3.5-flash-lite");
   const [responseLength, setResponseLength] = useState("normal");
   const [responseStyle, setResponseStyle] = useState("friendly");
   const [selectedFiles, setSelectedFiles] = useState([]);
@@ -821,7 +821,14 @@ const Aihelp = ({ isDarkMode, isStickyBgMode }) => {
       if (history) setMessages(history);
     };
     loadKey();
+
+    const handleKeyChange = (e) => {
+      setPersonalApiKey(e.detail);
+    };
+    window.addEventListener("geminiKeyChanged", handleKeyChange);
+    return () => window.removeEventListener("geminiKeyChanged", handleKeyChange);
   }, []);
+
 
   useEffect(() => {
     return () => {
@@ -849,7 +856,9 @@ const Aihelp = ({ isDarkMode, isStickyBgMode }) => {
   const saveApiKey = async (val) => {
     setPersonalApiKey(val);
     await localforage.setItem("gemini_api_key", val);
+    window.dispatchEvent(new CustomEvent("geminiKeyChanged", { detail: val }));
   };
+
 
   const handleFileSelect = (files) => {
     const incomingFiles = Array.from(files);

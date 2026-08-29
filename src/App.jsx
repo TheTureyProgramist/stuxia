@@ -1,4 +1,4 @@
-﻿// Міста для тесту: Дубай (>30°C), Якутськ (<-30°C), Кейптаун (вітер >10 м/с). Графік have погодинну перевірку вітру та деталізовані причини небезпеки в підказках.
+// Міста для тесту: Дубай (>30°C), Якутськ (<-30°C), Кейптаун (вітер >10 м/с). Графік have погодинну перевірку вітру та деталізовані причини небезпеки в підказках.
 import {
   useState,
   useEffect,
@@ -1640,11 +1640,16 @@ const App = () => {
           }
         }
         const nowLocal = new Date();
-        const localHourStr = `${nowLocal.getFullYear()}-${String(nowLocal.getMonth() + 1).padStart(2, "0")}-${String(nowLocal.getDate()).padStart(2, "0")}T${String(nowLocal.getHours()).padStart(2, "0")}:00`;
+        let targetHour = nowLocal.getHours();
+        if (targetHour >= 18) {
+          targetHour = 18;
+        }
+        const localHourStr = `${nowLocal.getFullYear()}-${String(nowLocal.getMonth() + 1).padStart(2, "0")}-${String(nowLocal.getDate()).padStart(2, "0")}T${String(targetHour).padStart(2, "0")}:00`;
         let hStartIndex = (d.hourly?.time || []).findIndex((t) =>
           t.startsWith(localHourStr),
         );
         if (hStartIndex === -1) hStartIndex = 0;
+
 
         const hourlyForecastLimit = 7 * 24;
 
