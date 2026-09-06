@@ -27,9 +27,130 @@ import { DEFAULT_BGS } from "../Hero/defaultBgs";
 import { getWindDirectionText } from "../../utils/windUtils";
 import CustomDatesModal from "../Modals/CustomDatesModal";
 import { useTutorial } from "../DominoTutorial/TutorialContext.jsx";
+import { PiThermometerFill } from "react-icons/pi"; //Нормальна температура
+import { BsThermometerSnow } from "react-icons/bs"; //Холодна температура 
+import { BsThermometerSun } from "react-icons/bs"; //Висока температура
+import { FaGlassWater } from "react-icons/fa6"; //Підвищена вологість
+import { FaGlassWaterDroplet } from "react-icons/fa6"; //Вологість
+import { BiWind } from "react-icons/bi"; //Пориви Вітру
+import { GiGrassMushroom } from "react-icons/gi"; //Точка роси
+import { MdOutlineSpeed } from "react-icons/md"; //Тиск
+import { FaCloudDownloadAlt } from "react-icons/fa";//Низька хмарність
+import { FaCloudUploadAlt } from "react-icons/fa";//Підвищена хмарність
+import { FaSmog } from "react-icons/fa";//Туманність
+import { GiSunRadiations } from "react-icons/gi";//Сонячна радіація
+import {
+  useFloating,
+  autoUpdate,
+  offset,
+  flip,
+  shift,
+  arrow,                 
+  useHover,
+  useFocus,
+  useDismiss,
+  useRole,
+  useInteractions,
+  useTransitionStyles,  
+  FloatingPortal,
+  FloatingArrow,         
+} from "@floating-ui/react";
+const TooltipBox = styled.div`
+  background-color: ${(props) => (props.$isDarkMode ? "#0c0c0cbf" : "#fdff98bb")};
+  color: ${(props) => (props.$isDarkMode ? "#ffffff" : "#1a1a1a")};
+  border: 2px solid #00afce;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, ${(props) => (props.$isDarkMode ? "0.5" : "0.15")});
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 9px;
+  z-index: 10000;
+  pointer-events: none;
+`;
 
+export const Tooltip = ({
+  content,
+  children,
+  placement = "bottom",
+  isDarkMode = true,
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const arrowRef = useRef(null);
+const { refs, floatingStyles, context } = useFloating({
+    open: isOpen,
+    onOpenChange: setIsOpen,
+    placement,
+    strategy: "fixed",
+    transform: false, 
+    whileElementsMounted: autoUpdate,
+    middleware: [
+      offset(8),
+      flip(),
+      shift({ padding: 5 }),
+      arrow({ element: arrowRef }),
+    ],
+  });
+  const { isMounted, styles: transitionStyles } = useTransitionStyles(context, {
+    duration: 150,
+    initial: {
+      opacity: 0,
+      transform: "scale(0.9)",
+    },
+    open: {
+      opacity: 1,
+      transform: "scale(1)",
+    },
+  });
+
+  const hover = useHover(context, { move: false });
+  const focus = useFocus(context);
+  const dismiss = useDismiss(context);
+  const role = useRole(context, { role: "tooltip" });
+
+  const { getReferenceProps, getFloatingProps } = useInteractions([
+    hover,
+    focus,
+    dismiss,
+    role,
+  ]);
+
+  if (!content) return children;
+
+  const bgTheme = isDarkMode ? "#111111" : "#ffffff";
+  const borderTheme = "#00acb9";
+
+  return (
+    <>
+      <span
+        ref={refs.setReference}
+        {...getReferenceProps()}
+        style={{ display: "inline-flex" }}
+      >
+        {children}
+      </span>
+      {isMounted && (
+        <FloatingPortal>
+          <TooltipBox
+            ref={refs.setFloating}
+            $isDarkMode={isDarkMode}
+            style={{ ...floatingStyles, ...transitionStyles }}
+            {...getFloatingProps()}
+          >
+            {content}
+            <FloatingArrow
+              ref={arrowRef}
+              context={context}
+              fill={bgTheme}
+              stroke={borderTheme}
+              strokeWidth={1}
+            />
+          </TooltipBox>
+        </FloatingPortal>
+      )}
+    </>
+  );
+};
 const fadeIn = keyframes`from { opacity: 0; } to { opacity: 1; }`;
-
 const CustomTimersDisplay = ({ customDays, cardId }) => {
   const [now, setNow] = useState(new Date());
   useEffect(() => {
@@ -795,6 +916,7 @@ const WeatherCardComponent = ({
         flexShrink: 0,
       }}
     >
+      <Tooltip content="Точка роси (температура, при якій утворюється роса)" isDarkMode={isDarkMode}>
       <button
         type="button"
         onClick={() => toggleChartFullscreen(chartKey, panelRef)}
@@ -804,24 +926,27 @@ const WeatherCardComponent = ({
       >
         <BiFullscreen size={16} />
       </button>
+      </Tooltip>
+      <Tooltip content="Завантажити скріншот повноекранного графіка" isDarkMode={isDarkMode}>
       <button
         type="button"
         onClick={() => downloadChartScreenshot(chartKey, panelRef)}
-        title="Завантажити скріншот графіка"
-        aria-label="Завантажити скріншот графіка"
+        aria-label="Завантажити скріншот повноекранного графіка"
         style={chartActionButtonStyle}
       >
         <BiDownload size={16} />
       </button>
+      </Tooltip>
+      <Tooltip content="Завантажити скріншот повноекранного графіка" isDarkMode={isDarkMode}>
       <button
         type="button"
         onClick={() => printChart(chartKey, panelRef)}
-        title="Друкувати графік"
-        aria-label="Друкувати графік"
+        aria-label="Друкувати скріншот повноекранного графіка"
         style={chartActionButtonStyle}
       >
         <BiPrinter size={16} />
       </button>
+      </Tooltip>
     </div>
   );
 
@@ -836,11 +961,12 @@ const WeatherCardComponent = ({
       }}
     >
       {items.map((item) => (
+       <Tooltip content={`Натисніть, щоб ${datasetOpacity[item.key] === 1 ? "сховати" : "показати"} ${item.label.toLowerCase()}`} isDarkMode={isDarkMode}>
         <button
           key={item.key}
           type="button"
           onClick={() => toggleDatasetVisibility(item.key)}
-          title={`Натисніть, щоб ${datasetOpacity[item.key] === 1 ? "сховати" : "показати"}`}
+          aria-label={`Натисніть, щоб ${datasetOpacity[item.key] === 1 ? "сховати" : "показати"}`}
           style={{
             display: "inline-flex",
             alignItems: "center",
@@ -866,6 +992,7 @@ const WeatherCardComponent = ({
           />
           {item.label}
         </button>
+        </Tooltip>
       ))}
     </div>
   );
@@ -1181,6 +1308,19 @@ const WeatherCardComponent = ({
   }, [selectedDay]);
 
   const createIconCanvas = (icon, size = 24, dangerColor = null, opacity = 1) => {
+    let iconStr = icon;
+    if (icon && typeof icon !== "string") {
+      const typeName = icon.type?.name || "";
+      if (typeName === "FaSmog") iconStr = "☁️";
+      else if (typeName === "IoRainy" || typeName === "LiaCloudSunRainSolid") iconStr = "🌧️";
+      else if (typeName === "GiSnowing") iconStr = "❄️";
+      else if (typeName === "IoThunderstorm") iconStr = "⛈️";
+      else if (typeName === "FaSun") iconStr = "☀️";
+      else if (typeName === "BsMoonStarsFill") iconStr = "🌙";
+      else if (typeName === "FaCloudMoon") iconStr = "☁️";
+      else if (typeName === "FaCloudMoonRain" || typeName === "LiaCloudMoonRainSolid") iconStr = "🌧️";
+      else iconStr = "☁️";
+    }
     const canvas = document.createElement("canvas");
     canvas.width = size;
     canvas.height = size;
@@ -1196,7 +1336,7 @@ const WeatherCardComponent = ({
     ctx.fill();
     ctx.globalAlpha = opacity;
     ctx.fillStyle = "#ffffff";
-    ctx.fillText(icon, size / 2, size / 2);
+    ctx.fillText(iconStr, size / 2, size / 2);
 
     if (dangerColor) {
       ctx.fillStyle = dangerColor;
@@ -1910,7 +2050,7 @@ const HOLIDAYS_2027 = {
                 }}
               >
                 <span style={{ color: "#ffb36c", fontWeight: 700 }}>
-                  #{index + 1}
+                  #{index}
                 </span>
                 <span>{card.locationName}</span>
               </h3>
@@ -1920,6 +2060,7 @@ const HOLIDAYS_2027 = {
             </p>
           </div>
           <ActionButtons style={{ position: "relative" }}>
+            <Tooltip content="Налаштування картки" isDarkMode={isDarkMode}>
             <button
               ref={(el) => { if (card.isMain && registerRef) registerRef('weatherGear', el); }}
               onClick={() => {
@@ -1927,7 +2068,7 @@ const HOLIDAYS_2027 = {
                 if (isDropdownOpen) handleCloseDropdown();
                 else setIsDropdownOpen(true);
               }}
-              title="Меню"
+              aria-label="Налаштування картки"
               style={{
                 fontSize: "28px",
                 padding: "5px",
@@ -1938,6 +2079,7 @@ const HOLIDAYS_2027 = {
             >
               <BiCog size={28} />
             </button>
+            </Tooltip>
             {(isDropdownOpen || isDropdownClosing) && (
               <SettingsDropdownMenu
                 $isDarkMode={isDarkMode}
@@ -1947,9 +2089,10 @@ const HOLIDAYS_2027 = {
                   style={{
                     display: "flex",
                     justifyContent: "flex-end",
-                    padding: "10px 12px 0 0",
+                    padding: "2px 5px 0 0",
                   }}
                 >
+                  <Tooltip content="Закрити меню" isDarkMode={isDarkMode}>
                   <button
                     onClick={handleCloseDropdown}
                     style={{
@@ -1958,14 +2101,15 @@ const HOLIDAYS_2027 = {
                       color: isDarkMode ? "#ffb36c" : "#333",
                       fontSize: "20px",
                       cursor: "pointer",
+                      fontWeight: "900",
                       padding: "4px",
                       lineHeight: 1,
                     }}
                     aria-label="Закрити меню"
-                    title="Закрити меню"
                   >
                     ✕
                   </button>
+                  </Tooltip>
                 </div>
                 {!isEditing && (
                   <button
@@ -1975,7 +2119,7 @@ const HOLIDAYS_2027 = {
                     }}
                     style={{
                       textAlign: "left",
-                      padding: "10px",
+                      padding: "0px 0px 10px 10px",
                       background: "transparent",
                       color: isDarkMode ? "#fff" : "#000",
                       borderBottom: "1px solid #444",
@@ -2026,24 +2170,6 @@ const HOLIDAYS_2027 = {
                 >
                   <BiBrain size={16} />{" "}
                   {isAiEnabled ? "Вимкнути ШІ" : "Увімкнути ШІ"}
-                </button>
-                <button
-                  onClick={() => {
-                    setIsCardSettingsOpen(true);
-                  }}
-                  style={{
-                    textAlign: "left",
-                    padding: "10px",
-                    background: "transparent",
-                    color: isDarkMode ? "#fff" : "#000",
-                    borderBottom: "1px solid #444",
-                    fontSize: "13px",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "6px",
-                  }}
-                >
-                  <BiCog size={16} /> Налаштування картки
                 </button>
                 <button
                   onClick={() => {
@@ -2225,60 +2351,124 @@ const HOLIDAYS_2027 = {
                 <div
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "1fr",
+                    gridTemplateColumns: "repeat(3, 1fr)",
+                    gap: "4px",
                     fontSize: "13px",
-                    width: "300px",
+                    width: "100%",
+                    padding: "3px",
+                    boxSizing: "border-box"
                   }}
                 >
-                  <ImagePlaceholder width="300px">
-                   {card.current.iconPlaceholder}
-                  </ImagePlaceholder>
-                  <h1
-                    style={{
-                      margin: "0",
-                      color: isExtremeTemp ? "#ff4d4d" : "inherit",
-                    }}
+                  <div
+                    aria-label={card.current.iconPlaceholder}
+                    style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "2px", background: "rgba(255,255,255,0.1)", borderRadius: "8px", cursor: "help" }}
                   >
-                    Зараз: {card.current.temp}
-                  </h1>
-                  <p style={{ margin: "0", opacity: 1 }}>
-                    Відчувається: {card.current.feels_like}
-                  </p>
-                  <div>
-                    Вологість: <b>{card.current.humidity ?? "—"}</b>
+                    <div style={{ fontSize: "32px", lineHeight: "1" }}>
+                      {card.current.iconSymbol || "🌤️"}
+                    </div>
+                    <div style={{ marginTop: "5px", fontSize: "11px", fontWeight: "bold", textAlign: "center", lineHeight: "1.2" }}>
+                      {(card.current.iconPlaceholder || "").replace(card.current.iconSymbol || "", "").trim() || "Мінлива хмарність"}
+                    </div>
                   </div>
-                  <div style={{ color: isExtremeWind ? "#ff4d4d" : "inherit" }}>
-                    {" "}
-                    Вітер: <b>{card.current.wind_speed ?? "0 м/с"}</b>
+                  <div
+                    aria-label="Температура / Відчувається як"
+                    style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "2px", background: "rgba(255,255,255,0.1)", borderRadius: "8px", cursor: "help" }}
+                  >
+                    <div style={{ fontSize: "24px", color: parseFloat(card.current.temp) < 5 ? "#4da6ff" : parseFloat(card.current.temp) > 25 ? "#ff4d4d" : "inherit" }}>
+                      {parseFloat(card.current.temp) < 5 ? <BsThermometerSnow /> : parseFloat(card.current.temp) > 25 ? <BsThermometerSun /> : <PiThermometerFill />}
+                    </div>
+                    <div style={{ fontWeight: "bold", textAlign: "center" }}>
+                      {card.current.temp}
+                      <div style={{ fontSize: "9px", fontWeight: "normal", opacity: 0.8 }}>Відчувається: {card.current.feels_like}</div>
+                    </div>
                   </div>
-                  <div>
-                    Напрямок вітру:{" "}
-                    <b>{card.current.wind_direction_10m}° ({getWindDirectionText(card.current.wind_direction_10m)})</b>
+                  <div
+                    aria-label="Відносна вологість"
+                    style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "2px", background: "rgba(255,255,255,0.1)", borderRadius: "8px", cursor: "help" }}
+                  >
+                    <div style={{ fontSize: "24px", color: parseFloat(card.current.humidity) > 70 ? "#4da6ff" : "inherit" }}>
+                      {parseFloat(card.current.humidity) > 70 ? <FaGlassWater /> : <FaGlassWaterDroplet />}
+                    </div>
+                    <div style={{ marginTop: "10px", fontSize: "12px", fontWeight: "bold", textAlign: "center" }}>
+                     Вологість: {card.current.humidity ?? "—"}
+                    </div>
                   </div>
-                  <div>
-                    Пориви вітру: <b>{card.current.wind_gusts_10m} м/с</b>
+
+                  <div
+                    aria-label={`Вітер: ${card.current.wind_speed}, Напрямок: ${card.current.wind_direction_10m}° (${getWindDirectionText(card.current.wind_direction_10m)}), Пориви: ${card.current.wind_gusts_10m} м/с`}
+                    style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "2px", background: "rgba(255,255,255,0.1)", borderRadius: "8px", cursor: "help" }}
+                  >
+                    <div style={{ fontSize: "28px" }}>
+                      <span style={{ display: "inline-block", transform: `rotate(${Math.round((card.current.wind_direction_10m || 0) / 45) * 45 % 360}deg)` }}>
+                        ⬇
+                      </span>
+                    </div>
+                    <div style={{ fontWeight: "bold", textAlign: "center", marginTop: "-15px", fontSize: "12px" }}>
+                     Швидкість вітру: {card.current.wind_speed}
+                      <div style={{ fontSize: "10px", fontWeight: "normal", opacity: 0.8 }}>{card.current.wind_direction_10m}° {getWindDirectionText(card.current.wind_direction_10m)}</div>
+                      <div style={{ fontSize: "10px", fontWeight: "bold", opacity: 0.9, color: isExtremeWind ? "#ff4d4d" : "inherit" }}>
+                        Пориви: {card.current.wind_gusts_10m}м/с
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    Точка роси: <b>{card.current.dew_point_2m}°C</b>
+                  <Tooltip content="Точка роси (температура, при якій утворюється роса)" isDarkMode={isDarkMode}>
+                  <div
+                    aria-label="Точка роси (температура, при якій утворюється роса)"
+                    style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "2px", background: "rgba(255,255,255,0.1)", borderRadius: "8px", cursor: "help" }}
+                  >
+                    <div style={{ fontSize: "24px" }}>
+                      <GiGrassMushroom />
+                    </div>
+                    <div style={{ marginTop: "5px", fontWeight: "bold", textAlign: "center" }}>
+                     Точка роси: {card.current.dew_point_2m}°C
+                    </div>
                   </div>
-                  <div>
-                    Тиск: <b>{card.current.pressure ?? "—"}</b>
+                  </Tooltip>
+                  <div
+                    aria-label="Атмосферний тиск"
+                    style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "10px", background: "rgba(255,255,255,0.1)", borderRadius: "8px", cursor: "help" }}
+                  >
+                    <div style={{ fontSize: "24px", color: parseFloat(card.current.pressure) < 1000 ? "#4da6ff" : parseFloat(card.current.pressure) > 1020 ? "#ff4d4d" : "inherit" }}>
+                      <MdOutlineSpeed />
+                    </div>
+                    <div style={{ marginTop: "5px", fontWeight: "bold", textAlign: "center", fontSize: "12px" }}>
+                     Атмосферний тиск: {card.current.pressure}
+                    </div>
                   </div>
-                  <div>
-                    Хмарність: <b>{card.current.cloud_cover}%</b>
+                  <div
+                    aria-label="Хмарність"
+                    style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "2px", background: "rgba(255,255,255,0.1)", borderRadius: "8px", cursor: "help" }}
+                  >
+                    <div style={{ fontSize: "24px" }}>
+                      {parseFloat(card.current.cloud_cover) < 50 ? <FaCloudDownloadAlt /> : <FaCloudUploadAlt />}
+                    </div>
+                    <div style={{ marginTop: "5px", fontWeight: "bold", textAlign: "center", fontSize: "11px" }}>
+                     Хмарність: {card.current.cloud_cover}%
+                    </div>
                   </div>
-                  <div>
-                    Видимість:{" "}
-                    <b>
-                      {card.current.visibility !== undefined
-                        ? (card.current.visibility / 1000).toFixed(1)
-                        : "—"}{" "}
-                      км
-                    </b>
+
+                  <div
+                    aria-label="Видимість"
+                    style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "0px", background: "rgba(255,255,255,0.1)", borderRadius: "8px", cursor: "help" }}
+                  >
+                    <div style={{ fontSize: "24px", opacity: Math.min(1, Math.max(0.3, (card.current.visibility || 10000) / 10000)), color: (card.current.visibility || 10000) < 2000 ? "#ff4d4d" : "inherit" }}>
+                      <FaSmog />
+                    </div>
+                    <div style={{ marginTop: "5px", fontWeight: "bold", textAlign: "center", fontSize: "10px" }}>
+                     Видимість:{card.current.visibility !== undefined ? (card.current.visibility / 1000).toFixed(1) : "—"}км
+                    </div>
                   </div>
-                  <div style={{ color: isExtremeUV ? "#ff4d4d" : "inherit" }}>
-                    {" "}
-                    УФ-індекс: <b>{card.current.uv_index ?? 0}</b>
+
+                  <div
+                    aria-label="УФ-індекс / Сонячна радіація"
+                    style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "10px", background: "rgba(255,255,255,0.1)", borderRadius: "8px", cursor: "help" }}
+                  >
+                    <div style={{ fontSize: "24px", color: (card.current.uv_index || 0) > 5 ? "#ff4d4d" : (card.current.uv_index || 0) > 2 ? "#ffd700" : "inherit" }}>
+                      <GiSunRadiations />
+                    </div>
+                    <div style={{ marginTop: "5px", fontWeight: "bold", textAlign: "center", fontSize: "10px" }}>
+                     УФ-індекс: {card.current.uv_index ?? 0}
+                    </div>
                   </div>
                 </div>
               </CurrentWeatherBanne>
@@ -2299,35 +2489,29 @@ const HOLIDAYS_2027 = {
                 <h4 style={{ margin: 0 }}>Годинний прогноз</h4>
               </div>
               {hourlyDayGroups.length > 1 && (
-                <div style={{ display: "flex", gap: "1px", flexWrap: "wrap" }}>
-                  {hourlyDayGroups.map((group, index) => (
-                    <button
-                      key={group.label}
-                      onClick={() => setSelectedHourlyDay(index)}
-                      style={{
-                        padding: "2px",
-                        borderRadius: "3px",
-                        border: "none",
-                        cursor: "pointer",
-                        background:
-                          selectedHourlyDay === index
-                            ? "#00bfff"
-                            : isDarkMode
-                              ? "#333"
-                              : "#ddd",
-                        color:
-                          selectedHourlyDay === index
-                            ? "#000"
-                            : isDarkMode
-                              ? "#fff"
-                              : "#000",
-                        fontSize: "11.8px",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      {group.title || group.label}
-                    </button>
-                  ))}
+                <div style={{ marginTop: "8px", marginBottom: "8px" }}>
+                  <select
+                    value={selectedHourlyDay}
+                    onChange={(event) => setSelectedHourlyDay(Number(event.target.value))}
+                    style={{
+                      width: "100%",
+                      maxWidth: "260px",
+                      padding: "8px 10px",
+                      borderRadius: "8px",
+                      border: isDarkMode ? "1px solid #555" : "1px solid #ccc",
+                      background: isDarkMode ? "#1f1f1f" : "#fff",
+                      color: isDarkMode ? "#fff" : "#000",
+                      fontSize: "13px",
+                      fontWeight: "600",
+                      cursor: "pointer",
+                    }}
+                  >
+                    {hourlyDayGroups.map((group, index) => (
+                      <option key={group.label} value={index}>
+                        {group.title || group.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               )}
               {visibleHourly && visibleHourly.length > 0 && (
@@ -2529,7 +2713,7 @@ const HOLIDAYS_2027 = {
                   className="ai-header-text"
                   style={{
                     fontWeight: 800,
-                    color: "#b362ff",
+                    color: "#faf7fd",
                     fontSize: "11px",
                     letterSpacing: "1px",
                   }}
@@ -2543,14 +2727,13 @@ const HOLIDAYS_2027 = {
                     background: "none",
                     border: "none",
                     cursor: "pointer",
-                    fontWeight: 900,
+                    fontWeight: 600,
                     fontSize: "12px",
-                    color: "#8a2be2",
+                    color: "#ffffff",
                     padding: 0,
                   }}
-                  title="Редагувати умову промпту"
                 >
-                  {isEditingPrompt ? "✕" : "✎ Умова"}
+                  {isEditingPrompt ? "Готово" : "Редагувати умову промпту"}
                 </button>
               </div>
               {isEditingPrompt ? (

@@ -3,6 +3,9 @@ import styled from "styled-components";
 import { getHourlyForecastDayGroups } from "../../utils/hourlyForecast";
 import { getWindDirectionText } from "../../utils/windUtils";
 import * as SunCalc from "suncalc";
+import { FaCloudMoonRain, FaCloudMoon, FaSun } from "react-icons/fa";
+import { LiaCloudSunRainSolid, LiaCloudMoonRainSolid } from "react-icons/lia";
+import { BsMoonStarsFill } from "react-icons/bs";
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -333,49 +336,38 @@ const WeatherDetailsModal = ({ isOpen, onClose, card, isDarkMode }) => {
                 }}
               >
                 {hourlyDayGroups.length > 1 && (
-                  <div
-                    style={{ display: "flex", gap: "5px", flexWrap: "wrap" }}
+                  <select
+                    value={selectedHourlyDay}
+                    onChange={(e) => setSelectedHourlyDay(Number(e.target.value))}
+                    style={{
+                      background: isDarkMode ? "#333" : "#fff",
+                      color: isDarkMode ? "#fff" : "#000",
+                      border: "1px solid #00bfff",
+                      padding: "4px 8px",
+                      borderRadius: "6px",
+                      cursor: "pointer",
+                      fontSize: "12px",
+                      fontWeight: "bold",
+                      outline: "none"
+                    }}
                   >
                     {hourlyDayGroups.map((group, index) => (
-                      <button
-                        key={group.label}
-                        onClick={() => setSelectedHourlyDay(index)}
-                        style={{
-                          background:
-                            selectedHourlyDay === index
-                              ? "#00bfff"
-                              : isDarkMode
-                                ? "#333"
-                                : "#ddd",
-                          color:
-                            selectedHourlyDay === index
-                              ? "#000"
-                              : isDarkMode
-                                ? "#fff"
-                                : "#000",
-                          border: "none",
-                          padding: "2px 8px",
-                          borderRadius: "4px",
-                          cursor: "pointer",
-                          fontSize: "12px",
-                          fontWeight: "bold",
-                        }}
-                      >
+                      <option key={group.label} value={index}>
                         {group.title || group.label}
-                      </button>
+                      </option>
                     ))}
-                  </div>
+                  </select>
                 )}
               </div>
             </div>
             
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", fontSize: "12px", background: "rgba(0,0,0,0.2)", padding: "10px", borderRadius: "8px", marginBottom: "10px" }}>
-              <div>Схід сонця: <b>{formatTime(currentDaily?.sunrise)}</b></div>
-              <div>Захід сонця: <b>{formatTime(currentDaily?.sunset)}</b></div>
-              <div>Тривалість дня: <b>{dayLength}</b></div>
-              <div>Фаза місяця: <b>{moonData.phaseText}</b></div>
-              <div>Схід місяця: <b>{formatTime(moonData.rise)}</b></div>
-              <div>Захід місяця: <b>{formatTime(moonData.set)}</b></div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", fontSize: "12px", background: "rgba(0,0,0,0.2)", padding: "10px", borderRadius: "8px", marginBottom: "10px", alignItems: "center" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}><FaSun style={{ color: "#ffd700" }} /> Схід сонця: <b>{formatTime(currentDaily?.sunrise)}</b></div>
+              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}><BsMoonStarsFill style={{ color: "#f1c40f" }} /> Захід сонця: <b>{formatTime(currentDaily?.sunset)}</b></div>
+              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}><LiaCloudSunRainSolid style={{ color: "#3498db" }} /> Тривалість дня: <b>{dayLength}</b></div>
+              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}><FaCloudMoonRain style={{ color: "#9b59b6" }} /> Фаза місяця: <b>{moonData.phaseText}</b></div>
+              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}><FaCloudMoon style={{ color: "#ecf0f1" }} /> Схід місяця: <b>{formatTime(moonData.rise)}</b></div>
+              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}><LiaCloudMoonRainSolid style={{ color: "#34495e" }} /> Захід місяця: <b>{formatTime(moonData.set)}</b></div>
             </div>
 
             <HourlyTable $isDarkMode={isDarkMode}>

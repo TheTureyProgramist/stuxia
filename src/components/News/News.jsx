@@ -497,14 +497,13 @@ const NewsCard = ({
             e.stopPropagation();
             window.open(item.sourceHome, "_blank");
           }}
-          title={`Перейти на головну сторінку ${item.sourceName}`}
+          aria-label={`Перейти на головну сторінку ${item.sourceName}`}
         >
           {item.sourceFlag} {item.sourceName}
         </SourceFlag>
         <CardActions aria-label="Дії з новиною">
           <AiSummaryBtn
             aria-label="Отримати ШІ виклад новини"
-            title="ШІ виклад"
             $background="rgba(0, 248, 252, 0.9)"
             $color="black"
             onClick={(e) => {
@@ -519,7 +518,6 @@ const NewsCard = ({
           {item.sourceName !== "Phys.org" && (
             <ReportBtn
               aria-label="Поскаржитися на цю новину"
-              title="Поскаржитися"
               $background="rgba(255, 77, 77, 0.9)"
               onClick={(e) => {
                 if (onReportClick) onReportClick(item, e);
@@ -531,7 +529,6 @@ const NewsCard = ({
           )}
           <MuteBtn
             aria-label="Заглушити новину"
-            title="Заглушити"
             $background="rgba(128, 128, 128, 0.9)"
             onClick={(e) => {
               e.preventDefault();
@@ -1913,7 +1910,7 @@ const News = ({ isDarkMode, isStickyBgMode, user }) => {
                         color: "#ff4d4d",
                         fontWeight: "bold",
                       }}
-                      title="Видалити джерело"
+                      aria-label="Видалити джерело"
                     >
                       ×
                     </span>

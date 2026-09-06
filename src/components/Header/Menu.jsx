@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styled, { keyframes, css } from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { FaSun } from "react-icons/fa";
@@ -10,6 +10,22 @@ import { BsMoonStarsFill } from "react-icons/bs";
 import { FILTERS, PRESETS } from "./useVisualFilters";
 import { FaRocket } from "react-icons/fa6";
 import { useDecorator } from "../Decorator/DecoratorContext.jsx";
+import {
+  useFloating,
+  autoUpdate,
+  offset,
+  flip,
+  shift,
+  arrow,
+  useHover,
+  useFocus,
+  useDismiss,
+  useRole,
+  useInteractions,
+  useTransitionStyles,
+  FloatingPortal,
+  FloatingArrow,
+} from "@floating-ui/react";
 export const DEFAULT_SITE_SECTIONS = [
   { key: "hero", label: "Головна", path: "hero" },
   { key: "weather", label: "Погода", path: "weather" },
@@ -20,7 +36,18 @@ export const DEFAULT_SITE_SECTIONS = [
   { key: "fanart", label: "Друкарня", path: "fanart" },
   // { key: "prison", label: "🔒 Prison", path: "prison" },
 ];
-
+const TooltipBox = styled.div`
+  background-color: ${(props) => (props.$isDarkMode ? "#0c0c0cec" : "#fdff98ee")};
+  color: ${(props) => (props.$isDarkMode ? "#ffffff" : "#1a1a1a")};
+  border: 2px solid #00afce;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, ${(props) => (props.$isDarkMode ? "0.5" : "0.15")});
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 9px;
+  z-index: 10000;
+  pointer-events: none;
+`;
 const slideDown = keyframes`
   from { transform: translateY(-100%); }
   to { transform: translateY(0); }
@@ -65,11 +92,11 @@ const SubsMenuItem = styled.button`
 
   &:hover {
     background: ${(props) =>
-      props.$isUltra ? "rgba(113, 0, 151, 0.15)" : "rgba(255, 179, 108, 0.15)"};
+    props.$isUltra ? "rgba(113, 0, 151, 0.15)" : "rgba(255, 179, 108, 0.15)"};
     transform: translateX(5px);
     box-shadow: 0 4px 15px
       ${(props) =>
-        props.$isUltra ? "rgba(113, 0, 151, 0.2)" : "rgba(255, 179, 108, 0.2)"};
+    props.$isUltra ? "rgba(113, 0, 151, 0.2)" : "rgba(255, 179, 108, 0.2)"};
   }
 `;
 
@@ -148,7 +175,7 @@ const ModeToggle = styled.div`
 
   &:hover {
     background: ${(props) =>
-      props.$isDarkMode ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)"};
+    props.$isDarkMode ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)"};
   }
       span {
       font-size: 23px;
@@ -327,7 +354,7 @@ const ActionButton = styled.button`
 
   &:hover {
     background: ${(props) =>
-      props.$isDarkMode ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)"};
+    props.$isDarkMode ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)"};
   }
 
   span.icon {
@@ -373,7 +400,7 @@ const OrderButton = styled.button`
   border: 1px solid ${(props) => (props.$isDarkMode ? "#444" : "#ccc")};
   color: ${(props) => (props.$isDarkMode ? "#fff" : "#333")};
   border-radius: 6px;
-  padding: 4px 10px;
+  padding: 0px 10px;
   cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
   opacity: ${(props) => (props.disabled ? 0.3 : 1)};
   font-size: 14px;
@@ -528,7 +555,88 @@ const ResetFiltersBtn = styled.button`
     background: #ff1a1a;
   }
 `;
+export const Tooltip = ({
+  content,
+  children,
+  placement = "bottom",
+  isDarkMode = true,
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const arrowRef = useRef(null);
+  const { refs, floatingStyles, context } = useFloating({
+    open: isOpen,
+    onOpenChange: setIsOpen,
+    placement,
+    strategy: "fixed",
+    transform: false,
+    whileElementsMounted: autoUpdate,
+    middleware: [
+      offset(8),
+      flip(),
+      shift({ padding: 5 }),
+      arrow({ element: arrowRef }),
+    ],
+  });
+  const { isMounted, styles: transitionStyles } = useTransitionStyles(context, {
+    duration: 150,
+    initial: {
+      opacity: 0,
+      transform: "scale(0.9)",
+    },
+    open: {
+      opacity: 1,
+      transform: "scale(1)",
+    },
+  });
 
+  const hover = useHover(context, { move: false });
+  const focus = useFocus(context);
+  const dismiss = useDismiss(context);
+  const role = useRole(context, { role: "tooltip" });
+
+  const { getReferenceProps, getFloatingProps } = useInteractions([
+    hover,
+    focus,
+    dismiss,
+    role,
+  ]);
+
+  if (!content) return children;
+
+  const bgTheme = isDarkMode ? "#111111" : "#ffffff";
+  const borderTheme = "#00acb9";
+
+  return (
+    <>
+      <span
+        ref={refs.setReference}
+        {...getReferenceProps()}
+        style={{ display: "inline-flex" }}
+      >
+        {children}
+      </span>
+      {isMounted && (
+        <FloatingPortal>
+          <TooltipBox
+            ref={refs.setFloating}
+            $isDarkMode={isDarkMode}
+            style={{ ...floatingStyles, ...transitionStyles }}
+            {...getFloatingProps()}
+          >
+            {content}
+            <FloatingArrow
+              ref={arrowRef}
+              context={context}
+              fill={bgTheme}
+              stroke={borderTheme}
+              strokeWidth={1}
+            />
+          </TooltipBox>
+        </FloatingPortal>
+      )}
+    </>
+  );
+};
 const Menu = ({
   isOpen,
   onClose,
@@ -696,7 +804,7 @@ const Menu = ({
             $isDarkMode={isDarkMode}
             onClick={() => setActiveMenuTab('nav')}
           >
-           Навігація та порядок
+            Навігація та порядок
           </MobileTabBtn>
           <MobileTabBtn
             $active={activeMenuTab === 'controls'}
@@ -711,136 +819,150 @@ const Menu = ({
           <MobileTabPanel $active={activeMenuTab === 'nav'}>
             <MenuSectionTitle>Навігація та порядок</MenuSectionTitle>
             {siteSections &&
-                siteSections.map((section, idx) => {
-                  const sectionLink = buildSectionLink(
-                    section.path || section.key,
-                  );
+              siteSections.map((section, idx) => {
+                const sectionLink = buildSectionLink(
+                  section.path || section.key,
+                );
 
-                  return (
-                    <NavItem key={section.key} $isDarkMode={isDarkMode}>
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "space-between",
-                          width: "100%",
-                        }}
+                return (
+                  <NavItem key={section.key} $isDarkMode={isDarkMode}>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        width: "100%",
+                      }}
+                    >
+                      <NavButton
+                        $isDarkMode={isDarkMode}
+                        onClick={() =>
+                          handleNavClick(section.key, section.path)
+                        }
                       >
-                        <NavButton
+                        {section.label}
+                      </NavButton>
+                      <ControlButtons>
+                         <Tooltip content={
+    hiddenSections?.includes(section.key)
+      ? "Показати секцію"
+      : "Приховати секцію"
+  }
+  isDarkMode={isDarkMode}>
+                        <OrderButton
+                          style={{ padding: "4px 10px" }}
                           $isDarkMode={isDarkMode}
                           onClick={() =>
-                            handleNavClick(section.key, section.path)
+                            onToggleSectionVisibility?.(section.key)
+                          }
+                          aria-label={
+                            hiddenSections?.includes(section.key)
+                              ? "Показати секцію"
+                              : "Приховати секцію"
+                          }
+                          disabled={
+                            !hiddenSections?.includes(section.key) &&
+                            siteSections.length -
+                            (hiddenSections?.length || 0) <=
+                            2
                           }
                         >
-                          {section.label}
-                        </NavButton>
-                        <ControlButtons>
+                          {hiddenSections?.includes(section.key)
+                            ? <FaEyeSlash />
+                            : <FaEye />}
+                        </OrderButton>
+                        </Tooltip>
+                      </ControlButtons>
+                      <ControlButtons>
+                        <Tooltip content="Змінити тему секції" isDarkMode={isDarkMode}>
                           <OrderButton
-                            $isDarkMode={isDarkMode}
-                            onClick={() =>
-                              onToggleSectionVisibility?.(section.key)
-                            }
-                            title={
-                              hiddenSections?.includes(section.key)
-                                ? "Показати"
-                                : "Приховати"
-                            }
-                            disabled={
-                              !hiddenSections?.includes(section.key) &&
-                              siteSections.length -
-                                (hiddenSections?.length || 0) <=
-                                2
-                            }
-                          >
-                            {hiddenSections?.includes(section.key)
-                              ? <FaEyeSlash />
-                              : <FaEye />}
-                          </OrderButton>
-                        </ControlButtons>
-                        <ControlButtons>
-                          <OrderButton
+                            style={{ padding: "4px 10px" }}
                             $isDarkMode={isDarkMode}
                             onClick={() => onToggleSectionTheme?.(section.key)}
-                            title="Змінити тему секції"
+                            aria-label="Змінити тему секції"
                           >
                             {(sectionThemes?.[section.key] ?? isDarkMode)
-                              ?  <BsMoonStarsFill/>
-                              : <FaSun/>}
+                              ? <BsMoonStarsFill />
+                              : <FaSun />}
                           </OrderButton>
-                        </ControlButtons>
-                        {section.key !== "hero" && (
-                          <ControlButtons>
+                        </Tooltip>
+                      </ControlButtons>
+                      {section.key !== "hero" && (
+                        <ControlButtons>
+                          <Tooltip content="Підняти секцію" isDarkMode={isDarkMode}>
                             <OrderButton
                               $isDarkMode={isDarkMode}
                               disabled={idx <= 1}
                               onClick={() => moveSiteSection(idx, -1)}
-                              title="Вище"
+                              aria-label="Підняти секцію"
                             >
-                              ↑
+                              ▲
                             </OrderButton>
-                            <OrderButton
-                              $isDarkMode={isDarkMode}
-                              disabled={idx === siteSections.length - 1}
-                              onClick={() => moveSiteSection(idx, 1)}
-                              title="Нижче"
-                            >
-                              ↓
-                            </OrderButton>
-                          </ControlButtons>
-                        )}
-                      </div>
-                      <div
+                          </Tooltip>
+                         <Tooltip content="Опустити секцію" isDarkMode={isDarkMode}>
+                          <OrderButton
+                            $isDarkMode={isDarkMode}
+                            disabled={idx === siteSections.length - 1}
+                            onClick={() => moveSiteSection(idx, 1)}
+                            aria-label="Опустити секцію"
+                          >
+                            ▼
+                          </OrderButton>
+                          </Tooltip>
+                        </ControlButtons>
+                      )}
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexWrap: "wrap",
+                        alignItems: "center",
+                        gap: "6px",
+                        width: "100%",
+                      }}
+                    >
+                      <span
                         style={{
-                          display: "flex",
-                          flexWrap: "wrap",
-                          alignItems: "center",
-                          gap: "6px",
-                          width: "100%",
+                          fontSize: "11px",
+                          color: isRoutingMode
+                            ? "#8a8a8a"
+                            : isDarkMode
+                              ? "#ffb36c"
+                              : "#ff005d",
+                          wordBreak: "break-all",
+                          flex: 1,
+                          minWidth: 0,
+                        }}
+                        title={sectionLink}
+                      >
+                        {sectionLink}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleCopySectionLink(section.key, section.path)
+                        }
+                        style={{
+                          border: "none",
+                          borderRadius: "6px",
+                          padding: "4px",
+                          background: isDarkMode
+                            ? "rgba(255,255,255,0.08)"
+                            : "rgba(0,0,0,0.05)",
+                          color: isDarkMode ? "#fff" : "#333",
+                          cursor: "pointer",
+                          fontSize: "11px",
+                          fontWeight: "600",
                         }}
                       >
-                        <span
-                          style={{
-                            fontSize: "11px",
-                            color: isRoutingMode
-                              ? "#8a8a8a"
-                              : isDarkMode
-                                ? "#ffb36c"
-                                : "#ff005d",
-                            wordBreak: "break-all",
-                            flex: 1,
-                            minWidth: 0,
-                          }}
-                          title={sectionLink}
-                        >
-                          {sectionLink}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            handleCopySectionLink(section.key, section.path)
-                          }
-                          style={{
-                            border: "none",
-                            borderRadius: "6px",
-                            padding: "4px",
-                            background: isDarkMode
-                              ? "rgba(255,255,255,0.08)"
-                              : "rgba(0,0,0,0.05)",
-                            color: isDarkMode ? "#fff" : "#333",
-                            cursor: "pointer",
-                            fontSize: "11px",
-                            fontWeight: "600",
-                          }}
-                          title="Скопіювати посилання"
-                        >
-                          {copiedSectionKey === section.key
-                            ? "✓ Скопійовано"
-                            : "Копіювати посилання"}
-                        </button>
-                      </div>
-                    </NavItem>
-                  );
-                })}
+                        {copiedSectionKey === section.key
+                          ? "✓ Скопійовано"
+                          : "Копіювати посилання"}
+                      </button>
+                    </div>
+                  </NavItem>
+                );
+              })}
             <div style={{ display: "flex", gap: "5px" }}>
               <button
                 onClick={onResetSectionThemes}
@@ -857,7 +979,7 @@ const Menu = ({
               >
                 Скинути теми
               </button>
-                <button
+              <button
                 onClick={resetSiteSections}
                 style={{
                   width: "100%",
@@ -870,7 +992,7 @@ const Menu = ({
                   color: "white",
                 }}
               >
-                Скинути порядок 
+                Скинути порядок
               </button>
             </div>
             {hiddenSections?.length > 0 && (
@@ -878,12 +1000,12 @@ const Menu = ({
                 style={{
                   marginTop: "10px",
                   fontSize: "10px",
-                  color: isDarkMode ? "#aaa" : "#666",
+                  color: isDarkMode ? "#fcfbfb" : "#070707",
                   fontStyle: "italic",
                 }}
               >
-                💡 Приховані секції доступні через "Маршрутизацію". Щоб залишити
-                лише одну секцію, увімкніть режим ракети 🚀.
+                Підказка: Приховані секції доступні через режим "Маршрутизації". Щоб залишити
+                лише одну секцію, натисніть блок в якому зображено якір та є текст маршрутизація.
               </div>
             )}
           </MobileTabPanel>
@@ -1133,36 +1255,42 @@ const Menu = ({
                     Режим завантаження
                   </div>
                   <div style={{ display: "flex", gap: "5px" }}>
+                    <Tooltip content="Завантажує все відразу при старті сайту" isDarkMode={isDarkMode}>
                     <FilterButtonInMenu
                       $active={loadingStrategy === "eager"}
                       $isDarkMode={isDarkMode}
                       onClick={() => onSetLoadingStrategy("eager")}
-                      title="Завантажує все відразу при старті сайту"
+                      aria-label="Завантажує все відразу при старті сайту"
                     >
                       Повний
                     </FilterButtonInMenu>
+                    </Tooltip>
+                     <Tooltip content="Завантажує важкі модулі через 8 секунд" isDarkMode={isDarkMode}>
                     <FilterButtonInMenu
                       $active={loadingStrategy === "delayed"}
                       $isDarkMode={isDarkMode}
                       onClick={() => onSetLoadingStrategy("delayed")}
-                      title="Завантажує важкі модулі через 8 секунд"
+                      aria-label="Завантажує важкі модулі через 8 секунд"
                     >
                       Оптимальний
                     </FilterButtonInMenu>
+                    </Tooltip>
+                <Tooltip content="Завантажує спливаюче вікно тільки при натисканні та елемент сайту коли ви до нього догортуєте (економія)" isDarkMode={isDarkMode}>
                     <FilterButtonInMenu
                       $active={loadingStrategy === "lazy"}
                       $isDarkMode={isDarkMode}
                       onClick={() => onSetLoadingStrategy("lazy")}
-                      title="Завантажує тільки при натисканні (економія)"
+                      aria-label="Завантажує спливаюче вікно тільки при натисканні та елемент сайту коли ви до нього догортуєте (економія)"
                     >
                       Економний
                     </FilterButtonInMenu>
+                    </Tooltip>
                   </div>
                 </div>
               </li>
-              <li style={{display: "flex"}}>
+              <li style={{ display: "flex" }}>
                 <ActionButton $isDarkMode={isDarkMode} onClick={onToggleTheme}>
-                 Змінити тему? <span className="icon">{isDarkMode ? <FaSun/> :  <BsMoonStarsFill/>}</span>
+                  Змінити тему? <span className="icon">{isDarkMode ? <FaSun /> : <BsMoonStarsFill />}</span>
                 </ActionButton>
                 <ActionButton
                   $isDarkMode={isDarkMode}
@@ -1214,7 +1342,7 @@ const Menu = ({
                       color: isDarkMode ? "#ffb36c" : "#ff005d",
                     }}
                   >
-                     Фільтри
+                    Фільтри
                   </div>
                   <FilterGridInMenu $isDarkMode={isDarkMode}>
                     {FILTERS.map((f) => (
@@ -1294,7 +1422,7 @@ const Menu = ({
                         onDragOver={(e) => e.preventDefault()}
                         onDrop={(e) => handleDrop(e, idx)}
                       >
-                        <DragHandle title="Перетягніть для сортування">
+                        <DragHandle aria-label="Перетягніть для сортування">
                           ⠿
                         </DragHandle>
                         <PresetButton
@@ -1316,13 +1444,13 @@ const Menu = ({
                             );
                             if (n) onUpdatePresetName(preset.id, n);
                           }}
-                          title="Редагувати назву"
+                          aria-label="Редагувати назву"
                         >
                           ✎
                         </EditPresetBtn>
                         <DeletePresetBtn
                           onClick={() => onDeletePreset(preset.id)}
-                          title="Видалити пресет"
+                          aria-label="Видалити пресет"
                         >
                           ×
                         </DeletePresetBtn>

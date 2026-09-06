@@ -19,6 +19,23 @@ export const TutorialProvider = ({ children }) => {
 
   useEffect(() => {
     const checkTutorial = async () => {
+      try {
+        const searchParams = new URLSearchParams(window.location.search);
+        const hasSearchQuery =
+          searchParams.has("q") ||
+          searchParams.has("city") ||
+          searchParams.has("search") ||
+          searchParams.has("query") ||
+          searchParams.has("pohoda") ||
+          window.location.search.toLowerCase().includes("погода");
+        
+        if (hasSearchQuery) {
+          setShowInitialModal(false);
+          setIsActive(false);
+          return;
+        }
+      } catch (e) {}
+
       const lastPrompt = await localforage.getItem('domino_tutorial_prompt');
       const now = Date.now();
       if (!lastPrompt || now > lastPrompt) {

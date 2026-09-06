@@ -5,6 +5,12 @@ import React, {
   useMemo,
   useCallback,
 } from "react";
+import { FaSun } from "react-icons/fa";
+import { BsMoonStarsFill } from "react-icons/bs";
+import { createPortal } from "react-dom";
+import { TbWorldSearch } from "react-icons/tb";
+import { FaMountainCity } from "react-icons/fa6";
+import { FaMapLocationDot } from "react-icons/fa6";
 import slivki from "../../photos/programs/youtub/slivki.webp";
 import weather from "../../photos/programs/youtub/weather.webp";
 import planes from "../../photos/programs/youtub/planes.webp";
@@ -30,8 +36,56 @@ import {
   parseWikipediaSnippet,
 } from "../../utils/wikipediaUtils";
 import { DEFAULT_BGS } from "./defaultBgs";
+import { findCityInDatabase, UKRAINE_CITIES_40 } from "../../utils/citiesDatabase";
 import News from "../News/News.jsx";
+import toast, { Toaster } from 'react-hot-toast';
 import { useTutorial } from "../DominoTutorial/TutorialContext.jsx";
+import {
+  useFloating,
+  autoUpdate,
+  offset,
+  flip,
+  shift,
+  arrow,                 
+  useHover,
+  useFocus,
+  useDismiss,
+  useRole,
+  useInteractions,
+  useTransitionStyles,  
+  FloatingPortal,
+  FloatingArrow,         
+} from "@floating-ui/react";
+const TooltipBox = styled.div`
+  background-color: ${(props) => (props.$isDarkMode ? "#0c0c0ceb" : "#fdff98e7")};
+  color: ${(props) => (props.$isDarkMode ? "#ffffff" : "#1a1a1a")};
+  border: 2px solid #00afce;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, ${(props) => (props.$isDarkMode ? "0.5" : "0.15")});
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 9px;
+  z-index: 10000;
+  pointer-events: none;
+`;
+const showThemeAlert = (message, isDarkMode) => {
+  toast(message, {
+    duration: 4000,
+    style: {
+      backgroundColor: isDarkMode ? "#0c0c0cbf" : "#fdff98bb",
+      color: isDarkMode ? "#ffffff" : "#1a1a1a",
+      border: "2px solid #00afce",
+      borderRadius: "6px",
+      boxShadow: `0 4px 12px rgba(0, 0, 0, ${isDarkMode ? "0.5" : "0.15"})`,
+      fontSize: "13px",
+      fontWeight: "500",
+      zIndex: "10000",
+      padding: "10px 16px",
+      backdropFilter: "blur(4px)", // Додає приємне розмиття фону під напівпрозорим кольором
+    },
+    icon: '⚠️', 
+  });
+};
 const fadeIn = keyframes`
   from { opacity: 0; }
   to { opacity: 1; }
@@ -319,15 +373,15 @@ const TimezoneButton = styled.button`
 
 const TimezoneMenu = styled.div`
   position: fixed;
-  top: 0;
-  left: 0;
+  top: 5%;
+  left: 0%;
   width: 100vw;
-  height: 100vh;
+  height: 97vh;
   background: rgba(2, 2, 2, 0.97);
   border-top: 2px solid #ffb36c;
   padding: 0;
   overflow-y: auto;
-  z-index: 9999;
+  z-index: 99999;
   box-shadow: 0 0 60px rgba(0, 0, 0, 0.9);
   display: flex;
   flex-direction: column;
@@ -353,7 +407,7 @@ const TimezoneOption = styled.button`
   border: none;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   border-left: 3px solid ${(props) => (props.$selected ? "#ffb36c" : "transparent")};
-  padding: 10px 16px;
+  padding: 5px 10px;
   cursor: pointer;
   text-align: left;
   font-size: 13px;
@@ -414,25 +468,24 @@ const ModeIconBtn = styled.button`
   border-radius: 10px 0 0 0;
   border: none;
   border-right: 2px solid black;
-  background: #ffe100;
+  background: #1b4b64;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
+  font-size: 21px;
   padding: 0;
   flex-shrink: 0;
   transition: background 0.2s;
-  &:hover { background: #00ffd0; }
+  &:hover { background: #353988; }
 `;
 
 const ModeDropdown = styled.div`
   position: absolute;
-  top: -87px;
-  left: 0;
+  top: -59px;
+  left: 30px;
   background: rgba(3, 3, 3, 0.76);
   backdrop-filter: blur(12px);
-  border:2px solid rgba(255,179,108,0.5);
   border-radius: 5px;
   overflow: hidden;
   z-index: 200;
@@ -442,14 +495,14 @@ const ModeDropdown = styled.div`
 const ModeDropdownItem = styled.button`
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
   width: 100%;
-  padding: 6px;
+  padding: 2px;
   background: ${(props) => props.$active ? 'rgba(108,255,228,0.15)' : 'transparent'};
   border: none;
   border-bottom: 1px solid rgba(255,255,255,0.07);
   color: ${(props) => props.$active ? '#6cffe4' : '#fff'};
-  font-size: 13px;
+  font-size: 15px;
   font-weight: ${(props) => props.$active ? '700' : '500'};
   cursor: pointer;
   text-align: left;
@@ -497,7 +550,7 @@ const CoordinateInput = styled.div`
     font-size: 10px;
     border-radius: 8px;
     border: 1px solid #ffb36c;
-    background: #ffffff;
+    background: ${(p) => (p.$isDarkMode ? "white" : "black")};
     color: #222;
     font-weight: 500;
     &::placeholder {
@@ -539,9 +592,6 @@ const TimezoneMenuCloseBtn = styled.button`
   height: 40px;
   border-radius: 50%;
   transition: background 0.2s;
-  &:hover {
-    background: rgba(255, 122, 0, 0.2);
-  }
 `;
 
 const SortButtonsRow = styled.div`
@@ -1024,12 +1074,13 @@ const LoadMoreButton = styled.button`
 const ChangeBgButton = styled.button`
   position: absolute;
   top: 43px;
+  gap: 9px;
   right: 7px;
   background: rgba(0, 0, 0, 0.4);
   color: white;
-  width: 30px;
+  width: 110px;
   height: 30px;
-  border-radius: 50%;
+  border-radius: 5px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -1326,7 +1377,88 @@ const ModalSectionTitle = styled.h3`
   margin: 5px;
   font-size: 14px;
 `;
+export const Tooltip = ({
+  content,
+  children,
+  placement = "bottom",
+  isDarkMode = true,
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const arrowRef = useRef(null);
+const { refs, floatingStyles, context } = useFloating({
+    open: isOpen,
+    onOpenChange: setIsOpen,
+    placement,
+    strategy: "fixed",
+    transform: false, 
+    whileElementsMounted: autoUpdate,
+    middleware: [
+      offset(8),
+      flip(),
+      shift({ padding: 5 }),
+      arrow({ element: arrowRef }),
+    ],
+  });
+  const { isMounted, styles: transitionStyles } = useTransitionStyles(context, {
+    duration: 150,
+    initial: {
+      opacity: 0,
+      transform: "scale(0.9)",
+    },
+    open: {
+      opacity: 1,
+      transform: "scale(1)",
+    },
+  });
 
+  const hover = useHover(context, { move: false });
+  const focus = useFocus(context);
+  const dismiss = useDismiss(context);
+  const role = useRole(context, { role: "tooltip" });
+
+  const { getReferenceProps, getFloatingProps } = useInteractions([
+    hover,
+    focus,
+    dismiss,
+    role,
+  ]);
+
+  if (!content) return children;
+
+  const bgTheme = isDarkMode ? "#111111" : "#ffffff";
+  const borderTheme = "#00acb9";
+
+  return (
+    <>
+      <span
+        ref={refs.setReference}
+        {...getReferenceProps()}
+        style={{ display: "inline-flex" }}
+      >
+        {children}
+      </span>
+      {isMounted && (
+        <FloatingPortal>
+          <TooltipBox
+            ref={refs.setFloating}
+            $isDarkMode={isDarkMode}
+            style={{ ...floatingStyles, ...transitionStyles }}
+            {...getFloatingProps()}
+          >
+            {content}
+            <FloatingArrow
+              ref={arrowRef}
+              context={context}
+              fill={bgTheme}
+              stroke={borderTheme}
+              strokeWidth={1}
+            />
+          </TooltipBox>
+        </FloatingPortal>
+      )}
+    </>
+  );
+};
 const TIMEZONES = [
   { label: "UTC (Всесвітній час)", value: "UTC" },
   { label: "GMT (Лондон, Дублін)", value: "Europe/London" },
@@ -1511,7 +1643,7 @@ const Hero = ({
 
   // Блокування прокрутки при відкритій модалці
   useEffect(() => {
-    if (isModalOpen || descriptionModal) {
+    if (isModalOpen || descriptionModal || showTimezoneMenu) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
@@ -1916,23 +2048,48 @@ const Hero = ({
   }, []);
 
   const fetchSuggestions = async (currentLimit, value, append = false) => {
-    if (value.trim().length < 3) {
+    const cleanValue = value.trim().toLowerCase().replace(/^(погода\s+(в|у)?\s*)/i, "").trim();
+    if (cleanValue.length < 2) {
       setSuggestions([]);
       setShowList(false);
       return;
     }
+
+    // Підкапотне миттєве співставлення з 40 містами України
+    const localMatches = UKRAINE_CITIES_40.filter((c) =>
+      c.name.toLowerCase().includes(cleanValue) ||
+      c.aliases.some((a) => a.toLowerCase().includes(cleanValue))
+    ).map((c) => ({
+      name: c.name,
+      state: "Україна",
+      country: "UA",
+      lat: c.lat,
+      lon: c.lon,
+      isLocal: true,
+    }));
+
+    if (localMatches.length > 0 && !append) {
+      setSuggestions(localMatches);
+      setShowList(true);
+    }
+
     try {
       const response = await fetch(
-        `https://api.openweathermap.org/geo/1.0/direct?q=${value}&limit=${currentLimit}&appid=${API_KEY}`,
+        `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(cleanValue)}&limit=${currentLimit}&appid=${API_KEY}`,
       );
       const data = await response.json();
-      setHasMore(data.length >= currentLimit);
+      const apiResults = Array.isArray(data) ? data : [];
+      setHasMore(apiResults.length >= currentLimit);
       setSuggestions((prev) =>
-        append ? mergeCitySuggestions(prev, data) : data,
+        mergeCitySuggestions(append ? prev : localMatches, apiResults)
       );
       setShowList(true);
     } catch (error) {
       console.error("Помилка API:", error);
+      if (localMatches.length > 0) {
+        setSuggestions(localMatches);
+        setShowList(true);
+      }
     }
   };
 
@@ -2356,33 +2513,31 @@ const Hero = ({
         $videoEnd={allBgs.find((b) => b.src === heroBg4)?.end}
       />
       <Overlay $opacity={heroOverlayOpacity} $isStickyBgMode={isStickyBgMode} />
-
-      <ChangeBgButton ref={(el) => registerRef('changeBgButton', el)} onClick={() => setIsModalOpen(true)} title="Зміна фону">
-        <GiPalette />
+      <ChangeBgButton ref={(el) => registerRef('changeBgButton', el)} onClick={() => setIsModalOpen(true)}>
+        <GiPalette /><p style={{fontSize: "11px"}}>Змінити фон?</p>
       </ChangeBgButton>
       <HeroDecors $image={herotext} $start={startAnimation} />
-
-
       <DelayedContent $start={startAnimation}>
         <HeroDecor>
           <HeroFix>
             <HeroFi>
               <HeroDate ref={timezoneMenuRef}>
                 {heroDateString}
+                <Tooltip content="Змінити часовий пояс" isDarkMode={isDarkMode}>
                 <TimezoneButton
                   ref={(el) => registerRef('timezoneButton', el)}
                   onClick={() => setShowTimezoneMenu(!showTimezoneMenu)}
-                  title="Змінити часовий пояс"
+                  aria-label="Змінити часовий пояс"
                 >
                   <MdSettingsSuggest/>
                 </TimezoneButton>
-                {showTimezoneMenu && (
+                </Tooltip>
+                {showTimezoneMenu && createPortal (
                   <TimezoneMenu>
                     <TimezoneMenuHeader>
                       <TimezoneMenuCloseBtn
                         type="button"
                         onClick={() => setShowTimezoneMenu(false)}
-                        title="Закрити"
                         aria-label="Закрити список часових поясів"
                       >
                         ×
@@ -2397,19 +2552,13 @@ const Hero = ({
                         За замовчуванням
                       </SortBtn>
                       <SortBtn
-                        $active={tzSortMode === "alpha"}
-                        onClick={() => setTzSortMode("alpha")}
-                      >
-                        А-Я
-                      </SortBtn>
-                      <SortBtn
                         $active={tzSortMode === "offset"}
                         onClick={() => setTzSortMode("offset")}
                       >
                         UTC +/-
                       </SortBtn>
                     </SortButtonsRow>
-                    <div style={{ flex: 1, overflowY: "auto", padding: "0 8px 16px" }}>
+                    <div style={{ flex: 1, overflowY: "auto", padding: "0 5px 10px" }}>
                     {sortedTimezones.map((tz) => {
                       const isSelected =
                         selectedTimezone === tz.value ||
@@ -2453,110 +2602,116 @@ const Hero = ({
                             {info && (
                               <span
                                 style={{
-                                  fontSize: "12px",
+                                  fontSize: "16px",
                                   opacity: 0.9,
+                                  display: "flex",
+                                  gap: "10px",
                                   whiteSpace: "nowrap",
                                   marginLeft: "12px",
                                   color: info.isDay ? "#ffd54f" : "#90caf9",
                                 }}
                               >
-                                {info.isDay ? "☀️" : "🌙"} {info.timeStr}
+                                {info.isDay ? <FaSun/> : <BsMoonStarsFill/>}
+                                <p>{info.timeStr}</p>
                               </span>
                             )}
                           </div>
                         </TimezoneOption>
                       );
-                    })}
-                    {showCustomInput && (
-                      <div style={{ padding: "12px 0" }}>
-                        <input
-                          type="text"
-                          value={customTimezoneInputValue}
-                          onChange={(e) =>
-                            setCustomTimezoneInputValue(e.target.value)
-                          }
-                          placeholder="Наприклад: Europe/Warsaw"
-                          style={{
-                            width: "100%",
-                            padding: "10px",
-                            borderRadius: "5px",
-                            border: "1px solid #ffb36c",
-                            background: "#111",
-                            color: "#fff",
-                            fontSize: "14px",
-                            boxSizing: "border-box",
-                            marginBottom: "8px",
-                          }}
-                        />
-                        <button
-                          onClick={() => {
-                            if (customTimezoneInputValue.trim()) {
-                              try {
-                                Intl.DateTimeFormat("en", {
-                                  timeZone: customTimezoneInputValue.trim(),
-                                });
-                                setSelectedTimezone(
-                                  customTimezoneInputValue.trim(),
-                                );
-                                localforage.setItem(
-                                  "selected_timezone",
-                                  customTimezoneInputValue.trim(),
-                                );
-                                setShowTimezoneMenu(false);
-                              } catch (e) {
-                                alert(
-                                  "Невірний формат часового поясу. Спробуйте, наприклад, 'Europe/Kyiv' або 'America/New_York'.",
-                                );
-                              }
-                            } else {
-                              alert("Будь ласка, введіть часовий пояс.");
-                            }
-                          }}
-                          style={{
-                            width: "100%",
-                            padding: "10px",
-                            background: "#ffb36c",
-                            border: "none",
-                            borderRadius: "5px",
-                            cursor: "pointer",
-                            fontWeight: "bold",
-                            fontSize: "14px",
-                            color: "#1e1e1e",
-                          }}
-                        >
-                          Застосувати
-                        </button>
-                      </div>
-                    )}
+                    })}{showCustomInput && (
+  <div style={{ padding: "12px 0" }}>
+    <div style={{ position: "relative", width: "100%" }}>
+      <input
+        type="text"
+        value={customTimezoneInputValue}
+        onChange={(e) => setCustomTimezoneInputValue(e.target.value)}
+        placeholder="Наприклад: Europe/Warsaw"
+        style={{
+          width: "100%",
+          padding: "10px 110px 10px 10px", // Додано правий padding, щоб текст не налізав на кнопку
+          borderRadius: "5px",
+          border: "1px solid #ffb36c",
+          background: "#111",
+          color: "#fff",
+          fontSize: "14px",
+          boxSizing: "border-box",
+        }}
+      />
+     <button
+  type="button"
+  onClick={() => {
+    if (customTimezoneInputValue.trim()) {
+      try {
+        Intl.DateTimeFormat("en", {
+          timeZone: customTimezoneInputValue.trim(),
+        });
+        setSelectedTimezone(customTimezoneInputValue.trim());
+        localforage.setItem(
+          "selected_timezone",
+          customTimezoneInputValue.trim()
+        );
+        setShowTimezoneMenu(false);
+      } catch (e) {
+        showThemeAlert(
+          "Невірний формат часового поясу. Спробуйте, наприклад, 'Europe/Kyiv' або 'America/New_York'.",
+          isDarkMode
+        );
+      }
+    } else {
+      showThemeAlert("Будь ласка, введіть часовий пояс.", isDarkMode);
+    }
+  }}
+        style={{
+          position: "absolute",
+          right: "4px",
+          top: "4px",
+          bottom: "4px",
+          padding: "0 12px",
+          background: "#ffb36c",
+          border: "none",
+          borderRadius: "3px",
+          cursor: "pointer",
+          fontWeight: "bold",
+          fontSize: "12px",
+          color: "#1e1e1e",
+        }}
+      >
+        Застосувати
+      </button>
+    </div>
+  </div>
+)}
                     </div>
-                  </TimezoneMenu>
+                  </TimezoneMenu>,
+  document.body 
                 )}
               </HeroDate>
             </HeroFi>
           </HeroFix>
         </HeroDecor>
         <SearchWrapper ref={searchRef}>
-
           {searchMode === "city" ? (
             <HeroFormater>
               <SearchContainer>
                 <ModePicker>
+                  <Tooltip content="Вибрати режим пошуку" isDarkMode={isDarkMode}>
                   <ModeIconBtn
                     onClick={() => setShowModeDropdown((v) => !v)}
-                    title="Вибрати режим пошуку"
+                    aria-label="Вибрати режим пошуку"
                   >
-                    🏠
+                    <FaMountainCity />
                   </ModeIconBtn>
+                  </Tooltip>
                   {showModeDropdown && (
                     <ModeDropdown>
                       <ModeDropdownItem $active={searchMode === "city"} onClick={() => { setSearchMode("city"); setShowModeDropdown(false); setLatitude(""); setLongitude(""); setSuggestions([]); setShowList(false); }}>
-                       За назвою міста
+                      <FaMountainCity /> За назвою міста
                       </ModeDropdownItem>
                       <ModeDropdownItem $active={searchMode === "coordinates"} onClick={() => { setSearchMode("coordinates"); setShowModeDropdown(false); setInputValue(""); setSuggestions([]); setShowList(false); }}>
-                        Координати
+                       <FaMapLocationDot /> Координати
                       </ModeDropdownItem>
                       <ModeDropdownItem $active={searchMode === "links"} onClick={() => { setSearchMode("links"); setShowModeDropdown(false); setInputValue(""); setSuggestions([]); setShowList(false); setExpandedLinkId(null); }}>
-                        Посилання
+                      <TbWorldSearch />  Посилання
                       </ModeDropdownItem>
                     </ModeDropdown>
                   )}
@@ -2564,6 +2719,7 @@ const Hero = ({
                 <HeroInput
                   ref={(el) => registerRef('heroInput', el)}
                   value={inputValue}
+                  $isDarkMode={isDarkMode}
                   onChange={(e) => {
                     setInputValue(e.target.value);
                     window.dispatchEvent(new CustomEvent('domino-hero-input-change', { detail: { value: e.target.value } }));
@@ -2626,22 +2782,24 @@ const Hero = ({
             <HeroFormater>
               <SearchContainer>
                 <ModePicker>
+                <Tooltip content="Вибрати режим пошуку" isDarkMode={isDarkMode}>
                   <ModeIconBtn
                     onClick={() => setShowModeDropdown((v) => !v)}
-                    title="Вибрати режим пошуку"
+                    aria-label="Вибрати режим пошуку"
                   >
-                    🔗
+                    <TbWorldSearch />
                   </ModeIconBtn>
+                  </Tooltip>
                   {showModeDropdown && (
                     <ModeDropdown>
                       <ModeDropdownItem $active={searchMode === "city"} onClick={() => { setSearchMode("city"); setShowModeDropdown(false); setLatitude(""); setLongitude(""); setSuggestions([]); setShowList(false); }}>
-                        🏠 За назвою міста
+                        <FaMountainCity /> За назвою міста
                       </ModeDropdownItem>
                       <ModeDropdownItem $active={searchMode === "coordinates"} onClick={() => { setSearchMode("coordinates"); setShowModeDropdown(false); setInputValue(""); setSuggestions([]); setShowList(false); }}>
-                        📍 Координати
+                         <FaMapLocationDot /> Координати
                       </ModeDropdownItem>
                       <ModeDropdownItem $active={searchMode === "links"} onClick={() => { setSearchMode("links"); setShowModeDropdown(false); setInputValue(""); setSuggestions([]); setShowList(false); setExpandedLinkId(null); }}>
-                        🔗 Посилання
+                        <TbWorldSearch /> Посилання
                       </ModeDropdownItem>
                     </ModeDropdown>
                   )}
@@ -2655,13 +2813,15 @@ const Hero = ({
                     autoComplete="off"
                   />
                   {inputValue && (
+              <Tooltip content="Очищення пошуковика. Його зробив Доміно!" isDarkMode={isDarkMode}>
                     <ClearButton
                       onClick={() => setInputValue("")}
-                      title="Очистити"
+                      aria-label="Очистити"
                       type="button"
                     >
                       ×
                     </ClearButton>
+                    </Tooltip>
                   )}
                 </div>
                 <HeroButton
@@ -2899,23 +3059,25 @@ const Hero = ({
             >
               <CoordinatesContainer style={{ alignItems: "flex-start" }}>
                 <ModePicker style={{ alignSelf: "flex-start" }}>
+                 <Tooltip content="Вибрати режим пошуку" isDarkMode={isDarkMode}>
                   <ModeIconBtn
                     onClick={() => setShowModeDropdown((v) => !v)}
-                    title="Вибрати режим пошуку"
+                    aria-label="Вибрати режим пошуку"
                     style={{ borderRadius: "8px 0 0 8px", height: "30px" }}
                   >
-                    📍
+                    <FaMapLocationDot /> 
                   </ModeIconBtn>
+                  </Tooltip>
                   {showModeDropdown && (
                     <ModeDropdown>
                       <ModeDropdownItem $active={searchMode === "city"} onClick={() => { setSearchMode("city"); setShowModeDropdown(false); setLatitude(""); setLongitude(""); setSuggestions([]); setShowList(false); }}>
-                        🏠 За назвою міста
+                        <FaMountainCity />  За назвою міста
                       </ModeDropdownItem>
                       <ModeDropdownItem $active={searchMode === "coordinates"} onClick={() => { setSearchMode("coordinates"); setShowModeDropdown(false); setInputValue(""); setSuggestions([]); setShowList(false); }}>
-                        📍 Координати
+                        <FaMapLocationDot />  Координати
                       </ModeDropdownItem>
                       <ModeDropdownItem $active={searchMode === "links"} onClick={() => { setSearchMode("links"); setShowModeDropdown(false); setInputValue(""); setSuggestions([]); setShowList(false); setExpandedLinkId(null); }}>
-                        🔗 Посилання
+                       <TbWorldSearch />   Посилання
                       </ModeDropdownItem>
                     </ModeDropdown>
                   )}
@@ -2926,6 +3088,7 @@ const Hero = ({
                     value={latitude}
                     onChange={(e) => setLatitude(e.target.value)}
                     placeholder="Широта: Від -90° до +90°"
+                    $isDarkMode={isDarkMode}
                     disabled={cooldown > 0 || isSearchingNearby}
                     min="-90"
                     max="90"
@@ -2937,6 +3100,7 @@ const Hero = ({
                     type="number"
                     value={longitude}
                     onChange={(e) => setLongitude(e.target.value)}
+                    $isDarkMode={isDarkMode}
                     placeholder="Довгота: Від -180° до +180°"
                     disabled={cooldown > 0 || isSearchingNearby}
                     min="-180"
@@ -2952,8 +3116,6 @@ const Hero = ({
                   {cooldown > 0 ? cooldown : isSearchingNearby ? "…" : "⌕"}
                 </HeroButton>
               </CoordinatesContainer>
-
-              {/* Статус спірального пошуку */}
               {nearbySearchStatus && (
                 <div style={{
                   color: nearbySearchStatus.startsWith("✅") ? "#00e676"
@@ -3121,6 +3283,7 @@ const Hero = ({
                     <option value="random">Випадковий (усі фото)</option>
                   </select>
                   {heroBgMode === "random" && (
+                <Tooltip content="Перемішати та скинути чергу" isDarkMode={isDarkMode}>
                     <button
                       onClick={() => {
                         const shuffled = shuffleArray(allBgs);
@@ -3131,7 +3294,7 @@ const Hero = ({
                           setActiveLayer(1);
                         }
                       }}
-                      title="Перемішати та скинути чергу"
+                      aria-label="Перемішати та скинути чергу"
                       style={{
                         background: "#ffb36c",
                         border: "none",
@@ -3146,6 +3309,7 @@ const Hero = ({
                     >
                     Скинути
                     </button>
+                    </Tooltip>
                   )}
                 </div>
               </ConfigRow>
@@ -3401,9 +3565,10 @@ const Hero = ({
                         {rating === 2 ? "💛" : rating === 1 ? "❤️" : "🤍"}
                       </HeartIcon>
                       {bg.description && (
+                   <Tooltip content="Детальний опис картини" isDarkMode={isDarkMode}>
                         <HeartIcon
                           $color="#aef"
-                          title="Опис картини"
+                          aria-label="Детальний опис картини"
                           onClick={(e) => {
                             e.stopPropagation();
                             setDescriptionModal({
@@ -3427,6 +3592,7 @@ const Hero = ({
                         >
                           ?
                         </HeartIcon>
+                        </Tooltip>
                       )}
                     </RatingOverlay>
                     {isCustom(bg.src) && (
@@ -3448,7 +3614,7 @@ const Hero = ({
                               );
                             }
                           }}
-                          title="Редагувати назву"
+                          aria-label="Редагувати назву"
                         >
                           ✎
                         </EditBtn>
@@ -3470,7 +3636,7 @@ const Hero = ({
                               if (heroBg2 === bg.src) setHeroBg2(hills);
                             }
                           }}
-                          title="Видалити"
+                          aria-label="Видалити"
                         >
                           ×
                         </DeleteBtn>
@@ -3818,7 +3984,7 @@ const Hero = ({
           >
             <iframe 
               src={fullscreenVideo.includes("embed") ? `${fullscreenVideo}?autoplay=1` : `https://www.youtube.com/embed/${getYoutubeId(fullscreenVideo)}?autoplay=1`} 
-              title="YouTube Video" 
+              aria-label="YouTube Video" 
               frameBorder="0" 
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
               allowFullScreen

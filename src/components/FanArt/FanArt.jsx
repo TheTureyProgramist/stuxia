@@ -52,35 +52,31 @@ const FanArtTitle = styled.div`
   color: ${(props) => (props.$isDarkMode ? "white" : "black")};
   margin-bottom: 15px;
   ${(props) =>
-     props.$isStickyBgMode
-       ? css`
-           background: ${
-              props.$isDarkMode
-                ? "rgba(15, 15, 25, 0.75)"
-                : "rgba(255, 255, 255, 0.75)"
-            };
+    props.$isStickyBgMode
+      ? css`
+           background: ${props.$isDarkMode
+          ? "rgba(15, 15, 25, 0.75)"
+          : "rgba(255, 255, 255, 0.75)"
+        };
            backdrop-filter: blur(12px);
            -webkit-backdrop-filter: blur(12px);
            border: 1px solid
-             ${
-                props.$isDarkMode
-                  ? "rgba(255, 255, 255, 0.15)"
-                  : "rgba(0, 0, 0, 0.15)"
-              };
+             ${props.$isDarkMode
+          ? "rgba(255, 255, 255, 0.15)"
+          : "rgba(0, 0, 0, 0.15)"
+        };
            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
          `
-       : css`
-           background: ${
-              props.$isDarkMode
-                ? "rgba(255, 255, 255, 0.05)"
-                : "rgba(0, 0, 0, 0.05)"
-            };
+      : css`
+           background: ${props.$isDarkMode
+          ? "rgba(255, 255, 255, 0.05)"
+          : "rgba(0, 0, 0, 0.05)"
+        };
            border: 1px solid
-             ${
-                props.$isDarkMode
-                  ? "rgba(255, 255, 255, 0.1)"
-                  : "rgba(0, 0, 0, 0.1)"
-              };
+             ${props.$isDarkMode
+          ? "rgba(255, 255, 255, 0.1)"
+          : "rgba(0, 0, 0, 0.1)"
+        };
          `}
 `;
 
@@ -164,57 +160,95 @@ const PlaylistTextOverlay = styled.div`
 const ModalOverlay = styled.div`
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.8);
-  padding: 16px 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
   z-index: 1000;
-
-  &::-webkit-scrollbar {
-    display: none;
-    width: 0;
-    height: 0;
-  }
 `;
 
 const ModalContent = styled.div`
-  background: ${(props) => (props.$isDarkMode ? "#1e1e1e" : "#f9f9f9")};
-  padding: 5px;
-  border-radius: 20px;
-  width: min(90%, 1200px);
-  max-width: 1200px;
-  margin: 0 auto 16px;
+  background: ${(props) => (props.$isDarkMode ? "#18181f" : "#ffffff")};
+  border: 1px solid ${(props) => (props.$isDarkMode ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.15)")};
+  padding: 20px;
+  border-radius: 24px;
+  width: min(95%, 1200px);
+  max-height: 90vh;
   position: relative;
   display: flex;
   flex-direction: column;
-  align-items: center;
   box-sizing: border-box;
-  min-height: 0;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+`;
+
+const ModalHeader = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid ${(props) => (props.$isDarkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)")};
+  flex-shrink: 0;
+`;
+
+const ModalBody = styled.div`
+  width: 100%;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #ffb36c;
+    border-radius: 4px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: #e69d52;
+  }
 `;
 
 const CloseButton = styled.button`
-  position: absolute;
-  top: 5px;
-  right: 10px;
-  background: transparent;
-  border: none;
-  font-size: 30px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  line-height: 1;
   color: ${(props) => (props.$isDarkMode ? "white" : "black")};
   cursor: pointer;
+  transition: all 0.2s ease;
   &:hover {
-    color: #ffb36c;
+    background: #ff6961;
+    color: white;
+    border-color: #ff6961;
+    transform: scale(1.1);
   }
 `;
 
 const ModalTitle = styled.h2`
   color: ${(props) => (props.$isDarkMode ? "white" : "black")};
-  text-align: center;
-  font-size: 20px;
-  margin-bottom: 5px;
+  font-size: 22px;
+  margin: 0;
+  font-weight: 700;
   text-transform: capitalize;
 `;
 
@@ -222,7 +256,7 @@ const FanBlock = styled.div`
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 5px;
+  gap: 12px;
   width: 100%;
   max-width: 100%;
 `;
@@ -248,7 +282,7 @@ const BenefitImage = styled.img`
 
 const FanArtImageContainer = styled.div`
   position: relative;
-  width: 270px;
+  width: 250px;
   height: 170px;
   border-radius: 15px;
   overflow: hidden;
@@ -287,40 +321,57 @@ const ImageTitleStrip = styled.div`
 
 const ActionButtonsContainer = styled.div`
   position: absolute;
-  bottom: 10px;
-  left: 0;
-  width: 100%;
+  bottom: 6px;
+  left: 2%;
+  transform: translateX(-50%) translateY(10px);
+  width: calc(100% - 12px);
+  max-width: 258px;
   display: flex;
-  gap: 2px;
+  flex-wrap: wrap;
+  gap: 4px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   justify-content: center;
   z-index: 2;
   opacity: 0;
-  transform: translateY(10px);
   transition: all 0.3s ease;
+  padding: 4px;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
 
   @media (hover: none) {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateX(-50%) translateY(0);
   }
 `;
 
 const ActionButton = styled.button`
-  background: #000000;
-  border: none;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   border-radius: 8px;
-  padding: 4px 10px;
-  min-width: 48px;
+  padding: 4px 8px;
+  min-width: 34px;
   height: 32px;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.2s;
+  transition: all 0.2s ease;
   &:hover {
-    background: #00539b;
+    background: #ffb36c;
+    color: #111;
+    border-color: #ffb36c;
+    transform: scale(1.06);
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
   }
 `;
 
@@ -333,31 +384,42 @@ const SearchContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  margin-bottom: 10px;
+  gap: 12px;
+  margin-bottom: 20px;
   width: 100%;
 `;
 
 const SearchInput = styled.input`
-  padding: 6px 13px;
+  padding: 10px 18px;
   border-radius: 25px;
-  border: 1px solid ${(props) => (props.$isDarkMode ? "#444" : "#ccc")};
-  background: ${(props) => (props.$isDarkMode ? "#333" : "#fff")};
+  border: 1px solid ${(props) => (props.$isDarkMode ? "#555" : "#ccc")};
+  background: ${(props) => (props.$isDarkMode ? "#2a2a35" : "#fff")};
   color: ${(props) => (props.$isDarkMode ? "white" : "black")};
   width: 100%;
-  max-width: 900px;
-  flex: 1;
-  font-size: 16px;
+  max-width: 600px;
+  font-size: 15px;
   outline: none;
+  transition: border-color 0.2s ease;
   &:focus {
     border-color: #ffb36c;
+    box-shadow: 0 0 0 2px rgba(255, 179, 108, 0.2);
   }
 `;
 
 const SearchButton = styled(ActionButton)`
-  padding: 6px 12px;
+  padding: 8px 20px;
   width: auto;
-  background: "#ffffff00";
+  background: #ffb36c;
+  color: #111;
+  font-weight: bold;
+  border-radius: 25px;
+  border: none;
+  font-size: 14px;
+  &:hover {
+    background: #ffa040;
+    color: #000;
+    transform: translateY(-1px);
+  }
 `;
 
 const SearchResultsGrid = styled.div`
@@ -380,20 +442,26 @@ const SearchResultItem = styled.div`
 
 const SourceSelector = styled.div`
   display: flex;
-  margin-bottom: 10px;
+  gap: 8px;
+  margin-bottom: 5px;
+  flex-wrap: wrap;
+  justify-content: center;
 `;
 
 const SourceButton = styled.button`
-  padding: 5px 15px;
-  border-radius: 15px;
+  padding: 6px 18px;
+  border-radius: 20px;
   border: 1px solid #ffb36c;
   background: ${(props) => (props.$active ? "#ffb36c" : "transparent")};
   color: ${(props) =>
     props.$active ? "black" : props.$isDarkMode ? "white" : "black"};
   cursor: pointer;
-  font-size: 12px;
-  transition: all 0.2s;
+  font-size: 13px;
+  transition: all 0.2s ease;
   font-weight: 600;
+  &:hover {
+    background: ${(props) => (props.$active ? "#ffa040" : "rgba(255,179,108,0.2)")};
+  }
 `;
 
 const EditorContainer = styled.div`
@@ -454,19 +522,110 @@ const NavArrow = styled.button`
 
 const Toolbar = styled.div`
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  margin-bottom: 15px;
+`;
+
+const ToolbarRow = styled.div`
+  display: flex;
   gap: 10px;
   flex-wrap: wrap;
   justify-content: center;
-  margin-bottom: 10px;
+  align-items: center;
+  width: 100%;
+`;
+
+const EditorCard = styled.div`
+  background: ${(props) => (props.$isDarkMode ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.04)")};
+  border: 1px solid ${(props) => (props.$isDarkMode ? "rgba(255, 255, 255, 0.12)" : "rgba(0, 0, 0, 0.12)")};
+  border-radius: 14px;
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+`;
+
+const ModeToggleGroup = styled.div`
+  display: flex;
+  background: ${(props) => (props.$isDarkMode ? "rgba(0, 0, 0, 0.4)" : "rgba(0, 0, 0, 0.08)")};
+  padding: 4px;
+  border-radius: 25px;
+  gap: 4px;
+  border: 1px solid ${(props) => (props.$isDarkMode ? "rgba(255, 255, 255, 0.12)" : "rgba(0, 0, 0, 0.12)")};
+`;
+
+const ModeButton = styled.button`
+  padding: 8px 22px;
+  border-radius: 20px;
+  border: none;
+  background: ${(props) => (props.$active ? "#ffb36c" : "transparent")};
+  color: ${(props) => (props.$active ? "#111" : props.$isDarkMode ? "#eee" : "#333")};
+  font-weight: ${(props) => (props.$active ? "bold" : "600")};
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: ${(props) => (props.$active ? "0 2px 8px rgba(255, 179, 108, 0.4)" : "none")};
+  &:hover {
+    color: ${(props) => (props.$active ? "#000" : "#ffb36c")};
+  }
+`;
+
+const CustomFileInputLabel = styled.label`
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: ${(props) => (props.$isDarkMode ? "white" : "black")};
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  &:hover {
+    background: rgba(255, 179, 108, 0.2);
+    border-color: #ffb36c;
+  }
+  input {
+    display: none;
+  }
+`;
+
+const ColorPickerWrapper = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  input[type="color"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+`;
+
+const ColorSwatch = styled.div`
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: ${(props) => props.$color};
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.3);
 `;
 
 const FilterGroup = styled.div`
   display: flex;
-  flex-direction: column;
-  gap: 5px;
-  padding: 5px;
-  border: 1px solid rgba(255, 179, 108, 0.3);
-  border-radius: 5px;
+  align-items: center;
+  gap: 6px;
 `;
 
 // --- IndexedDB Logic ---
@@ -548,15 +707,12 @@ const VideoThumb = ({ src }) => {
 const FabricEditor = ({
   onAddImage,
   isDarkMode,
-  startCooldown,
-  isCooldown,
-  cooldownTime,
 }) => {
   const canvasElementRef = useRef(null);
   const [canvas, setCanvas] = useState(null);
   const [brushColor, setBrushColor] = useState("#ffb36c");
   const [brushWidth, setBrushWidth] = useState(5);
-  const [isDrawing, setIsDrawing] = useState(true);
+  const [isDrawing, setIsDrawing] = useState(false);
   const [fontFamily, setFontFamily] = useState("sans-serif");
   const [rgba, setRgba] = useState({ r: 1, g: 1, b: 1, a: 1 });
 
@@ -567,7 +723,7 @@ const FabricEditor = ({
       width: window.innerWidth < 768 ? 300 : 600,
       height: 400,
       backgroundColor: "#ffffff",
-      isDrawingMode: true,
+      isDrawingMode: false,
     });
 
     // Відновлення чернетки
@@ -590,10 +746,15 @@ const FabricEditor = ({
   }, []);
 
   useEffect(() => {
-    if (!canvas || !canvas.freeDrawingBrush) return;
-    canvas.freeDrawingBrush.color = brushColor;
-    canvas.freeDrawingBrush.width = parseInt(brushWidth, 10);
+    if (!canvas) return;
     canvas.isDrawingMode = isDrawing;
+    if (isDrawing) {
+      if (!canvas.freeDrawingBrush) {
+        canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
+      }
+      canvas.freeDrawingBrush.color = brushColor;
+      canvas.freeDrawingBrush.width = parseInt(brushWidth, 10);
+    }
   }, [canvas, brushColor, brushWidth, isDrawing]);
 
   const addText = () => {
@@ -607,6 +768,18 @@ const FabricEditor = ({
     canvas.add(text);
     canvas.setActiveObject(text);
     canvas.renderAll();
+  };
+
+  const deleteActiveObject = () => {
+    if (!canvas) return;
+    const activeObjects = canvas.getActiveObjects();
+    if (activeObjects.length > 0) {
+      activeObjects.forEach((obj) => canvas.remove(obj));
+      canvas.discardActiveObject();
+      canvas.renderAll();
+    } else {
+      alert("Виберіть об'єкт на полотні для видалення.");
+    }
   };
 
   const handleCrop = () => {
@@ -692,8 +865,7 @@ const FabricEditor = ({
 
   const handleSave = () => {
     if (!canvas) return;
-    // Стиснення: jpeg з якістю 0.6 для економії місця
-    const dataUrl = canvas.toDataURL({ format: "jpeg", quality: 0.6 });
+    const dataUrl = canvas.toDataURL({ format: "jpeg", quality: 0.8 });
     onAddImage({
       id: "local-" + Date.now(),
       previewURL: dataUrl,
@@ -702,144 +874,146 @@ const FabricEditor = ({
       name: "Власний малюнок",
       source: "local",
     });
-    startCooldown();
   };
 
   return (
     <EditorContainer>
       <Toolbar>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "5px",
-            alignItems: "center",
-          }}
-        >
-          <span
-            style={{ fontSize: "11px", color: isDarkMode ? "white" : "black" }}
+        {/* Сегментований перемикач основних режимів */}
+        <ModeToggleGroup $isDarkMode={isDarkMode}>
+          <ModeButton
+            $isDarkMode={isDarkMode}
+            $active={!isDrawing}
+            onClick={() => setIsDrawing(false)}
           >
-            📁 Файл:
-          </span>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            style={{ fontSize: "10px", width: "150px" }}
-          />
-        </div>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "5px",
-            alignItems: "center",
-          }}
-        >
-          <span
-            style={{ fontSize: "11px", color: isDarkMode ? "white" : "black" }}
+            🖐️ Вибір / Переміщення
+          </ModeButton>
+          <ModeButton
+            $isDarkMode={isDarkMode}
+            $active={isDrawing}
+            onClick={() => setIsDrawing(true)}
           >
-            🎨 Колір:
-          </span>
-          <input
-            type="color"
-            value={brushColor}
-            onChange={(e) => setBrushColor(e.target.value)}
-          />
-        </div>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "5px",
-            alignItems: "center",
-          }}
-        >
-          <span
-            style={{ fontSize: "11px", color: isDarkMode ? "white" : "black" }}
-          >
-            📏 Товщина: {brushWidth}
-          </span>
-          <input
-            type="range"
-            min="1"
-            max="50"
-            value={brushWidth}
-            onChange={(e) => setBrushWidth(e.target.value)}
-          />
-        </div>
-        <FilterGroup>
-          <span
-            style={{ fontSize: "10px", color: isDarkMode ? "white" : "black" }}
-          >
-            Шрифт:
-          </span>
-          <select
-            value={fontFamily}
-            onChange={(e) => setFontFamily(e.target.value)}
-          >
-            <option value="sans-serif">Sans-serif</option>
-            <option value="serif">Serif</option>
-            <option value="monospace">Monospace</option>
-            <option value="cursive">Cursive</option>
-          </select>
+            ✏️ Малювання пензлем
+          </ModeButton>
+        </ModeToggleGroup>
+
+        {/* Рядок 1: Картки інструментів */}
+        <ToolbarRow>
+          {/* Картка 1: Параметри пензля */}
+          <EditorCard $isDarkMode={isDarkMode}>
+            <span style={{ fontSize: "12px", color: isDarkMode ? "#ccc" : "#444", fontWeight: 600 }}>
+              🎨 Колір:
+            </span>
+            <ColorPickerWrapper title="Натисніть для вибору кольору">
+              <ColorSwatch $color={brushColor} />
+              <input
+                type="color"
+                value={brushColor}
+                onChange={(e) => setBrushColor(e.target.value)}
+              />
+            </ColorPickerWrapper>
+
+            <span style={{ fontSize: "12px", color: isDarkMode ? "#ccc" : "#444", fontWeight: 600, marginLeft: "6px" }}>
+              📏 {brushWidth}px
+            </span>
+            <input
+              type="range"
+              min="1"
+              max="50"
+              value={brushWidth}
+              onChange={(e) => setBrushWidth(e.target.value)}
+              style={{ width: "80px", cursor: "pointer" }}
+            />
+          </EditorCard>
+
+          {/* Картка 2: Фото та Текст */}
+          <EditorCard $isDarkMode={isDarkMode}>
+            <CustomFileInputLabel $isDarkMode={isDarkMode}>
+              📁 Завантажити фото
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+              />
+            </CustomFileInputLabel>
+
+            <select
+              value={fontFamily}
+              onChange={(e) => setFontFamily(e.target.value)}
+              style={{
+                padding: "6px 10px",
+                borderRadius: "8px",
+                fontSize: "12px",
+                background: isDarkMode ? "rgba(255,255,255,0.1)" : "#fff",
+                color: isDarkMode ? "#fff" : "#000",
+                border: "1px solid rgba(255,255,255,0.2)",
+                outline: "none",
+                cursor: "pointer",
+              }}
+            >
+              <option value="sans-serif">Sans-serif</option>
+              <option value="serif">Serif</option>
+              <option value="monospace">Monospace</option>
+              <option value="cursive">Cursive</option>
+            </select>
+            <ActionButton
+              onClick={addText}
+              style={{ padding: "6px 14px", fontSize: "12px" }}
+            >
+              ➕ Текст
+            </ActionButton>
+          </EditorCard>
+
+          {/* Картка 3: Фільтри */}
+          <EditorCard $isDarkMode={isDarkMode}>
+            <span style={{ fontSize: "12px", color: isDarkMode ? "#ccc" : "#444", fontWeight: 600 }}>
+              Фільтри:
+            </span>
+            <FilterGroup>
+              <ActionButton
+                onClick={() => applyFilter("grayscale")}
+                style={{ padding: "4px 10px", fontSize: "11px" }}
+              >
+                B&W
+              </ActionButton>
+              <ActionButton
+                onClick={() => applyFilter("invert")}
+                style={{ padding: "4px 10px", fontSize: "11px" }}
+              >
+                Neg
+              </ActionButton>
+              <ActionButton
+                onClick={() => applyFilter("rgba")}
+                style={{ padding: "4px 10px", fontSize: "11px" }}
+              >
+                RGBA
+              </ActionButton>
+            </FilterGroup>
+          </EditorCard>
+        </ToolbarRow>
+
+        {/* Рядок 2: Кнопки дій полотна */}
+        <ToolbarRow>
           <ActionButton
-            onClick={addText}
-            style={{ padding: "3px 10px", fontSize: "10px" }}
+            onClick={deleteActiveObject}
+            style={{
+              padding: "7px 16px",
+              fontSize: "13px",
+              background: "rgba(229, 57, 53, 0.85)",
+              borderColor: "#e53935",
+              color: "#fff",
+            }}
+            title="Видалити виділений елемент"
           >
-            ➕ Текст
-          </ActionButton>
-        </FilterGroup>
-        <FilterGroup>
-          <span
-            style={{ fontSize: "10px", color: isDarkMode ? "white" : "black" }}
-          >
-            Фільтри:
-          </span>
-          <div style={{ display: "flex", gap: "3px" }}>
-            <ActionButton
-              onClick={() => applyFilter("grayscale")}
-              style={{ padding: "3px", fontSize: "10px" }}
-            >
-              B&W
-            </ActionButton>
-            <ActionButton
-              onClick={() => applyFilter("invert")}
-              style={{ padding: "3px", fontSize: "10px" }}
-            >
-              Neg
-            </ActionButton>
-            <ActionButton
-              onClick={() => applyFilter("rgba")}
-              style={{ padding: "3px", fontSize: "10px" }}
-            >
-              RGBA
-            </ActionButton>
-          </div>
-          <input
-            type="number"
-            step="0.1"
-            value={rgba.r}
-            onChange={(e) =>
-              setRgba({ ...rgba, r: parseFloat(e.target.value) })
-            }
-            style={{ width: "40px", fontSize: "10px" }}
-            title="R"
-          />
-        </FilterGroup>
-        <div style={{ display: "flex", gap: "5px", alignItems: "flex-end" }}>
-          <ActionButton
-            onClick={() => setIsDrawing(!isDrawing)}
-            style={{ padding: "8px 15px", fontSize: "12px" }}
-          >
-            {isDrawing ? "🖐️ Вибір" : "✏️ Малювати"}
+            ❌ Видалити
           </ActionButton>
           <ActionButton
             onClick={handleCrop}
             style={{
-              padding: "8px 15px",
-              fontSize: "12px",
-              background: "#2196f3",
+              padding: "7px 16px",
+              fontSize: "13px",
+              background: "rgba(33, 150, 243, 0.85)",
+              borderColor: "#2196f3",
               color: "#fff",
             }}
           >
@@ -849,28 +1023,37 @@ const FabricEditor = ({
             onClick={() =>
               canvas.clear().set("backgroundColor", "#fff").renderAll()
             }
-            style={{ padding: "8px 15px", fontSize: "12px" }}
+            style={{ padding: "7px 16px", fontSize: "13px" }}
           >
-            🗑️ Очистити
+            🗑️ Очистити Все
           </ActionButton>
           <ActionButton
             onClick={() => window.open("https://jspaint.app", "_blank")}
             style={{
-              padding: "8px 15px",
-              fontSize: "12px",
-              background: "#4caf50",
+              padding: "7px 16px",
+              fontSize: "13px",
+              background: "rgba(76, 175, 80, 0.85)",
+              borderColor: "#4caf50",
             }}
           >
             🚀 JSPaint
           </ActionButton>
           <ActionButton
             onClick={handleSave}
-            disabled={isCooldown}
-            style={{ padding: "8px 15px", fontSize: "12px" }}
+            style={{
+              padding: "8px 24px",
+              fontSize: "14px",
+              background: "#ffb36c",
+              color: "#111",
+              fontWeight: "bold",
+              borderRadius: "20px",
+              border: "none",
+              boxShadow: "0 4px 15px rgba(255, 179, 108, 0.4)",
+            }}
           >
-            {isCooldown ? `${cooldownTime}с` : "💾 Зберегти"}
+            💾 Зберегти малюнок
           </ActionButton>
-        </div>
+        </ToolbarRow>
       </Toolbar>
       <CanvasWrapper>
         <canvas ref={canvasElementRef} />
@@ -963,8 +1146,8 @@ const FanArt = ({
 
   const imagesForPlaylist = selectedPlaylist
     ? getRenderableImages(
-        combinedImages.filter((img) => img.category === selectedPlaylist),
-      )
+      combinedImages.filter((img) => img.category === selectedPlaylist),
+    )
     : [];
 
   // Блокування прокрутки при відкритих модалках
@@ -1251,11 +1434,9 @@ const FanArt = ({
         `<vertex x="${positions.getX(i).toFixed(5)}" y="${positions.getY(i).toFixed(5)}" z="${positions.getZ(i).toFixed(5)}"/>`,
       );
     }
-
-    const colorsXML = uniqueColors
-      .map((color) => `<color color="${color}"/>`)
-      .join("\n          ");
-
+const colorsXML = uniqueColors
+  .map((color) => `<m:color color="${color}"/>`)
+  .join("\n          ");
     const modelXML = `<?xml version="1.0" encoding="UTF-8"?>
 <model unit="millimeter" xml:lang="en-US" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02" xmlns:m="http://schemas.microsoft.com/3dmanufacturing/material/2015/02">
   <resources>
@@ -1423,39 +1604,15 @@ const FanArt = ({
   }, [preview3D?.imgSrc, preview3D?.title]);
 
   useEffect(() => {
-    const cooldownEndTime = localStorage.getItem("fanart_cooldown_end");
-    if (cooldownEndTime) {
-      const remainingTime = cooldownEndTime - Date.now();
-      if (remainingTime > 0) {
-        setIsCooldown(true);
-        setCooldownTime(Math.ceil(remainingTime / 1000));
-      } else {
-        localStorage.removeItem("fanart_cooldown_end");
-      }
-    }
+    // Кулдаун вимкнено для підвищення зручності
+    setIsCooldown(false);
+    setCooldownTime(0);
+    localStorage.removeItem("fanart_cooldown_end");
   }, []);
 
-  useEffect(() => {
-    if (!isCooldown) return;
-
-    let timer;
-    if (cooldownTime > 0) {
-      timer = setTimeout(() => {
-        setCooldownTime((prev) => prev - 1);
-      }, 1000);
-    } else {
-      setIsCooldown(false);
-      localforage.removeItem("fanart_cooldown_end");
-    }
-
-    return () => clearTimeout(timer);
-  }, [isCooldown, cooldownTime]);
-
   const startCooldown = async () => {
-    const endTime = Date.now() + 40 * 1000;
-    await localforage.setItem("fanart_cooldown_end", endTime);
-    setIsCooldown(true);
-    setCooldownTime(40);
+    setIsCooldown(false);
+    setCooldownTime(0);
   };
 
   const translateToEn = async (text) => {
@@ -1478,11 +1635,12 @@ const FanArt = ({
     setSearchResults([]);
     try {
       if (searchSource === "pixabay") {
+        const translatedQuery = await translateToEn(searchQuery);
         const API_KEY = "50977795-feb18de71b048a02e0c824e54";
         const response = await fetch(
           `https://pixabay.com/api/?key=${API_KEY}&q=${encodeURIComponent(
-            searchQuery,
-          )}&image_type=photo&per_page=12&lang=ru&page=1`,
+            translatedQuery,
+          )}&image_type=photo&per_page=12&page=1`,
         );
         if (!response.ok)
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -1552,23 +1710,22 @@ const FanArt = ({
     } catch (error) {
       console.error("Error searching:", error);
       setSearchStatus("error");
-    } finally {
-      await startCooldown();
     }
   };
 
   const handleLoadMore = async () => {
-    if (searchSource !== "pixabay" || !searchQuery.trim() || isCooldown) return;
+    if (searchSource !== "pixabay" || !searchQuery.trim()) return;
 
     setSearchStatus("loading");
     const nextPage = searchPage + 1;
 
     try {
+      const translatedQuery = await translateToEn(searchQuery);
       const API_KEY = "50977795-feb18de71b048a02e0c824e54";
       const response = await fetch(
         `https://pixabay.com/api/?key=${API_KEY}&q=${encodeURIComponent(
-          searchQuery,
-        )}&image_type=photo&per_page=12&lang=ru&page=${nextPage}`,
+          translatedQuery,
+        )}&image_type=photo&per_page=12&page=${nextPage}`,
       );
       if (!response.ok)
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -1591,8 +1748,6 @@ const FanArt = ({
     } catch (error) {
       console.error("Error loading more from Pixabay:", error);
       setSearchStatus("error");
-    } finally {
-      await startCooldown();
     }
   };
 
@@ -1755,335 +1910,356 @@ const FanArt = ({
             $isDarkMode={isDarkMode}
             onClick={(e) => e.stopPropagation()}
           >
-            <CloseButton $isDarkMode={isDarkMode} onClick={closePlaylistModal}>
-              &times;
-            </CloseButton>
-            <ModalTitle $isDarkMode={isDarkMode}>
-              Плейлист: {selectedPlaylist}
-            </ModalTitle>
+            <ModalHeader $isDarkMode={isDarkMode}>
+              <ModalTitle $isDarkMode={isDarkMode}>
+                Плейлист: {selectedPlaylist}
+              </ModalTitle>
+              <CloseButton $isDarkMode={isDarkMode} onClick={closePlaylistModal}>
+                &times;
+              </CloseButton>
+            </ModalHeader>
 
-            {selectedPlaylist === "ваші картинки" && (
-              <SearchContainer>
-                <p
-                  style={{
-                    color: isDarkMode ? "#ccc" : "#555",
-                    marginBottom: "10px",
-                    fontSize: "13px",
-                    textAlign: "center",
-                  }}
-                >
-                  Створіть свій шедевр або знайдіть готовий (макс. 3)
-                </p>
-
-                <SourceSelector>
-                  <SourceButton
-                    $isDarkMode={isDarkMode}
-                    $active={creationMode === "search"}
-                    onClick={() => setCreationMode("search")}
+            <ModalBody>
+              {selectedPlaylist === "ваші картинки" && (
+                <SearchContainer>
+                  <p
+                    style={{
+                      color: isDarkMode ? "#ccc" : "#555",
+                      marginBottom: "10px",
+                      fontSize: "13px",
+                      textAlign: "center",
+                    }}
                   >
-                    🔍 Пошук
-                  </SourceButton>
-                  <SourceButton
-                    $isDarkMode={isDarkMode}
-                    $active={creationMode === "editor"}
-                    onClick={() => setCreationMode("editor")}
-                  >
-                    🎨 Редактор та Файли
-                  </SourceButton>
-                </SourceSelector>
+                    Створіть свій шедевр або знайдіть готовий (макс. 3)
+                  </p>
 
-                {creationMode === "search" ? (
-                  <>
-                    <SourceSelector>
-                      <SourceButton
-                        $isDarkMode={isDarkMode}
-                        $active={searchSource === "pixabay"}
-                        onClick={() => setSearchSource("pixabay")}
-                      >
-                        🖼 Pixabay
-                      </SourceButton>
-                      <SourceButton
-                        $isDarkMode={isDarkMode}
-                        $active={searchSource === "tvmaze"}
-                        onClick={() => setSearchSource("tvmaze")}
-                      >
-                        🎬 TVMaze (Кіно)
-                      </SourceButton>
-                    </SourceSelector>
-                    <SourceSelector>
-                      <SearchInput
-                        $isDarkMode={isDarkMode}
-                        type="text"
-                        placeholder="Пошук зображень. Англійською вводьте."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                      />
-                      <SearchButton
-                        type="button"
-                        onClick={handleSearch}
-                        disabled={isCooldown}
-                      >
-                        {isCooldown ? `Зачекайте ${cooldownTime}с` : "Знайти"}
-                      </SearchButton>
-                    </SourceSelector>
-                    {searchStatus === "loading" && (
-                      <SearchStatusText $isDarkMode={isDarkMode}>
-                        Завантаження...
-                      </SearchStatusText>
-                    )}
-                    {searchStatus === "no-results" && (
-                      <SearchStatusText $isDarkMode={isDarkMode}>
-                        Зображень за вашим запитом не знайдено.
-                      </SearchStatusText>
-                    )}
-                    {searchStatus === "error" && (
-                      <SearchStatusText $isDarkMode={isDarkMode}>
-                        Помилка пошуку. Спробуйте пізніше.
-                      </SearchStatusText>
-                    )}
-
-                    {searchResults.length > 0 && searchSource === "pixabay" && (
-                      <SearchButton
-                        type="button"
-                        onClick={handleLoadMore}
-                        disabled={isCooldown}
-                        style={{ marginTop: "10px" }}
-                      >
-                        {isCooldown
-                          ? `Зачекайте ${cooldownTime}с`
-                          : "Завантажити ще"}
-                      </SearchButton>
-                    )}
-
-                    {searchResults.length > 0 && (
-                      <SearchResultsGrid>
-                        {searchResults.map((hit) => (
-                          <SearchResultItem
-                            key={hit.id}
-                            onClick={() => handleAddCustomImage(hit)}
-                          >
-                            <BenefitImage
-                              src={hit.previewURL}
-                              alt={hit.name || hit.tags}
-                              style={{ width: "100px", height: "100px" }}
-                            />
-                            <div
-                              style={{
-                                position: "absolute",
-                                bottom: 0,
-                                left: 0,
-                                right: 0,
-                                background: "rgba(0,0,0,0.6)",
-                                color: "#fff",
-                                fontSize: "10px",
-                                textAlign: "center",
-                                padding: "2px",
-                              }}
-                            >
-                              + Додати
-                            </div>
-                          </SearchResultItem>
-                        ))}
-                      </SearchResultsGrid>
-                    )}
-                  </>
-                ) : (
-                  <FabricEditor
-                    onAddImage={handleAddCustomImage}
-                    isDarkMode={isDarkMode}
-                    startCooldown={startCooldown}
-                    isCooldown={isCooldown}
-                    cooldownTime={cooldownTime}
-                  />
-                )}
-              </SearchContainer>
-            )}
-
-            <FanBlock>
-              <AnimatePresence>
-                {getRenderableImages(
-                  combinedImages.filter(
-                    (img) => img.category === selectedPlaylist,
-                  ),
-                )
-                  .slice(0, visibleCount)
-                  .map((imgData, idx) => (
-                    <FanArtCard
-                      key={imgData.id || imgData.src}
-                      layout
-                      initial={{ opacity: 0, y: 20, scale: 0.9 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.5, y: 50 }}
-                      transition={{ duration: 0.3 }}
+                  <SourceSelector>
+                    <SourceButton
+                      $isDarkMode={isDarkMode}
+                      $active={creationMode === "search"}
+                      onClick={() => setCreationMode("search")}
                     >
-                      <FanArtImageContainer>
-                        <BenefitImage
-                          src={isVideoSource(imgData.src) ? `` : imgData.src}
-                          alt={`Fan art - ${imgData.category}`}
-                          title={imgData.name || imgData.title || "Фанарт"}
-                          onClick={() => setFullscreenIndex(idx)}
-                          style={{
-                            cursor: "zoom-in",
-                            display: isVideoSource(imgData.src)
-                              ? "none"
-                              : "block",
-                          }}
-                        />
-                        {isVideoSource(imgData.src) && (
-                          <VideoThumb src={imgData.src} />
-                        )}
-                        <ImageTitleStrip className="image-overlay">
-                          {imgData.author && <div>{imgData.author}</div>}
-                          {imgData.source && (
-                            <div
-                              style={{ fontSize: "10px", fontWeight: "normal" }}
+                      🔍 Пошук
+                    </SourceButton>
+                    <SourceButton
+                      $isDarkMode={isDarkMode}
+                      $active={creationMode === "editor"}
+                      onClick={() => setCreationMode("editor")}
+                    >
+                      🎨 Редактор та Файли
+                    </SourceButton>
+                  </SourceSelector>
+
+                  {creationMode === "search" ? (
+                    <>
+                      <SourceSelector>
+                        <SourceButton
+                          $isDarkMode={isDarkMode}
+                          $active={searchSource === "pixabay"}
+                          onClick={() => setSearchSource("pixabay")}
+                        >
+                          🖼 Pixabay
+                        </SourceButton>
+                        <SourceButton
+                          $isDarkMode={isDarkMode}
+                          $active={searchSource === "tvmaze"}
+                          onClick={() => setSearchSource("tvmaze")}
+                        >
+                          🎬 TVMaze (Кіно)
+                        </SourceButton>
+                      </SourceSelector>
+                      <SourceSelector>
+                        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', width: '100%', maxWidth: '400px' }}>
+                          <input
+                            type="text"
+                            placeholder="Пошук зображень."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                            style={{
+                              width: '100%',
+                              padding: '10px 90px 10px 14px', // 90px справа, щоб текст не заходив під кнопку
+                              borderRadius: '8px',
+                              border: `1px solid ${isDarkMode ? '#444' : '#ccc'}`,
+                              backgroundColor: isDarkMode ? '#1e1e1e' : '#fff',
+                              color: isDarkMode ? '#fff' : '#000',
+                              fontSize: '14px',
+                              outline: 'none',
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={handleSearch}
+                            style={{
+                              position: 'absolute',
+                              right: '4px',
+                              top: '50%',
+                              transform: 'translateY(-50%)',
+                              padding: '6px 14px',
+                              border: 'none',
+                              borderRadius: '6px',
+                              backgroundColor: '#007bff',
+                              color: '#fff',
+                              fontSize: '14px',
+                              cursor: 'pointer',
+                            }}
+                          >
+                            Знайти
+                          </button>
+                        </div>
+                      </SourceSelector>
+                      {searchStatus === "loading" && (
+                        <SearchStatusText $isDarkMode={isDarkMode}>
+                          Завантаження...
+                        </SearchStatusText>
+                      )}
+                      {searchStatus === "no-results" && (
+                        <SearchStatusText $isDarkMode={isDarkMode}>
+                          Зображень за вашим запитом не знайдено.
+                        </SearchStatusText>
+                      )}
+                      {searchStatus === "error" && (
+                        <SearchStatusText $isDarkMode={isDarkMode}>
+                          Помилка пошуку. Спробуйте пізніше.
+                        </SearchStatusText>
+                      )}
+
+                      {searchResults.length > 0 && searchSource === "pixabay" && (
+                        <SearchButton
+                          type="button"
+                          onClick={handleLoadMore}
+                          style={{ marginTop: "10px" }}
+                        >
+                          Завантажити ще
+                        </SearchButton>
+                      )}
+
+                      {searchResults.length > 0 && (
+                        <SearchResultsGrid>
+                          {searchResults.map((hit) => (
+                            <SearchResultItem
+                              key={hit.id}
+                              onClick={() => handleAddCustomImage(hit)}
                             >
-                              {imgData.source}
-                            </div>
-                          )}
-                          <div>{imgData.name || imgData.title || "Арт"}</div>
-                        </ImageTitleStrip>
-                        <ActionButtonsContainer className="image-overlay">
+                              <BenefitImage
+                                src={hit.previewURL}
+                                alt={hit.name || hit.tags}
+                                style={{ width: "100px", height: "100px" }}
+                              />
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  bottom: 0,
+                                  left: 0,
+                                  right: 0,
+                                  background: "rgba(0,0,0,0.6)",
+                                  color: "#fff",
+                                  fontSize: "10px",
+                                  textAlign: "center",
+                                  padding: "2px",
+                                }}
+                              >
+                                + Додати
+                              </div>
+                            </SearchResultItem>
+                          ))}
+                        </SearchResultsGrid>
+                      )}
+                    </>
+                  ) : (
+                    <FabricEditor
+                      onAddImage={handleAddCustomImage}
+                      isDarkMode={isDarkMode}
+                    />
+                  )}
+                </SearchContainer>
+              )}
+
+              <FanBlock>
+                <AnimatePresence>
+                  {getRenderableImages(
+                    combinedImages.filter(
+                      (img) => img.category === selectedPlaylist,
+                    ),
+                  )
+                    .slice(0, visibleCount)
+                    .map((imgData, idx) => (
+                      <FanArtCard
+                        key={imgData.id || imgData.src}
+                        layout
+                        initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.5, y: 50 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <FanArtImageContainer>
+                          <BenefitImage
+                            src={isVideoSource(imgData.src) ? `` : imgData.src}
+                            alt={`Fan art - ${imgData.category}`}
+                            title={imgData.name || imgData.title || "Фанарт"}
+                            onClick={() => setFullscreenIndex(idx)}
+                            style={{
+                              cursor: "zoom-in",
+                              display: isVideoSource(imgData.src)
+                                ? "none"
+                                : "block",
+                            }}
+                          />
                           {isVideoSource(imgData.src) && (
-                            <ActionButton
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setExtractedFrames([]);
-                                setFrameStart(String(imgData.start ?? 0));
-                                setFrameEnd(String(imgData.end ?? ""));
-                                setFrameCount(5);
-                                setVideoFramesModal(imgData);
-                              }}
-                              title="Дістати кадри"
-                            >
-                              🎥
-                            </ActionButton>
+                            <VideoThumb src={imgData.src} />
                           )}
-                          {imgData.description && (
+                          <ImageTitleStrip className="image-overlay">
+                            {imgData.author && <div>{imgData.author}</div>}
+                            {imgData.source && (
+                              <div
+                                style={{ fontSize: "10px", fontWeight: "normal" }}
+                              >
+                                {imgData.source}
+                              </div>
+                            )}
+                            <div>{imgData.name || imgData.title || "Арт"}</div>
+                          </ImageTitleStrip>
+                          <ActionButtonsContainer className="image-overlay">
+                            {isVideoSource(imgData.src) && (
+                              <ActionButton
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setExtractedFrames([]);
+                                  setFrameStart(String(imgData.start ?? 0));
+                                  setFrameEnd(String(imgData.end ?? ""));
+                                  setFrameCount(5);
+                                  setVideoFramesModal(imgData);
+                                }}
+                                title="Дістати кадри"
+                              >
+                                🎥
+                              </ActionButton>
+                            )}
+                            {imgData.description && (
+                              <ActionButton
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setDescriptionModal({
+                                    name: imgData.name,
+                                    text: imgData.description,
+                                  });
+                                }}
+                                title="Опис картини"
+                                style={{ background: "#1a3a5c" }}
+                              >
+                                ?
+                              </ActionButton>
+                            )}
+                            <ActionButton
+                              onClick={() => handleDownload(imgData.src)}
+                              title="Скачати"
+                            >
+                              <ImFolderDownload />
+                            </ActionButton>
                             <ActionButton
                               onClick={(e) => {
                                 e.stopPropagation();
-                                setDescriptionModal({
-                                  name: imgData.name,
-                                  text: imgData.description,
+                                handlePrint(imgData.src);
+                              }}
+                              title="Роздрукувати"
+                            >
+                              <MdPrint />
+                            </ActionButton>
+                            <ActionButton
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handlePrint3D(imgData.src, imgData);
+                              }}
+                              title="3D-друк (плоский друк, тверда картина)"
+                            >
+                              3D
+                            </ActionButton>
+                            <ActionButton
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setHeroBg(imgData.src);
+                                setCustomHeroBgs((prev) => {
+                                  if (prev.some((bg) => bg.src === imgData.src))
+                                    return prev;
+                                  return [
+                                    {
+                                      src: imgData.src,
+                                      name: imgData.title || "Фанарт",
+                                    },
+                                    ...prev,
+                                  ];
                                 });
                               }}
-                              title="Опис картини"
-                              style={{ background: "#1a3a5c" }}
+                              title="Встановити на шпалери"
+                              style={{ color: "white" }}
                             >
-                              ?
+                              <LuWallpaper />
                             </ActionButton>
-                          )}
-                          <ActionButton
-                            onClick={() => handleDownload(imgData.src)}
-                            title="Скачати"
-                          >
-                            <ImFolderDownload />
-                          </ActionButton>
-                          <ActionButton
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handlePrint(imgData.src);
-                            }}
-                            title="Роздрукувати"
-                          >
-                            <MdPrint />
-                          </ActionButton>
-                          <ActionButton
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handlePrint3D(imgData.src, imgData);
-                            }}
-                            title="3D-друк (плоский друк, тверда картина)"
-                          >
-                            3D
-                          </ActionButton>
-                          <ActionButton
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setHeroBg(imgData.src);
-                              setCustomHeroBgs((prev) => {
-                                if (prev.some((bg) => bg.src === imgData.src))
-                                  return prev;
-                                return [
-                                  {
-                                    src: imgData.src,
-                                    name: imgData.title || "Фанарт",
-                                  },
-                                  ...prev,
-                                ];
-                              });
-                            }}
-                            title="Встановити на шпалери"
-                            style={{ color: "white" }}
-                          >
-                            <LuWallpaper />
-                          </ActionButton>
-                          {selectedPlaylist === "ваші картинки" && (
-                            <ActionButton
-                              onClick={() =>
-                                handleRemoveCustomImage(imgData.id)
-                              }
-                              title="Видалити"
-                              style={{ background: "#ff6961" }}
+                            {selectedPlaylist === "ваші картинки" && (
+                              <ActionButton
+                                onClick={() =>
+                                  handleRemoveCustomImage(imgData.id)
+                                }
+                                title="Видалити"
+                                style={{ background: "#ff6961" }}
+                              >
+                                🗑️
+                              </ActionButton>
+                            )}
+                          </ActionButtonsContainer>
+                        </FanArtImageContainer>
+                        {imgData.summary && (
+                          <ShowInfo $isDarkMode={isDarkMode}>
+                            <p
+                              style={{ fontWeight: "bold", margin: "0 0 5px 0" }}
                             >
-                              🗑️
-                            </ActionButton>
-                          )}
-                        </ActionButtonsContainer>
-                      </FanArtImageContainer>
-                      {imgData.summary && (
-                        <ShowInfo $isDarkMode={isDarkMode}>
-                          <p
-                            style={{ fontWeight: "bold", margin: "0 0 5px 0" }}
-                          >
-                            {imgData.title}
-                          </p>
-                          <p
-                            style={{
-                              display: "-webkit-box",
-                              WebkitLineClamp: 3,
-                              WebkitBoxOrient: "vertical",
-                              overflow: "hidden",
-                              margin: 0,
-                            }}
-                          >
-                            <b>Сюжет:</b> {imgData.summary}
-                          </p>
-                          <p style={{ margin: "5px 0 0 0" }}>
-                            <b>Актори:</b> {imgData.cast || "Не вказано"}
-                          </p>
-                          {imgData.url && (
-                            <a
-                              href={imgData.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
+                              {imgData.title}
+                            </p>
+                            <p
                               style={{
-                                color: "#ffb36c",
-                                fontSize: "10px",
-                                textDecoration: "underline",
-                                display: "block",
-                                marginTop: "5px",
+                                display: "-webkit-box",
+                                WebkitLineClamp: 3,
+                                WebkitBoxOrient: "vertical",
+                                overflow: "hidden",
+                                margin: 0,
                               }}
                             >
-                              Оригінальний сайт
-                            </a>
-                          )}
-                        </ShowInfo>
-                      )}
-                    </FanArtCard>
-                  ))}
-              </AnimatePresence>
-            </FanBlock>
-            {imagesForPlaylist.length > visibleCount && (
-              <ActionButton
-                onClick={handleLoadMoreImages}
-                style={{ marginTop: "20px", width: "auto" }}
-              >
-                Завантажити ще
-              </ActionButton>
-            )}
+                              <b>Сюжет:</b> {imgData.summary}
+                            </p>
+                            <p style={{ margin: "5px 0 0 0" }}>
+                              <b>Актори:</b> {imgData.cast || "Не вказано"}
+                            </p>
+                            {imgData.url && (
+                              <a
+                                href={imgData.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{
+                                  color: "#ffb36c",
+                                  fontSize: "10px",
+                                  textDecoration: "underline",
+                                  display: "block",
+                                  marginTop: "5px",
+                                }}
+                              >
+                                Оригінальний сайт
+                              </a>
+                            )}
+                          </ShowInfo>
+                        )}
+                      </FanArtCard>
+                    ))}
+                </AnimatePresence>
+              </FanBlock>
+              {imagesForPlaylist.length > visibleCount && (
+                <ActionButton
+                  onClick={handleLoadMoreImages}
+                  style={{ marginTop: "20px", width: "auto" }}
+                >
+                  Завантажити ще
+                </ActionButton>
+              )}
+            </ModalBody>
           </ModalContent>
         </ModalOverlay>
       )}

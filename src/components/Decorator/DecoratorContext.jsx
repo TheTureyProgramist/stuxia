@@ -11,6 +11,33 @@ export const DecoratorContext = createContext();
 
 export const useDecorator = () => useContext(DecoratorContext);
 
+export const getUniqueSelector = (el) => {
+  if (!el || !(el instanceof Element)) return "";
+  const path = [];
+  let current = el;
+  while (current && current.nodeType === Node.ELEMENT_NODE && current !== document.body && current !== document.documentElement) {
+    let selector = current.nodeName.toLowerCase();
+    if (current.id) {
+      selector += "#" + current.id;
+      path.unshift(selector);
+      break; // ID is unique, we can stop here!
+    } else {
+      let sib = current.previousSibling;
+      let nth = 1;
+      while (sib) {
+        if (sib.nodeType === Node.ELEMENT_NODE && sib.nodeName === current.nodeName) {
+          nth++;
+        }
+        sib = sib.previousSibling;
+      }
+      selector += `:nth-of-type(${nth})`;
+    }
+    path.unshift(selector);
+    current = current.parentNode;
+  }
+  return path.join(" > ");
+};
+
 export const DecoratorProvider = ({ children, isDarkMode }) => {
   const [isDecoratorMode, setIsDecoratorMode] = useState(false);
   const [isPersistent, setIsPersistent] = useState(false);
@@ -95,9 +122,13 @@ export const DecoratorProvider = ({ children, isDarkMode }) => {
 
     let css = "";
     Object.entries(styleOverrides).forEach(([elId, modes]) => {
+      const selector = elId.includes(" > ") || elId.includes("#") || elId.includes(":") 
+        ? elId 
+        : `[data-decorator-id="${elId}"]`;
+
       // Light Default
       if (modes.light_default && Object.keys(modes.light_default).length > 0) {
-        css += `body:not(.decorator-dark-mode) [data-decorator-id="${elId}"] { `;
+        css += `body:not(.decorator-dark-mode) ${selector} { `;
         Object.entries(modes.light_default).forEach(([prop, val]) => {
           css += `${prop.replace(/([A-Z])/g, "-$1").toLowerCase()}: ${val} !important; `;
         });
@@ -105,7 +136,7 @@ export const DecoratorProvider = ({ children, isDarkMode }) => {
       }
       // Light Hover
       if (modes.light_hover && Object.keys(modes.light_hover).length > 0) {
-        css += `body:not(.decorator-dark-mode) [data-decorator-id="${elId}"]:hover { `;
+        css += `body:not(.decorator-dark-mode) ${selector}:hover { `;
         Object.entries(modes.light_hover).forEach(([prop, val]) => {
           css += `${prop.replace(/([A-Z])/g, "-$1").toLowerCase()}: ${val} !important; `;
         });
@@ -113,7 +144,7 @@ export const DecoratorProvider = ({ children, isDarkMode }) => {
       }
       // Dark Default
       if (modes.dark_default && Object.keys(modes.dark_default).length > 0) {
-        css += `body.decorator-dark-mode [data-decorator-id="${elId}"] { `;
+        css += `body.decorator-dark-mode ${selector} { `;
         Object.entries(modes.dark_default).forEach(([prop, val]) => {
           css += `${prop.replace(/([A-Z])/g, "-$1").toLowerCase()}: ${val} !important; `;
         });
@@ -121,7 +152,7 @@ export const DecoratorProvider = ({ children, isDarkMode }) => {
       }
       // Dark Hover
       if (modes.dark_hover && Object.keys(modes.dark_hover).length > 0) {
-        css += `body.decorator-dark-mode [data-decorator-id="${elId}"]:hover { `;
+        css += `body.decorator-dark-mode ${selector}:hover { `;
         Object.entries(modes.dark_hover).forEach(([prop, val]) => {
           css += `${prop.replace(/([A-Z])/g, "-$1").toLowerCase()}: ${val} !important; `;
         });

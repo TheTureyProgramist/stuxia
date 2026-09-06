@@ -24,9 +24,7 @@ const MUSIC_CREDITS = [
   { title: "Dragonora, Asium, Factorium", author: "SayGames - MyLittleUniverse (Estoty)" },
   { title: "Electrodynamix, Clubstep, Theory of Everything, Theory of Everything II", author: "DJ-Nate" },
   { title: "Fingerbang (Fingerdash), Deadlocked", author: "Geometry Dash" },
-  { title: "Болотна крамниця, Звуки індиків", author: "Авторська робота" },
-  { title: "Faded", author: "Alan Walker" },
-  { title: "Вовчиця", author: "Олег Вінник" }
+  { title: "Болотна крамниця, Звуки індиків і ще кілька", author: "Авторська робота" },
 ];
 // 3. Галерея зображень
 const GALLERY_IMAGES = DEFAULT_BGS.filter(bg => bg.src && !bg.src.endsWith('.mp4'));

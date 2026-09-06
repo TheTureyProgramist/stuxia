@@ -1,8 +1,13 @@
 import React, { useState, useMemo, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import styled, { keyframes, css } from "styled-components";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import localforage from "localforage";
-
+// Ctrl + Shift + M: Активувати/деактивувати мапу
+// Ctrl + Shift + F: Відкрити на весь екран
+// Ctrl + Shift + P: Відкрити/закрити міні-плеєр
+// Ctrl + Shift + W: Перемкнути джерело (Windy / Ventusky)
+// Ctrl + Shift + S: Відкрити поле ШІ пошуку
 const spin = keyframes`
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
@@ -69,8 +74,8 @@ const MapWrapper = styled.div`
   width: 100%;
   z-index: 10;
   max-width: 1200px;
-  aspect-ratio: 16 / 8;
-  min-height: 360px;
+  aspect-ratio: 16 / 6.6;
+  min-height: 430px;
   margin: 0 auto;
   border-radius: ${(props) => (props.$isFullscreen ? "0" : "24px")};
   overflow: hidden;
@@ -84,64 +89,128 @@ const MapWrapper = styled.div`
 `;
 
 const Controls = styled.div`
-  position: absolute;
-  top: 14px;
-  left: 14px;
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  background: rgba(18, 18, 28, 0.75);
-  padding: 10px;
-  border-radius: 16px;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: none;
+`;
 
-  @media (max-width: 767px) {
-    top: 56px;
-    opacity: ${(props) => (props.$isOpen ? "1" : "0")};
-    transform: ${(props) =>
-      props.$isOpen ? "translateY(0) scale(1)" : "translateY(-10px) scale(0.95)"};
-    pointer-events: ${(props) => (props.$isOpen ? "auto" : "none")};
+const MobileSettingsButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  margin: 0 5px 5px;
+  padding: 11px 16px;
+  border: 1px solid rgba(255, 179, 108, 0.45);
+  border-radius: 12px;
+  background: rgba(18, 18, 28, 0.88);
+  color: #ffb36c;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+`;
+
+const MobileSettingsOverlay = styled.div`
+  display: flex;
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  align-items: center;
+  justify-content: center;
+  padding: 7px;
+  background: rgba(5, 8, 14, 0.14);
+  backdrop-filter: blur(9px);
+  -webkit-backdrop-filter: blur(9px);
+`;
+
+const MobileSettingsPanel = styled.div`
+  width: min(100%, 1200px);
+  max-height: calc(100% - 8px);
+  overflow-y: auto;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 18px;
+  background: rgba(23, 37, 71, 0.74);
+  color: white;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.55);
+`;
+
+const MobileSettingsHeading = styled.div`
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+
+  h2 {
+    margin: 0;
+    font-size: 19px;
+  }
+
+  p {
+    margin: 4px 0 0;
+    color: rgba(255, 255, 255, 0.64);
+    font-size: 12px;
   }
 `;
 
-const MenuToggleButton = styled.button`
-  display: none;
-  
-  @media (max-width: 767px) {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    position: absolute;
-    top: 14px;
-    left: 14px;
-    z-index: 20;
-    background: rgba(18, 18, 28, 0.85);
-    color: #ffb36c;
-    border: 1px solid rgba(255, 179, 108, 0.4);
-    padding: 8px 14px;
-    border-radius: 12px;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: 600;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    transition: all 0.25s ease;
+const MobileSetting = styled.button`
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 3px 12px;
+  width: 100%;
+  margin-top: 8px;
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.07);
+  color: white;
+  cursor: pointer;
+  text-align: left;
 
-    &:hover {
-      background: rgba(18, 18, 28, 0.95);
-      border-color: rgba(255, 179, 108, 0.8);
-      transform: translateY(-1px);
-    }
-    
-    &:active {
-      transform: translateY(0);
-    }
+  &:hover {
+    border-color: rgba(255, 179, 108, 0.65);
+    background: rgba(255, 179, 108, 0.14);
+  }
+
+  strong {
+    font-size: 13px;
+  }
+
+  span {
+    grid-column: 1;
+    color: rgba(255, 255, 255, 0.62);
+    font-size: 11px;
+    line-height: 1.35;
+  }
+
+  kbd {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: center;
+    padding: 4px 7px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    color: #ffcf9e;
+    font-size: 10px;
+    white-space: nowrap;
+  }
+`;
+
+const MobileSettingsClose = styled.button`
+  width: 60px;
+  font-size: 41px;
+  border-radius: 10px;
+  background: transparent;
+  top: 8px;
+  right: 10px;
+  position: absolute;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  font-weight: 600;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
   }
 `;
 
@@ -205,87 +274,7 @@ const ActionButton = styled.button`
   }
 `;
 
-const PresetSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  background: rgba(255, 255, 255, 0.05);
-  padding: 8px;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-`;
 
-const PresetRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 5px;
-`;
-
-const PresetSlot = styled.button`
-  flex: 1;
-  background: ${(props) =>
-    props.$filled
-      ? "linear-gradient(135deg, rgba(0,198,255,0.15), rgba(0,114,255,0.15))"
-      : "rgba(255,255,255,0.04)"};
-  border: 1px solid ${(props) =>
-    props.$filled ? "rgba(0,198,255,0.4)" : "rgba(255,255,255,0.12)"};
-  border-radius: 8px;
-  color: ${(props) => (props.$filled ? "#7fd6ff" : "rgba(255,255,255,0.4)")};
-  font-size: 11px;
-  padding: 5px 7px;
-  cursor: ${(props) => (props.$filled ? "pointer" : "default")};
-  text-align: left;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  transition: all 0.2s;
-  &:hover {
-    ${(props) =>
-      props.$filled &&
-      `background: linear-gradient(135deg, rgba(0,198,255,0.28), rgba(0,114,255,0.28));
-       border-color: rgba(0,198,255,0.7);`}
-  }
-`;
-
-const PresetIconBtn = styled.button`
-  background: none;
-  border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 7px;
-  color: rgba(255,255,255,0.6);
-  font-size: 12px;
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s;
-  flex-shrink: 0;
-  &:hover {
-    background: rgba(255,255,255,0.1);
-    color: #fff;
-    border-color: rgba(255,255,255,0.4);
-  }
-`;
-
-const PresetNameInput = styled.input`
-  flex: 1;
-  padding: 4px 7px;
-  border-radius: 6px;
-  border: 1px solid rgba(0,198,255,0.4);
-  background: rgba(0,0,0,0.4);
-  color: white;
-  font-size: 11px;
-  outline: none;
-  &::placeholder { color: rgba(255,255,255,0.4); }
-`;
-
-const OverlayLabel = styled.div`
-  font-size: 10px;
-  color: rgba(255,255,255,0.45);
-  text-align: center;
-  margin-top: 2px;
-`;
 
 const SearchContainer = styled.form`
   display: flex;
@@ -382,6 +371,9 @@ const ClimateMap = ({ isDarkMode, isStickyBgMode }) => {
   const [isMapActive, setIsMapActive] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isMiniPlayerOpen, setIsMiniPlayerOpen] = useState(false);
+  const [pipWindow, setPipWindow] = useState(null);
+  const [provider, setProvider] = useState("ventusky");
+
   const [miniPlayerPosition, setMiniPlayerPosition] = useState(() => {
     if (typeof window === "undefined") return { x: 24, y: 24 };
     return {
@@ -397,12 +389,6 @@ const ClimateMap = ({ isDarkMode, isStickyBgMode }) => {
   const miniPlayerRef = useRef(null);
   const dragStateRef = useRef(null);
   const resizeStateRef = useRef(null);
-
-  // Пресети: до 3 слотів { name, lat, lon, zoom, overlay }
-  const [presets, setPresets] = useState([null, null, null]);
-  const [presetsOpen, setPresetsOpen] = useState(false);
-  const [editingPreset, setEditingPreset] = useState(null); // { index, name }
-  const [presetNameInput, setPresetNameInput] = useState("");
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -428,9 +414,6 @@ const ClimateMap = ({ isDarkMode, isStickyBgMode }) => {
           setZoom(pinnedLoc.zoom);
           if (pinnedLoc.overlay) setOverlay(pinnedLoc.overlay);
         }
-
-        const savedPresets = await localforage.getItem("map_presets");
-        if (savedPresets) setPresets(savedPresets);
       } catch (error) {
         console.error("Error loading map data:", error);
       }
@@ -439,7 +422,7 @@ const ClimateMap = ({ isDarkMode, isStickyBgMode }) => {
   }, []);
 
   const handlePinLocation = async (e) => {
-    e.stopPropagation();
+    if (e) e.stopPropagation();
     try {
       await localforage.setItem("pinned_map_location", {
         lat,
@@ -453,32 +436,32 @@ const ClimateMap = ({ isDarkMode, isStickyBgMode }) => {
     }
   };
 
-  const handleSavePreset = async (index) => {
-    const name = presetNameInput.trim() || `Пресет ${index + 1}`;
-    const newPresets = [...presets];
-    newPresets[index] = { name, lat, lon, zoom, overlay };
-    setPresets(newPresets);
-    await localforage.setItem("map_presets", newPresets);
-    setEditingPreset(null);
-    setPresetNameInput("");
-  };
+  const handleOpenMiniPlayer = async () => {
+    if (window.documentPictureInPicture) {
+      try {
+        const pipWindow = await window.documentPictureInPicture.requestWindow({
+          width: 400,
+          height: 300,
+        });
 
-  const handleLoadPreset = (preset) => {
-    if (!preset) return;
-    setLat(preset.lat);
-    setLon(preset.lon);
-    setZoom(preset.zoom);
-    setOverlay(preset.overlay);
-    setIsLoading(true);
-  };
+        pipWindow.document.body.style.margin = "0";
+        pipWindow.document.body.style.overflow = "hidden";
+        pipWindow.document.body.style.background = "#1a1a1a";
 
-  const handleDeletePreset = async (e, index) => {
-    e.stopPropagation();
-    const newPresets = [...presets];
-    newPresets[index] = null;
-    setPresets(newPresets);
-    await localforage.setItem("map_presets", newPresets);
-    if (editingPreset?.index === index) setEditingPreset(null);
+        pipWindow.addEventListener("pagehide", () => {
+          setPipWindow(null);
+          setIsMiniPlayerOpen(false);
+        });
+
+        setPipWindow(pipWindow);
+        setIsMiniPlayerOpen(true);
+      } catch (err) {
+        console.error("PiP API failed:", err);
+        setIsMiniPlayerOpen(true);
+      }
+    } else {
+      setIsMiniPlayerOpen(true);
+    }
   };
 
   const handleAiSearch = async (e) => {
@@ -583,6 +566,45 @@ const ClimateMap = ({ isDarkMode, isStickyBgMode }) => {
     }
   };
 
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (["INPUT", "TEXTAREA", "SELECT"].includes(e.target.tagName)) return;
+      
+      if (e.shiftKey && e.ctrlKey) {
+        switch (e.key.toLowerCase()) {
+          case 'm':
+            e.preventDefault();
+            setIsMapActive(prev => !prev);
+            break;
+          case 'f':
+            e.preventDefault();
+            toggleFullscreen();
+            break;
+          case 'p':
+            e.preventDefault();
+            if (isMiniPlayerOpen) {
+               if (pipWindow) pipWindow.close();
+               else setIsMiniPlayerOpen(false);
+            } else {
+               handleOpenMiniPlayer();
+            }
+            break;
+          case 'w':
+            e.preventDefault();
+            setProvider(p => p === "windy" ? "ventusky" : "windy");
+            break;
+          case 's':
+            e.preventDefault();
+            setIsAiSearchOpen(prev => !prev);
+            break;
+        }
+      }
+    };
+    
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isMiniPlayerOpen, pipWindow]);
+
   const handleMiniPlayerDragStart = (event) => {
     if (event.target.closest("button")) return;
     event.preventDefault();
@@ -606,8 +628,20 @@ const ClimateMap = ({ isDarkMode, isStickyBgMode }) => {
   };
 
   const embedUrl = useMemo(() => {
-    return `https://embed.windy.com/embed2.html?lat=${lat}&lon=${lon}&zoom=${zoom}&level=surface&overlay=${overlay}&menu=&message=true&marker=&calendar=now&pressure=&type=map&location=coordinates&detail=&metricWind=default&metricTemp=default&radarRange=-1`;
-  }, [lat, lon, zoom, overlay]);
+    if (provider === "windy") {
+      return `https://embed.windy.com/embed2.html?lat=${lat}&lon=${lon}&zoom=${zoom}&level=surface&overlay=${overlay}&menu=&message=true&marker=`;
+    }
+
+    let vOverlay = overlay;
+    if (overlay === "rain") vOverlay = "rain-3h";
+    if (overlay === "temp") vOverlay = "temperature";
+    if (overlay === "clouds") vOverlay = "cloud-cover";
+    return `https://www.ventusky.com/?p=${lat};${lon};${zoom}&l=${vOverlay}`;
+  }, [provider, lat, lon, zoom, overlay]);
+
+  useEffect(() => {
+    setIsLoading(true);
+  }, [provider, lat, lon, zoom, overlay]);
 
   return (
     <OuterContainer>
@@ -615,169 +649,217 @@ const ClimateMap = ({ isDarkMode, isStickyBgMode }) => {
         Кліматична мапа
       </AihelpTitle>
 
-      {!isMiniPlayerOpen && (
-        <MapWrapper
-          ref={mapWrapperRef}
-          $isFullscreen={isFullscreen}
-          onClick={() => !isMapActive && setIsMapActive(true)}
-        >
-          <MenuToggleButton
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsControlsOpen(!isControlsOpen);
-            }}
-          >
-            {isControlsOpen ? "✕ Закрити" : "⚙ Налаштування Стихії"}
-          </MenuToggleButton>
+      <MobileSettingsButton
+        type="button"
+        onClick={() => setIsControlsOpen(true)}
+        aria-label="Відкрити налаштування Стихії"
+      >
+        ⚙ Налаштування Стихії
+      </MobileSettingsButton>
 
-          <Controls $isOpen={isControlsOpen}>
-            {isAiSearchOpen && (
-              <SearchContainer onSubmit={handleAiSearch}>
-                <SearchInput
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Місто, село..."
-                  autoFocus
-                />
-                <ActionButton
-                  type="submit"
-                  $active={true}
-                  disabled={isAiLoading}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  {isAiLoading ? "Шукаю..." : "Знайти"}
-                </ActionButton>
-              </SearchContainer>
-            )}
-
-            <ActionButton
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsAiSearchOpen(!isAiSearchOpen);
-              }}
-            >
-            ШІ Пошук
-            </ActionButton>
-
-            <ActionButton onClick={handlePinLocation}>
-            Закріпити
-            </ActionButton>
-
-            {presetsOpen && (
-              <PresetSection onClick={(e) => e.stopPropagation()}>
-                <OverlayLabel>Поточний режим: <strong style={{color:"#7fd6ff"}}>{overlay}</strong></OverlayLabel>
-                {presets.map((preset, i) => (
-                  <div key={i}>
-                    {editingPreset?.index === i ? (
-                      <PresetRow>
-                        <PresetNameInput
-                          autoFocus
-                          placeholder={`Назва пресету ${i + 1}`}
-                          value={presetNameInput}
-                          onChange={(e) => setPresetNameInput(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") handleSavePreset(i);
-                            if (e.key === "Escape") setEditingPreset(null);
-                          }}
-                        />
-                        <PresetIconBtn onClick={() => handleSavePreset(i)} title="Зберегти">✓</PresetIconBtn>
-                        <PresetIconBtn onClick={() => setEditingPreset(null)} title="Скасувати">✕</PresetIconBtn>
-                      </PresetRow>
-                    ) : (
-                      <PresetRow>
-                        <PresetSlot
-                          $filled={!!preset}
-                          onClick={() => handleLoadPreset(preset)}
-                          title={preset ? `Завантажити: ${preset.name}\n${preset.overlay} · zoom ${preset.zoom}` : "Порожній слот"}
-                        >
-                          {preset
-                            ? `${preset.name}`
-                            : `— слот ${i + 1} —`}
-                        </PresetSlot>
-                        <PresetIconBtn
-                          onClick={() => {
-                            setEditingPreset({ index: i });
-                            setPresetNameInput(preset?.name || "");
-                          }}
-                          title="Зберегти поточний вигляд в цей слот"
-                        >
-                          💾
-                        </PresetIconBtn>
-                        {preset && (
-                          <PresetIconBtn
-                            onClick={(e) => handleDeletePreset(e, i)}
-                            title="Видалити пресет"
-                            style={{ color: "#ff7b7b" }}
-                          >
-                            ✕
-                          </PresetIconBtn>
-                        )}
-                      </PresetRow>
-                    )}
-                    {preset && (
-                      <OverlayLabel>{preset.overlay} · zoom {preset.zoom}</OverlayLabel>
-                    )}
-                  </div>
-                ))}
-              </PresetSection>
-            )}
-
-            <div
-              style={{
-                height: "1px",
-                background: "rgba(255,255,255,0.2)",
-                margin: "4px 0",
-              }}
-            />
-
-            <ActionButton
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsMapActive(!isMapActive);
-              }}
-              style={{
-                border: isMapActive ? "1px solid #ff4d4d" : "1px solid skyblue",
-              }}
-            >
-              {isMapActive ? "Деактивувати" : "Активувати"}
-            </ActionButton>
-            <ActionButton
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleFullscreen();
-              }}
-            >
-              {isFullscreen ? "Згорнути" : "На весь екран"}
-            </ActionButton>
-
-            <ActionButton
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsMiniPlayerOpen(true);
-              }}
-            >
-              Міні-плеєр
-            </ActionButton>
-          </Controls>
-
-          {isLoading && (
-            <Loader>
-              <p>Завантаження...</p>
-            </Loader>
+      <MapWrapper
+        ref={mapWrapperRef}
+        $isFullscreen={isFullscreen}
+        onClick={() => !isMapActive && setIsMapActive(true)}
+      >
+        <Controls $isOpen={isControlsOpen}>
+          {isAiSearchOpen && (
+            <SearchContainer onSubmit={handleAiSearch}>
+              <SearchInput
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Місто, село..."
+                autoFocus
+              />
+              <ActionButton
+                type="submit"
+                $active={true}
+                disabled={isAiLoading}
+                onClick={(e) => e.stopPropagation()}
+              >
+                {isAiLoading ? "Шукаю..." : "Знайти"}
+              </ActionButton>
+            </SearchContainer>
           )}
 
+          <ActionButton
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsAiSearchOpen(!isAiSearchOpen);
+            }}
+          >
+          ШІ Пошук
+          </ActionButton>
+
+          <ActionButton onClick={handlePinLocation}>
+          Закріпити
+          </ActionButton>
+          
+          <ActionButton
+            onClick={(e) => {
+              e.stopPropagation();
+              setProvider("ventusky");
+            }}
+            $active={provider === "ventusky"}
+          >
+            Джерело: Ventusky
+          </ActionButton>
+
+          <ActionButton
+            onClick={(e) => {
+              e.stopPropagation();
+              setProvider("windy");
+            }}
+            $active={provider === "windy"}
+          >
+            Джерело: Windy
+          </ActionButton>
+
+          <div
+            style={{
+              height: "1px",
+              background: "rgba(255,255,255,0.2)",
+              margin: "4px 0",
+            }}
+          />
+
+          <ActionButton
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsMapActive(!isMapActive);
+            }}
+            style={{
+              border: isMapActive ? "1px solid #ff4d4d" : "1px solid skyblue",
+            }}
+          >
+            {isMapActive ? "Деактивувати" : "Активувати"}
+          </ActionButton>
+          <ActionButton
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleFullscreen();
+            }}
+          >
+            {isFullscreen ? "Згорнути" : "На весь екран"}
+          </ActionButton>
+
+          <ActionButton
+            onClick={(e) => {
+              e.stopPropagation();
+              if (isMiniPlayerOpen) {
+                if (pipWindow) pipWindow.close();
+                else setIsMiniPlayerOpen(false);
+              } else {
+                handleOpenMiniPlayer();
+              }
+            }}
+          >
+            {isMiniPlayerOpen ? "Закрити міні-плеєр" : "Міні-плеєр"}
+          </ActionButton>
+        </Controls>
+
+        {isControlsOpen && (
+          <MobileSettingsOverlay onClick={() => setIsControlsOpen(false)}>
+            <MobileSettingsPanel onClick={(e) => e.stopPropagation()}>
+              <MobileSettingsHeading>
+                <div>
+                  <h2>Налаштування Стихії</h2>
+                  <p>Керуйте картою та її джерелом</p>
+                </div>
+              <MobileSettingsClose type="button" onClick={() => setIsControlsOpen(false)}>
+                ×
+              </MobileSettingsClose>
+              </MobileSettingsHeading>
+
+              {isAiSearchOpen && (
+                <SearchContainer onSubmit={handleAiSearch}>
+                  <SearchInput
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Місто, село..."
+                    autoFocus
+                  />
+                  <ActionButton type="submit" $active={true} disabled={isAiLoading}>
+                    {isAiLoading ? "Шукаю..." : "Знайти"}
+                  </ActionButton>
+                </SearchContainer>
+              )}
+
+              <MobileSetting type="button" onClick={() => setIsAiSearchOpen(!isAiSearchOpen)}>
+                <strong>ШІ-пошук локації</strong>
+                <kbd>Ctrl + Shift + S</kbd>
+                <span>Знайти місто або місце за допомогою ШІ та перемістити карту.</span>
+              </MobileSetting>
+              <MobileSetting type="button" onClick={handlePinLocation}>
+                <strong>Закріпити локацію</strong>
+                <kbd>Без комбінації</kbd>
+                <span>Зберегти поточні координати, масштаб і шар для наступного входу.</span>
+              </MobileSetting>
+              <MobileSetting
+                type="button"
+                onClick={() => setProvider((current) => current === "windy" ? "ventusky" : "windy")}
+              >
+                <strong>Змінити джерело: {provider === "windy" ? "Windy" : "Ventusky"}</strong>
+                <kbd>Ctrl + Shift + W</kbd>
+                <span>Перемикатися між двома погодними сервісами для перегляду карти.</span>
+              </MobileSetting>
+              <MobileSetting type="button" onClick={() => setIsMapActive(!isMapActive)}>
+                <strong>{isMapActive ? "Деактивувати карту" : "Активувати карту"}</strong>
+                <kbd>Ctrl + Shift + M</kbd>
+                <span>Увімкнути або вимкнути взаємодію з картою та її iframe.</span>
+              </MobileSetting>
+              <MobileSetting type="button" onClick={() => toggleFullscreen()}>
+                <strong>{isFullscreen ? "Згорнути карту" : "Відкрити на весь екран"}</strong>
+                <kbd>Ctrl + Shift + F</kbd>
+                <span>Розгорнути карту на весь екран пристрою або повернути звичайний вигляд.</span>
+              </MobileSetting>
+              <MobileSetting type="button" onClick={handleOpenMiniPlayer}>
+                <strong>Міні-плеєр карти</strong>
+                <kbd>Ctrl + Shift + P</kbd>
+                <span>Винести карту в окреме плаваюче вікно для паралельної роботи.</span>
+              </MobileSetting>
+            </MobileSettingsPanel>
+          </MobileSettingsOverlay>
+        )}
+
+        {isMiniPlayerOpen ? (
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#222', color: 'rgba(255,255,255,0.6)', zIndex: 5, padding: '20px', textAlign: 'center' }}>
+            Закрийте міні-плеєр щоб повернути карту
+          </div>
+        ) : (
+          <>
+            {isLoading && (
+              <Loader>
+                <p>Завантаження...</p>
+              </Loader>
+            )}
+
+            <StyledIframe
+              title="Weather Map"
+              src={embedUrl}
+              $isLoading={isLoading}
+              $isReady={isMapActive}
+              onLoad={() => setIsLoading(false)}
+              allowFullScreen
+            />
+          </>
+        )}
+      </MapWrapper>
+
+      {pipWindow ? (
+        createPortal(
           <StyledIframe
-            title="Windy Live Weather Map"
+            title="Weather Map (PiP)"
             src={embedUrl}
             $isLoading={isLoading}
-            $isReady={isMapActive}
+            $isReady={true}
             onLoad={() => setIsLoading(false)}
             allowFullScreen
-          />
-        </MapWrapper>
-      )}
-
-      {isMiniPlayerOpen && (
+            style={{ width: "100%", height: "100vh" }}
+          />,
+          pipWindow.document.body
+        )
+      ) : isMiniPlayerOpen && (
         <MiniPlayerWindow
           ref={miniPlayerRef}
           onDoubleClick={() => setIsMiniPlayerOpen(false)}
@@ -821,10 +903,10 @@ const ClimateMap = ({ isDarkMode, isStickyBgMode }) => {
             )}
 
             <StyledIframe
-              title="Windy Live Weather Map"
+              title="Weather Map Mini"
               src={embedUrl}
               $isLoading={isLoading}
-              $isReady={isMapActive}
+              $isReady={true}
               onLoad={() => setIsLoading(false)}
               allowFullScreen
             />

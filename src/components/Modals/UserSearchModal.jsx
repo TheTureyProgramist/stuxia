@@ -8,6 +8,7 @@ import rawFaqData from "./faqData.json";
 import hills from "../../photos/hero-header/fog.webp";
 import texts from "../../photos/vip-modal/texts.webp";
 import logofix from "../../photos/hero-header/logo.webp";
+import { FaHeartbeat } from "react-icons/fa";
 import { IoHeartDislikeSharp } from "react-icons/io5";
 import preview from "../../photos/hero-header/prewiew.webp";
 import info from "../../photos/hero-header/what.webp";
@@ -17,6 +18,34 @@ import soon from "../../photos/hero-header/my/soon.webp";
 import might from "../../photos/hero-header/my/myone.webp";
 import { RiDeleteBack2Fill } from "react-icons/ri";
 import three from "../../photos/hero-header/my/mythree.webp";
+import {
+  useFloating,
+  autoUpdate,
+  offset,
+  flip,
+  shift,
+  arrow,                 
+  useHover,
+  useFocus,
+  useDismiss,
+  useRole,
+  useInteractions,
+  useTransitionStyles,  
+  FloatingPortal,
+  FloatingArrow,         
+} from "@floating-ui/react";
+const TooltipBox = styled.div`
+  background-color: ${(props) => (props.$isDarkMode ? "#0c0c0cbf" : "#fdff98bb")};
+  color: ${(props) => (props.$isDarkMode ? "#ffffff" : "#1a1a1a")};
+  border: 2px solid #00afce;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, ${(props) => (props.$isDarkMode ? "0.5" : "0.15")});
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 9px;
+  z-index: 10000;
+  pointer-events: none;
+`;
 const slideIn = keyframes`
   0% { transform: translateY(100%) scale(0.9); opacity: 0; }
   100% { transform: translateY(0%) scale(1); opacity: 1; }
@@ -70,7 +99,7 @@ const Overlay = styled.div`
   backdrop-filter: blur(5px);
 `;
 const Content = styled.div`
-  background: #ffd001;
+  background: ${(props) => (props.$isDarkMode ? "#174348b1" : "#ffd001")};
   padding: 5px;
   border-radius: 10px;
   max-width: 1200px;
@@ -89,7 +118,7 @@ const Content = styled.div`
 `;
 
 const Conten = styled.div`
-  background: #ffd001;
+  background:  ${(props) => (props.$isDarkMode ? "#174348b1" : "#ffd001")};
   z-index: 10;
 `;
 
@@ -113,21 +142,33 @@ const TabsContainer = styled.div`
   display: flex;
   justify-content: center;
 `;
-
 const TabButton = styled.button`
-  background: ${(props) => (props.$active ? "#8a2be2" : "rgba(0, 0, 0, 0.1)")};
-  color: ${(props) => (props.$active ? "white" : "#333")};
+  background: ${({ $active, $isDarkMode }) =>
+    $active
+      ? "#8a2be2"
+      : $isDarkMode
+      ? "#0c0c0cbf"
+      : "#fdff98"};
+
+  color: ${({ $active, $isDarkMode }) =>
+    $active ? "#ffffff" : $isDarkMode ? "#020202" : "#020202"};
+
   border: none;
   padding: 5px 12px;
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+
   &:hover {
-    background: ${(props) => (props.$active ? "#8a2be2" : "rgba(0, 0, 0, 0.2)")};
+    background: ${({ $active, $isDarkMode }) =>
+      $active
+        ? "#7b22cc"
+        : $isDarkMode
+        ? "#1a1a1ce6"
+        : "#fbff02"};
   }
 `;
-
 const CloseBtn = styled.button`
   position: absolute;
   top: 0px;
@@ -135,12 +176,13 @@ const CloseBtn = styled.button`
   background: transparent;
   border-bottom-left-radius: 10px;
   border: none;
-  padding-left: 10px;
+  padding-left: 5px;
   padding-bottom: 5px;
+  font-weight: 700;
   padding-right: 9px;
-  background: #3bc2f7;
-  color: #000;
-  height: 40px;
+  background: ${(props) => (props.$isDarkMode ? "#27b5b0b1" : "#6f6e22c6")};
+  color: ${(props) => (props.$isDarkMode ? "#000000b1" : "#ffffff")};
+  height: 36px;
   font-size: 14px;
   cursor: pointer;
 `;
@@ -163,7 +205,6 @@ const AccordionItem = styled.div`
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   ${animatedStyle}
 `;
-
 const Question = styled.div`
   display: flex;
   justify-content: space-between;
@@ -172,24 +213,21 @@ const Question = styled.div`
   cursor: pointer;
   font-weight: 700;
   font-size: 14px;
-  color: ${(props) => (props.$rating === 1 ? "#8a2be2" : "#111")};
+  color: ${({ $rating, $isDarkMode }) => 
+    $rating === 1 ? "#8a2be2" : $isDarkMode ? "#ffffff" : "#111111"};
   opacity: ${(props) => (props.$rating === -1 ? 0.4 : 1)};
   transition: all 0.3s ease;
-
-  &:hover {
-    color: #8a2be2;
-  }
 
   &::before {
     content: "";
     width: 4px;
     height: 20px;
-    background: ${(props) => (props.$rating === -1 ? "#ccc" : "#8a2be2")};
+    background: ${({ $rating, $isDarkMode }) => 
+      $rating === -1 ? ($isDarkMode ? "#555555" : "#cccccc") : "#8a2be2"};
     margin-right: 12px;
     display: inline-block;
   }
 `;
-
 const QuestionContent = styled.div`
   display: flex;
   justify-content: space-between;
@@ -207,12 +245,12 @@ const LikeButton = styled.button`
   border: none;
   cursor: pointer;
   font-size: 14px;
-  padding: 5px;
+  padding: 1px;
   transition: transform 0.2s;
   display: flex;
   align-items: center;
   gap: 3px;
-  min-width: 20px;
+  min-width: 22px;
   justify-content: flex-end;
   &:hover {
     transform: scale(1.2);
@@ -236,9 +274,10 @@ const Answer = styled.div`
   overflow: hidden;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   padding-bottom: ${(props) => (props.$isOpen ? "5px" : "0")};
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.6;
-  color: #4a4a4a;
+  font-weight: 600;
+  color: ${(props) => (props.$isDarkMode ? "#ffffff" : "#060606")};
   opacity: ${(props) => (props.$isOpen ? "1" : "0")};
   white-space: pre-line;
 `;
@@ -343,15 +382,14 @@ const AnswerContent = styled.div`
 
 const AcceptBtn = styled.button`
   padding: 3px;
-  background: #8a2be2;
   color: white;
   border: none;
-  background: rgb(0, 204, 255);
+  background: rgb(11, 113, 138);
   color: #fbfbfb;
   border: none;
   width: 35px;
   border: 2px solid rgba(1, 248, 38, 0.7);
-  height: 34.5px;
+  height: 34px;
   border-bottom-right-radius: 25px;
   cursor: pointer;
   font-weight: 600;
@@ -362,23 +400,18 @@ const AcceptBtn = styled.button`
 
 const SearchInput = styled.input`
   width: 100%;
-  padding: 6px 10px;
+  padding: 5px 10px;
   border: 2px solid rgb(50, 215, 0);
   border-bottom-left-radius: 25px;
-  background: rgba(255, 255, 255, 0.9);
-  color: #333;
-  font-size: 16px;
+  background: rgba(2, 2, 2, 0.9);
+  color: #fffefe;
+  font-size: 13px;
   outline: none;
   margin-bottom: 10px;
   transition: border-color 0.3s ease;
 
-  &:focus {
-    border-color: #8a2be2;
-    background: #fff;
-  }
-
   &::placeholder {
-    color: #999;
+    color: #f9f9f9;
   }
 `;
 
@@ -433,7 +466,7 @@ const InputRow = styled.div`
 `;
 
 const StopBtn = styled.button`
-  background: #ff4d4d;
+  background: #6d1a1a;
   color: white;
   border: none;
   width: 35px;
@@ -441,6 +474,10 @@ const StopBtn = styled.button`
   cursor: pointer;
   font-size: 14px;
   display: flex;
+  color: white;
+    border: 2px solid rgba(1, 248, 38, 0.7);
+  height: 34px;
+  border-bottom-right-radius: 25px;
   align-items: center;
   justify-content: center;
 `;
@@ -462,8 +499,89 @@ const ClearBtn = styled.button`
     background: rgba(0, 0, 0, 0.2);
   }
 `;
+export const Tooltip = ({
+  content,
+  children,
+  placement = "bottom",
+  isDarkMode = true,
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const arrowRef = useRef(null);
+const { refs, floatingStyles, context } = useFloating({
+    open: isOpen,
+    onOpenChange: setIsOpen,
+    placement,
+    strategy: "fixed",
+    transform: false, 
+    whileElementsMounted: autoUpdate,
+    middleware: [
+      offset(8),
+      flip(),
+      shift({ padding: 5 }),
+      arrow({ element: arrowRef }),
+    ],
+  });
+  const { isMounted, styles: transitionStyles } = useTransitionStyles(context, {
+    duration: 150,
+    initial: {
+      opacity: 0,
+      transform: "scale(0.9)",
+    },
+    open: {
+      opacity: 1,
+      transform: "scale(1)",
+    },
+  });
 
-const InfoModal = ({ onClose, isOpen, initialFaqQuestion }) => {
+  const hover = useHover(context, { move: false });
+  const focus = useFocus(context);
+  const dismiss = useDismiss(context);
+  const role = useRole(context, { role: "tooltip" });
+
+  const { getReferenceProps, getFloatingProps } = useInteractions([
+    hover,
+    focus,
+    dismiss,
+    role,
+  ]);
+
+  if (!content) return children;
+
+  const bgTheme = isDarkMode ? "#111111" : "#ffffff";
+  const borderTheme = "#00acb9";
+
+  return (
+    <>
+      <span
+        ref={refs.setReference}
+        {...getReferenceProps()}
+        style={{ display: "inline-flex" }}
+      >
+        {children}
+      </span>
+      {isMounted && (
+        <FloatingPortal>
+          <TooltipBox
+            ref={refs.setFloating}
+            $isDarkMode={isDarkMode}
+            style={{ ...floatingStyles, ...transitionStyles }}
+            {...getFloatingProps()}
+          >
+            {content}
+            <FloatingArrow
+              ref={arrowRef}
+              context={context}
+              fill={bgTheme}
+              stroke={borderTheme}
+              strokeWidth={1}
+            />
+          </TooltipBox>
+        </FloatingPortal>
+      )}
+    </>
+  );
+};
+const InfoModal = ({ onClose, isOpen, initialFaqQuestion, isDarkMode }) => {
   const [isClosing, setIsClosing] = useState(false);
   const customDays = useSelector((state) => state.calendar?.customDays || []);
   const [activeIndexes, setActiveIndexes] = useState([]);
@@ -729,11 +847,11 @@ const InfoModal = ({ onClose, isOpen, initialFaqQuestion }) => {
 
       const prompt = `Ти асистент проекту "Стихія". Тобі доступні дві бази даних:
       1. База FAQ: містить правила сайту та інструкції щодо розділу Погода. 
-      2. База пісень: містить повний список треків (${songAiKnowledge.length} шт), авторів, тексти пісень та візуальні ефекти (фільтри).
+      2. База пісень: містить повний список треків (${songAiKnowledge.length} шт), авторів, тексти пісень.
 
       ІНСТРУКЦІЯ:
       - Якщо запит стосується температури, вітру, УФ-індексу або роботи розділу погоди — шукай у базі FAQ.
-      - Якщо запит стосується конкретної пісні, її тривалості, тексту або ефектів — шукай у Базі пісень.
+      - Якщо запит стосується конкретної пісні, її тривалості, тексту — шукай у Базі пісень.
       - Відповідай коротко, професійно та виключно українською мовою.
 
       КОНТЕКСТ FAQ: ${faqContext.substring(0, 2000)}
@@ -821,11 +939,8 @@ const InfoModal = ({ onClose, isOpen, initialFaqQuestion }) => {
               >
                 <AnswerActionButton
                   onClick={togglePin}
-                  title={
-                    isActionsPinned ? "Відкріпити кнопки" : "Закріпити кнопки"
-                  }
                 >
-                  {isActionsPinned ? "📌" : "📍"}
+                  {isActionsPinned ? "Відкріпити зображення" : "Закріпити зображення"}
                 </AnswerActionButton>
                 <AnswerActionButton
                   onClick={(e) => {
@@ -833,7 +948,7 @@ const InfoModal = ({ onClose, isOpen, initialFaqQuestion }) => {
                     handleDownloadImage(imgSrc);
                   }}
                 >
-                  ⇩ Скачати
+                   Скачати
                 </AnswerActionButton>
                 <AnswerActionButton
                   onClick={(e) => {
@@ -841,7 +956,7 @@ const InfoModal = ({ onClose, isOpen, initialFaqQuestion }) => {
                     handlePrintImage(imgSrc);
                   }}
                 >
-                  🖨️ Друкувати
+                   Друкувати
                 </AnswerActionButton>
               </ImageActionsContainer>
             </div>
@@ -876,11 +991,8 @@ const InfoModal = ({ onClose, isOpen, initialFaqQuestion }) => {
             >
               <AnswerActionButton
                 onClick={togglePin}
-                title={
-                  isActionsPinned ? "Відкріпити кнопки" : "Закріпити кнопки"
-                }
               >
-                {isActionsPinned ? "📌" : "📍"}
+                {isActionsPinned ? "Відкріпити зображення" : "Прикріпити зображення"}
               </AnswerActionButton>
               <AnswerActionButton
                 onClick={(e) => {
@@ -888,7 +1000,7 @@ const InfoModal = ({ onClose, isOpen, initialFaqQuestion }) => {
                   handleDownloadImage(item.image);
                 }}
               >
-                ⇩ Скачати
+                Скачати
               </AnswerActionButton>
               <AnswerActionButton
                 onClick={(e) => {
@@ -896,7 +1008,7 @@ const InfoModal = ({ onClose, isOpen, initialFaqQuestion }) => {
                   handlePrintImage(item.image);
                 }}
               >
-                🖨️ Друкувати
+                Друкувати
               </AnswerActionButton>
             </ImageActionsContainer>
           </>
@@ -928,29 +1040,29 @@ const InfoModal = ({ onClose, isOpen, initialFaqQuestion }) => {
 
   return (
     <Overlay $isClosing={isClosing} onClick={handleClose}>
-      <Content $isClosing={isClosing} onClick={(e) => e.stopPropagation()}>
-        <Conten>
+      <Content $isDarkMode={isDarkMode} $isClosing={isClosing} onClick={(e) => e.stopPropagation()}>
+        <Conten $isDarkMode={isDarkMode}>
           <CloseBtn onClick={handleClose}>Зрозуміло!</CloseBtn>
-          <h1
-            style={{
-              textAlign: "center",
-              fontSize: "26px",
-              color: "#222",
-              marginTop: "-5px",
-            }}
-          >
-            Навчання
-          </h1>
-          <p
-            style={{
-              textAlign: "center",
-              fontSize: "13px",
-              color: "#000",
-              marginTop: "-8px",
-            }}
-          >
-            Останнє оновлення: 28 липня 2026 року
-          </p>
+         <h1
+  style={{
+    textAlign: "center",
+    fontSize: "26px",
+    color: isDarkMode ? "#ffffff" : "#010101",
+    marginTop: "-5px",
+  }}
+>
+  Навчання
+</h1>
+<p
+  style={{
+    textAlign: "center",
+    fontSize: "13px",
+    color: isDarkMode ? "#ffffff" : "#000000",
+    marginTop: "-8px",
+  }}
+>
+  Останнє оновлення: 30 серпня 2026 року
+</p>
           <TabsContainer>
             <TabButton
               $active={activeTab === "faq"}
@@ -1001,15 +1113,21 @@ const InfoModal = ({ onClose, isOpen, initialFaqQuestion }) => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleAskAi()}
                 />
-                <ClearBtn onClick={handleClearHistory} title="Очистити чат">
+            <Tooltip content="Очистити чат" isDarkMode={isDarkMode}>
+                <ClearBtn onClick={handleClearHistory} aria-label="Очистити чат">
                   <RiDeleteBack2Fill />
                 </ClearBtn>
+                </Tooltip>
                 {isAiLoading ? (
-                  <StopBtn onClick={handleStopGeneration} title="Зупинити">
-                    🛑
+                    <Tooltip content="Зупинити запит" isDarkMode={isDarkMode}>
+                  <StopBtn onClick={handleStopGeneration} aria-label="Зупинити запит">
+                    ◼
                   </StopBtn>
+                  </Tooltip>
                 ) : (
-                  <AcceptBtn onClick={handleAskAi}>➤</AcceptBtn>
+                    <Tooltip content="Відправити" isDarkMode={isDarkMode}>
+                  <AcceptBtn aria-label="Відправити" onClick={handleAskAi}>➤</AcceptBtn>
+                  </Tooltip>
                 )}
               </InputRow>
             </div>
@@ -1034,35 +1152,39 @@ const InfoModal = ({ onClose, isOpen, initialFaqQuestion }) => {
                 const rating = ratings[originalIndex] || 0;
                 return (
                   <AccordionItem key={originalIndex} $index={displayIndex + 1}>
-                    <Question
+                    <Question $isDarkMode={isDarkMode}
                       $rating={rating}
                       onClick={() => toggleAccordion(originalIndex)}
                     >
                       <QuestionContent>
                         <QuestionText>{item.q}</QuestionText>
                         <ArrowContainer>
+                    <Tooltip content="Корисно" isDarkMode={isDarkMode}>
                           <LikeButton
                             onClick={(e) => {
                               e.stopPropagation();
                               handleLike(originalIndex, LIKE);
                             }}
-                            title="Корисно"
+                            aria-label="Корисно"
                           >
-                            {rating === LIKE ? "❤️" : "🤍"}
+                            {rating === LIKE ? <FaHeartbeat style={{color: "blue"}}/> : <FaHeartbeat />}
                           </LikeButton>
+                          </Tooltip>
+                           <Tooltip content="Не корисно" isDarkMode={isDarkMode}>
                           <LikeButton
                             onClick={(e) => {
                               e.stopPropagation();
                               handleLike(originalIndex, DISLIKE);
                             }}
-                            title="Не корисно"
-                          >
+                            aria-label="Не корисно"
+                          >        
                             {rating === DISLIKE ? (
                               <IoHeartDislikeSharp />
                             ) : (
                               <IoHeartDislikeSharp />
                             )}
                           </LikeButton>
+                          </Tooltip>
                           <Arrow
                             $isOpen={activeIndexes.includes(originalIndex)}
                           >
@@ -1071,7 +1193,7 @@ const InfoModal = ({ onClose, isOpen, initialFaqQuestion }) => {
                         </ArrowContainer>
                       </QuestionContent>
                     </Question>
-                    <Answer $isOpen={activeIndexes.includes(originalIndex)}>
+                    <Answer  $isDarkMode={isDarkMode} $isOpen={activeIndexes.includes(originalIndex)}>
                       <AnswerContent>
                         {item.image && (
                           <>
@@ -1092,13 +1214,8 @@ const InfoModal = ({ onClose, isOpen, initialFaqQuestion }) => {
                             >
                               <AnswerActionButton
                                 onClick={togglePin}
-                                title={
-                                  isActionsPinned
-                                    ? "Відкріпити кнопки"
-                                    : "Закріпити кнопки"
-                                }
                               >
-                                {isActionsPinned ? "📌" : "📍"}
+                                {isActionsPinned ? "Відкрипити зображення" : "Закріпити зображення"}
                               </AnswerActionButton>
                               <AnswerActionButton
                                 onClick={(e) => {
@@ -1106,7 +1223,7 @@ const InfoModal = ({ onClose, isOpen, initialFaqQuestion }) => {
                                   handleDownloadImage(item.image);
                                 }}
                               >
-                                ⇩ Скачати
+                                Скачати
                               </AnswerActionButton>
                               <AnswerActionButton
                                 onClick={(e) => {
@@ -1114,7 +1231,7 @@ const InfoModal = ({ onClose, isOpen, initialFaqQuestion }) => {
                                   handlePrintImage(item.image);
                                 }}
                               >
-                                🖨️ Друкувати
+                                Друкувати
                               </AnswerActionButton>
                             </ImageActionsContainer>
                           </>
@@ -1142,7 +1259,7 @@ const InfoModal = ({ onClose, isOpen, initialFaqQuestion }) => {
                 handleDownloadImage(previewImage);
               }}
             >
-              ⇩ Скачати
+              Скачати
             </ActionButton>
             <ActionButton
               onClick={(e) => {
@@ -1150,7 +1267,7 @@ const InfoModal = ({ onClose, isOpen, initialFaqQuestion }) => {
                 handlePrintImage(previewImage);
               }}
             >
-              🖨️ Друкувати
+               Друкувати
             </ActionButton>
           </ImagePreviewActions>
           <PreviewImage

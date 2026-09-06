@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect, useRef } from "react";
 import styled, { keyframes, css } from "styled-components";
 import { BsMoonStarsFill } from "react-icons/bs";
 import BurgerMenu from "./Menu.jsx";
@@ -12,7 +12,34 @@ import paper from "../../mp3/modals/paper.mp3";
 import conimg from "../../mp3/modals/concierge.mp3";
 import { useVisualFilters } from "./useVisualFilters";
 import { useTutorial } from "../DominoTutorial/TutorialContext.jsx";
-
+import {
+  useFloating,
+  autoUpdate,
+  offset,
+  flip,
+  shift,
+  arrow,                 
+  useHover,
+  useFocus,
+  useDismiss,
+  useRole,
+  useInteractions,
+  useTransitionStyles,  
+  FloatingPortal,
+  FloatingArrow,         
+} from "@floating-ui/react";
+const TooltipBox = styled.div`
+  background-color: ${(props) => (props.$isDarkMode ? "#0c0c0cbf" : "#fdff98bb")};
+  color: ${(props) => (props.$isDarkMode ? "#ffffff" : "#1a1a1a")};
+  border: 2px solid #00afce;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, ${(props) => (props.$isDarkMode ? "0.5" : "0.15")});
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 9px;
+  z-index: 10000;
+  pointer-events: none;
+`;
 const flow = keyframes`
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
@@ -50,7 +77,11 @@ const HeaderDiv = styled.div`
 const HeaderFix = styled.div`
   display: flex;
   align-items: center;
+  flex: 1;
   min-width: 0;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 8px;
 `;
 
 const IconButton = styled.button`
@@ -67,7 +98,7 @@ const IconButton = styled.button`
 
 const EmojiWrapper = styled.span`
   display: inline-block;
-  font-size: 15px;
+  font-size: 21px;
 `;
 
 const UserName = styled.span`
@@ -107,6 +138,7 @@ const HeaderAvatar = styled.img`
   margin-right: 0;
   object-fit: cover;
   flex-shrink: 0;
+  border-radius: 50%;
   border: 1.5px solid transparent;
   box-sizing: border-box;
   background-image: ${(props) =>
@@ -121,12 +153,73 @@ const HeaderAvatar = styled.img`
       : props.$bColor || "transparent"};
 `;
 
+const ProfileButtonWrap = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+`;
+
+const ProfileButton = styled.button`
+  display: flex;
+  align-items: center;
+  background: ${(props) =>
+    props.$isDarkMode ? "rgba(255, 255, 255, 0.07)" : "rgba(0, 0, 0, 0.04)"};
+  border: 1px solid ${(props) => (props.$isDarkMode ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.12)")};
+  color: ${(props) => (props.$isDarkMode ? "#fff" : "#111")};
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+`;
+const ProfileModal = styled.div`
+  position: absolute;
+  top: 42px;
+  right: 0;
+  z-index: 2001;
+  min-width: 290px;
+  background: ${(props) =>
+    props.$isDarkMode ? "rgba(14, 14, 14, 0.96)" : "rgba(255, 255, 255, 0.96)"};
+  border: 1px solid ${(props) => (props.$isDarkMode ? "rgba(255,255,255,0.18)" : "rgba(0,0,0,0.12)")};
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.35);
+  border-radius: 14px;
+  padding: 12px 14px;
+  color: ${(props) => (props.$isDarkMode ? "#fff" : "#111")};
+`;
+
+const ProfileModalBody = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`;
+
+const ProfileModalName = styled.div`
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.2;
+`;
+
+const ProfileModalLabel = styled.div`
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  opacity: 0.7;
+  margin-bottom: 2px;
+`;
+
 const ButtonsGroup = styled.div`
   display: flex;
   align-items: center;
-  flex-direction: row-reverse;
-  @media (min-width: 768px) {
-    gap: 3px;
+  justify-content: space-between;
+  width: 100%;
+  flex: 1;
+  gap: 4px;
+    & > * {
+    flex: 1;
+    display: flex;
+    justify-content: center;
   }
 `;
 
@@ -184,7 +277,88 @@ const FilterButton = styled.button`
     background: rgba(255, 179, 108, 0.3);
   }
 `;
+export const Tooltip = ({
+  content,
+  children,
+  placement = "bottom",
+  isDarkMode = true,
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const arrowRef = useRef(null);
+const { refs, floatingStyles, context } = useFloating({
+    open: isOpen,
+    onOpenChange: setIsOpen,
+    placement,
+    strategy: "fixed",
+    transform: false, 
+    whileElementsMounted: autoUpdate,
+    middleware: [
+      offset(8),
+      flip(),
+      shift({ padding: 5 }),
+      arrow({ element: arrowRef }),
+    ],
+  });
+  const { isMounted, styles: transitionStyles } = useTransitionStyles(context, {
+    duration: 150,
+    initial: {
+      opacity: 0,
+      transform: "scale(0.9)",
+    },
+    open: {
+      opacity: 1,
+      transform: "scale(1)",
+    },
+  });
 
+  const hover = useHover(context, { move: false });
+  const focus = useFocus(context);
+  const dismiss = useDismiss(context);
+  const role = useRole(context, { role: "tooltip" });
+
+  const { getReferenceProps, getFloatingProps } = useInteractions([
+    hover,
+    focus,
+    dismiss,
+    role,
+  ]);
+
+  if (!content) return children;
+
+  const bgTheme = isDarkMode ? "#111111" : "#ffffff";
+  const borderTheme = "#00acb9";
+
+  return (
+    <>
+      <span
+        ref={refs.setReference}
+        {...getReferenceProps()}
+        style={{ display: "inline-flex" }}
+      >
+        {children}
+      </span>
+      {isMounted && (
+        <FloatingPortal>
+          <TooltipBox
+            ref={refs.setFloating}
+            $isDarkMode={isDarkMode}
+            style={{ ...floatingStyles, ...transitionStyles }}
+            {...getFloatingProps()}
+          >
+            {content}
+            <FloatingArrow
+              ref={arrowRef}
+              context={context}
+              fill={bgTheme}
+              stroke={borderTheme}
+              strokeWidth={1}
+            />
+          </TooltipBox>
+        </FloatingPortal>
+      )}
+    </>
+  );
+};
 const Header = ({
   sfxVolume = 0.2,
   onOpenLogin,
@@ -223,6 +397,28 @@ const Header = ({
   const [showUltra, setShowUltra] = useState(false);
   const [isBurgerOpen, setIsBurgerOpen] = useState(false);
   const [showVisualSettings, setShowVisualSettings] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isProfileModalOpen) return;
+
+    const handlePointerDown = (event) => {
+      const modal = document.getElementById("header-profile-modal");
+      const button = document.getElementById("header-profile-button");
+
+      if (
+        modal &&
+        !modal.contains(event.target) &&
+        button &&
+        !button.contains(event.target)
+      ) {
+        setIsProfileModalOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handlePointerDown);
+    return () => document.removeEventListener("mousedown", handlePointerDown);
+  }, [isProfileModalOpen]);
   
   const {
     visualConfig,
@@ -332,314 +528,370 @@ const Header = ({
   };
 
   return (
-    <>
-      <HeaderDiv
-        $isDarkMode={isDarkMode}
-        $isStickyBgMode={isStickyBgMode}
-        data-decorator-ignore="true"
-      >
-        <HeaderFix></HeaderFix>
-        <HeaderFix>
-          {user ? (
-            <>
-              <ButtonsGroup ref={(el) => registerRef('headerBgTheme', el)}>
-                {/* Зміна теми */}
-                <IconButton
-                  onClick={handleThemeToggle}
-                  $isDarkMode={isDarkMode}
-                  aria-label="Змінити тему"
-                >
-                  <EmojiWrapper style={{ fontSize: "17px" }}>
-                    {isDarkMode ? <FaSun /> : <BsMoonStarsFill />}
-                  </EmojiWrapper>
-                </IconButton>
+    <><HeaderDiv
+  $isDarkMode={isDarkMode}
+  $isStickyBgMode={isStickyBgMode}
+  data-decorator-ignore="true"
+>
+  <HeaderFix>
+    {user ? (
+      <>
+        <ButtonsGroup ref={(el) => registerRef('headerBgTheme', el)}>
+          {/* Зміна теми */}
+          <Tooltip content="Змінити тему" isDarkMode={isDarkMode}>
+            <IconButton
+              onClick={handleThemeToggle}
+              $isDarkMode={isDarkMode}
+              aria-label="Змінити тему"
+            >
+              <EmojiWrapper style={{ fontSize: "19px" }}>
+                {isDarkMode ? <FaSun /> : <BsMoonStarsFill />}
+              </EmojiWrapper>
+            </IconButton>
+          </Tooltip>
 
-                {/* Липкий фон */}
-                <IconButton
-                  onClick={handleStickyBgToggle}
-                  $isDarkMode={isDarkMode}
-                  aria-label="Фон на увесь сайт"
-                >
-                  <EmojiWrapper>
-                    <MdWallpaper
-                      style={{ color: isStickyBgMode ? "#ff005d" : "inherit" }}
-                    />
-                  </EmojiWrapper>
-                </IconButton>
-
-                {/* Налаштування вигляду */}
-                <IconButton
-                  onClick={handleEyeToggle}
-                  $isDarkMode={isDarkMode}
-                  aria-label="Налаштування вигляду"
-                >
-                  <EmojiWrapper style={{ marginTop: "2px", fontSize: "20px" }}>
-                    <IoIosEye />
-                  </EmojiWrapper>
-                </IconButton>
-
-                {/* Допомога (?) */}
-                <IconButton 
-                  onClick={handleHelpClick} 
-                  $isDarkMode={isDarkMode}
-                  aria-label="Допомога"
-                >
-                  <EmojiWrapper style={{ fontWeight: 900 }}>?</EmojiWrapper>
-                </IconButton>
-
-                {/* Магазин */}
-                <IconButton
-                  style={{ display: "none" }}
-                  onClick={handleShopClick}
-                  $isDarkMode={isDarkMode}
-                  aria-label="Магазин"
-                >
-                  <GiShop />
-                </IconButton>
-
-                {/* Інші опції */}
-                <IconButton
-                  onClick={handleOtherOptionsClick}
-                  $isDarkMode={isDarkMode}
-                  aria-label="Інші опції та фонова музика"
-                >
-                  <EmojiWrapper style={{ fontSize: "17px", marginTop: "2px" }}>
-                    <MdMore />
-                  </EmojiWrapper>
-                </IconButton>
-
-                {/* Налаштування */}
-                <IconButton 
-                  onClick={handleSettingsClick} 
-                  $isDarkMode={isDarkMode}
-                  aria-label="Налаштування"
-                >
-                  <EmojiWrapper>
-                    <MdSettingsSuggest />
-                  </EmojiWrapper>
-                </IconButton>
-
-                {/* Вихід */}
-                <IconButton 
-                  onClick={handleLogoutClick} 
-                  $isDarkMode={isDarkMode}
-                  aria-label="Вихід з акаунта"
-                >
-                  <EmojiWrapper>
-                    <GiExitDoor />
-                  </EmojiWrapper>
-                </IconButton>
-
-                {/* Бургер */}
-                <IconButton
-                  onClick={handleBurgerOpen}
-                  $isDarkMode={isDarkMode}
-                  aria-label="Відкрити меню"
-                >
-                  <EmojiWrapper>☰</EmojiWrapper>
-                </IconButton>
-              </ButtonsGroup>
-              <UserName $uColor={user.textColor}>{user.firstName}</UserName>
-              <HeaderAvatar src={currentAvatar} $bColor={user.borderColor} />
-            </>
-          ) : (
-            <ButtonsGroup ref={(el) => registerRef('headerBgTheme', el)}>
-              {/* Незалогінений користувач */}
-              <IconButton 
-                onClick={handleThemeToggle} 
-                $isDarkMode={isDarkMode}
-                aria-label="Змінити тему"
-              >
-                <EmojiWrapper style={{ fontSize: "18px" }}>
-                  {isDarkMode ? <FaSun /> : <BsMoonStarsFill />}
-                </EmojiWrapper>
-              </IconButton>
-
-              <IconButton
-                onClick={handleStickyBgToggle}
-                $isDarkMode={isDarkMode}
-                aria-label="Фон на увесь сайт"
-              >
-                <EmojiWrapper>
-                  <MdWallpaper
-                    style={{ color: isStickyBgMode ? "#ff005d" : "inherit" }}
-                  />
-                </EmojiWrapper>
-              </IconButton>
-
-              <IconButton
-                onClick={handleEyeToggle}
-                $isDarkMode={isDarkMode}
-                aria-label="Налаштування вигляду"
-              >
-                <EmojiWrapper>
-                  <IoIosEye />
-                </EmojiWrapper>
-              </IconButton>
-
-              <IconButton
-                onClick={handleHelpClick}
-                $isDarkMode={isDarkMode}
-                aria-label="Навчання"
-              >
-                <EmojiWrapper style={{ fontWeight: 900 }}>?</EmojiWrapper>
-              </IconButton>
-
-              <IconButton
-                onClick={handleOtherOptionsClick}
-                $isDarkMode={isDarkMode}
-                aria-label="Інші опції"
-              >
-                <EmojiWrapper>
-                  <MdMore />
-                </EmojiWrapper>
-              </IconButton>
-
-              <button
-                onClick={handleLoginClick}
-                style={{
-                  fontSize: "11px",
-                  cursor: "pointer",
-                  background: "none",
-                  border: "none",
-                  textDecoration: "underline",
-                  display: "none",
-                  color: isDarkMode ? "#fff" : "#000",
-                }}
-              >
-                Вхід
-              </button>
-
-              <button
-                onClick={handleRegisterClick}
-                style={{
-                  fontSize: "14px",
-                  cursor: "pointer",
-                  background: "none",
-                  border: "none",
-                  marginRight: "15px",
-                  textDecoration: "underline",
-                  color: isDarkMode ? "#fff" : "#000",
-                }}
-              >
-                Акаунт
-              </button>
-            </ButtonsGroup>
-          )}
-        </HeaderFix>
-        {showVisualSettings && (
-          <VisualSettingsPanel $isDarkMode={isDarkMode}>
-            <div>
-              <VisualLabel $isDarkMode={isDarkMode}>
-                Яскравість <span>{visualConfig.darkIntensity}%</span>
-              </VisualLabel>
-              <VisualRange
-                type="range"
-                min="0"
-                max="100"
-                value={visualConfig.darkIntensity}
-                onChange={(e) =>
-                  setVisualConfig((prev) => ({
-                    ...prev,
-                    darkIntensity: Number(e.target.value),
-                  }))
-                }
-                $isDarkMode={isDarkMode}
-              />
-            </div>
-
-            <FilterGrid>
-              {FILTERS.map((f) => (
-                <FilterButton
-                  key={f.id}
-                  $active={visualConfig.filterType === f.id}
-                  $isDarkMode={isDarkMode}
-                  onClick={() => handleFilterClick(f.id)}
-                >
-                  {f.label}
-                </FilterButton>
-              ))}
-            </FilterGrid>
-
-            {visualConfig.filterType !== "none" && (
-              <div>
-                <VisualLabel $isDarkMode={isDarkMode}>
-                  Сила ефекту <span>{visualConfig.filterIntensity}%</span>
-                </VisualLabel>
-                <VisualRange
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={visualConfig.filterIntensity}
-                  onChange={(e) =>
-                    setVisualConfig((prev) => ({
-                      ...prev,
-                      filterIntensity: Number(e.target.value),
-                    }))
-                  }
-                  $isDarkMode={isDarkMode}
+          {/* Липкий фон */}
+          <Tooltip content="Фон на увесь сайт" isDarkMode={isDarkMode}>
+            <IconButton
+              onClick={handleStickyBgToggle}
+              $isDarkMode={isDarkMode}
+              aria-label="Фон на увесь сайт"
+            >
+              <EmojiWrapper>
+                <MdWallpaper
+                  style={{ color: isStickyBgMode ? "#ff005d" : "inherit" }}
                 />
-              </div>
-            )}
+              </EmojiWrapper>
+            </IconButton>
+          </Tooltip>
 
-            <div style={{ marginTop: "5px" }}>
-              <VisualLabel
-                $isDarkMode={isDarkMode}
-                style={{ marginBottom: "8px" }}
-              >
-                Стилі
-              </VisualLabel>
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
-                  gap: "5px",
-                }}
-              >
-                {PRESETS.map((preset) => (
-                  <button
-                    key={preset.id}
-                    style={{
-                      background: "transparent",
-                      border: "1px solid #ffb36c",
-                      color: isDarkMode ? "#ffb36c" : "#333",
-                      borderRadius: "6px",
-                      padding: "5px",
-                      fontSize: "10px",
-                      fontWeight: "bold",
-                      cursor: "pointer",
-                    }}
-                    onClick={() => handlePresetClick(preset.config)}
-                  >
-                    {preset.label}
-                  </button>
-                ))}
-                {customPresets.map((preset) => (
-                  <button
-                    key={preset.id}
-                    style={{
-                      background: "rgba(255, 179, 108, 0.1)",
-                      border: "1px solid #7afcff",
-                      color: isDarkMode ? "#7afcff" : "#006666",
-                      borderRadius: "6px",
-                      padding: "5px",
-                      fontSize: "10px",
-                      fontWeight: "bold",
-                      cursor: "pointer",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                    }}
-                    onClick={() => handlePresetClick(preset.config)}
-                  >
-                    {preset.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </VisualSettingsPanel>
-        )}
-      </HeaderDiv>
+          {/* Налаштування вигляду */}
+          <Tooltip content="Налаштування вигляду" isDarkMode={isDarkMode}>
+            <IconButton
+              onClick={handleEyeToggle}
+              $isDarkMode={isDarkMode}
+              aria-label="Налаштування вигляду"
+            >
+              <EmojiWrapper style={{ marginTop: "2px", fontSize: "24px" }}>
+                <IoIosEye />
+              </EmojiWrapper>
+            </IconButton>
+          </Tooltip>
 
+          {/* Допомога (?) */}
+          <Tooltip content="Допомога" isDarkMode={isDarkMode}>
+            <IconButton 
+              onClick={handleHelpClick} 
+              $isDarkMode={isDarkMode}
+              aria-label="Допомога"
+            >
+              <EmojiWrapper style={{ fontWeight: 900 }}>?</EmojiWrapper>
+            </IconButton>
+          </Tooltip>
+
+          {/* Магазин */}
+          <Tooltip content="Спонсорство" isDarkMode={isDarkMode}>
+            <IconButton
+              onClick={handleShopClick}
+              $isDarkMode={isDarkMode}
+              aria-label="Спонсорство"
+            >
+              <GiShop />
+            </IconButton>
+          </Tooltip>
+
+          {/* Інші опції */}
+          <Tooltip content="Інші опції та фонова музика" isDarkMode={isDarkMode}>
+            <IconButton
+              onClick={handleOtherOptionsClick}
+              $isDarkMode={isDarkMode}
+              aria-label="Інші опції та фонова музика"
+            >
+              <EmojiWrapper style={{ fontSize: "19px", marginTop: "2px" }}>
+                <MdMore />
+              </EmojiWrapper>
+            </IconButton>
+          </Tooltip>
+
+          {/* Налаштування */}
+          <Tooltip content="Налаштування" isDarkMode={isDarkMode}>
+            <IconButton 
+              onClick={handleSettingsClick} 
+              $isDarkMode={isDarkMode}
+              aria-label="Налаштування"
+            >
+              <EmojiWrapper>
+                <MdSettingsSuggest />
+              </EmojiWrapper>
+            </IconButton>
+          </Tooltip>
+
+          {/* Вихід */}
+          <Tooltip content="Вихід з акаунта" isDarkMode={isDarkMode}>
+            <IconButton 
+              onClick={handleLogoutClick} 
+              $isDarkMode={isDarkMode}
+              aria-label="Вихід з акаунта"
+            >
+              <EmojiWrapper>
+                <GiExitDoor />
+              </EmojiWrapper>
+            </IconButton>
+          </Tooltip>
+
+          {/* Бургер */}
+          <Tooltip content="Відкрити меню" isDarkMode={isDarkMode}>
+            <IconButton
+              onClick={handleBurgerOpen}
+              $isDarkMode={isDarkMode}
+              aria-label="Відкрити меню"
+            >
+              <EmojiWrapper>☰</EmojiWrapper>
+            </IconButton>
+          </Tooltip>
+        </ButtonsGroup>
+        <ProfileButtonWrap>
+          <Tooltip content="Ваш профіль" isDarkMode={isDarkMode}>
+          <ProfileButton
+            id="header-profile-button"
+            $isDarkMode={isDarkMode}
+            onClick={() => setIsProfileModalOpen((prev) => !prev)}
+            aria-label="Профіль користувача"
+          >
+            <HeaderAvatar
+              src={currentAvatar}
+              $bColor={user.borderColor}
+              style={{ width: "33px", height: "33px" }}
+            />
+          </ProfileButton>
+         </Tooltip>
+          {isProfileModalOpen && (
+            <ProfileModal
+              id="header-profile-modal"
+              $isDarkMode={isDarkMode}
+            >
+              <ProfileModalBody>
+                <HeaderAvatar
+                  src={currentAvatar}
+                  $bColor={user.borderColor}
+                  style={{ width: "42px", height: "42px" }}
+                />
+                <div>
+                  <ProfileModalLabel>Профіль</ProfileModalLabel>
+                   <ProfileModalName>Ваше ім'я: {user.firstName}</ProfileModalName>
+                </div>
+              </ProfileModalBody>
+            </ProfileModal>
+          )}
+        </ProfileButtonWrap>
+      </>
+    ) : (
+      <ButtonsGroup ref={(el) => registerRef('headerBgTheme', el)}>
+        {/* Незалогінений користувач */}
+        <Tooltip content="Змінити тему" isDarkMode={isDarkMode}>
+          <IconButton 
+            onClick={handleThemeToggle} 
+            $isDarkMode={isDarkMode}
+            aria-label="Змінити тему"
+          >
+            <EmojiWrapper style={{ fontSize: "18px" }}>
+              {isDarkMode ? <FaSun /> : <BsMoonStarsFill />}
+            </EmojiWrapper>
+          </IconButton>
+        </Tooltip>
+
+        <Tooltip content="Фон на увесь сайт" isDarkMode={isDarkMode}>
+          <IconButton
+            onClick={handleStickyBgToggle}
+            $isDarkMode={isDarkMode}
+            aria-label="Фон на увесь сайт"
+          >
+            <EmojiWrapper>
+              <MdWallpaper
+                style={{ color: isStickyBgMode ? "#ff005d" : "inherit" }}
+              />
+            </EmojiWrapper>
+          </IconButton>
+        </Tooltip>
+
+        <Tooltip content="Налаштування вигляду" isDarkMode={isDarkMode}>
+          <IconButton
+            onClick={handleEyeToggle}
+            $isDarkMode={isDarkMode}
+            aria-label="Налаштування вигляду"
+          >
+            <EmojiWrapper>
+              <IoIosEye />
+            </EmojiWrapper>
+          </IconButton>
+        </Tooltip>
+
+        <Tooltip content="Навчання" isDarkMode={isDarkMode}>
+          <IconButton
+            onClick={handleHelpClick}
+            $isDarkMode={isDarkMode}
+            aria-label="Навчання"
+          >
+            <EmojiWrapper style={{ fontWeight: 900 }}>?</EmojiWrapper>
+          </IconButton>
+        </Tooltip>
+
+        <Tooltip content="Інші опції" isDarkMode={isDarkMode}>
+          <IconButton
+            onClick={handleOtherOptionsClick}
+            $isDarkMode={isDarkMode}
+            aria-label="Інші опції"
+          >
+            <EmojiWrapper>
+              <MdMore />
+            </EmojiWrapper>
+          </IconButton>
+        </Tooltip>
+
+        <button
+          onClick={handleLoginClick}
+          style={{
+            fontSize: "11px",
+            cursor: "pointer",
+            background: "none",
+            border: "none",
+            textDecoration: "underline",
+            display: "none",
+            color: isDarkMode ? "#fff" : "#000",
+          }}
+        >
+          Вхід
+        </button>
+
+        <button
+          onClick={handleRegisterClick}
+          style={{
+            fontSize: "14px",
+            cursor: "pointer",
+            background: "none",
+            border: "none",
+            marginRight: "15px",
+            textDecoration: "underline",
+            color: isDarkMode ? "#fff" : "#000",
+          }}
+        >
+          Акаунт
+        </button>
+      </ButtonsGroup>
+    )}
+  </HeaderFix>
+  {showVisualSettings && (
+    <VisualSettingsPanel $isDarkMode={isDarkMode}>
+      <div>
+        <VisualLabel $isDarkMode={isDarkMode}>
+          Яскравість <span>{visualConfig.darkIntensity}%</span>
+        </VisualLabel>
+        <VisualRange
+          type="range"
+          min="0"
+          max="100"
+          value={visualConfig.darkIntensity}
+          onChange={(e) =>
+            setVisualConfig((prev) => ({
+              ...prev,
+              darkIntensity: Number(e.target.value),
+            }))
+          }
+          $isDarkMode={isDarkMode}
+        />
+      </div>
+
+      <FilterGrid>
+        {FILTERS.map((f) => (
+          <FilterButton
+            key={f.id}
+            $active={visualConfig.filterType === f.id}
+            $isDarkMode={isDarkMode}
+            onClick={() => handleFilterClick(f.id)}
+          >
+            {f.label}
+          </FilterButton>
+        ))}
+      </FilterGrid>
+
+      {visualConfig.filterType !== "none" && (
+        <div>
+          <VisualLabel $isDarkMode={isDarkMode}>
+            Сила ефекту <span>{visualConfig.filterIntensity}%</span>
+          </VisualLabel>
+          <VisualRange
+            type="range"
+            min="0"
+            max="100"
+            value={visualConfig.filterIntensity}
+            onChange={(e) =>
+              setVisualConfig((prev) => ({
+                ...prev,
+                filterIntensity: Number(e.target.value),
+              }))
+            }
+            $isDarkMode={isDarkMode}
+          />
+        </div>
+      )}
+
+      <div style={{ marginTop: "5px" }}>
+        <VisualLabel
+          $isDarkMode={isDarkMode}
+          style={{ marginBottom: "8px" }}
+        >
+          Стилі
+        </VisualLabel>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "5px",
+          }}
+        >
+          {PRESETS.map((preset) => (
+            <button
+              key={preset.id}
+              style={{
+                background: "transparent",
+                border: "1px solid #ffb36c",
+                color: isDarkMode ? "#ffb36c" : "#333",
+                borderRadius: "6px",
+                padding: "5px",
+                fontSize: "10px",
+                fontWeight: "bold",
+                cursor: "pointer",
+              }}
+              onClick={() => handlePresetClick(preset.config)}
+            >
+              {preset.label}
+            </button>
+          ))}
+          {customPresets.map((preset) => (
+            <button
+              key={preset.id}
+              style={{
+                background: "rgba(255, 179, 108, 0.1)",
+                border: "1px solid #7afcff",
+                color: isDarkMode ? "#7afcff" : "#006666",
+                borderRadius: "6px",
+                padding: "5px",
+                fontSize: "10px",
+                fontWeight: "bold",
+                cursor: "pointer",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+              onClick={() => handlePresetClick(preset.config)}
+            >
+              {preset.label}
+            </button>
+          ))}
+        </div>
+      </div>
+    </VisualSettingsPanel>
+  )}
+</HeaderDiv>
       <BurgerMenu
         isOpen={isBurgerOpen}
         onClose={() => setIsBurgerOpen(false)}

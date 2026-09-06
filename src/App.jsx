@@ -11,6 +11,7 @@ import {
 } from "react";
 import styled, { keyframes, css, createGlobalStyle } from "styled-components";
 import localforage from "localforage";
+import { GiSnowing } from "react-icons/gi";
 import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 //import { useSelector } from "react-redux";
 import Loader from "./components/Loader/Loader.jsx";
@@ -37,12 +38,9 @@ import userDefault from "./photos/hero-header/user.webp";
 import turkeys from "./photos/vip-images/turkeys/ultra-vip-turkeys.webp";
 import dragons from "./photos/vip-images/dinofroz/vip-dragons.webp";
 import horrordog from "./photos/vip-images/horror/horror.webp";
-import rooster from "./photos/vip-images/vip-rooster.webp";
+
 import nicerone from "./photos/vip-images/dinofroz/vip-dinofroz.webp";
-import soloveyko from "./photos/vip-images/vip-soloveyko.webp";
 import flame from "./photos/vip-images/flame.webp";
-import finances from "./photos/fan-art/finance.webp";
-import parol from "./photos/fan-art/parol.webp";
 // Ресурси для фонового завантаження кат-сцени
 import dinofrozVideo from "./mp3/dinofroz.mp4";
 import startImage from "./photos/hero-header/fogtwo.webp";
@@ -57,8 +55,126 @@ import "./App.css";
 import Header from "./components/Header/Header.jsx";
 import Hero from "./components/Hero/Hero.jsx";
 import { DecoratorProvider } from "./components/Decorator/DecoratorContext.jsx";
+import { sanitizeWeatherCards } from "./utils/weatherPersistence.js";
+import { IoThunderstorm, IoRainy } from "react-icons/io5";
 import DecoratorOverlay from "./components/Decorator/DecoratorOverlay.jsx";
+import { analyzeSearchQuery } from "./utils/searchAnalyzer.js";
+import { findCityInDatabase } from "./utils/citiesDatabase.js";
+import {
+  useFloating,
+  autoUpdate,
+  offset,
+  flip,
+  shift,
+  arrow,                 
+  useHover,
+  useFocus,
+  useDismiss,
+  useRole,
+  useInteractions,
+  useTransitionStyles,  
+  FloatingPortal,
+  FloatingArrow,         
+} from "@floating-ui/react";
+import { FaSmog } from "react-icons/fa6";
+import { FaSun } from "react-icons/fa";
+import { BsMoonStarsFill } from "react-icons/bs";
+import { FaCloudMoonRain, FaCloudMoon } from "react-icons/fa";
+import { LiaCloudSunRainSolid, LiaCloudMoonRainSolid } from "react-icons/lia";
+const Tooltipso = styled.div`
+  background-color: ${(props) => (props.$isDarkMode ? "#0c0c0cbf" : "#fdff98bb")};
+  color: ${(props) => (props.$isDarkMode ? "#ffffff" : "#1a1a1a")};
+  border: 2px solid #00afce;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, ${(props) => (props.$isDarkMode ? "0.5" : "0.15")});
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 9px;
+  z-index: 10000;
+`;
 
+export const TooltipS = ({
+  content,
+  children,
+  placement = "bottom",
+  isDarkMode = true,
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const arrowRef = useRef(null);
+const { refs, floatingStyles, context } = useFloating({
+    open: isOpen,
+    onOpenChange: setIsOpen,
+    placement,
+    strategy: "fixed",
+    transform: false, 
+    whileElementsMounted: autoUpdate,
+    middleware: [
+      offset(8),
+      flip(),
+      shift({ padding: 5 }),
+      arrow({ element: arrowRef }),
+    ],
+  });
+  const { isMounted, styles: transitionStyles } = useTransitionStyles(context, {
+    duration: 150,
+    initial: {
+      opacity: 0,
+      transform: "scale(0.9)",
+    },
+    open: {
+      opacity: 1,
+      transform: "scale(1)",
+    },
+  });
+
+  const hover = useHover(context, { move: false });
+  const focus = useFocus(context);
+  const dismiss = useDismiss(context);
+  const role = useRole(context, { role: "tooltip" });
+
+  const { getReferenceProps, getFloatingProps } = useInteractions([
+    hover,
+    focus,
+    dismiss,
+    role,
+  ]);
+
+  if (!content) return children;
+
+  const bgTheme = isDarkMode ? "#111111" : "#ffffff";
+  const borderTheme = "#00acb9";
+
+  return (
+    <>
+      <span
+        ref={refs.setReference}
+        {...getReferenceProps()}
+        style={{ display: "inline-flex" }}
+      >
+        {children}
+      </span>
+      {isMounted && (
+        <FloatingPortal>
+          <Tooltipso
+            ref={refs.setFloating}
+            $isDarkMode={isDarkMode}
+            style={{ ...floatingStyles, ...transitionStyles }}
+            {...getFloatingProps()}
+          >
+            {content}
+            <FloatingArrow
+              ref={arrowRef}
+              context={context}
+              fill={bgTheme}
+              stroke={borderTheme}
+              strokeWidth={1}
+            />
+          </Tooltipso>
+        </FloatingPortal>
+      )}
+    </>
+  );
+};
 const Prison = lazy(() => import("./components/Prison/Prison.jsx"));
 const Aihelp = lazy(() => import("./components/Aihelp/Aihelp.jsx"));
 const FanArt = lazy(() => import("./components/FanArt/FanArt.jsx"));
@@ -133,9 +249,9 @@ ChartJS.register(
   Legend,
   Filler,
 );
-const getWeatherIcon = (code) => {
-  if (code === 0) return "☀️ Ясно";
-  if (code >= 1 && code <= 3) return "🌤️ Мінлива хмарність";
+const getWeatherIcon = (code, isDay = 1) => {
+  if (code === 0) return isDay ? "☀️ Ясно" : "🌙 Ясно";
+  if (code >= 1 && code <= 3) return isDay ? "🌤️ Мінлива хмарність" : "☁️ Мінлива хмарність";
   if (code >= 45 && code <= 48) return "☁️ Туман";
   if (code >= 51 && code <= 55) return "🌧️ Мряка";
   if (code >= 56 && code <= 57) return "🌧️ Мряка з снігом";
@@ -149,20 +265,36 @@ const getWeatherIcon = (code) => {
   return "☁️ Хмарно";
 };
 
-const getWeatherIconSymbol = (code) => {
-  if (code === 0) return "☀️";
-  if (code >= 1 && code <= 3) return "🌤️";
-  if (code >= 45 && code <= 48) return "☁️";
+const getWeatherSummaryText = (code, isDay = 1) => {
+  if (code === 0) return isDay ? "ясно" : "ясно вночі";
+  if (code >= 1 && code <= 3) return isDay ? "мінлива хмарність" : "хмарно вночі";
+  if (code >= 45 && code <= 48) return "туман";
+  if (code >= 51 && code <= 55) return "мряка";
+  if (code >= 56 && code <= 57) return "мряка зі снігом";
+  if (code >= 61 && code <= 65) return "дощ";
+  if (code >= 66 && code <= 67) return "дощ зі снігом";
+  if (code >= 71 && code <= 75) return "сніг";
+  if (code === 77) return "сніжна крупа";
+  if (code >= 80 && code <= 82) return "зливовий дощ";
+  if (code >= 85 && code <= 86) return "зливовий сніг";
+  if (code >= 95 && code <= 99) return "гроза";
+  return "хмарно";
+};
+
+const getWeatherIconSymbol = (code, isDay = 1) => {
+  if (code === 0) return isDay ? <FaSun /> : <BsMoonStarsFill />;
+  if (code >= 1 && code <= 3) return isDay ? "🌤️" : <FaCloudMoon />;
+  if (code >= 45 && code <= 48) return <FaSmog/>;
   if (code >= 51 && code <= 55) return "🌧️";
   if (code >= 56 && code <= 57) return "🌧️";
-  if (code >= 61 && code <= 65) return "🌧️";
-  if (code >= 66 && code <= 67) return "🌧️";
-  if (code >= 71 && code <= 75) return "❄️";
-  if (code === 77) return "❄️";
-  if (code >= 80 && code <= 82) return "🌦️";
-  if (code >= 85 && code <= 86) return "❄️";
-  if (code >= 95 && code <= 99) return "⛈️";
-  return "☁️";
+  if (code >= 61 && code <= 65) return isDay ? <LiaCloudSunRainSolid /> : <FaCloudMoonRain />;
+  if (code >= 66 && code <= 67) return isDay ? <LiaCloudSunRainSolid /> : <FaCloudMoonRain />;
+  if (code >= 71 && code <= 75) return <GiSnowing />;
+  if (code === 77) return <GiSnowing />;
+  if (code >= 80 && code <= 82) return isDay ? <LiaCloudSunRainSolid /> : <LiaCloudMoonRainSolid />;
+  if (code >= 85 && code <= 86) return <GiSnowing />;
+  if (code >= 95 && code <= 99) return <IoThunderstorm />;
+  return <FaSmog/>;
 };
 const ThemeWrapper = styled.div`
   background-color: ${(props) =>
@@ -329,6 +461,15 @@ const LOADING_PHRASES = [
   "Mondo TV - Thanks for legendary cartoons.",
   "Раз, два, три. Погоду нам скажи!",
   "Це початок початку чи початок кінця відсилкам? (Перший варіант)",
+  "Вверх - ти летиш! Вниз - ти падаєш! ",  
+  "Чорний айсберг, потопив ......? ",  
+    "Доміно тривожить Єллоустон",  
+        "Я знаю що її звати ......",  
+        "",  
+        "Вам приснилися сни про погоду? Бо ви тут! :)",  
+   "Вам приснився жах що ...... і ...... програли і....",  
+  "Ти ж знаєш, що відсилки - це не просто картинки і відео, а ще й загадки та сюжети :)",
+  "Ліків у нас немає, їх украв доктор Хаус. Але погода лікує від усього :)",
 ];
 
 const phraseFlyOut = keyframes`
@@ -699,7 +840,7 @@ const App = () => {
         if (savedLibSettings) setLibraryBgSettings(savedLibSettings);
 
         const savedCards = await localforage.getItem("weather_cards");
-        if (savedCards) setWeatherCards(savedCards);
+        if (savedCards) setWeatherCards(sanitizeWeatherCards(savedCards));
 
         const savedHideUntil = await localforage.getItem(
           "hideDeleteModalUntil",
@@ -1009,9 +1150,12 @@ const App = () => {
   const [siteSections, setSiteSections] = useState([...DEFAULT_SITE_SECTIONS]);
   useEffect(() => {
     if (isHydrated) {
-      localforage.setItem("weather_cards", weatherCards);
+      const cleanWeatherCards = sanitizeWeatherCards(weatherCards);
+      localforage.setItem("weather_cards", cleanWeatherCards).catch((err) => {
+        console.error("weather_cards persistence failed:", err);
+      });
       if (userRef.current?.uid) {
-        const metadata = weatherCards.map((c) => ({
+        const metadata = cleanWeatherCards.map((c) => ({
           id: c.id,
           isMain: c.isMain,
           locationName: c.locationName,
@@ -1089,6 +1233,24 @@ const App = () => {
     };
     syncFromFirestore();
   }, [user, isHydrated]);
+
+  useEffect(() => {
+    const hydrateWeatherCards = async () => {
+      try {
+        const savedCards = await localforage.getItem("weather_cards");
+        if (savedCards) {
+          const sanitized = sanitizeWeatherCards(savedCards);
+          setWeatherCards(sanitized);
+        }
+      } catch (error) {
+        console.error("weather_cards hydration failed:", error);
+      }
+    };
+
+    if (isHydrated) {
+      hydrateWeatherCards();
+    }
+  }, [isHydrated]);
 
   useEffect(() => {
     if (isHydrated) {
@@ -1484,7 +1646,7 @@ const App = () => {
   }, [weatherCards]);
 
   const fetchWeather = useCallback(
-    async (cityData, isMain, lat = null, lon = null) => {
+    async (cityData, isMain, lat = null, lon = null, insertAtFirst = false) => {
       try {
         let targetLat = lat;
         let targetLon = lon;
@@ -1498,17 +1660,25 @@ const App = () => {
           targetLon = cityData.lon;
           displayName = cityData.fullName || displayName;
         } else if (typeof cityData === "string") {
-          const geo = await axios.get(
-            `https://geocoding-api.open-meteo.com/v1/search?name=${cityData}&count=1&language=uk`,
-          );
-          if (geo.data.results && geo.data.results[0]) {
-            targetLat = geo.data.results[0].latitude;
-            targetLon = geo.data.results[0].longitude;
-            displayName = geo.data.results[0].name;
-            cityData = { id: Date.now() }; // Створюємо об'єкт для нової картки
+          const dbMatch = findCityInDatabase(cityData);
+          if (dbMatch) {
+            targetLat = dbMatch.lat;
+            targetLon = dbMatch.lon;
+            displayName = dbMatch.fullName;
+            cityData = { id: `search-${dbMatch.name.toLowerCase()}` };
           } else {
-            alert("Місто не знайдено в базі Open-Meteo");
-            return;
+            const geo = await axios.get(
+              `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cityData)}&count=1&language=uk`,
+            );
+            if (geo.data.results && geo.data.results[0]) {
+              targetLat = geo.data.results[0].latitude;
+              targetLon = geo.data.results[0].longitude;
+              displayName = geo.data.results[0].name;
+              cityData = { id: Date.now() }; // Створюємо об'єкт для нової картки
+            } else {
+              alert("Місто не знайдено в базі Open-Meteo");
+              return;
+            }
           }
         }
 
@@ -1569,7 +1739,7 @@ const App = () => {
           }
         }
 
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${targetLat}&longitude=${targetLon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m,surface_pressure,cloud_cover,visibility,dew_point_2m,temperature_80m&hourly=temperature_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m,relative_humidity_2m,dew_point_2m,precipitation,rain,pressure_msl,cloud_cover,visibility&daily=weather_code,temperature_2m_max,temperature_2m_min,uv_index_max,wind_speed_10m_max,wind_direction_10m_dominant,precipitation_probability_max,rain_sum,precipitation_sum,sunrise,sunset&timezone=auto&past_days=1&forecast_days=16`;
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${targetLat}&longitude=${targetLon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m,surface_pressure,cloud_cover,visibility,dew_point_2m,temperature_80m,is_day&hourly=temperature_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m,relative_humidity_2m,dew_point_2m,precipitation,rain,pressure_msl,cloud_cover,visibility,is_day&daily=weather_code,temperature_2m_max,temperature_2m_min,uv_index_max,wind_speed_10m_max,wind_direction_10m_dominant,precipitation_probability_max,rain_sum,precipitation_sum,sunrise,sunset&timezone=auto&past_days=1&forecast_days=16`;
         console.log("Fetching weather from URL:", url);
         const res = await axios.get(url);
         const d = res.data;
@@ -1620,23 +1790,36 @@ const App = () => {
           });
         }
 
-        // Логіка сповіщень про небезпечну погоду
+        // Логіка сповіщень: один короткий огляд погоди на годину без спаму
         if ("Notification" in window && Notification.permission === "granted") {
-          const temp = Math.round(d.current.temperature_2m);
-          const wind = d.current.wind_speed_10m ?? 0;
-          const uv = d.daily?.uv_index_max?.[0] ?? 0;
-          const extremeConditions = [];
+          const now = Date.now();
+          const lastNotificationMs = Number(
+            window.localStorage.getItem("weatherNotificationLastSentAt") || 0,
+          );
 
-          if (temp > 30) extremeConditions.push(`Спека ${temp}°C`);
-          if (temp < -30) extremeConditions.push(`Мороз ${temp}°C`);
-          if (wind > 10) extremeConditions.push(`Сильний вітер ${wind} м/с`);
-          if (uv > 7) extremeConditions.push(`Високий УФ-індекс ${uv}`);
+          if (now - lastNotificationMs >= 60 * 60 * 1000) {
+            const temp = Math.round(d.current.temperature_2m);
+            const feelsLike = Math.round(d.current.apparent_temperature);
+            const wind = d.current.wind_speed_10m ?? 0;
+            const humidity = d.current.relative_humidity_2m ?? 0;
+            const weatherText = getWeatherSummaryText(
+              d.current.weather_code,
+              d.current.is_day,
+            );
 
-          if (extremeConditions.length > 0) {
-            new Notification(`⚠️ Погода: ${displayName}`, {
-              body: `Виявлено небезпечні умови: ${extremeConditions.join(", ")}. Будьте обережні!`,
+            const body = `Температура ${temp}°C${
+              feelsLike !== temp ? `, відчувається ${feelsLike}°C` : ""
+            }, ${weatherText}, вітер ${wind} м/с, вологість ${humidity}%.`;
+
+            new Notification(`🌤️ Погода: ${displayName}`, {
+              body,
               icon: "/favicon.ico",
             });
+
+            window.localStorage.setItem(
+              "weatherNotificationLastSentAt",
+              String(now),
+            );
           }
         }
         const nowLocal = new Date();
@@ -1690,14 +1873,23 @@ const App = () => {
               dew_point_2m: d.current.dew_point_2m ?? 0,
               temperature_80m: d.current.temperature_80m ?? 0,
               description: "За кодом: " + d.current.weather_code,
-              iconPlaceholder: getWeatherIcon(d.current.weather_code),
-              iconSymbol: getWeatherIconSymbol(d.current.weather_code),
+              iconPlaceholder: getWeatherIcon(d.current.weather_code, d.current.is_day),
+              iconSymbol: getWeatherIconSymbol(d.current.weather_code, d.current.is_day),
             },
             hourly: (d.hourly?.time || [])
               .slice(hStartIndex, hStartIndex + hourlyForecastLimit)
               .map((t, i) => {
                 const dataIdx = hStartIndex + i;
                 const timestamp = new Date(t);
+                const dateStr = t.slice(0, 10);
+                const dayIdx = (d.daily?.time || []).indexOf(dateStr);
+                let hourIsDay = 1;
+                if (dayIdx !== -1 && d.daily?.sunrise?.[dayIdx] && d.daily?.sunset?.[dayIdx]) {
+                  hourIsDay = (t >= d.daily.sunrise[dayIdx] && t <= d.daily.sunset[dayIdx]) ? 1 : 0;
+                } else {
+                  const hr = timestamp.getHours();
+                  hourIsDay = (hr >= 6 && hr < 21) ? 1 : 0;
+                }
                 return {
                   time: `${String(timestamp.getHours()).padStart(2, "0")}:00`,
                   dateLabel: timestamp.toLocaleDateString("uk", {
@@ -1722,9 +1914,11 @@ const App = () => {
                   visibility: d.hourly?.visibility?.[dataIdx] ?? 0,
                   iconPlaceholder: getWeatherIcon(
                     d.hourly?.weather_code?.[dataIdx] ?? 0,
+                    hourIsDay
                   ),
                   iconSymbol: getWeatherIconSymbol(
                     d.hourly?.weather_code?.[dataIdx] ?? 0,
+                    hourIsDay
                   ),
                 };
               }),
@@ -1747,9 +1941,9 @@ const App = () => {
               precipitation_sum: d.daily.precipitation_sum?.[i] ?? 0,
               sunrise: d.daily.sunrise?.[i] ?? null,
               sunset: d.daily.sunset?.[i] ?? null,
-              iconPlaceholder: getWeatherIcon(d.daily.weather_code[i] ?? 0),
-              iconSymbol: getWeatherIconSymbol(d.daily.weather_code[i] ?? 0),
-              description: getWeatherIcon(d.daily.weather_code[i] ?? 0),
+              iconPlaceholder: getWeatherIcon(d.daily.weather_code[i] ?? 0, 1),
+              iconSymbol: getWeatherIconSymbol(d.daily.weather_code[i] ?? 0, 1),
+              description: getWeatherIcon(d.daily.weather_code[i] ?? 0, 1),
             })),
           };
 
@@ -1763,6 +1957,11 @@ const App = () => {
               ?.slice(0, 2)
               .map((d) => d.wind_speed),
           });
+
+          if (insertAtFirst) {
+            const filtered = prev.filter((c) => c.id !== id);
+            return [newCardData, ...filtered];
+          }
 
           if (isMain) {
             const hasMain = prev.some((c) => c.isMain);
@@ -1957,6 +2156,43 @@ const App = () => {
   useEffect(() => {
     getInitialLocation();
   }, [getInitialLocation]);
+
+  // 1.5. Аналіз пошукового запиту під капотом ("погода конотоп" -> індекс 0 + автоскрол)
+  useEffect(() => {
+    if (!isHydrated) return;
+    const analysis = analyzeSearchQuery(window.location.search, window.location.hash);
+    if (analysis.isSearchEntry && analysis.cityName) {
+      const city = analysis.cityData;
+
+      // Динамічне оновлення заголовка та мета-опису як у Gismeteo / Sinoptik
+      document.title = `Погода в місті ${analysis.cityName} — точний прогноз | Стихія`;
+      const metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc) {
+        metaDesc.setAttribute(
+          "content",
+          `Точний прогноз погоди в місті ${analysis.cityName}: температура, вітер, вологість, тиск та графік на 16 днів.`
+        );
+      }
+
+      fetchWeather(
+        city.lat !== null
+          ? { id: city.id, fullName: city.fullName, lat: city.lat, lon: city.lon }
+          : city.name,
+        false,
+        city.lat,
+        city.lon,
+        true // insertAtFirst = true (індекс 0, для першості)
+      );
+
+      // Автоскрол до картки погоди
+      setTimeout(() => {
+        const weatherEl = document.getElementById("weather");
+        if (weatherEl) {
+          weatherEl.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 700);
+    }
+  }, [isHydrated, fetchWeather]);
 
   // 2. Перевірка актуальності даних при завантаженні (якщо сьогодні 30-те, а дані за 25-те)
   useEffect(() => {
@@ -2162,6 +2398,7 @@ const App = () => {
           setHeroBg3={setHeroBg3}
           heroBg4={heroBg4}
           setHeroBg4={setHeroBg4}
+           isDarkMode={isDarkMode}
           customHeroBgs={customHeroBgs}
           setCustomHeroBgs={setCustomHeroBgs}
           heroBgMode={heroBgMode}
@@ -2602,6 +2839,7 @@ const App = () => {
             )}
             {isUserSearchOpen && (
               <TermsModal
+              isDarkMode={isDarkMode}
                 isOpen={isUserSearchOpen}
                 onClose={() => setIsUserSearchOpen(false)}
               />
@@ -2656,14 +2894,16 @@ const App = () => {
             )}
           </Suspense>
           {showUpdateTimer && (
+            <TooltipS content="Налаштування вигляду" isDarkMode={isDarkMode}>
             <UpdateTimerBadge
               $isDarkMode={isDarkMode}
               onClick={handleManualBulkRefresh}
-              title="Показує час оновлення картки теперішньої погоди і ШІ прогноз."
+              aria-label="Показує час оновлення картки теперішньої погоди і ШІ прогноз."
             >
               Оновлення погоди через: {Math.floor(secondsUntilUpdate / 60)}:
               {(secondsUntilUpdate % 60).toString().padStart(2, "0")}
             </UpdateTimerBadge>
+            </TooltipS>
           )}
           <DecoratorOverlay isStickyBgMode={isStickyBgMode} />
         </div>

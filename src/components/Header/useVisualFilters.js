@@ -51,9 +51,13 @@ if (typeof document !== "undefined") {
   style.id = "visual-filters-animations";
   style.innerHTML = `
     @keyframes ultrachaos-anim {
-      0% { filter: brightness(var(--v-bright)) contrast(130%) saturate(180%) hue-rotate(0deg); }
-      50% { filter: brightness(var(--v-bright)) contrast(200%) saturate(350%) hue-rotate(180deg) blur(1px); }
-      100% { filter: brightness(var(--v-bright)) contrast(130%) saturate(180%) hue-rotate(360deg); }
+      0% { filter: brightness(var(--v-bright)) contrast(var(--v-contrast-min)) saturate(var(--v-saturate-min)) hue-rotate(0deg); }
+      50% { filter: brightness(var(--v-bright)) contrast(var(--v-contrast-max)) saturate(var(--v-saturate-max)) hue-rotate(180deg) blur(var(--v-blur-max)); }
+      100% { filter: brightness(var(--v-bright)) contrast(var(--v-contrast-min)) saturate(var(--v-saturate-min)) hue-rotate(360deg); }
+    }
+    @keyframes rainbow-anim {
+      0% { filter: brightness(var(--v-bright)) hue-rotate(0deg); }
+      100% { filter: brightness(var(--v-bright)) hue-rotate(360deg); }
     }
   `;
   if (!document.getElementById(style.id)) {
@@ -70,9 +74,35 @@ export const applyFilterEffect = (config) => {
 
   // Обробка спеціальних анімованих фільтрів
   if (filterType === "ultrachaos") {
+    // Dynamic values based on filterIntensity (0 to 100)
+    const contrastMin = 100 + filterIntensity * 0.6; // e.g. 130% at intensity 50
+    const contrastMax = 100 + filterIntensity * 2;   // e.g. 200% at intensity 50
+    const saturateMin = 100 + filterIntensity * 1.6; // e.g. 180% at intensity 50
+    const saturateMax = 100 + filterIntensity * 5;   // e.g. 350% at intensity 50
+    const blurMax = filterIntensity / 50;            // e.g. 1px at intensity 50
+
     document.documentElement.style.setProperty("--v-bright", `${brightness}%`);
-    document.documentElement.style.animation =
-      "ultrachaos-anim 4s infinite linear";
+    document.documentElement.style.setProperty("--v-contrast-min", `${contrastMin}%`);
+    document.documentElement.style.setProperty("--v-contrast-max", `${contrastMax}%`);
+    document.documentElement.style.setProperty("--v-saturate-min", `${saturateMin}%`);
+    document.documentElement.style.setProperty("--v-saturate-max", `${saturateMax}%`);
+    document.documentElement.style.setProperty("--v-blur-max", `${blurMax}px`);
+
+    document.documentElement.style.animation = "ultrachaos-anim 4s infinite linear";
+    return;
+  }
+
+  if (filterType === "hue") {
+    document.documentElement.style.setProperty("--v-bright", `${brightness}%`);
+    // Speed of rainbow rotation depends on intensity (intensity 0-100)
+    // At intensity 50 -> 4 seconds. Higher intensity -> faster (e.g. 200 / intensity).
+    const duration = filterIntensity > 0 ? (200 / filterIntensity) : 0;
+    if (duration > 0) {
+      document.documentElement.style.animation = `rainbow-anim ${duration}s infinite linear`;
+    } else {
+      document.documentElement.style.animation = "none";
+      document.documentElement.style.filter = `brightness(${brightness}%) hue-rotate(0deg)`;
+    }
     return;
   }
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled, { keyframes } from "styled-components";
-import { useDecorator } from "./DecoratorContext";
+import { useDecorator, getUniqueSelector } from "./DecoratorContext";
 
 const fadeIn = keyframes`
   from { opacity: 0; }
@@ -96,7 +96,7 @@ const Body = styled.div`
   padding: 16px 20px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 `;
 
 const ModeTabsContainer = styled.div`
@@ -133,9 +133,9 @@ const Tab = styled.button`
 
 const PropRow = styled.div`
   display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 12px;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 14px;
   background: rgba(255, 255, 255, 0.04);
   border-radius: 10px;
   transition: background 0.15s;
@@ -145,11 +145,9 @@ const PropRow = styled.div`
 `;
 
 const PropLabel = styled.label`
-  font-size: 12px;
-  font-weight: 600;
-  color: #a6adc8;
-  min-width: 100px;
-  font-family: monospace;
+  font-size: 13px;
+  font-weight: bold;
+  color: #ffb36c;
 `;
 
 const PropInput = styled.input`
@@ -157,7 +155,7 @@ const PropInput = styled.input`
   background: rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(255, 179, 108, 0.3);
   color: #cdd6f4;
-  padding: 6px 10px;
+  padding: 7px 12px;
   border-radius: 8px;
   font-size: 12px;
   font-family: monospace;
@@ -169,7 +167,7 @@ const PropInput = styled.input`
 
 const ColorInput = styled.input`
   width: 36px;
-  height: 28px;
+  height: 30px;
   border: 2px solid rgba(255, 179, 108, 0.4);
   border-radius: 6px;
   cursor: pointer;
@@ -229,23 +227,88 @@ const PassthroughBtn = styled(ActionBtn)`
   }
 `;
 
-const EDITABLE_PROPS = [
-  { key: "color", label: "color", type: "color" },
-  { key: "backgroundColor", label: "background", type: "color" },
-  { key: "border", label: "border", type: "text" },
-  { key: "borderRadius", label: "border-radius", type: "text" },
-  { key: "boxShadow", label: "box-shadow", type: "text" },
-  { key: "textShadow", label: "text-shadow", type: "text" },
-  { key: "backdropFilter", label: "backdrop-filter", type: "text" },
-  { key: "filter", label: "filter", type: "text" },
-  { key: "outline", label: "outline", type: "text" },
-  { key: "textDecoration", label: "text-decoration", type: "text" },
-  { key: "cursor", label: "cursor", type: "text" },
-];
+const EDITABLE_PROPS_CONFIG = {
+  color: {
+    label: "Колір тексту",
+    cssProp: "color",
+    type: "color",
+    desc: "Змінює колір шрифту елемента"
+  },
+  backgroundColor: {
+    label: "Колір фону",
+    cssProp: "backgroundColor",
+    type: "color",
+    desc: "Змінює фоновий колір елемента"
+  },
+  border: {
+    label: "Рамка (бордюр)",
+    cssProp: "border",
+    type: "border",
+    desc: "Налаштування межі елемента"
+  },
+  borderRadius: {
+    label: "Заокруглення кутів",
+    cssProp: "borderRadius",
+    type: "text",
+    placeholder: "напр., 8px або 50%",
+    desc: "Радіус заокруглення рамки"
+  },
+  boxShadow: {
+    label: "Тінь елемента",
+    cssProp: "boxShadow",
+    type: "text",
+    placeholder: "напр., 0 4px 10px rgba(0,0,0,0.3)",
+    desc: "Додає ефект тіні навколо елемента"
+  },
+  textShadow: {
+    label: "Тінь тексту",
+    cssProp: "textShadow",
+    type: "text",
+    placeholder: "напр., 1px 1px 2px #000",
+    desc: "Ефект тіні для тексту"
+  },
+  backdropFilter: {
+    label: "Розмиття фону",
+    cssProp: "backdropFilter",
+    type: "text",
+    placeholder: "напр., blur(10px)",
+    desc: "Ефекти для фону (скляний ефект)"
+  },
+  filter: {
+    label: "Фільтри",
+    cssProp: "filter",
+    type: "text",
+    placeholder: "напр., grayscale(50%)",
+    desc: "Ефекти зображення/кольору"
+  },
+  outline: {
+    label: "Контур",
+    cssProp: "outline",
+    type: "text",
+    placeholder: "напр., 2px solid red",
+    desc: "Зовнішня рамка елемента"
+  },
+  textDecoration: {
+    label: "Декорування тексту",
+    cssProp: "textDecoration",
+    type: "text",
+    placeholder: "напр., underline або none",
+    desc: "Підкреслення, закреслення тощо"
+  },
+  cursor: {
+    label: "Курсор миші",
+    cssProp: "cursor",
+    type: "cursor",
+    desc: "Вигляд курсора при наведенні"
+  },
+};
+
+const EDITABLE_PROPS = Object.values(EDITABLE_PROPS_CONFIG);
 
 const rgbToHex = (rgb) => {
   if (!rgb || rgb === "transparent" || rgb === "rgba(0, 0, 0, 0)")
     return "#000000";
+  if (rgb.startsWith("#")) return rgb;
   const match = rgb.match(/\d+/g);
   if (!match || match.length < 3) return "#000000";
   return (
@@ -257,6 +320,32 @@ const rgbToHex = (rgb) => {
   );
 };
 
+const parseBorder = (borderStr) => {
+  if (!borderStr || borderStr === "none") {
+    return { width: "0px", style: "none", color: "#000000" };
+  }
+  const parts = borderStr.split(/\s+/);
+  let width = "1px";
+  let style = "solid";
+  let color = "#000000";
+
+  parts.forEach(part => {
+    if (/^\d+(px|em|rem|%|pt)$/.test(part) || /^\d+$/.test(part)) {
+      width = part.includes("px") || part.includes("em") || part.includes("rem") || part.includes("%") || part.includes("pt") ? part : part + "px";
+    } else if (["solid", "double", "dashed", "dotted", "groove", "ridge", "inset", "outset", "none"].includes(part)) {
+      style = part;
+    } else if (part.startsWith("#") || part.startsWith("rgb") || part.startsWith("hsl") || /^[a-zA-Z]+$/.test(part)) {
+      color = part;
+    }
+  });
+  return { width, style, color };
+};
+
+const combineBorder = (width, style, color) => {
+  if (style === "none" || width === "0px") return "none";
+  return `${width} ${style} ${color}`;
+};
+
 const DecoratorModal = ({ targetElement, onClose, isStickyBgMode }) => {
   const { applyStyle, getOverridesForElement, isDarkMode } = useDecorator();
 
@@ -266,17 +355,7 @@ const DecoratorModal = ({ targetElement, onClose, isStickyBgMode }) => {
   const currentMode = `${activeTheme}_${activeState}`;
 
   const tagName = targetElement?.tagName?.toLowerCase() || "?";
-  const elementId = targetElement
-    ? targetElement.getAttribute("data-decorator-id") ||
-      targetElement.id ||
-      tagName + "-" + Math.random().toString(36).slice(2, 7)
-    : "";
-
-  useEffect(() => {
-    if (targetElement && !targetElement.getAttribute("data-decorator-id")) {
-      targetElement.setAttribute("data-decorator-id", elementId);
-    }
-  }, [targetElement, elementId]);
+  const elementId = targetElement ? getUniqueSelector(targetElement) : "";
 
   const [editedStyles, setEditedStyles] = useState({});
 
@@ -305,19 +384,19 @@ const DecoratorModal = ({ targetElement, onClose, isStickyBgMode }) => {
         const modeStyles = editedStyles[mode] || {};
         const oldStyles = existing[mode] || {};
 
-        EDITABLE_PROPS.forEach(({ key }) => {
-          if (modeStyles[key] !== oldStyles[key]) {
-            if (modeStyles[key]) {
+        EDITABLE_PROPS.forEach(({ cssProp }) => {
+          if (modeStyles[cssProp] !== oldStyles[cssProp]) {
+            if (modeStyles[cssProp]) {
               applyStyle(
                 elementId,
                 tagName,
-                key,
-                oldStyles[key],
-                modeStyles[key],
+                cssProp,
+                oldStyles[cssProp],
+                modeStyles[cssProp],
                 mode,
               );
-            } else if (oldStyles[key]) {
-              applyStyle(elementId, tagName, key, oldStyles[key], "", mode);
+            } else if (oldStyles[cssProp]) {
+              applyStyle(elementId, tagName, cssProp, oldStyles[cssProp], "", mode);
             }
           }
         });
@@ -348,29 +427,33 @@ const DecoratorModal = ({ targetElement, onClose, isStickyBgMode }) => {
 
   let previewCss = "";
   if (editedStyles) {
+    const selector = elementId.includes(" > ") || elementId.includes("#") || elementId.includes(":") 
+      ? elementId 
+      : `[data-decorator-id="${elementId}"]`;
+
     if (editedStyles.light_default) {
-      previewCss += `body:not(.decorator-dark-mode) [data-decorator-id="${elementId}"] { `;
+      previewCss += `body:not(.decorator-dark-mode) ${selector} { `;
       Object.entries(editedStyles.light_default).forEach(([prop, val]) => {
         previewCss += `${prop.replace(/([A-Z])/g, "-$1").toLowerCase()}: ${val} !important; `;
       });
       previewCss += `}\n`;
     }
     if (editedStyles.light_hover) {
-      previewCss += `body:not(.decorator-dark-mode) [data-decorator-id="${elementId}"]:hover { `;
+      previewCss += `body:not(.decorator-dark-mode) ${selector}:hover { `;
       Object.entries(editedStyles.light_hover).forEach(([prop, val]) => {
         previewCss += `${prop.replace(/([A-Z])/g, "-$1").toLowerCase()}: ${val} !important; `;
       });
       previewCss += `}\n`;
     }
     if (editedStyles.dark_default) {
-      previewCss += `body.decorator-dark-mode [data-decorator-id="${elementId}"] { `;
+      previewCss += `body.decorator-dark-mode ${selector} { `;
       Object.entries(editedStyles.dark_default).forEach(([prop, val]) => {
         previewCss += `${prop.replace(/([A-Z])/g, "-$1").toLowerCase()}: ${val} !important; `;
       });
       previewCss += `}\n`;
     }
     if (editedStyles.dark_hover) {
-      previewCss += `body.decorator-dark-mode [data-decorator-id="${elementId}"]:hover { `;
+      previewCss += `body.decorator-dark-mode ${selector}:hover { `;
       Object.entries(editedStyles.dark_hover).forEach(([prop, val]) => {
         previewCss += `${prop.replace(/([A-Z])/g, "-$1").toLowerCase()}: ${val} !important; `;
       });
@@ -433,34 +516,161 @@ const DecoratorModal = ({ targetElement, onClose, isStickyBgMode }) => {
             </TabGroup>
           </ModeTabsContainer>
 
-          {EDITABLE_PROPS.map(({ key, label, type }) => (
-            <PropRow key={key}>
-              <PropLabel>{label}</PropLabel>
-              {type === "color" ? (
-                <>
-                  <ColorInput
-                    type="color"
-                    value={rgbToHex(currentModeStyles[key])}
-                    onChange={(e) => handleChange(key, e.target.value)}
-                    data-decorator-ignore="true"
-                  />
-                  <PropInput
-                    value={currentModeStyles[key] || ""}
-                    onChange={(e) => handleChange(key, e.target.value)}
-                    placeholder="успадковується"
-                    data-decorator-ignore="true"
-                  />
-                </>
-              ) : (
-                <PropInput
-                  value={currentModeStyles[key] || ""}
-                  onChange={(e) => handleChange(key, e.target.value)}
-                  placeholder="успадковується"
-                  data-decorator-ignore="true"
-                />
-              )}
-            </PropRow>
-          ))}
+          {EDITABLE_PROPS.map(({ cssProp, label, type, placeholder, desc }) => {
+            const val = currentModeStyles[cssProp] || "";
+
+            return (
+              <PropRow key={cssProp}>
+                <div style={{ display: "flex", flexDirection: "column", width: "100%", gap: "5px" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <PropLabel>{label}</PropLabel>
+                    <span style={{ fontSize: "10px", color: "#858da3" }}>{desc}</span>
+                  </div>
+
+                  {type === "color" && (
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                      <ColorInput
+                        type="color"
+                        value={rgbToHex(val)}
+                        onChange={(e) => handleChange(cssProp, e.target.value)}
+                        data-decorator-ignore="true"
+                      />
+                      <PropInput
+                        value={val}
+                        onChange={(e) => handleChange(cssProp, e.target.value)}
+                        placeholder="напр., #ffb36c або transparent"
+                        data-decorator-ignore="true"
+                      />
+                    </div>
+                  )}
+
+                  {type === "cursor" && (
+                    <select
+                      value={val}
+                      onChange={(e) => handleChange(cssProp, e.target.value)}
+                      data-decorator-ignore="true"
+                      style={{
+                        background: "rgba(0, 0, 0, 0.3)",
+                        border: "1px solid rgba(255, 179, 108, 0.3)",
+                        color: "#cdd6f4",
+                        padding: "7px 10px",
+                        borderRadius: "8px",
+                        fontSize: "12px",
+                        outline: "none",
+                        width: "100%"
+                      }}
+                    >
+                      <option value="">успадковується (default)</option>
+                      <option value="default">стрілка (default)</option>
+                      <option value="pointer">вказівник / посилання (pointer)</option>
+                      <option value="grab">захоплення / рука відкрито (grab)</option>
+                      <option value="grabbing">рука стиснута (grabbing)</option>
+                      <option value="zoom-in">збільшення (zoom-in)</option>
+                      <option value="zoom-out">зменшення (zoom-out)</option>
+                      <option value="text">виділення тексту (text)</option>
+                      <option value="not-allowed">заборонено (not-allowed)</option>
+                      <option value="help">довідка (help)</option>
+                      <option value="wait">очікування (wait)</option>
+                      <option value="move">переміщення (move)</option>
+                    </select>
+                  )}
+
+                  {type === "border" && (() => {
+                    const parsed = parseBorder(val);
+                    return (
+                      <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", alignItems: "center" }}>
+                        <select
+                          value={parsed.width}
+                          onChange={(e) => {
+                            const newBorder = combineBorder(e.target.value, parsed.style, parsed.color);
+                            handleChange(cssProp, newBorder);
+                          }}
+                          data-decorator-ignore="true"
+                          style={{
+                            background: "rgba(0, 0, 0, 0.3)",
+                            border: "1px solid rgba(255, 179, 108, 0.3)",
+                            color: "#cdd6f4",
+                            padding: "7px 8px",
+                            borderRadius: "8px",
+                            fontSize: "12px",
+                            outline: "none",
+                            flex: 1
+                          }}
+                        >
+                          <option value="0px">0px</option>
+                          <option value="1px">1px</option>
+                          <option value="2px">2px</option>
+                          <option value="3px">3px</option>
+                          <option value="4px">4px</option>
+                          <option value="5px">5px</option>
+                          <option value="8px">8px</option>
+                          <option value="10px">10px</option>
+                        </select>
+
+                        <select
+                          value={parsed.style}
+                          onChange={(e) => {
+                            const newBorder = combineBorder(parsed.width, e.target.value, parsed.color);
+                            handleChange(cssProp, newBorder);
+                          }}
+                          data-decorator-ignore="true"
+                          style={{
+                            background: "rgba(0, 0, 0, 0.3)",
+                            border: "1px solid rgba(255, 179, 108, 0.3)",
+                            color: "#cdd6f4",
+                            padding: "7px 8px",
+                            borderRadius: "8px",
+                            fontSize: "12px",
+                            outline: "none",
+                            flex: 2
+                          }}
+                        >
+                          <option value="none">немає (none)</option>
+                          <option value="solid">суцільна (solid)</option>
+                          <option value="double">подвійна (double)</option>
+                          <option value="dashed">штрихова (dashed)</option>
+                          <option value="dotted">пунктирна (dotted)</option>
+                          <option value="groove">3D жолоб (groove)</option>
+                          <option value="ridge">3D гребінь (ridge)</option>
+                          <option value="inset">3D втиснута (inset)</option>
+                          <option value="outset">3D витиснута (outset)</option>
+                        </select>
+
+                        <ColorInput
+                          type="color"
+                          value={rgbToHex(parsed.color)}
+                          onChange={(e) => {
+                            const newBorder = combineBorder(parsed.width, parsed.style, e.target.value);
+                            handleChange(cssProp, newBorder);
+                          }}
+                          data-decorator-ignore="true"
+                        />
+                        <PropInput
+                          value={parsed.color}
+                          onChange={(e) => {
+                            const newBorder = combineBorder(parsed.width, parsed.style, e.target.value);
+                            handleChange(cssProp, newBorder);
+                          }}
+                          placeholder="#ffb36c"
+                          data-decorator-ignore="true"
+                          style={{ flex: 2, minWidth: "70px" }}
+                        />
+                      </div>
+                    );
+                  })()}
+
+                  {type === "text" && (
+                    <PropInput
+                      value={val}
+                      onChange={(e) => handleChange(cssProp, e.target.value)}
+                      placeholder={placeholder || "успадковується"}
+                      data-decorator-ignore="true"
+                    />
+                  )}
+                </div>
+              </PropRow>
+            );
+          })}
         </Body>
 
         <Footer>
