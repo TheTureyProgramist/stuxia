@@ -37,7 +37,21 @@
       type="application/xml"
       title="Sitemap"
       href="/sitemap.xml"
-    /><script>
+    />
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Стихія",
+      "alternateName": ["Стихія Погода", "Stuxia Weather"],
+      "url": "https://stuxia.com/",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://stuxia.com/?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script><script>
 (function () {
   const noop = function () {};
   ['log', 'warn', 'info', 'debug', 'error', 'trace', 'dir'].forEach(method => {

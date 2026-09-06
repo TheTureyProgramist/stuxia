@@ -2174,6 +2174,34 @@ const App = () => {
         );
       }
 
+      // Канонічне посилання та розширена мікророзмітка Schema.org для Google
+      let canonical = document.querySelector('link[rel="canonical"]');
+      if (canonical) {
+        canonical.setAttribute(
+          "href",
+          `https://stuxia.com/?q=погода+${encodeURIComponent(analysis.cityName.toLowerCase())}`
+        );
+      }
+
+      let jsonLd = document.getElementById("city-jsonld");
+      if (!jsonLd) {
+        jsonLd = document.createElement("script");
+        jsonLd.id = "city-jsonld";
+        jsonLd.type = "application/ld+json";
+        document.head.appendChild(jsonLd);
+      }
+      jsonLd.textContent = JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Place",
+        "name": analysis.cityName,
+        "description": `Точний прогноз погоди в місті ${analysis.cityName}`,
+        "address": {
+          "@type": "PostalAddress",
+          "addressCountry": "UA",
+          "addressLocality": analysis.cityName
+        }
+      });
+
       fetchWeather(
         city.lat !== null
           ? { id: city.id, fullName: city.fullName, lat: city.lat, lon: city.lon }
